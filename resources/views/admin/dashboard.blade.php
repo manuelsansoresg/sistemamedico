@@ -1,0 +1,93 @@
+<x-admin-layout>
+    <div class="py-10 bg-white">
+        <div class="max-w-[1600px] mx-auto sm:px-6 lg:px-8">
+            <div class="text-center mb-10">
+                <h2 class="text-xl font-bold text-[#2563EB] tracking-wide">PANEL PRINCIPAL</h2>
+            </div>
+
+            <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6 px-4">
+                <!-- Usuarios -->
+                <a href="#" class="flex flex-col items-center justify-center p-8 bg-white border border-gray-100 rounded-2xl shadow-[0_2px_15px_-3px_rgba(0,0,0,0.07),0_10px_20px_-2px_rgba(0,0,0,0.04)] hover:shadow-lg transition-all duration-300 group h-48">
+                    <div class="w-20 h-20 bg-blue-50 rounded-full flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300">
+                        <i class="fas fa-users text-3xl text-[#2563EB]"></i>
+                    </div>
+                    <span class="font-bold text-gray-800 text-sm tracking-wide">USUARIOS</span>
+                </a>
+
+                <!-- Clínica -->
+                <a href="{{ route('clinicas.index') }}" class="flex flex-col items-center justify-center p-8 bg-white border border-gray-100 rounded-2xl shadow-[0_2px_15px_-3px_rgba(0,0,0,0.07),0_10px_20px_-2px_rgba(0,0,0,0.04)] hover:shadow-lg transition-all duration-300 group h-48">
+                    <div class="w-20 h-20 bg-blue-50 rounded-full flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300">
+                        <i class="fas fa-hospital-alt text-3xl text-[#2563EB]"></i>
+                    </div>
+                    <span class="font-bold text-gray-800 text-sm tracking-wide">CLÍNICA</span>
+                </a>
+
+                <!-- Consultorios -->
+                <a href="{{ route('consultorios.index') }}" class="flex flex-col items-center justify-center p-8 bg-white border border-gray-100 rounded-2xl shadow-[0_2px_15px_-3px_rgba(0,0,0,0.07),0_10px_20px_-2px_rgba(0,0,0,0.04)] hover:shadow-lg transition-all duration-300 group h-48">
+                    <div class="w-20 h-20 bg-blue-50 rounded-full flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300">
+                        <i class="fas fa-building text-3xl text-[#2563EB]"></i>
+                    </div>
+                    <span class="font-bold text-gray-800 text-sm tracking-wide">CONSULTORIOS</span>
+                </a>
+
+                <!-- Paciente -->
+                <a href="#" class="flex flex-col items-center justify-center p-8 bg-white border border-gray-100 rounded-2xl shadow-[0_2px_15px_-3px_rgba(0,0,0,0.07),0_10px_20px_-2px_rgba(0,0,0,0.04)] hover:shadow-lg transition-all duration-300 group h-48">
+                    <div class="w-20 h-20 bg-blue-50 rounded-full flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300">
+                        <i class="fas fa-user text-3xl text-[#2563EB]"></i>
+                    </div>
+                    <span class="font-bold text-gray-800 text-sm tracking-wide">PACIENTE</span>
+                </a>
+
+                <!-- Citas -->
+                <a href="#" class="flex flex-col items-center justify-center p-8 bg-white border border-gray-100 rounded-2xl shadow-[0_2px_15px_-3px_rgba(0,0,0,0.07),0_10px_20px_-2px_rgba(0,0,0,0.04)] hover:shadow-lg transition-all duration-300 group h-48">
+                    <div class="w-20 h-20 bg-blue-50 rounded-full flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300">
+                        <i class="fas fa-calendar-alt text-3xl text-[#2563EB]"></i>
+                    </div>
+                    <span class="font-bold text-gray-800 text-sm tracking-wide">CITAS</span>
+                </a>
+
+                <!-- Expedientes -->
+                <a href="#" class="flex flex-col items-center justify-center p-8 bg-white border border-gray-100 rounded-2xl shadow-[0_2px_15px_-3px_rgba(0,0,0,0.07),0_10px_20px_-2px_rgba(0,0,0,0.04)] hover:shadow-lg transition-all duration-300 group h-48">
+                    <div class="w-20 h-20 bg-blue-50 rounded-full flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300">
+                        <i class="fas fa-folder-open text-3xl text-[#2563EB]"></i>
+                    </div>
+                    <span class="font-bold text-gray-800 text-sm tracking-wide">EXPEDIENTES</span>
+                </a>
+
+                <!-- Segunda fila - Centrada en pantallas grandes usando col-start -->
+                
+                <!-- Plantillas -->
+                <a href="#" class="flex flex-col items-center justify-center p-8 bg-white border border-gray-100 rounded-2xl shadow-[0_2px_15px_-3px_rgba(0,0,0,0.07),0_10px_20px_-2px_rgba(0,0,0,0.04)] hover:shadow-lg transition-all duration-300 group h-48 lg:col-start-2">
+                    <div class="w-20 h-20 bg-blue-50 rounded-full flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300">
+                        <i class="fas fa-edit text-3xl text-[#2563EB]"></i>
+                    </div>
+                    <span class="font-bold text-gray-800 text-sm tracking-wide">PLANTILLAS</span>
+                </a>
+
+                <!-- Catalogo -->
+                <a href="{{ route('catalogos.index') }}" class="flex flex-col items-center justify-center p-8 bg-white border border-gray-100 rounded-2xl shadow-[0_2px_15px_-3px_rgba(0,0,0,0.07),0_10px_20px_-2px_rgba(0,0,0,0.04)] hover:shadow-lg transition-all duration-300 group h-48">
+                    <div class="w-20 h-20 bg-blue-50 rounded-full flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300">
+                        <i class="fas fa-list-ul text-3xl text-[#2563EB]"></i>
+                    </div>
+                    <span class="font-bold text-gray-800 text-sm tracking-wide">CATALOGO</span>
+                </a>
+
+                <!-- Paquetes -->
+                <a href="{{ route('paquetes.index') }}" class="flex flex-col items-center justify-center p-8 bg-white border border-gray-100 rounded-2xl shadow-[0_2px_15px_-3px_rgba(0,0,0,0.07),0_10px_20px_-2px_rgba(0,0,0,0.04)] hover:shadow-lg transition-all duration-300 group h-48">
+                    <div class="w-20 h-20 bg-blue-50 rounded-full flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300">
+                        <i class="fas fa-box-open text-3xl text-[#2563EB]"></i>
+                    </div>
+                    <span class="font-bold text-gray-800 text-sm tracking-wide">PAQUETES</span>
+                </a>
+
+                <!-- Configuración -->
+                <a href="{{ route('configuraciones.index') }}" class="flex flex-col items-center justify-center p-8 bg-white border border-gray-100 rounded-2xl shadow-[0_2px_15px_-3px_rgba(0,0,0,0.07),0_10px_20px_-2px_rgba(0,0,0,0.04)] hover:shadow-lg transition-all duration-300 group h-48">
+                    <div class="w-20 h-20 bg-blue-50 rounded-full flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300">
+                        <i class="fas fa-cog text-3xl text-[#2563EB]"></i>
+                    </div>
+                    <span class="font-bold text-gray-800 text-sm tracking-wide">CONFIGURACIÓN</span>
+                </a>
+            </div>
+        </div>
+    </div>
+</x-admin-layout>
