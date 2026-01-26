@@ -37,6 +37,18 @@
                         {{ __('Consultorios') }}
                     </x-nav-link>
 
+                    <x-nav-link :href="route('especialidades.index')" :active="request()->routeIs('especialidades.*')">
+                        {{ __('Especialidades') }}
+                    </x-nav-link>
+
+                    <x-nav-link :href="route('users.index')" :active="request()->routeIs('users.*')">
+                        {{ __('Usuarios') }}
+                    </x-nav-link>
+
+                    <x-nav-link :href="route('horarios.index')" :active="request()->routeIs('horarios.*')">
+                        {{ __('Horarios') }}
+                    </x-nav-link>
+
                     <x-nav-link :href="route('configuraciones.index')" :active="request()->routeIs('configuraciones.*')">
                         {{ __('Configuración') }}
                     </x-nav-link>
@@ -116,6 +128,18 @@
 
             <x-responsive-nav-link :href="route('consultorios.index')" :active="request()->routeIs('consultorios.*')">
                 {{ __('Consultorios') }}
+            </x-responsive-nav-link>
+
+            <x-responsive-nav-link :href="route('especialidades.index')" :active="request()->routeIs('especialidades.*')">
+                {{ __('Especialidades') }}
+            </x-responsive-nav-link>
+
+            <x-responsive-nav-link :href="route('users.index')" :active="request()->routeIs('users.*')">
+                {{ __('Usuarios') }}
+            </x-responsive-nav-link>
+
+            <x-responsive-nav-link :href="route('horarios.index')" :active="request()->routeIs('horarios.*')">
+                {{ __('Horarios') }}
             </x-responsive-nav-link>
 
             <x-responsive-nav-link :href="route('configuraciones.index')" :active="request()->routeIs('configuraciones.*')">

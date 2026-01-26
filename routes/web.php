@@ -19,6 +19,16 @@ Route::middleware(['auth', 'role:root'])->group(function () {
     Route::resource('admin/configuraciones', \App\Http\Controllers\ConfiguracionController::class);
     Route::resource('admin/clinicas', \App\Http\Controllers\ClinicaController::class);
     Route::resource('admin/consultorios', \App\Http\Controllers\ConsultorioController::class);
+    Route::resource('admin/especialidades', \App\Http\Controllers\EspecialidadController::class);
+    Route::resource('admin/users', \App\Http\Controllers\UserController::class);
+    
+    // Horarios Routes
+    Route::get('admin/horarios', [\App\Http\Controllers\HorarioController::class, 'index'])->name('horarios.index');
+    Route::get('admin/horarios/manage', [\App\Http\Controllers\HorarioController::class, 'manage'])->name('horarios.manage');
+    Route::post('admin/horarios', [\App\Http\Controllers\HorarioController::class, 'store'])->name('horarios.store');
+
+    // Pacientes Routes
+    Route::resource('admin/pacientes', \App\Http\Controllers\PacienteController::class);
 });
 
 Route::middleware('auth')->group(function () {

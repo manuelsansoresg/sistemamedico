@@ -1,5 +1,5 @@
 <x-admin-layout>
-    <div class="py-12">
+    <div class="py-10">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
             <!-- Breadcrumbs -->
             <nav class="flex mb-4" aria-label="Breadcrumb">
@@ -19,75 +19,56 @@
                 </ol>
             </nav>
 
-            <div class="flex justify-between items-center mb-6">
-                <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-                    {{ __('Consultorios') }}
-                </h2>
-                <a href="{{ route('consultorios.create') }}" class="px-4 py-2 bg-blue-600 text-white font-bold rounded-md hover:bg-blue-700 transition-colors shadow-sm flex items-center">
-                    <i class="fas fa-plus mr-2"></i> NUEVO CONSULTORIO
-                </a>
-            </div>
-
-            @if (session('success'))
-                <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative mb-4" role="alert">
-                    <strong class="font-bold">¡Éxito!</strong>
-                    <span class="block sm:inline">{{ session('success') }}</span>
-                </div>
-            @endif
-
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
-                <div class="p-6 text-gray-900">
+                <div class="p-6 bg-white border-b border-gray-200">
+                    <div class="flex justify-between items-center mb-6">
+                        <h2 class="text-xl font-bold text-gray-800">Listado de Consultorios</h2>
+                        <a href="{{ route('consultorios.create') }}" class="px-4 py-2 bg-blue-600 text-white font-bold rounded-md hover:bg-blue-700 transition-colors shadow-sm flex items-center">
+                            <i class="fas fa-plus mr-2"></i> NUEVO CONSULTORIO
+                        </a>
+                    </div>
+
+                    @if (session('success'))
+                        <div class="mb-4 p-4 bg-green-100 text-green-700 rounded-lg">
+                            {{ session('success') }}
+                        </div>
+                    @endif
+
                     <div class="overflow-x-auto">
                         <table class="min-w-full divide-y divide-gray-200">
                             <thead class="bg-gray-50">
                                 <tr>
-                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        Nombre
-                                    </th>
-                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        Teléfono
-                                    </th>
-                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        Estado
-                                    </th>
-                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        Creado Por
-                                    </th>
-                                    <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        Acciones
-                                    </th>
+                                    <th class="px-6 py-3 text-left text-xs font-bold text-blue-600 uppercase tracking-wider">NOMBRE</th>
+                                    <th class="px-6 py-3 text-left text-xs font-bold text-blue-600 uppercase tracking-wider">TELÉFONO</th>
+                                    <th class="px-6 py-3 text-left text-xs font-bold text-blue-600 uppercase tracking-wider">ESTADO</th>
+                                    <th class="px-6 py-3 text-left text-xs font-bold text-blue-600 uppercase tracking-wider">CREADO POR</th>
+                                    <th class="px-6 py-3 text-right text-xs font-bold text-blue-600 uppercase tracking-wider">ACCIONES</th>
                                 </tr>
                             </thead>
                             <tbody class="bg-white divide-y divide-gray-200">
                                 @forelse ($consultorios as $consultorio)
                                     <tr>
-                                        <td class="px-6 py-4 whitespace-nowrap">
-                                            <div class="text-sm font-medium text-gray-900">{{ $consultorio->nombre }}</div>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-cyan-500">{{ $consultorio->nombre }}</td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-cyan-500">{{ $consultorio->telefono }}</td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-cyan-500">
+                                            {{ $consultorio->activo ? 'Activo' : 'Inactivo' }}
                                         </td>
-                                        <td class="px-6 py-4 whitespace-nowrap">
-                                            <div class="text-sm text-gray-500">{{ $consultorio->telefono }}</div>
-                                        </td>
-                                        <td class="px-6 py-4 whitespace-nowrap">
-                                            @if($consultorio->activo)
-                                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
-                                                    Activo
-                                                </span>
-                                            @else
-                                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">
-                                                    Inactivo
-                                                </span>
-                                            @endif
-                                        </td>
-                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-cyan-500">
                                             {{ $consultorio->creator->name ?? 'Desconocido' }}
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                            <a href="{{ route('consultorios.edit', $consultorio) }}" class="text-indigo-600 hover:text-indigo-900 mr-3">Editar</a>
-                                            <form action="{{ route('consultorios.destroy', $consultorio) }}" method="POST" class="inline-block" onsubmit="return confirm('¿Estás seguro de que deseas eliminar este consultorio?');">
-                                                @csrf
-                                                @method('DELETE')
-                                                <button type="submit" class="text-red-600 hover:text-red-900">Eliminar</button>
-                                            </form>
+                                            <div class="flex justify-end items-center space-x-2">
+                                                <a href="{{ route('consultorios.edit', $consultorio) }}" class="inline-flex items-center justify-center w-9 h-9 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors shadow-sm" title="Editar">
+                                                    <i class="fas fa-edit"></i>
+                                                </a>
+                                                <form action="{{ route('consultorios.destroy', $consultorio) }}" method="POST" class="inline-block" onsubmit="return confirm('¿Estás seguro de que deseas eliminar este consultorio?');">
+                                                    @csrf
+                                                    @method('DELETE')
+                                                    <button type="submit" class="inline-flex items-center justify-center w-9 h-9 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors shadow-sm" title="Eliminar">
+                                                        <i class="fas fa-trash"></i>
+                                                    </button>
+                                                </form>
+                                            </div>
                                         </td>
                                     </tr>
                                 @empty

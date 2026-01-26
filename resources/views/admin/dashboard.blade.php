@@ -7,7 +7,7 @@
 
             <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6 px-4">
                 <!-- Usuarios -->
-                <a href="#" class="flex flex-col items-center justify-center p-8 bg-white border border-gray-100 rounded-2xl shadow-[0_2px_15px_-3px_rgba(0,0,0,0.07),0_10px_20px_-2px_rgba(0,0,0,0.04)] hover:shadow-lg transition-all duration-300 group h-48">
+                <a href="{{ route('users.index') }}" class="flex flex-col items-center justify-center p-8 bg-white border border-gray-100 rounded-2xl shadow-[0_2px_15px_-3px_rgba(0,0,0,0.07),0_10px_20px_-2px_rgba(0,0,0,0.04)] hover:shadow-lg transition-all duration-300 group h-48">
                     <div class="w-20 h-20 bg-blue-50 rounded-full flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300">
                         <i class="fas fa-users text-3xl text-[#2563EB]"></i>
                     </div>
@@ -30,12 +30,20 @@
                     <span class="font-bold text-gray-800 text-sm tracking-wide">CONSULTORIOS</span>
                 </a>
 
-                <!-- Paciente -->
-                <a href="#" class="flex flex-col items-center justify-center p-8 bg-white border border-gray-100 rounded-2xl shadow-[0_2px_15px_-3px_rgba(0,0,0,0.07),0_10px_20px_-2px_rgba(0,0,0,0.04)] hover:shadow-lg transition-all duration-300 group h-48">
+                <!-- Horarios -->
+                <a href="{{ route('horarios.index') }}" class="flex flex-col items-center justify-center p-8 bg-white border border-gray-100 rounded-2xl shadow-[0_2px_15px_-3px_rgba(0,0,0,0.07),0_10px_20px_-2px_rgba(0,0,0,0.04)] hover:shadow-lg transition-all duration-300 group h-48">
+                    <div class="w-20 h-20 bg-blue-50 rounded-full flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300">
+                        <i class="fas fa-clock text-3xl text-[#2563EB]"></i>
+                    </div>
+                    <span class="font-bold text-gray-800 text-sm tracking-wide">HORARIOS</span>
+                </a>
+
+                <!-- Pacientes -->
+                <a href="{{ route('pacientes.index') }}" class="flex flex-col items-center justify-center p-8 bg-white border border-gray-100 rounded-2xl shadow-[0_2px_15px_-3px_rgba(0,0,0,0.07),0_10px_20px_-2px_rgba(0,0,0,0.04)] hover:shadow-lg transition-all duration-300 group h-48">
                     <div class="w-20 h-20 bg-blue-50 rounded-full flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300">
                         <i class="fas fa-user text-3xl text-[#2563EB]"></i>
                     </div>
-                    <span class="font-bold text-gray-800 text-sm tracking-wide">PACIENTE</span>
+                    <span class="font-bold text-gray-800 text-sm tracking-wide">PACIENTES</span>
                 </a>
 
                 <!-- Citas -->
@@ -54,14 +62,20 @@
                     <span class="font-bold text-gray-800 text-sm tracking-wide">EXPEDIENTES</span>
                 </a>
 
-                <!-- Segunda fila - Centrada en pantallas grandes usando col-start -->
-                
                 <!-- Plantillas -->
-                <a href="#" class="flex flex-col items-center justify-center p-8 bg-white border border-gray-100 rounded-2xl shadow-[0_2px_15px_-3px_rgba(0,0,0,0.07),0_10px_20px_-2px_rgba(0,0,0,0.04)] hover:shadow-lg transition-all duration-300 group h-48 lg:col-start-2">
+                <a href="#" class="flex flex-col items-center justify-center p-8 bg-white border border-gray-100 rounded-2xl shadow-[0_2px_15px_-3px_rgba(0,0,0,0.07),0_10px_20px_-2px_rgba(0,0,0,0.04)] hover:shadow-lg transition-all duration-300 group h-48">
                     <div class="w-20 h-20 bg-blue-50 rounded-full flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300">
                         <i class="fas fa-edit text-3xl text-[#2563EB]"></i>
                     </div>
                     <span class="font-bold text-gray-800 text-sm tracking-wide">PLANTILLAS</span>
+                </a>
+
+                <!-- Especialidades -->
+                <a href="{{ route('especialidades.index') }}" class="flex flex-col items-center justify-center p-8 bg-white border border-gray-100 rounded-2xl shadow-[0_2px_15px_-3px_rgba(0,0,0,0.07),0_10px_20px_-2px_rgba(0,0,0,0.04)] hover:shadow-lg transition-all duration-300 group h-48">
+                    <div class="w-20 h-20 bg-blue-50 rounded-full flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300">
+                        <i class="fas fa-stethoscope text-3xl text-[#2563EB]"></i>
+                    </div>
+                    <span class="font-bold text-gray-800 text-sm tracking-wide">ESPECIALIDADES</span>
                 </a>
 
                 <!-- Catalogo -->
