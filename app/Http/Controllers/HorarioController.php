@@ -11,19 +11,25 @@ class HorarioController extends Controller
 {
     public function index(Request $request)
     {
-        // Show selection form
-        // We need users who have 'doctor' role (or any user assigned to consultorios)
-        // And consultorios.
-        
-        $query = User::whereHas('consultorios')->with('consultorios');
+        $user = auth()->user();
 
-        if ($request->has('search') && $request->search != '') {
-            $search = $request->search;
-            $query->where(function($q) use ($search) {
-                $q->where('name', 'like', "%{$search}%")
-                  ->orWhere('apellido_paterno', 'like', "%{$search}%")
-                  ->orWhere('apellido_materno', 'like', "%{$search}%");
-            });
+        // If user is doctor, only show their own profile/consultorios
+        if ($user->hasRole('doctor')) {
+            $query = User::where('id', $user->id)->with('consultorios');
+        } else {
+            // Show selection form
+            // We need users who have 'doctor' role (or any user assigned to consultorios)
+            // And consultorios.
+            $query = User::whereHas('consultorios')->with('consultorios');
+
+            if ($request->has('search') && $request->search != '') {
+                $search = $request->search;
+                $query->where(function($q) use ($search) {
+                    $q->where('name', 'like', "%{$search}%")
+                      ->orWhere('apellido_paterno', 'like', "%{$search}%")
+                      ->orWhere('apellido_materno', 'like', "%{$search}%");
+                });
+            }
         }
 
         // For simplicity, get all users with role 'doctor' or 'root'.
@@ -41,6 +47,11 @@ class HorarioController extends Controller
             'user_id' => 'required|exists:users,id',
             'consultorio_id' => 'required|exists:consultorios,id',
         ]);
+
+        // Security check for doctors
+        if (auth()->user()->hasRole('doctor') && $request->user_id != auth()->id()) {
+            abort(403, 'No tiene permiso para gestionar los horarios de otro médico.');
+        }
 
         $user = User::findOrFail($request->user_id);
         $consultorio = Consultorio::findOrFail($request->consultorio_id);
@@ -72,6 +83,11 @@ class HorarioController extends Controller
             'horarios' => 'array', // horarios[dia][] = ['inicio' => 'HH:MM', 'fin' => 'HH:MM']
             'duracion_consulta' => 'required|integer|in:20,30,45,60',
         ]);
+
+        // Security check for doctors
+        if (auth()->user()->hasRole('doctor') && $request->user_id != auth()->id()) {
+            abort(403, 'No tiene permiso para gestionar los horarios de otro médico.');
+        }
 
         $userId = $request->user_id;
         $consultorioId = $request->consultorio_id;

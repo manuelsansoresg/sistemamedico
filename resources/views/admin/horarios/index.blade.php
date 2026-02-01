@@ -5,7 +5,7 @@
             <nav class="flex mb-4" aria-label="Breadcrumb">
                 <ol class="inline-flex items-center space-x-1 md:space-x-3">
                     <li class="inline-flex items-center">
-                        <a href="{{ route('admin.dashboard') }}" class="inline-flex items-center text-sm font-medium text-gray-700 hover:text-blue-600">
+                        <a href="{{ auth()->user()->hasRole('doctor') ? route('dashboard') : route('admin.dashboard') }}" class="inline-flex items-center text-sm font-medium text-gray-700 hover:text-blue-600">
                             <i class="fas fa-home mr-2"></i>
                             Inicio
                         </a>
@@ -22,11 +22,14 @@
             <div class="mb-6 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
                 <div>
                     <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-                        {{ __('Gestión de Horarios por Médico') }}
+                        {{ auth()->user()->hasRole('doctor') ? __('Mis Horarios') : __('Gestión de Horarios por Médico') }}
                     </h2>
-                    <p class="text-gray-600 text-sm mt-1">Selecciona un médico y consultorio para gestionar su disponibilidad.</p>
+                    <p class="text-gray-600 text-sm mt-1">
+                        {{ auth()->user()->hasRole('doctor') ? 'Selecciona un consultorio para gestionar tu disponibilidad.' : 'Selecciona un médico y consultorio para gestionar su disponibilidad.' }}
+                    </p>
                 </div>
                 
+                @if(!auth()->user()->hasRole('doctor'))
                 <form action="{{ route('horarios.index') }}" method="GET" class="flex items-center">
                     <div class="relative">
                         <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
@@ -39,6 +42,7 @@
                         <a href="{{ route('horarios.index') }}" class="ml-2 text-gray-500 hover:text-gray-700 text-sm">Limpiar</a>
                     @endif
                 </form>
+                @endif
             </div>
 
             @if (session('error'))

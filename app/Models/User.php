@@ -34,6 +34,7 @@ class User extends Authenticatable
         'numero_imss',
         'activo',
         'perfil_compartido',
+        'created_by',
     ];
 
     /**
@@ -87,5 +88,15 @@ class User extends Authenticatable
     public function doctors()
     {
         return $this->belongsToMany(User::class, 'doctor_patient', 'patient_id', 'doctor_id');
+    }
+
+    public function creator()
+    {
+        return $this->belongsTo(User::class, 'created_by');
+    }
+
+    public function createdUsers()
+    {
+        return $this->hasMany(User::class, 'created_by');
     }
 }

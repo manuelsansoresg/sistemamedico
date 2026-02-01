@@ -18,7 +18,16 @@ class UserController extends Controller
      */
     public function index()
     {
-        $users = User::with('roles')->paginate(10);
+        $query = User::with('roles');
+
+        if (auth()->user()->hasRole('doctor')) {
+            $query->where(function ($q) {
+                $q->where('id', auth()->id())
+                  ->orWhere('created_by', auth()->id());
+            });
+        }
+
+        $users = $query->paginate(10);
         return view('admin.users.index', compact('users'));
     }
 
@@ -27,7 +36,12 @@ class UserController extends Controller
      */
     public function create()
     {
-        $roles = Role::all();
+        if (auth()->user()->hasRole('doctor')) {
+            $roles = Role::whereIn('name', ['asistente', 'secretaria'])->get();
+        } else {
+            $roles = Role::all();
+        }
+
         $clinicas = Clinica::where('activo', true)->get();
         $consultorios = Consultorio::where('activo', true)->get();
         $especialidades = Especialidad::where('activo', true)->get();
@@ -49,7 +63,11 @@ class UserController extends Controller
             'telefono' => ['nullable', 'string', 'max:20'],
             'cedula_profesional' => ['nullable', 'string', 'max:50'],
             'especialidad_id' => ['nullable', 'exists:especialidades,id'],
-            'role' => ['required', 'exists:roles,name'],
+            'role' => ['required', 'exists:roles,name', function ($attribute, $value, $fail) {
+                if (auth()->user()->hasRole('doctor') && !in_array($value, ['asistente', 'secretaria'])) {
+                    $fail('No tienes permisos para asignar este rol.');
+                }
+            }],
             'clinicas' => ['nullable', 'array'],
             'clinicas.*' => ['exists:clinicas,id'],
             'consultorios' => ['nullable', 'array'],
@@ -65,6 +83,7 @@ class UserController extends Controller
             'telefono' => $request->telefono,
             'cedula_profesional' => $request->cedula_profesional,
             'especialidad_id' => $request->especialidad_id,
+            'created_by' => auth()->id(),
         ]);
 
         $user->assignRole($request->role);
@@ -85,7 +104,12 @@ class UserController extends Controller
      */
     public function edit(User $user)
     {
-        $roles = Role::all();
+        if (auth()->user()->hasRole('doctor')) {
+            $roles = Role::whereIn('name', ['asistente', 'secretaria'])->get();
+        } else {
+            $roles = Role::all();
+        }
+        
         $clinicas = Clinica::where('activo', true)->get();
         $consultorios = Consultorio::where('activo', true)->get();
         $especialidades = Especialidad::where('activo', true)->get();
@@ -107,7 +131,11 @@ class UserController extends Controller
             'telefono' => ['nullable', 'string', 'max:20'],
             'cedula_profesional' => ['nullable', 'string', 'max:50'],
             'especialidad_id' => ['nullable', 'exists:especialidades,id'],
-            'role' => ['required', 'exists:roles,name'],
+            'role' => ['required', 'exists:roles,name', function ($attribute, $value, $fail) {
+                if (auth()->user()->hasRole('doctor') && !in_array($value, ['asistente', 'secretaria'])) {
+                    $fail('No tienes permisos para asignar este rol.');
+                }
+            }],
             'clinicas' => ['nullable', 'array'],
             'clinicas.*' => ['exists:clinicas,id'],
             'consultorios' => ['nullable', 'array'],

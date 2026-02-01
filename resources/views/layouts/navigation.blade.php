@@ -28,7 +28,9 @@
                     <x-nav-link :href="route('paquetes.index')" :active="request()->routeIs('paquetes.*')">
                         {{ __('Paquetes') }}
                     </x-nav-link>
+                    @endrole
 
+                    @hasanyrole('root|doctor')
                     <x-nav-link :href="route('clinicas.index')" :active="request()->routeIs('clinicas.*')">
                         {{ __('Clínicas') }}
                     </x-nav-link>
@@ -36,15 +38,25 @@
                     <x-nav-link :href="route('consultorios.index')" :active="request()->routeIs('consultorios.*')">
                         {{ __('Consultorios') }}
                     </x-nav-link>
+                    @endhasanyrole
 
+                    @role('root')
                     <x-nav-link :href="route('especialidades.index')" :active="request()->routeIs('especialidades.*')">
                         {{ __('Especialidades') }}
                     </x-nav-link>
+                    @endrole
 
+                    @hasanyrole('root|doctor')
                     <x-nav-link :href="route('users.index')" :active="request()->routeIs('users.*')">
                         {{ __('Usuarios') }}
                     </x-nav-link>
 
+                    <x-nav-link :href="route('plantillas.index')" :active="request()->routeIs('plantillas.*')">
+                        {{ __('Plantillas') }}
+                    </x-nav-link>
+                    @endhasanyrole
+
+                    @role('root')
                     <x-nav-link :href="route('horarios.index')" :active="request()->routeIs('horarios.*')">
                         {{ __('Horarios') }}
                     </x-nav-link>

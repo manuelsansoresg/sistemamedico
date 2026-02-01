@@ -5,7 +5,7 @@
             <nav class="flex mb-4" aria-label="Breadcrumb">
                 <ol class="inline-flex items-center space-x-1 md:space-x-3">
                     <li class="inline-flex items-center">
-                        <a href="{{ route('admin.dashboard') }}" class="inline-flex items-center text-sm font-medium text-gray-700 hover:text-blue-600">
+                        <a href="{{ route('dashboard') }}" class="inline-flex items-center text-sm font-medium text-gray-700 hover:text-blue-600">
                             <i class="fas fa-home mr-2"></i>
                             Inicio
                         </a>
@@ -44,7 +44,19 @@
                             <!-- 1. Seleccionar Doctor -->
                             <div class="mb-6">
                                 <label class="block text-gray-700 text-sm font-bold mb-2">1. Seleccionar Doctor</label>
-                                <div class="relative">
+                                
+                                <div x-show="isDoctorFixed" class="p-4 bg-gray-50 border border-gray-200 rounded-lg flex items-center mb-2">
+                                    <div class="bg-blue-100 p-2 rounded-full mr-3">
+                                        <i class="fas fa-user-md text-blue-600"></i>
+                                    </div>
+                                    <div>
+                                        <p class="font-bold text-gray-800" x-text="searchDoctor"></p>
+                                        <p class="text-sm text-gray-500">Usted se ha asignado automáticamente.</p>
+                                    </div>
+                                    <input type="hidden" name="doctor_id" x-model="selectedDoctorId">
+                                </div>
+
+                                <div class="relative" x-show="!isDoctorFixed">
                                     <input type="text" 
                                            x-model="searchDoctor" 
                                            @input.debounce.300ms="findDoctors()"
@@ -63,7 +75,7 @@
                                         </template>
                                     </div>
                                 </div>
-                                <div x-show="selectedDoctor" class="mt-2 text-green-600 font-semibold">
+                                <div x-show="!isDoctorFixed && selectedDoctor" class="mt-2 text-green-600 font-semibold">
                                     Doctor Seleccionado: <span x-text="selectedDoctor.name + ' ' + selectedDoctor.apellido_paterno"></span>
                                     <button type="button" @click="resetDoctor" class="ml-2 text-red-500 text-sm underline">Cambiar</button>
                                 </div>
@@ -249,6 +261,7 @@
                 doctors: [],
                 selectedDoctor: null,
                 selectedDoctorId: '',
+                isDoctorFixed: false,
                 
                 consultorios: [],
                 selectedConsultorioId: '',
@@ -269,6 +282,29 @@
                 isLoading: false,
                 
                 errorMessage: '',
+
+                init() {
+                    @if(isset($doctor) && $doctor)
+                        this.selectedDoctorId = {{ $doctor->id }};
+                        this.searchDoctor = "{{ $doctor->name }} {{ $doctor->apellido_paterno }}";
+                        this.selectedDoctor = {
+                            id: {{ $doctor->id }},
+                            name: "{{ $doctor->name }}",
+                            apellido_paterno: "{{ $doctor->apellido_paterno }}"
+                        };
+                        this.consultorios = @json($doctor->consultorios);
+                        this.clinicas = @json($doctor->clinicas);
+                        this.isDoctorFixed = true;
+
+                        // Auto-select if single option
+                        if (this.consultorios.length === 1) {
+                            this.selectedConsultorioId = this.consultorios[0].id;
+                        }
+                        if (this.clinicas.length === 1) {
+                            this.selectedClinicaId = this.clinicas[0].id;
+                        }
+                    @endif
+                },
 
                 get isValid() {
                     return this.selectedDoctorId && 

@@ -19,9 +19,14 @@ class CitaController extends Controller
      */
     public function index()
     {
-        $citas = Cita::with(['doctor', 'paciente', 'consultorio', 'clinica'])
-            ->latest()
-            ->paginate(10);
+        $user = auth()->user();
+        $query = Cita::with(['doctor', 'paciente', 'consultorio', 'clinica']);
+
+        if ($user->hasRole('doctor')) {
+            $query->where('doctor_id', $user->id);
+        }
+
+        $citas = $query->latest()->paginate(10);
         return view('admin.citas.index', compact('citas'));
     }
 
@@ -30,7 +35,11 @@ class CitaController extends Controller
      */
     public function create()
     {
-        return view('admin.citas.create');
+        $doctor = null;
+        if (auth()->user()->hasRole('doctor')) {
+            $doctor = auth()->user()->load(['consultorios', 'clinicas']);
+        }
+        return view('admin.citas.create', compact('doctor'));
     }
 
     /**
@@ -76,6 +85,9 @@ class CitaController extends Controller
      */
     public function edit(Cita $cita)
     {
+        if (auth()->user()->hasRole('doctor') && $cita->doctor_id !== auth()->id()) {
+            abort(403, 'No tiene permiso para editar esta cita.');
+        }
         return view('admin.citas.edit', compact('cita'));
     }
 
@@ -84,6 +96,10 @@ class CitaController extends Controller
      */
     public function update(Request $request, Cita $cita)
     {
+        if (auth()->user()->hasRole('doctor') && $cita->doctor_id !== auth()->id()) {
+            abort(403, 'No tiene permiso para actualizar esta cita.');
+        }
+
         $validated = $request->validate([
             'doctor_id' => 'required|exists:users,id',
             'paciente_id' => 'required|exists:users,id',
@@ -124,6 +140,10 @@ class CitaController extends Controller
      */
     public function destroy(Cita $cita)
     {
+        if (auth()->user()->hasRole('doctor') && $cita->doctor_id !== auth()->id()) {
+            abort(403, 'No tiene permiso para eliminar esta cita.');
+        }
+        
         $cita->delete();
         return redirect()->route('citas.index')->with('success', 'Cita eliminada correctamente.');
     }
@@ -152,13 +172,22 @@ class CitaController extends Controller
     public function searchPatients(Request $request)
     {
         $search = $request->get('q');
-        $patients = User::role('paciente') // Assuming role name is 'paciente' or 'patient'
+        $user = auth()->user();
+
+        $query = User::role('paciente')
             ->where(function($q) use ($search) {
                 $q->where('name', 'like', "%{$search}%")
                   ->orWhere('apellido_paterno', 'like', "%{$search}%")
                   ->orWhere('email', 'like', "%{$search}%");
-            })
-            ->limit(10)
+            });
+
+        if ($user->hasRole('doctor')) {
+            $query->whereHas('doctors', function($q) use ($user) {
+                $q->where('users.id', $user->id);
+            });
+        }
+
+        $patients = $query->limit(10)
             ->get(['id', 'name', 'apellido_paterno', 'apellido_materno']);
 
         return response()->json($patients);

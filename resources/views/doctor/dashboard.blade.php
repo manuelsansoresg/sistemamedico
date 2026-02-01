@@ -129,6 +129,14 @@
                     <span class="font-bold text-gray-800 text-sm tracking-wide">CONSULTORIOS</span>
                 </a>
 
+                <!-- Horarios -->
+                <a href="{{ route('horarios.index') }}" class="flex flex-col items-center justify-center p-8 bg-white border border-gray-100 rounded-2xl shadow-[0_2px_15px_-3px_rgba(0,0,0,0.07),0_10px_20px_-2px_rgba(0,0,0,0.04)] hover:shadow-lg transition-all duration-300 group h-48">
+                    <div class="w-20 h-20 bg-blue-50 rounded-full flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300">
+                        <i class="fas fa-clock text-3xl text-[#2563EB]"></i>
+                    </div>
+                    <span class="font-bold text-gray-800 text-sm tracking-wide">HORARIOS</span>
+                </a>
+
                 <!-- Pacientes -->
                 <a href="{{ route('pacientes.index') }}" class="flex flex-col items-center justify-center p-8 bg-white border border-gray-100 rounded-2xl shadow-[0_2px_15px_-3px_rgba(0,0,0,0.07),0_10px_20px_-2px_rgba(0,0,0,0.04)] hover:shadow-lg transition-all duration-300 group h-48">
                     <div class="w-20 h-20 bg-blue-50 rounded-full flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300">
@@ -137,12 +145,28 @@
                     <span class="font-bold text-gray-800 text-sm tracking-wide">PACIENTES</span>
                 </a>
 
+                <!-- Citas -->
+                <a href="{{ route('citas.index') }}" class="flex flex-col items-center justify-center p-8 bg-white border border-gray-100 rounded-2xl shadow-[0_2px_15px_-3px_rgba(0,0,0,0.07),0_10px_20px_-2px_rgba(0,0,0,0.04)] hover:shadow-lg transition-all duration-300 group h-48">
+                    <div class="w-20 h-20 bg-blue-50 rounded-full flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300">
+                        <i class="fas fa-calendar-alt text-3xl text-[#2563EB]"></i>
+                    </div>
+                    <span class="font-bold text-gray-800 text-sm tracking-wide">CITAS</span>
+                </a>
+
                 <!-- Pendientes -->
                 <a href="{{ route('pendientes.index') }}" class="flex flex-col items-center justify-center p-8 bg-white border border-gray-100 rounded-2xl shadow-[0_2px_15px_-3px_rgba(0,0,0,0.07),0_10px_20px_-2px_rgba(0,0,0,0.04)] hover:shadow-lg transition-all duration-300 group h-48">
                     <div class="w-20 h-20 bg-blue-50 rounded-full flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300">
                         <i class="fas fa-clipboard-list text-3xl text-[#2563EB]"></i>
                     </div>
                     <span class="font-bold text-gray-800 text-sm tracking-wide">PENDIENTES</span>
+                </a>
+
+                <!-- Plantillas -->
+                <a href="{{ route('plantillas.index') }}" class="flex flex-col items-center justify-center p-8 bg-white border border-gray-100 rounded-2xl shadow-[0_2px_15px_-3px_rgba(0,0,0,0.07),0_10px_20px_-2px_rgba(0,0,0,0.04)] hover:shadow-lg transition-all duration-300 group h-48">
+                    <div class="w-20 h-20 bg-blue-50 rounded-full flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300">
+                        <i class="fas fa-file-medical-alt text-3xl text-[#2563EB]"></i>
+                    </div>
+                    <span class="font-bold text-gray-800 text-sm tracking-wide">PLANTILLAS</span>
                 </a>
 
             </div>

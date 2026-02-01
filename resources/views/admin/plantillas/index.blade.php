@@ -13,7 +13,7 @@
                     <li aria-current="page">
                         <div class="flex items-center">
                             <i class="fas fa-chevron-right text-gray-400 mx-1"></i>
-                            <span class="ml-1 text-sm font-medium text-gray-500 md:ml-2">Clínicas</span>
+                            <span class="ml-1 text-sm font-medium text-gray-500 md:ml-2">Plantillas</span>
                         </div>
                     </li>
                 </ol>
@@ -22,9 +22,9 @@
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                 <div class="p-6 bg-white border-b border-gray-200">
                     <div class="flex justify-between items-center mb-6">
-                        <h2 class="text-xl font-bold text-gray-800">Listado de Clínicas</h2>
-                        <a href="{{ route('clinicas.create') }}" class="px-4 py-2 bg-blue-600 text-white font-bold rounded-md hover:bg-blue-700 transition-colors shadow-sm flex items-center">
-                            <i class="fas fa-plus mr-2"></i> NUEVA CLÍNICA
+                        <h2 class="text-xl font-bold text-gray-800">Listado de Plantillas</h2>
+                        <a href="{{ route('plantillas.create') }}" class="px-4 py-2 bg-blue-600 text-white font-bold rounded-md hover:bg-blue-700 transition-colors shadow-sm flex items-center">
+                            <i class="fas fa-plus mr-2"></i> NUEVA PLANTILLA
                         </a>
                     </div>
 
@@ -39,43 +39,33 @@
                             <thead class="bg-gray-50">
                                 <tr>
                                     <th class="px-6 py-3 text-left text-xs font-bold text-blue-600 uppercase tracking-wider">NOMBRE</th>
-                                    <th class="px-6 py-3 text-left text-xs font-bold text-blue-600 uppercase tracking-wider">DIRECCIÓN</th>
-                                    <th class="px-6 py-3 text-left text-xs font-bold text-blue-600 uppercase tracking-wider">TELÉFONO</th>
-                                    <th class="px-6 py-3 text-left text-xs font-bold text-blue-600 uppercase tracking-wider">LOGOTIPO</th>
-                                    <th class="px-6 py-3 text-left text-xs font-bold text-blue-600 uppercase tracking-wider">ESTADO</th>
+                                    @role('root')
+                                    <th class="px-6 py-3 text-left text-xs font-bold text-blue-600 uppercase tracking-wider">DOCTOR ASIGNADO</th>
                                     <th class="px-6 py-3 text-left text-xs font-bold text-blue-600 uppercase tracking-wider">CREADO POR</th>
+                                    @endrole
+                                    <th class="px-6 py-3 text-left text-xs font-bold text-blue-600 uppercase tracking-wider">FECHA CREACIÓN</th>
                                     <th class="px-6 py-3 text-right text-xs font-bold text-blue-600 uppercase tracking-wider">ACCIONES</th>
                                 </tr>
                             </thead>
                             <tbody class="bg-white divide-y divide-gray-200">
-                                @forelse ($clinicas as $clinica)
+                                @forelse ($plantillas as $plantilla)
                                     <tr>
-                                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-cyan-500">{{ $clinica->nombre }}</td>
-                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-cyan-500">{{ $clinica->direccion }}</td>
-                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-cyan-500">{{ $clinica->telefono }}</td>
-                                        <td class="px-6 py-4 whitespace-nowrap">
-                                            @if($clinica->logotipo)
-                                                <img src="{{ asset($clinica->logotipo) }}" alt="Logotipo" class="h-10 w-10 rounded-full object-cover">
-                                            @else
-                                                <span class="text-sm text-gray-400">N/A</span>
-                                            @endif
-                                        </td>
-                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-cyan-500">
-                                            {{ $clinica->activo ? 'Activo' : 'Inactivo' }}
-                                        </td>
-                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-cyan-500">
-                                            {{ $clinica->creator->name ?? 'Desconocido' }}
-                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-medium">{{ $plantilla->nombre }}</td>
+                                        @role('root')
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $plantilla->user->name ?? 'N/A' }}</td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $plantilla->creator->name ?? 'N/A' }}</td>
+                                        @endrole
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $plantilla->created_at->format('d/m/Y H:i') }}</td>
                                         <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                                             <div class="flex justify-end items-center space-x-2">
-                                                <a href="{{ route('clinicas.edit', $clinica) }}" class="inline-flex items-center justify-center w-9 h-9 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors shadow-sm" title="Editar">
+                                                <a href="{{ route('plantillas.edit', $plantilla) }}" class="inline-flex items-center justify-center w-9 h-9 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors shadow-sm" title="Editar">
                                                     <i class="fas fa-edit"></i>
                                                 </a>
-                                                <form action="{{ route('clinicas.destroy', $clinica) }}" method="POST" class="inline-block" onsubmit="return confirm('¿Estás seguro de que deseas eliminar esta clínica?');">
+                                                <form action="{{ route('plantillas.destroy', $plantilla) }}" method="POST" onsubmit="return confirm('¿Estás seguro de que deseas eliminar esta plantilla?');">
                                                     @csrf
                                                     @method('DELETE')
                                                     <button type="submit" class="inline-flex items-center justify-center w-9 h-9 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors shadow-sm" title="Eliminar">
-                                                        <i class="fas fa-trash"></i>
+                                                        <i class="fas fa-trash-alt"></i>
                                                     </button>
                                                 </form>
                                             </div>
@@ -83,16 +73,17 @@
                                     </tr>
                                 @empty
                                     <tr>
-                                        <td colspan="7" class="px-6 py-4 whitespace-nowrap text-center text-gray-500">
-                                            No hay clínicas registradas.
+                                        <td colspan="{{ auth()->user()->hasRole('root') ? '5' : '3' }}" class="px-6 py-4 text-center text-gray-500">
+                                            No hay plantillas registradas.
                                         </td>
                                     </tr>
                                 @endforelse
                             </tbody>
                         </table>
                     </div>
+                    
                     <div class="mt-4">
-                        {{ $clinicas->links() }}
+                        {{ $plantillas->links() }}
                     </div>
                 </div>
             </div>
