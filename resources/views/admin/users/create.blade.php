@@ -152,7 +152,7 @@
 
                         <div class="flex justify-end mt-6">
                             <a href="{{ route('users.index') }}" class="px-4 py-2 bg-gray-500 text-white font-bold rounded-md hover:bg-gray-600 transition-colors mr-2">Cancelar</a>
-                            <button type="submit" class="px-4 py-2 bg-blue-600 text-white font-bold rounded-md hover:bg-blue-700 transition-colors">Guardar Usuario</button>
+                            <x-primary-button>Guardar Usuario</x-primary-button>
                         </div>
                     </form>
                 </div>

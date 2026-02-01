@@ -29,6 +29,13 @@ Route::middleware(['auth', 'role:root'])->group(function () {
 
     // Pacientes Routes
     Route::resource('admin/pacientes', \App\Http\Controllers\PacienteController::class);
+
+    // Citas Routes
+    Route::resource('admin/citas', \App\Http\Controllers\Admin\CitaController::class);
+    Route::get('admin/api/doctors/search', [\App\Http\Controllers\Admin\CitaController::class, 'searchDoctors'])->name('api.doctors.search');
+    Route::get('admin/api/doctors/{id}/data', [\App\Http\Controllers\Admin\CitaController::class, 'getDoctorData'])->name('api.doctors.data');
+    Route::get('admin/api/patients/search', [\App\Http\Controllers\Admin\CitaController::class, 'searchPatients'])->name('api.patients.search');
+    Route::get('admin/api/slots', [\App\Http\Controllers\Admin\CitaController::class, 'getSlots'])->name('api.slots');
 });
 
 Route::middleware('auth')->group(function () {

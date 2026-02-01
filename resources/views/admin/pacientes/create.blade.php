@@ -154,15 +154,15 @@
                         </div>
                         @endrole
 
-                        <div class="flex items-center space-x-6 mb-6">
+                        <div class="flex items-center space-x-6 mb-6 relative z-10">
                             <div class="flex items-center">
-                                <input id="activo" type="checkbox" name="activo" value="1" {{ old('activo', 1) ? 'checked' : '' }} class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500">
-                                <label for="activo" class="ml-2 text-sm font-medium text-gray-900">Activo</label>
+                                <input id="activo" type="checkbox" name="activo" value="1" {{ old('activo', 1) ? 'checked' : '' }} class="rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-500 focus:ring-blue-500 cursor-pointer w-5 h-5">
+                                <label for="activo" class="ml-2 text-sm font-medium text-gray-900 cursor-pointer">Activo</label>
                             </div>
 
                             <div class="flex items-center">
-                                <input id="perfil_compartido" type="checkbox" name="perfil_compartido" value="1" {{ old('perfil_compartido') ? 'checked' : '' }} class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500">
-                                <label for="perfil_compartido" class="ml-2 text-sm font-medium text-gray-900">Perfil Compartido</label>
+                                <input id="perfil_compartido" type="checkbox" name="perfil_compartido" value="1" {{ old('perfil_compartido') ? 'checked' : '' }} class="rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-500 focus:ring-blue-500 cursor-pointer w-5 h-5">
+                                <label for="perfil_compartido" class="ml-2 text-sm font-medium text-gray-900 cursor-pointer">Perfil Compartido</label>
                             </div>
                         </div>
 
