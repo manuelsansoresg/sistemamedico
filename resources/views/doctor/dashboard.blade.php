@@ -29,6 +29,7 @@
                                         <th class="px-4 py-2 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Paciente</th>
                                         <th class="px-4 py-2 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Consultorio</th>
                                         <th class="px-4 py-2 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Estado</th>
+                                        <th class="px-4 py-2 text-right text-xs font-bold text-gray-500 uppercase tracking-wider">Acciones</th>
                                     </tr>
                                 </thead>
                                 <tbody class="bg-white divide-y divide-gray-200">
@@ -51,6 +52,20 @@
                                                     @else bg-gray-100 text-gray-800 @endif">
                                                     {{ ucfirst($cita->estado) }}
                                                 </span>
+                                            </td>
+                                            <td class="px-4 py-2 whitespace-nowrap text-right text-sm font-medium">
+                                                <a href="{{ route('consultas.create', ['cita_id' => $cita->id]) }}" class="text-blue-600 hover:text-blue-900 mr-2" title="Iniciar Consulta">
+                                                    <i class="fas fa-stethoscope"></i>
+                                                </a>
+                                                @if($cita->estado !== 'cancelada')
+                                                <form action="{{ route('citas.destroy', $cita) }}" method="POST" class="inline-block" onsubmit="return confirm('¿Estás seguro de eliminar esta cita?');">
+                                                    @csrf
+                                                    @method('DELETE')
+                                                    <button type="submit" class="text-red-600 hover:text-red-900" title="Eliminar Cita">
+                                                        <i class="fas fa-trash-alt"></i>
+                                                    </button>
+                                                </form>
+                                                @endif
                                             </td>
                                         </tr>
                                     @endforeach

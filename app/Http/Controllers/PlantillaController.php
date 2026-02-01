@@ -177,4 +177,24 @@ class PlantillaController extends Controller
         $plantilla->delete();
         return redirect()->route('plantillas.index')->with('success', 'Plantilla eliminada exitosamente.');
     }
+
+    public function getCampos(Plantilla $plantilla)
+    {
+        // Allow if root or if doctor owns it
+        if (Auth::user()->hasRole('doctor') && $plantilla->user_id !== Auth::id()) {
+            return response()->json(['error' => 'Unauthorized'], 403);
+        }
+
+        $campos = $plantilla->campos()->orderBy('orden')->get()->map(function($campo) {
+            return [
+                'id' => $campo->id,
+                'etiqueta' => $campo->nombre,
+                'tipo' => $campo->tipo,
+                'opciones' => is_array($campo->opciones) ? implode(',', $campo->opciones) : $campo->opciones,
+                'required' => $campo->es_obligatorio
+            ];
+        });
+
+        return response()->json($campos);
+    }
 }

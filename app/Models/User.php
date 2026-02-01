@@ -35,6 +35,9 @@ class User extends Authenticatable
         'activo',
         'perfil_compartido',
         'created_by',
+        'peso',
+        'estatura',
+        'alergias',
     ];
 
     /**

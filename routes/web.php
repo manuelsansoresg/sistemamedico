@@ -39,11 +39,20 @@ Route::middleware(['auth', 'role:root|doctor'])->group(function () {
 
     // Plantillas Routes
     Route::resource('admin/plantillas', \App\Http\Controllers\PlantillaController::class);
+    Route::get('admin/plantillas/{plantilla}/campos', [\App\Http\Controllers\PlantillaController::class, 'getCampos'])->name('plantillas.campos');
 
     // Horarios Routes
     Route::get('admin/horarios', [\App\Http\Controllers\HorarioController::class, 'index'])->name('horarios.index');
     Route::get('admin/horarios/manage', [\App\Http\Controllers\HorarioController::class, 'manage'])->name('horarios.manage');
     Route::post('admin/horarios', [\App\Http\Controllers\HorarioController::class, 'store'])->name('horarios.store');
+
+    // Consultas Routes
+    Route::get('consultas/create/{cita_id}', [\App\Http\Controllers\ConsultaController::class, 'create'])->name('consultas.create');
+    Route::post('consultas', [\App\Http\Controllers\ConsultaController::class, 'store'])->name('consultas.store');
+    Route::resource('consultas', \App\Http\Controllers\ConsultaController::class)->except(['create', 'store', 'index']);
+    Route::post('consultas/{consulta}/estudios', [\App\Http\Controllers\ConsultaController::class, 'storeEstudio'])->name('consultas.estudios.store');
+    Route::get('consultas/{consulta}/print', [\App\Http\Controllers\ConsultaController::class, 'print'])->name('consultas.print');
+    Route::get('estudios/{estudio}/print', [\App\Http\Controllers\ConsultaController::class, 'printEstudio'])->name('consultas.estudios.print');
 });
 
 Route::middleware('auth')->group(function () {

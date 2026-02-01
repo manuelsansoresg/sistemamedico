@@ -73,6 +73,12 @@
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                                             <div class="flex justify-end items-center space-x-2">
+                                                <a href="{{ route('consultas.create', ['cita_id' => $cita->id]) }}" 
+                                                   onclick="return confirm('¿Deseas iniciar la consulta? Se redirigirá a la página de registro de consulta.')"
+                                                   class="inline-flex items-center justify-center w-9 h-9 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors shadow-sm" 
+                                                   title="Iniciar Consulta">
+                                                    <i class="fas fa-stethoscope"></i>
+                                                </a>
                                                 <a href="{{ route('citas.edit', $cita) }}" class="inline-flex items-center justify-center w-9 h-9 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors shadow-sm" title="Editar">
                                                     <i class="fas fa-edit"></i>
                                                 </a>

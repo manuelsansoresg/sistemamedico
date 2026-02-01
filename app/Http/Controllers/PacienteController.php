@@ -18,10 +18,13 @@ class PacienteController extends Controller
         $user = Auth::user();
         $query = User::role('paciente');
 
-        // If user is doctor, show only their patients
+        // If user is doctor, show only their patients (assigned or created by them)
         if ($user->hasRole('doctor')) {
-            $query->whereHas('doctors', function ($q) use ($user) {
-                $q->where('users.id', $user->id);
+            $query->where(function($q) use ($user) {
+                $q->whereHas('doctors', function ($subQ) use ($user) {
+                    $subQ->where('users.id', $user->id);
+                })
+                ->orWhere('created_by', $user->id);
             });
         }
         // If root, shows all (already set by default query)
