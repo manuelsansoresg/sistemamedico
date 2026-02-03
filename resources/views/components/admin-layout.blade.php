@@ -22,7 +22,9 @@
                 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
                     <div class="flex items-center">
                         <!-- Logo / Title -->
-                        <span class="text-white text-2xl font-bold tracking-wider">SOLIC</span>
+                        <a href="{{ route('dashboard') }}" class="text-white text-2xl font-bold tracking-wider hover:text-gray-100 transition-colors">
+                            SOLIC
+                        </a>
                     </div>
                     
                     <div class="flex items-center space-x-4">

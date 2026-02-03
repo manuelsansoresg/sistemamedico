@@ -2,15 +2,24 @@
 
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\AdminController;
+use App\Http\Controllers\Public\ComprobantePagoController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
     return view('welcome');
 });
 
+// Ruta pública para subir comprobantes
+Route::get('/subir-comprobante/{token}', [ComprobantePagoController::class, 'show'])->name('suscripciones.subir_comprobante');
+Route::post('/subir-comprobante/{token}', [ComprobantePagoController::class, 'store'])->name('suscripciones.guardar_comprobante');
+
 Route::get('/dashboard', [App\Http\Controllers\DashboardController::class, 'index'])
-    ->middleware(['auth', 'verified'])
+    ->middleware(['auth', 'verified', 'check.doctor.status'])
     ->name('dashboard');
+
+Route::get('/doctor/verification-notice', function () {
+    return view('doctor.verification_notice');
+})->middleware(['auth', 'role:doctor'])->name('doctor.verification.notice');
 
 Route::middleware(['auth', 'role:root'])->group(function () {
     Route::get('/admin/dashboard', [AdminController::class, 'index'])->name('admin.dashboard');
@@ -19,10 +28,17 @@ Route::middleware(['auth', 'role:root'])->group(function () {
     Route::resource('admin/configuraciones', \App\Http\Controllers\ConfiguracionController::class);
     Route::resource('admin/especialidades', \App\Http\Controllers\EspecialidadController::class);
     
+    // Gestión de Suscripciones y Validaciones (Root)
+    Route::get('admin/suscripciones', [\App\Http\Controllers\Admin\SuscripcionController::class, 'index'])->name('admin.suscripciones.index');
+    Route::get('admin/suscripciones/{suscripcion}', [\App\Http\Controllers\Admin\SuscripcionController::class, 'show'])->name('admin.suscripciones.show');
+    Route::put('admin/suscripciones/{suscripcion}', [\App\Http\Controllers\Admin\SuscripcionController::class, 'update'])->name('admin.suscripciones.update');
+    Route::post('admin/users/{user}/validar-cedula', [\App\Http\Controllers\Admin\SuscripcionController::class, 'validarCedula'])->name('admin.users.validar_cedula');
+    Route::get('admin/suscripciones/{suscripcion}/download-comprobante', [\App\Http\Controllers\Admin\SuscripcionController::class, 'downloadComprobante'])->name('admin.suscripciones.download_comprobante');
+    
     // Horarios Routes (Moved to shared group)
 });
 
-Route::middleware(['auth', 'role:root|doctor'])->group(function () {
+Route::middleware(['auth', 'role:root|doctor', 'check.doctor.status'])->group(function () {
     Route::resource('admin/clinicas', \App\Http\Controllers\ClinicaController::class);
     Route::resource('admin/consultorios', \App\Http\Controllers\ConsultorioController::class);
     Route::resource('admin/users', \App\Http\Controllers\UserController::class);
@@ -36,6 +52,11 @@ Route::middleware(['auth', 'role:root|doctor'])->group(function () {
     Route::get('admin/api/doctors/{id}/data', [\App\Http\Controllers\Admin\CitaController::class, 'getDoctorData'])->name('api.doctors.data');
     Route::get('admin/api/patients/search', [\App\Http\Controllers\Admin\CitaController::class, 'searchPatients'])->name('api.patients.search');
     Route::get('admin/api/slots', [\App\Http\Controllers\Admin\CitaController::class, 'getSlots'])->name('api.slots');
+
+    // Expedientes Routes
+    Route::get('admin/expedientes', [\App\Http\Controllers\ExpedienteController::class, 'index'])->name('expedientes.index');
+    Route::post('admin/expedientes/download', [\App\Http\Controllers\ExpedienteController::class, 'downloadBulk'])->name('expedientes.download.bulk');
+    Route::get('admin/expedientes/download-all', [\App\Http\Controllers\ExpedienteController::class, 'downloadAll'])->name('expedientes.download.all');
 
     // Plantillas Routes
     Route::resource('admin/plantillas', \App\Http\Controllers\PlantillaController::class);
@@ -53,6 +74,10 @@ Route::middleware(['auth', 'role:root|doctor'])->group(function () {
     Route::post('consultas/{consulta}/estudios', [\App\Http\Controllers\ConsultaController::class, 'storeEstudio'])->name('consultas.estudios.store');
     Route::get('consultas/{consulta}/print', [\App\Http\Controllers\ConsultaController::class, 'print'])->name('consultas.print');
     Route::get('estudios/{estudio}/print', [\App\Http\Controllers\ConsultaController::class, 'printEstudio'])->name('consultas.estudios.print');
+    Route::post('estudios/{estudio}/upload', [\App\Http\Controllers\ConsultaController::class, 'uploadEstudioFile'])->name('consultas.estudios.upload');
+    Route::get('estudios/{estudio}/edit', [\App\Http\Controllers\ConsultaController::class, 'editEstudio'])->name('consultas.estudios.edit');
+    Route::put('estudios/{estudio}', [\App\Http\Controllers\ConsultaController::class, 'updateEstudio'])->name('consultas.estudios.update');
+    Route::delete('estudios/{estudio}', [\App\Http\Controllers\ConsultaController::class, 'destroyEstudio'])->name('consultas.estudios.destroy');
 });
 
 Route::middleware('auth')->group(function () {

@@ -51,6 +51,10 @@
                         {{ __('Usuarios') }}
                     </x-nav-link>
 
+                    <x-nav-link :href="route('expedientes.index')" :active="request()->routeIs('expedientes.*')">
+                        {{ __('Expedientes') }}
+                    </x-nav-link>
+
                     <x-nav-link :href="route('plantillas.index')" :active="request()->routeIs('plantillas.*')">
                         {{ __('Plantillas') }}
                     </x-nav-link>

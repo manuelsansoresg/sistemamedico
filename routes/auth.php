@@ -54,6 +54,12 @@ Route::middleware('auth')->group(function () {
 
     Route::put('password', [PasswordController::class, 'update'])->name('password.update');
 
+    Route::get('register/success/transfer', [RegisteredUserController::class, 'successTransfer'])
+        ->name('register.success.transfer');
+
+    Route::get('register/success/card', [RegisteredUserController::class, 'successCard'])
+        ->name('register.success.card');
+
     Route::post('logout', [AuthenticatedSessionController::class, 'destroy'])
         ->name('logout');
 });

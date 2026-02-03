@@ -75,18 +75,18 @@
                                             <div class="flex justify-end items-center space-x-2">
                                                 <a href="{{ route('consultas.create', ['cita_id' => $cita->id]) }}" 
                                                    onclick="return confirm('¿Deseas iniciar la consulta? Se redirigirá a la página de registro de consulta.')"
-                                                   class="inline-flex items-center justify-center w-9 h-9 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors shadow-sm" 
+                                                   class="inline-flex items-center justify-center w-10 h-10 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors shadow-sm" 
                                                    title="Iniciar Consulta">
-                                                    <i class="fas fa-stethoscope"></i>
+                                                    <i class="fas fa-stethoscope text-lg"></i>
                                                 </a>
-                                                <a href="{{ route('citas.edit', $cita) }}" class="inline-flex items-center justify-center w-9 h-9 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors shadow-sm" title="Editar">
-                                                    <i class="fas fa-edit"></i>
+                                                <a href="{{ route('citas.edit', $cita) }}" class="inline-flex items-center justify-center w-10 h-10 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors shadow-sm" title="Editar">
+                                                    <i class="fas fa-edit text-lg"></i>
                                                 </a>
                                                 <form action="{{ route('citas.destroy', $cita) }}" method="POST" class="inline-block" onsubmit="return confirm('¿Estás seguro de que deseas eliminar esta cita?');">
                                                     @csrf
                                                     @method('DELETE')
-                                                    <button type="submit" class="inline-flex items-center justify-center w-9 h-9 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors shadow-sm" title="Eliminar">
-                                                        <i class="fas fa-trash"></i>
+                                                    <button type="submit" class="inline-flex items-center justify-center w-10 h-10 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors shadow-sm" title="Eliminar">
+                                                        <i class="fas fa-trash text-lg"></i>
                                                     </button>
                                                 </form>
                                             </div>

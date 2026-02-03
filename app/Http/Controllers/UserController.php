@@ -7,9 +7,11 @@ use App\Models\Clinica;
 use App\Models\Consultorio;
 use App\Models\Especialidad;
 use Spatie\Permission\Models\Role;
+use Spatie\Permission\Models\Permission;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rules;
+use Illuminate\Support\Facades\Auth;
 
 class UserController extends Controller
 {
@@ -20,10 +22,13 @@ class UserController extends Controller
     {
         $query = User::with('roles');
 
-        if (auth()->user()->hasRole('doctor')) {
-            $query->where(function ($q) {
-                $q->where('id', auth()->id())
-                  ->orWhere('created_by', auth()->id());
+        /** @var \App\Models\User $currentUser */
+        $currentUser = Auth::user();
+
+        if ($currentUser->hasRole('doctor')) {
+            $query->where(function ($q) use ($currentUser) {
+                $q->where('id', $currentUser->id)
+                  ->orWhere('created_by', $currentUser->id);
             });
         }
 
@@ -36,7 +41,10 @@ class UserController extends Controller
      */
     public function create()
     {
-        if (auth()->user()->hasRole('doctor')) {
+        /** @var \App\Models\User $currentUser */
+        $currentUser = Auth::user();
+
+        if ($currentUser->hasRole('doctor')) {
             $roles = Role::whereIn('name', ['asistente', 'secretaria'])->get();
         } else {
             $roles = Role::all();
@@ -45,8 +53,15 @@ class UserController extends Controller
         $clinicas = Clinica::where('activo', true)->get();
         $consultorios = Consultorio::where('activo', true)->get();
         $especialidades = Especialidad::where('activo', true)->get();
+        
+        $permissions = Permission::whereIn('name', [
+            'descargar expedientes',
+            'descargar consultas',
+            'descargar estudios',
+            'descargar estudios con imagenes'
+        ])->get();
 
-        return view('admin.users.create', compact('roles', 'clinicas', 'consultorios', 'especialidades'));
+        return view('admin.users.create', compact('roles', 'clinicas', 'consultorios', 'especialidades', 'permissions'));
     }
 
     /**
@@ -64,7 +79,9 @@ class UserController extends Controller
             'cedula_profesional' => ['nullable', 'string', 'max:50'],
             'especialidad_id' => ['nullable', 'exists:especialidades,id'],
             'role' => ['required', 'exists:roles,name', function ($attribute, $value, $fail) {
-                if (auth()->user()->hasRole('doctor') && !in_array($value, ['asistente', 'secretaria'])) {
+                /** @var \App\Models\User $currentUser */
+                $currentUser = Auth::user();
+                if ($currentUser->hasRole('doctor') && !in_array($value, ['asistente', 'secretaria'])) {
                     $fail('No tienes permisos para asignar este rol.');
                 }
             }],
@@ -72,6 +89,8 @@ class UserController extends Controller
             'clinicas.*' => ['exists:clinicas,id'],
             'consultorios' => ['nullable', 'array'],
             'consultorios.*' => ['exists:consultorios,id'],
+            'permissions' => ['nullable', 'array'],
+            'permissions.*' => ['exists:permissions,name'],
         ]);
 
         $user = User::create([
@@ -83,7 +102,7 @@ class UserController extends Controller
             'telefono' => $request->telefono,
             'cedula_profesional' => $request->cedula_profesional,
             'especialidad_id' => $request->especialidad_id,
-            'created_by' => auth()->id(),
+            'created_by' => Auth::id(),
         ]);
 
         $user->assignRole($request->role);
@@ -95,6 +114,10 @@ class UserController extends Controller
         if ($request->has('consultorios')) {
             $user->consultorios()->sync($request->consultorios);
         }
+        
+        if (in_array($request->role, ['asistente', 'secretaria']) && $request->has('permissions')) {
+            $user->syncPermissions($request->permissions);
+        }
 
         return redirect()->route('users.index')->with('success', 'Usuario creado exitosamente.');
     }
@@ -104,7 +127,10 @@ class UserController extends Controller
      */
     public function edit(User $user)
     {
-        if (auth()->user()->hasRole('doctor')) {
+        /** @var \App\Models\User $currentUser */
+        $currentUser = Auth::user();
+
+        if ($currentUser->hasRole('doctor')) {
             $roles = Role::whereIn('name', ['asistente', 'secretaria'])->get();
         } else {
             $roles = Role::all();
@@ -114,7 +140,14 @@ class UserController extends Controller
         $consultorios = Consultorio::where('activo', true)->get();
         $especialidades = Especialidad::where('activo', true)->get();
         
-        return view('admin.users.edit', compact('user', 'roles', 'clinicas', 'consultorios', 'especialidades'));
+        $permissions = Permission::whereIn('name', [
+            'descargar expedientes',
+            'descargar consultas',
+            'descargar estudios',
+            'descargar estudios con imagenes'
+        ])->get();
+        
+        return view('admin.users.edit', compact('user', 'roles', 'clinicas', 'consultorios', 'especialidades', 'permissions'));
     }
 
     /**
@@ -122,7 +155,10 @@ class UserController extends Controller
      */
     public function update(Request $request, User $user)
     {
-        $request->validate([
+        /** @var \App\Models\User $currentUser */
+        $currentUser = Auth::user();
+
+        $rules = [
             'name' => ['required', 'string', 'max:255'],
             'apellido_paterno' => ['nullable', 'string', 'max:255'],
             'apellido_materno' => ['nullable', 'string', 'max:255'],
@@ -131,16 +167,26 @@ class UserController extends Controller
             'telefono' => ['nullable', 'string', 'max:20'],
             'cedula_profesional' => ['nullable', 'string', 'max:50'],
             'especialidad_id' => ['nullable', 'exists:especialidades,id'],
-            'role' => ['required', 'exists:roles,name', function ($attribute, $value, $fail) {
-                if (auth()->user()->hasRole('doctor') && !in_array($value, ['asistente', 'secretaria'])) {
-                    $fail('No tienes permisos para asignar este rol.');
-                }
-            }],
             'clinicas' => ['nullable', 'array'],
             'clinicas.*' => ['exists:clinicas,id'],
             'consultorios' => ['nullable', 'array'],
             'consultorios.*' => ['exists:consultorios,id'],
-        ]);
+            'permissions' => ['nullable', 'array'],
+            'permissions.*' => ['exists:permissions,name'],
+        ];
+
+        // Only validate role if not doctor editing self
+        $isDoctorSelfEdit = $currentUser->hasRole('doctor') && $user->id === $currentUser->id;
+        
+        if (!$isDoctorSelfEdit) {
+            $rules['role'] = ['required', 'exists:roles,name', function ($attribute, $value, $fail) use ($currentUser) {
+                if ($currentUser->hasRole('doctor') && !in_array($value, ['asistente', 'secretaria'])) {
+                    $fail('No tienes permisos para asignar este rol.');
+                }
+            }];
+        }
+
+        $request->validate($rules);
 
         $userData = [
             'name' => $request->name,
@@ -158,7 +204,9 @@ class UserController extends Controller
 
         $user->update($userData);
 
-        $user->syncRoles([$request->role]);
+        if (!$isDoctorSelfEdit) {
+            $user->syncRoles([$request->role]);
+        }
 
         if ($request->has('clinicas')) {
             $user->clinicas()->sync($request->clinicas);
@@ -171,6 +219,18 @@ class UserController extends Controller
         } else {
             $user->consultorios()->detach();
         }
+        
+        $targetRole = $isDoctorSelfEdit ? $user->roles->first()?->name : $request->role;
+
+        if (in_array($targetRole, ['asistente', 'secretaria'])) {
+            if ($request->has('permissions')) {
+                $user->syncPermissions($request->permissions);
+            } else {
+                $user->syncPermissions([]);
+            }
+        } else {
+            $user->syncPermissions([]);
+        }
 
         return redirect()->route('users.index')->with('success', 'Usuario actualizado exitosamente.');
     }
@@ -180,7 +240,7 @@ class UserController extends Controller
      */
     public function destroy(User $user)
     {
-        if ($user->id === auth()->id()) {
+        if ($user->id === Auth::id()) {
             return redirect()->route('users.index')->with('error', 'No puedes eliminar tu propio usuario.');
         }
         

@@ -102,4 +102,9 @@ class User extends Authenticatable
     {
         return $this->hasMany(User::class, 'created_by');
     }
+
+    public function suscripciones()
+    {
+        return $this->hasMany(Suscripcion::class);
+    }
 }

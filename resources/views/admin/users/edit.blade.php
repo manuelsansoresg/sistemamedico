@@ -101,21 +101,28 @@
                         </div>
 
                         <!-- Sección: Rol y Asignaciones -->
-                        <div class="mb-8">
+                        <div class="mb-8" x-data="{ selectedRole: '{{ old('role', $user->roles->first()?->name) }}' }">
                             <h3 class="text-lg font-medium leading-6 text-gray-900 border-b pb-2 mb-4">Rol y Asignaciones</h3>
                             
                             <div class="mb-6">
                                 <label for="role" class="block text-sm font-bold text-gray-700 mb-2">Rol del Usuario</label>
-                                <div class="flex flex-wrap gap-4">
-                                    @foreach($roles as $role)
-                                        <div class="flex items-center">
-                                            <input type="radio" name="role" id="role_{{ $role->id }}" value="{{ $role->name }}" class="focus:ring-blue-500 h-4 w-4 text-blue-600 border-gray-300" {{ old('role', $user->roles->first()?->name) == $role->name ? 'checked' : '' }} required>
-                                            <label for="role_{{ $role->id }}" class="ml-2 block text-sm text-gray-700 uppercase">
-                                                {{ $role->name }}
-                                            </label>
-                                        </div>
-                                    @endforeach
-                                </div>
+                                @if(auth()->user()->hasRole('doctor') && auth()->id() === $user->id)
+                                    <div class="p-2 bg-gray-100 rounded border border-gray-300">
+                                        <span class="text-gray-700 uppercase font-medium">{{ $user->roles->first()?->name }}</span>
+                                        <p class="text-xs text-gray-500 mt-1">No puedes modificar tu propio rol.</p>
+                                    </div>
+                                @else
+                                    <div class="flex flex-wrap gap-4">
+                                        @foreach($roles as $role)
+                                            <div class="flex items-center">
+                                                <input type="radio" x-model="selectedRole" name="role" id="role_{{ $role->id }}" value="{{ $role->name }}" class="focus:ring-blue-500 h-4 w-4 text-blue-600 border-gray-300" {{ old('role', $user->roles->first()?->name) == $role->name ? 'checked' : '' }} required>
+                                                <label for="role_{{ $role->id }}" class="ml-2 block text-sm text-gray-700 uppercase">
+                                                    {{ $role->name }}
+                                                </label>
+                                            </div>
+                                        @endforeach
+                                    </div>
+                                @endif
                             </div>
 
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -149,6 +156,24 @@
                                     <p class="text-xs text-gray-500 mt-1">Selecciona los consultorios a los que este usuario tendrá acceso.</p>
                                 </div>
                             </div>
+
+                            @if(auth()->user()->hasRole(['doctor', 'root']))
+                            <div class="mt-6" x-show="['asistente', 'secretaria'].includes(selectedRole)" x-transition>
+                                <label class="block text-sm font-bold text-gray-700 mb-2">Permisos de Descarga (Expedientes)</label>
+                                <div class="bg-gray-50 p-4 rounded-md border border-gray-200">
+                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                        @foreach($permissions as $permission)
+                                        <div class="flex items-center">
+                                            <input type="checkbox" name="permissions[]" id="perm_{{ $permission->id }}" value="{{ $permission->name }}" class="rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-500 focus:ring-blue-500" {{ (is_array(old('permissions')) && in_array($permission->name, old('permissions'))) || (empty(old('permissions')) && $user->hasPermissionTo($permission->name)) ? 'checked' : '' }}>
+                                            <label for="perm_{{ $permission->id }}" class="ml-2 text-sm text-gray-700 capitalize">
+                                                {{ str_replace('descargar ', '', $permission->name) }}
+                                            </label>
+                                        </div>
+                                        @endforeach
+                                    </div>
+                                </div>
+                            </div>
+                            @endif
                         </div>
 
                         <div class="flex justify-end mt-6">

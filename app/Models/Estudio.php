@@ -19,4 +19,9 @@ class Estudio extends Model
     {
         return $this->belongsTo(Consulta::class);
     }
+
+    public function archivos()
+    {
+        return $this->hasMany(EstudioArchivo::class);
+    }
 }

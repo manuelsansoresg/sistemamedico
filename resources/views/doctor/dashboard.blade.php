@@ -1,9 +1,4 @@
 <x-app-layout>
-    <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-            {{ __('Panel Médico') }}
-        </h2>
-    </x-slot>
 
     <div class="py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-6">
@@ -54,18 +49,20 @@
                                                 </span>
                                             </td>
                                             <td class="px-4 py-2 whitespace-nowrap text-right text-sm font-medium">
-                                                <a href="{{ route('consultas.create', ['cita_id' => $cita->id]) }}" class="text-blue-600 hover:text-blue-900 mr-2" title="Iniciar Consulta">
-                                                    <i class="fas fa-stethoscope"></i>
-                                                </a>
-                                                @if($cita->estado !== 'cancelada')
-                                                <form action="{{ route('citas.destroy', $cita) }}" method="POST" class="inline-block" onsubmit="return confirm('¿Estás seguro de eliminar esta cita?');">
-                                                    @csrf
-                                                    @method('DELETE')
-                                                    <button type="submit" class="text-red-600 hover:text-red-900" title="Eliminar Cita">
-                                                        <i class="fas fa-trash-alt"></i>
-                                                    </button>
-                                                </form>
-                                                @endif
+                                                <div class="flex justify-end items-center space-x-2">
+                                                    <a href="{{ route('consultas.create', ['cita_id' => $cita->id]) }}" class="inline-flex items-center justify-center px-4 py-2 bg-blue-600 text-white font-bold rounded-md hover:bg-blue-700 transition-colors shadow-sm" title="Iniciar Consulta">
+                                                        <i class="fas fa-stethoscope mr-2"></i> INICIAR
+                                                    </a>
+                                                    @if($cita->estado !== 'cancelada')
+                                                    <form action="{{ route('citas.destroy', $cita) }}" method="POST" class="inline-block" onsubmit="return confirm('¿Estás seguro de eliminar esta cita?');">
+                                                        @csrf
+                                                        @method('DELETE')
+                                                        <button type="submit" class="inline-flex items-center justify-center w-10 h-10 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors shadow-sm" title="Eliminar Cita">
+                                                            <i class="fas fa-trash-alt text-xl"></i>
+                                                        </button>
+                                                    </form>
+                                                    @endif
+                                                </div>
                                             </td>
                                         </tr>
                                     @endforeach
@@ -174,6 +171,14 @@
                         <i class="fas fa-clipboard-list text-3xl text-[#2563EB]"></i>
                     </div>
                     <span class="font-bold text-gray-800 text-sm tracking-wide">PENDIENTES</span>
+                </a>
+
+                <!-- Expedientes -->
+                <a href="{{ route('expedientes.index') }}" class="flex flex-col items-center justify-center p-8 bg-white border border-gray-100 rounded-2xl shadow-[0_2px_15px_-3px_rgba(0,0,0,0.07),0_10px_20px_-2px_rgba(0,0,0,0.04)] hover:shadow-lg transition-all duration-300 group h-48">
+                    <div class="w-20 h-20 bg-blue-50 rounded-full flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300">
+                        <i class="fas fa-folder-open text-3xl text-[#2563EB]"></i>
+                    </div>
+                    <span class="font-bold text-gray-800 text-sm tracking-wide">EXPEDIENTES</span>
                 </a>
 
                 <!-- Plantillas -->

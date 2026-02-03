@@ -250,11 +250,18 @@
                                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ $historia->doctor->name }} {{ $historia->doctor->apellido_paterno }}</td>
                                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $historia->plantilla->nombre }}</td>
                                             <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium space-x-2">
-                                                <a href="{{ route('consultas.print', $historia) }}" target="_blank" class="text-gray-600 hover:text-gray-900" title="Imprimir"><i class="fas fa-print"></i></a>
+                                                <a href="{{ route('consultas.edit', $historia) }}" class="inline-flex items-center justify-center w-10 h-10 bg-yellow-500 text-white rounded-md hover:bg-yellow-600 transition-colors shadow-sm" title="Editar">
+                                                    <i class="fas fa-edit text-xl"></i>
+                                                </a>
+                                                <a href="{{ route('consultas.print', $historia) }}" target="_blank" class="inline-flex items-center justify-center w-10 h-10 bg-gray-800 text-white rounded-md hover:bg-gray-900 transition-colors shadow-sm" style="background-color: #1f2937;" title="Imprimir">
+                                                    <i class="fas fa-print text-xl"></i>
+                                                </a>
                                                 <form action="{{ route('consultas.destroy', $historia) }}" method="POST" class="inline-block" onsubmit="return confirm('¿Estás seguro de eliminar esta consulta?');">
                                                     @csrf
                                                     @method('DELETE')
-                                                    <button type="submit" class="text-red-600 hover:text-red-900" title="Borrar"><i class="fas fa-trash"></i></button>
+                                                    <button type="submit" class="inline-flex items-center justify-center w-10 h-10 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors shadow-sm" title="Borrar">
+                                                        <i class="fas fa-trash text-xl"></i>
+                                                    </button>
                                                 </form>
                                             </td>
                                         </tr>
@@ -274,7 +281,7 @@
                     
                     @if($historialConsultas->count() > 0)
                         <!-- Select which consulta to attach study to, usually the latest one -->
-                        <form action="{{ route('consultas.estudios.store', $historialConsultas->first()->id) }}" method="POST">
+                        <form action="{{ route('consultas.estudios.store', $historialConsultas->first()->id) }}" method="POST" enctype="multipart/form-data">
                             @csrf
                             <div class="mb-4">
                                 <label class="block text-sm font-medium text-gray-700">Orden de Estudio</label>
@@ -284,6 +291,47 @@
                                 <label class="block text-sm font-medium text-gray-700">Observaciones</label>
                                 <textarea name="observacion" rows="2" class="mt-1 shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-md" placeholder="Observaciones adicionales..."></textarea>
                             </div>
+                            
+                            <div class="mb-4">
+                                <label class="block text-sm font-medium text-gray-700">Adjuntar Imágenes/Archivos (Opcional)</label>
+                                
+                                <div 
+                                    class="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-md transition-colors duration-200"
+                                    :class="{ 'border-blue-500 bg-blue-50': isDragging }"
+                                    @dragover.prevent="isDragging = true"
+                                    @dragleave.prevent="isDragging = false"
+                                    @drop.prevent="handleDrop($event)"
+                                >
+                                    <div class="space-y-1 text-center">
+                                        <i class="fas fa-cloud-upload-alt text-4xl text-gray-400 mb-2" :class="{ 'text-blue-500': isDragging }"></i>
+                                        <div class="flex text-sm text-gray-600 justify-center">
+                                            <label for="file-upload" class="relative cursor-pointer bg-white rounded-md font-medium text-blue-600 hover:text-blue-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-blue-500">
+                                                <span>Subir archivos</span>
+                                                <input id="file-upload" name="archivos[]" type="file" class="sr-only" multiple accept="image/*,.pdf" x-ref="fileInput" @change="handleFiles($event)">
+                                            </label>
+                                            <p class="pl-1">o arrastrar y soltar</p>
+                                        </div>
+                                        <p class="text-xs text-gray-500">PNG, JPG, PDF hasta 5MB</p>
+                                    </div>
+                                </div>
+
+                                <!-- File List -->
+                                <div class="mt-4 space-y-2" x-show="filesArray.length > 0">
+                                    <template x-for="(file, index) in filesArray" :key="index">
+                                        <div class="flex items-center justify-between p-2 bg-gray-50 rounded-md border border-gray-200">
+                                            <div class="flex items-center space-x-2 truncate">
+                                                <i class="fas fa-file text-gray-400"></i>
+                                                <span class="text-sm text-gray-600 truncate" x-text="file.name"></span>
+                                                <span class="text-xs text-gray-400" x-text="(file.size / 1024).toFixed(2) + ' KB'"></span>
+                                            </div>
+                                            <button type="button" @click="removeFile(index)" class="text-red-500 hover:text-red-700">
+                                                <i class="fas fa-times"></i>
+                                            </button>
+                                        </div>
+                                    </template>
+                                </div>
+                            </div>
+
                             <div class="flex justify-end">
                                 <button type="submit" class="inline-flex items-center px-4 py-2 bg-blue-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-blue-700 active:bg-blue-900 focus:outline-none focus:border-blue-900 focus:ring ring-blue-300 disabled:opacity-25 transition ease-in-out duration-150">
                                     <i class="fas fa-save mr-2"></i> Guardar Orden
@@ -315,8 +363,48 @@
                                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $estudio->created_at->format('d/m/Y H:i') }}</td>
                                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ $estudio->consulta->doctor->name }} {{ $estudio->consulta->doctor->apellido_paterno }}</td>
                                             <td class="px-6 py-4 text-sm text-gray-500 truncate max-w-xs">{{ Str::limit($estudio->orden, 50) }}</td>
-                                            <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium space-x-2">
-                                                <a href="{{ route('consultas.estudios.print', $estudio) }}" target="_blank" class="text-gray-600 hover:text-gray-900" title="Imprimir"><i class="fas fa-print"></i></a>
+                                            <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                                <div class="flex justify-end items-center space-x-2">
+                                                    <!-- Edit Button -->
+                                                    <a href="{{ route('consultas.estudios.edit', $estudio) }}" class="inline-flex items-center justify-center w-10 h-10 bg-yellow-500 text-white rounded-md hover:bg-yellow-600 transition-colors shadow-sm" title="Editar">
+                                                        <i class="fas fa-edit text-xl"></i>
+                                                    </a>
+
+                                                    <!-- Print Button -->
+                                                    <a href="{{ route('consultas.estudios.print', $estudio) }}" target="_blank" class="inline-flex items-center justify-center w-10 h-10 bg-gray-800 text-white rounded-md hover:bg-gray-900 transition-colors shadow-sm" style="background-color: #1f2937;" title="Imprimir">
+                                                        <i class="fas fa-print text-xl"></i>
+                                                    </a>
+
+                                                    <!-- View Files Button -->
+                                                    @if($estudio->archivos && $estudio->archivos->count() > 0)
+                                                    <div x-data="{ openFiles: false }">
+                                                        <button @click="openFiles = !openFiles" type="button" class="inline-flex items-center justify-center w-10 h-10 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors shadow-sm" title="Ver Archivos">
+                                                            <i class="fas fa-images text-xl"></i>
+                                                        </button>
+                                                        <!-- Files Popover -->
+                                                        <div x-show="openFiles" @click.away="openFiles = false" class="absolute right-0 mt-2 w-64 bg-white rounded-md shadow-lg z-50 border border-gray-200 max-h-60 overflow-y-auto" style="display: none;">
+                                                            <ul class="py-1">
+                                                                @foreach($estudio->archivos as $archivo)
+                                                                    <li>
+                                                                        <a href="{{ Storage::url($archivo->path) }}" target="_blank" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 truncate">
+                                                                            <i class="fas fa-file mr-2 text-gray-400"></i> {{ $archivo->nombre_original }}
+                                                                        </a>
+                                                                    </li>
+                                                                @endforeach
+                                                            </ul>
+                                                        </div>
+                                                    </div>
+                                                    @endif
+
+                                                    <!-- Delete Button -->
+                                                    <form action="{{ route('consultas.estudios.destroy', $estudio) }}" method="POST" class="inline-block" onsubmit="return confirm('¿Estás seguro de eliminar esta orden de estudio?');">
+                                                        @csrf
+                                                        @method('DELETE')
+                                                        <button type="submit" class="inline-flex items-center justify-center w-10 h-10 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors shadow-sm" title="Borrar">
+                                                            <i class="fas fa-trash text-xl"></i>
+                                                        </button>
+                                                    </form>
+                                                </div>
                                             </td>
                                         </tr>
                                     @empty
@@ -341,10 +429,48 @@
                 estatura: "{{ $paciente->estatura ?? '' }}",
                 alergias: "{{ $paciente->alergias ?? '' }}",
                 selectedPlantillaId: '',
-                    campos: [],
-                    showHistory: false,
+                campos: [],
+                showHistory: false,
+                
+                // File Upload Logic
+                isDragging: false,
+                filesArray: [],
+
+                handleDrop(e) {
+                    this.isDragging = false;
+                    const droppedFiles = e.dataTransfer.files;
+                    this.addFiles(droppedFiles);
+                },
+
+                handleFiles(e) {
+                    const files = e.target.files;
+                    this.addFiles(files);
+                },
+
+                addFiles(files) {
+                    for(let i=0; i<files.length; i++) {
+                        if(files[i].size <= 5242880) { // 5MB
+                            // Check for duplicates?
+                            this.filesArray.push(files[i]);
+                        } else {
+                            alert('El archivo ' + files[i].name + ' excede el límite de 5MB');
+                        }
+                    }
+                    this.updateFileInput();
+                },
+
+                removeFile(index) {
+                    this.filesArray.splice(index, 1);
+                    this.updateFileInput();
+                },
+
+                updateFileInput() {
+                    const dt = new DataTransfer();
+                    this.filesArray.forEach(file => dt.items.add(file));
+                    this.$refs.fileInput.files = dt.files;
+                },
                     
-                    async loadPlantillaCampos() {
+                async loadPlantillaCampos() {
                     if (!this.selectedPlantillaId) {
                         this.campos = [];
                         return;
