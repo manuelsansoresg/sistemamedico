@@ -5,7 +5,7 @@
             <nav class="flex mb-4" aria-label="Breadcrumb">
                 <ol class="inline-flex items-center space-x-1 md:space-x-3">
                     <li class="inline-flex items-center">
-                        <a href="{{ route('admin.dashboard') }}" class="inline-flex items-center text-sm font-medium text-gray-700 hover:text-blue-600">
+                        <a href="{{ route('admin.dashboard') }}" class="inline-flex items-center text-sm font-medium text-gray-700 hover:text-[#0061F5]">
                             <i class="fas fa-home mr-2"></i>
                             Inicio
                         </a>
@@ -13,7 +13,7 @@
                     <li>
                         <div class="flex items-center">
                             <i class="fas fa-chevron-right text-gray-400 mx-1"></i>
-                            <a href="{{ route('configuraciones.index') }}" class="ml-1 text-sm font-medium text-gray-700 hover:text-blue-600 md:ml-2">Configuraciones</a>
+                            <a href="{{ route('configuraciones.index') }}" class="ml-1 text-sm font-medium text-gray-700 hover:text-[#0061F5] md:ml-2">Configuraciones</a>
                         </div>
                     </li>
                     <li aria-current="page">
@@ -48,7 +48,7 @@
                                 <!-- Usuario -->
                                 <div>
                                     <label for="user_id" class="block text-sm font-bold text-gray-700">Usuario</label>
-                                    <select name="user_id" id="user_id" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                                    <select name="user_id" id="user_id" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-[#0061F5] focus:ring-[#0061F5]">
                                         <option value="">Seleccione un usuario</option>
                                         @foreach($users as $user)
                                             <option value="{{ $user->id }}" {{ old('user_id', $configuracion->user_id) == $user->id ? 'selected' : '' }}>{{ $user->name }} ({{ $user->email }})</option>
@@ -65,9 +65,9 @@
                                             name="aceptar_transferencia_bancaria" 
                                             value="1" 
                                             x-model="transfer"
-                                            class="rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                                            class="rounded border-gray-300 text-[#0061F5] shadow-sm focus:border-[#0061F5] focus:ring-[#0061F5]"
                                         >
-                                        <span class="ml-2 text-blue-600 font-medium">Sí</span>
+                                        <span class="ml-2 text-[#0061F5] font-medium">Sí</span>
                                     </div>
                                 </div>
 
@@ -75,22 +75,22 @@
                                 <div x-show="transfer" x-transition class="space-y-4">
                                     <div>
                                         <label for="banco" class="block text-sm font-bold text-gray-700">Banco</label>
-                                        <input type="text" name="banco" id="banco" value="{{ old('banco', $configuracion->banco) }}" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                                        <input type="text" name="banco" id="banco" value="{{ old('banco', $configuracion->banco) }}" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-[#0061F5] focus:ring-[#0061F5]">
                                     </div>
 
                                     <div>
                                         <label for="titular" class="block text-sm font-bold text-gray-700">Titular</label>
-                                        <input type="text" name="titular" id="titular" value="{{ old('titular', $configuracion->titular) }}" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                                        <input type="text" name="titular" id="titular" value="{{ old('titular', $configuracion->titular) }}" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-[#0061F5] focus:ring-[#0061F5]">
                                     </div>
 
                                     <div>
                                         <label for="cuenta" class="block text-sm font-bold text-gray-700">Cuenta</label>
-                                        <input type="text" name="cuenta" id="cuenta" value="{{ old('cuenta', $configuracion->cuenta) }}" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                                        <input type="text" name="cuenta" id="cuenta" value="{{ old('cuenta', $configuracion->cuenta) }}" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-[#0061F5] focus:ring-[#0061F5]">
                                     </div>
 
                                     <div>
                                         <label for="clabe" class="block text-sm font-bold text-gray-700">CLABE</label>
-                                        <input type="text" name="clabe" id="clabe" value="{{ old('clabe', $configuracion->clabe) }}" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                                        <input type="text" name="clabe" id="clabe" value="{{ old('clabe', $configuracion->clabe) }}" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-[#0061F5] focus:ring-[#0061F5]">
                                     </div>
                                 </div>
                             </div>
@@ -105,10 +105,10 @@
                                             type="checkbox" 
                                             name="aceptar_pagos_con_tarjeta" 
                                             value="1" 
-                                            class="rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                                            class="rounded border-gray-300 text-[#0061F5] shadow-sm focus:border-[#0061F5] focus:ring-[#0061F5]"
                                             {{ old('aceptar_pagos_con_tarjeta', $configuracion->aceptar_pagos_con_tarjeta) ? 'checked' : '' }}
                                         >
-                                        <span class="ml-2 text-blue-600 font-medium">Sí</span>
+                                        <span class="ml-2 text-[#0061F5] font-medium">Sí</span>
                                     </div>
                                 </div>
                             </div>

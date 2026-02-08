@@ -36,7 +36,7 @@
     </div>
 
     <div class="content-section">
-        <h3 style="margin-top: 0; color: #2980b9;">Estudios Solicitados:</h3>
+        <h3 style="margin-top: 0; color: #0061F5;">Estudios Solicitados:</h3>
         <p>{!! nl2br(e($estudio->orden)) !!}</p>
         
         @if($estudio->observacion)

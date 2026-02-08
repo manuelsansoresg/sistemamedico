@@ -25,21 +25,33 @@ class ComprobantePagoController extends Controller
         $suscripcion = Suscripcion::where('token_pago', $token)->firstOrFail();
 
         $request->validate([
-            'comprobante' => 'required|file|mimes:pdf,jpg,jpeg,png|max:5120', // Max 5MB
+            'comprobante' => 'required|file|mimes:pdf,jpg,jpeg,png|max:2048', // Max 2MB
         ]);
 
         if ($request->hasFile('comprobante')) {
-            $path = $request->file('comprobante')->store('comprobantes', 'public');
+            $file = $request->file('comprobante');
+            $filename = time() . '_' . $file->getClientOriginalName();
+            
+            // Guardar directamente en public/comprobantes
+            $file->move(public_path('comprobantes'), $filename);
+            
+            // Guardar la ruta relativa para acceso web
+            $path = 'comprobantes/' . $filename;
             
             $suscripcion->update([
                 'comprobante_pago' => $path,
-                // No cambiamos a 'pagado' automáticamente, el admin debe validar
-                // Pero podríamos poner un estatus intermedio si existiera, o dejar en pendiente
             ]);
 
-            return redirect()->back()->with('success', 'Comprobante subido exitosamente. Tu cuenta será activada una vez validemos el pago.');
+            return redirect()->route('suscripciones.comprobante_enviado', $token);
         }
 
         return redirect()->back()->with('error', 'Hubo un problema al subir el archivo.');
+    }
+
+    public function enviado($token)
+    {
+        // Validar que exista la suscripción
+        $suscripcion = Suscripcion::where('token_pago', $token)->firstOrFail();
+        return view('public.comprobante_enviado');
     }
 }

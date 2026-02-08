@@ -38,6 +38,8 @@ class User extends Authenticatable
         'peso',
         'estatura',
         'alergias',
+        'estatus_cedula',
+        'cedula_validada_at',
     ];
 
     /**

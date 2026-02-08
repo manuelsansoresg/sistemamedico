@@ -11,22 +11,20 @@ use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
 
-class InstruccionesTransferenciaMail extends Mailable
+class BienvenidaTarjetaMail extends Mailable
 {
     use Queueable, SerializesModels;
 
     public $suscripcion;
     public $user;
-    public $urlSubirComprobante;
 
     /**
      * Create a new message instance.
      */
-    public function __construct(Suscripcion $suscripcion, User $user, string $urlSubirComprobante)
+    public function __construct(Suscripcion $suscripcion, User $user)
     {
         $this->suscripcion = $suscripcion;
         $this->user = $user;
-        $this->urlSubirComprobante = $urlSubirComprobante;
     }
 
     /**
@@ -35,7 +33,7 @@ class InstruccionesTransferenciaMail extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Instrucciones para activar tu suscripción - Sistema Médico',
+            subject: '¡Bienvenido a Sistema Médico! Tu cuenta está activa',
         );
     }
 
@@ -45,7 +43,7 @@ class InstruccionesTransferenciaMail extends Mailable
     public function content(): Content
     {
         return new Content(
-            view: 'emails.suscripciones.instrucciones_transferencia',
+            view: 'emails.suscripciones.bienvenida_tarjeta',
         );
     }
 

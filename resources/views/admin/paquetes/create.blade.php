@@ -5,7 +5,7 @@
             <nav class="flex mb-4" aria-label="Breadcrumb">
                 <ol class="inline-flex items-center space-x-1 md:space-x-3">
                     <li class="inline-flex items-center">
-                        <a href="{{ route('admin.dashboard') }}" class="inline-flex items-center text-sm font-medium text-gray-700 hover:text-blue-600">
+                        <a href="{{ route('admin.dashboard') }}" class="inline-flex items-center text-sm font-medium text-gray-700 hover:text-[#0061F5]">
                             <i class="fas fa-home mr-2"></i>
                             Inicio
                         </a>
@@ -13,7 +13,7 @@
                     <li>
                         <div class="flex items-center">
                             <i class="fas fa-chevron-right text-gray-400 mx-1"></i>
-                            <a href="{{ route('paquetes.index') }}" class="ml-1 text-sm font-medium text-gray-700 hover:text-blue-600 md:ml-2">Paquetes</a>
+                            <a href="{{ route('paquetes.index') }}" class="ml-1 text-sm font-medium text-gray-700 hover:text-[#0061F5] md:ml-2">Paquetes</a>
                         </div>
                     </li>
                     <li aria-current="page">
@@ -48,7 +48,7 @@
                                 <!-- Nombre -->
                                 <div>
                                     <label for="nombre" class="block text-sm font-bold text-gray-700 uppercase">*NOMBRE</label>
-                                    <input type="text" name="nombre" id="nombre" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" required>
+                                    <input type="text" name="nombre" id="nombre" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-[#0061F5] focus:ring-[#0061F5]" required>
                                 </div>
 
                                 <!-- Elementos (Catalogos) -->
@@ -64,7 +64,7 @@
                                                         value="1" 
                                                         x-model="checked"
                                                         @change="updateTotal()"
-                                                        class="focus:ring-blue-500 h-4 w-4 text-blue-600 border-gray-300 rounded"
+                                                        class="focus:ring-[#0061F5] h-4 w-4 text-[#0061F5] border-gray-300 rounded"
                                                     >
                                                 </div>
                                                 <div class="ml-3 w-full">
@@ -78,7 +78,7 @@
                                                                 type="number" 
                                                                 name="elementos[{{ $catalogo->id }}][cantidad_maxima]" 
                                                                 placeholder="Valor"
-                                                                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm"
+                                                                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-[#0061F5] focus:ring-[#0061F5] text-sm"
                                                                 @input="updateTotal()"
                                                             >
                                                         </div>
@@ -90,7 +90,7 @@
                                                                 name="elementos[{{ $catalogo->id }}][precio]" 
                                                                 value="{{ $catalogo->precio }}"
                                                                 data-price="{{ $catalogo->precio }}"
-                                                                class="package-item-price mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm"
+                                                                class="package-item-price mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-[#0061F5] focus:ring-[#0061F5] text-sm"
                                                                 @input="updateTotal()"
                                                             >
                                                         </div>
@@ -110,7 +110,7 @@
                                 <!-- Tipo -->
                                 <div>
                                     <label for="tipo" class="block text-sm font-bold text-gray-700 uppercase">Tipo</label>
-                                    <select name="tipo" id="tipo" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" required>
+                                    <select name="tipo" id="tipo" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-[#0061F5] focus:ring-[#0061F5]" required>
                                         <option value="">Seleccione una opción</option>
                                         <option value="clinica" {{ old('tipo') == 'clinica' ? 'selected' : '' }}>Clínica</option>
                                         <option value="consultorio" {{ old('tipo') == 'consultorio' ? 'selected' : '' }}>Consultorio</option>
@@ -123,7 +123,7 @@
                                 <!-- Precio -->
                                 <div>
                                     <label for="precio" class="block text-sm font-bold text-gray-700 uppercase">*PRECIO</label>
-                                    <input type="number" step="0.01" name="precio" id="precio" value="{{ old('precio') }}" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" required>
+                                    <input type="number" step="0.01" name="precio" id="precio" value="{{ old('precio') }}" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-[#0061F5] focus:ring-[#0061F5]" required>
                                 </div>
 
                                 <!-- Validar Cédula -->
@@ -131,7 +131,7 @@
                                     <label for="validar_cedula" class="block text-sm font-bold text-gray-700 uppercase">*VALIDAR CÉDULA</label>
                                     <div class="mt-2">
                                         <label class="inline-flex items-center">
-                                            <input type="checkbox" name="validar_cedula" class="rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                                            <input type="checkbox" name="validar_cedula" class="rounded border-gray-300 text-[#0061F5] shadow-sm focus:border-[#0061F5] focus:ring-[#0061F5]">
                                             <span class="ml-2 text-gray-600">SÍ</span>
                                         </label>
                                     </div>
@@ -142,7 +142,7 @@
                                     <label for="activo" class="block text-sm font-bold text-gray-700 uppercase">*ACTIVO</label>
                                     <div class="mt-2">
                                         <label class="inline-flex items-center">
-                                            <input type="checkbox" name="activo" class="rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-500 focus:ring-blue-500" checked>
+                                            <input type="checkbox" name="activo" class="rounded border-gray-300 text-[#0061F5] shadow-sm focus:border-[#0061F5] focus:ring-[#0061F5]" checked>
                                             <span class="ml-2 text-gray-600">Activo</span>
                                         </label>
                                     </div>

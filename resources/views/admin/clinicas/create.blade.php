@@ -5,7 +5,7 @@
             <nav class="flex mb-4" aria-label="Breadcrumb">
                 <ol class="inline-flex items-center space-x-1 md:space-x-3">
                     <li class="inline-flex items-center">
-                        <a href="{{ route('dashboard') }}" class="inline-flex items-center text-sm font-medium text-gray-700 hover:text-blue-600">
+                        <a href="{{ route('dashboard') }}" class="inline-flex items-center text-sm font-medium text-gray-700 hover:text-[#0061F5]">
                             <i class="fas fa-home mr-2"></i>
                             Inicio
                         </a>
@@ -13,7 +13,7 @@
                     <li>
                         <div class="flex items-center">
                             <i class="fas fa-chevron-right text-gray-400 mx-1"></i>
-                            <a href="{{ route('clinicas.index') }}" class="ml-1 text-sm font-medium text-gray-700 hover:text-blue-600 md:ml-2">Clínicas</a>
+                            <a href="{{ route('clinicas.index') }}" class="ml-1 text-sm font-medium text-gray-700 hover:text-[#0061F5] md:ml-2">Clínicas</a>
                         </div>
                     </li>
                     <li aria-current="page">
@@ -45,36 +45,36 @@
                             <!-- Nombre -->
                             <div>
                                 <label for="nombre" class="block text-sm font-bold text-gray-700">Nombre</label>
-                                <input type="text" name="nombre" id="nombre" value="{{ old('nombre') }}" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" required>
+                                <input type="text" name="nombre" id="nombre" value="{{ old('nombre') }}" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-[#0061F5] focus:ring-[#0061F5]" required>
                             </div>
 
                             <!-- Dirección -->
                             <div>
                                 <label for="direccion" class="block text-sm font-bold text-gray-700">Dirección</label>
-                                <input type="text" name="direccion" id="direccion" value="{{ old('direccion') }}" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" required>
+                                <input type="text" name="direccion" id="direccion" value="{{ old('direccion') }}" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-[#0061F5] focus:ring-[#0061F5]" required>
                             </div>
 
                             <!-- Teléfono -->
                             <div>
                                 <label for="telefono" class="block text-sm font-bold text-gray-700">Teléfono</label>
-                                <input type="text" name="telefono" id="telefono" value="{{ old('telefono') }}" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" required>
+                                <input type="text" name="telefono" id="telefono" value="{{ old('telefono') }}" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-[#0061F5] focus:ring-[#0061F5]" required>
                             </div>
 
                             <!-- Ubicación -->
                             <div>
                                 <label for="ubicacion" class="block text-sm font-bold text-gray-700">Ubicación</label>
-                                <textarea name="ubicacion" id="ubicacion" rows="3" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">{{ old('ubicacion') }}</textarea>
+                                <textarea name="ubicacion" id="ubicacion" rows="3" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-[#0061F5] focus:ring-[#0061F5]">{{ old('ubicacion') }}</textarea>
                             </div>
 
                             <!-- Logotipo -->
                             <div>
                                 <label for="logotipo" class="block text-sm font-bold text-gray-700">Logotipo</label>
-                                <input type="file" name="logotipo" id="logotipo" class="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
+                                <input type="file" name="logotipo" id="logotipo" class="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-[#E6F0FF] file:text-[#0061F5] hover:file:bg-[#CCE0FF]">
                             </div>
 
                             <!-- Activo -->
                             <div class="flex items-center">
-                                <input type="checkbox" name="activo" id="activo" value="1" class="rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-500 focus:ring-blue-500" {{ old('activo', '1') ? 'checked' : '' }}>
+                                <input type="checkbox" name="activo" id="activo" value="1" class="rounded border-gray-300 text-[#0061F5] shadow-sm focus:border-[#0061F5] focus:ring-[#0061F5]" {{ old('activo', '1') ? 'checked' : '' }}>
                                 <label for="activo" class="ml-2 block text-sm font-medium text-gray-700">Activo</label>
                             </div>
                         </div>

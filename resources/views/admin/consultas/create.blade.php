@@ -6,7 +6,7 @@
             <nav class="flex" aria-label="Breadcrumb">
                 <ol class="inline-flex items-center space-x-1 md:space-x-3">
                     <li class="inline-flex items-center">
-                        <a href="{{ route('dashboard') }}" class="inline-flex items-center text-sm font-medium text-gray-700 hover:text-blue-600">
+                        <a href="{{ route('dashboard') }}" class="inline-flex items-center text-sm font-medium text-gray-700 hover:text-[#0061F5]">
                             <i class="fas fa-home mr-2"></i>
                             Inicio
                         </a>
@@ -14,7 +14,7 @@
                     <li>
                         <div class="flex items-center">
                             <i class="fas fa-chevron-right text-gray-400 mx-1"></i>
-                            <a href="{{ route('citas.index') }}" class="ml-1 text-sm font-medium text-gray-700 hover:text-blue-600 md:ml-2">Citas</a>
+                            <a href="{{ route('citas.index') }}" class="ml-1 text-sm font-medium text-gray-700 hover:text-[#0061F5] md:ml-2">Citas</a>
                         </div>
                     </li>
                     <li aria-current="page">
@@ -27,17 +27,17 @@
             </nav>
 
             <!-- Patient Header Info -->
-            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6 border-l-4 border-blue-600">
+            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6 border-l-4 border-[#0061F5]">
                 <div class="flex justify-between items-start">
                     <div>
                         <h2 class="text-2xl font-bold text-gray-800">
                             {{ $paciente->name }} {{ $paciente->apellido_paterno }} {{ $paciente->apellido_materno }}
                         </h2>
                         <div class="mt-2 flex flex-wrap gap-4 text-sm text-gray-600">
-                            <span class="flex items-center"><i class="fas fa-birthday-cake mr-2 text-blue-500"></i> {{ $paciente->fecha_nacimiento ? $paciente->fecha_nacimiento->format('d/m/Y') : 'N/A' }}</span>
-                            <span class="flex items-center"><i class="fas fa-user-clock mr-2 text-blue-500"></i> {{ $paciente->fecha_nacimiento ? $paciente->fecha_nacimiento->age . ' años' : 'N/A' }}</span>
-                            <span class="flex items-center"><i class="fas fa-venus-mars mr-2 text-blue-500"></i> {{ $paciente->sexo == 'M' ? 'Masculino' : 'Femenino' }}</span>
-                            <span class="flex items-center"><i class="fas fa-clinic-medical mr-2 text-blue-500"></i> <span class="text-gray-500 mr-1">Consultorio:</span> {{ $cita->consultorio->nombre }}</span>
+                            <span class="flex items-center"><i class="fas fa-birthday-cake mr-2 text-[#0061F5]"></i> {{ $paciente->fecha_nacimiento ? $paciente->fecha_nacimiento->format('d/m/Y') : 'N/A' }}</span>
+                            <span class="flex items-center"><i class="fas fa-user-clock mr-2 text-[#0061F5]"></i> {{ $paciente->fecha_nacimiento ? $paciente->fecha_nacimiento->age . ' años' : 'N/A' }}</span>
+                            <span class="flex items-center"><i class="fas fa-venus-mars mr-2 text-[#0061F5]"></i> {{ $paciente->sexo == 'M' ? 'Masculino' : 'Femenino' }}</span>
+                            <span class="flex items-center"><i class="fas fa-clinic-medical mr-2 text-[#0061F5]"></i> <span class="text-gray-500 mr-1">Consultorio:</span> {{ $cita->consultorio->nombre }}</span>
                         </div>
                     </div>
                     <div class="text-right">
@@ -48,13 +48,13 @@
             </div>
 
             <!-- Health Metrics (Editable) -->
-            <div class="bg-blue-50 overflow-hidden shadow-sm sm:rounded-lg p-6 border border-blue-100">
+            <div class="bg-[#E6F0FF] overflow-hidden shadow-sm sm:rounded-lg p-6 border border-[#CCE0FF]">
                 <div class="flex justify-between items-center mb-4">
-                    <h3 class="text-lg font-semibold text-blue-800 flex items-center">
+                    <h3 class="text-lg font-semibold text-[#004499] flex items-center">
                         <i class="fas fa-heartbeat mr-2"></i> Signos Vitales y Alergias
                     </h3>
                     @if($historialConsultas->count() > 0)
-                    <button @click="showHistory = true" type="button" class="text-sm text-blue-600 hover:text-blue-800 font-medium flex items-center transition-colors duration-150">
+                    <button @click="showHistory = true" type="button" class="text-sm text-[#0061F5] hover:text-[#004499] font-medium flex items-center transition-colors duration-150">
                         <i class="fas fa-history mr-1"></i>
                         Ver Historial
                     </button>
@@ -64,7 +64,7 @@
                     <div>
                         <label class="block text-sm font-medium text-gray-700">Peso</label>
                         <div class="mt-1 flex rounded-md shadow-sm">
-                            <input type="number" step="0.01" x-model="peso" class="focus:ring-blue-500 focus:border-blue-500 flex-1 block w-full rounded-none rounded-l-md sm:text-sm border-gray-300" placeholder="0.00">
+                            <input type="number" step="0.01" x-model="peso" class="focus:ring-[#0061F5] focus:border-[#0061F5] flex-1 block w-full rounded-none rounded-l-md sm:text-sm border-gray-300" placeholder="0.00">
                             <span class="inline-flex items-center px-3 rounded-r-md border border-l-0 border-gray-300 bg-gray-50 text-gray-500 sm:text-sm">
                                 kg
                             </span>
@@ -73,7 +73,7 @@
                     <div>
                         <label class="block text-sm font-medium text-gray-700">Estatura</label>
                         <div class="mt-1 flex rounded-md shadow-sm">
-                            <input type="number" step="0.01" x-model="estatura" class="focus:ring-blue-500 focus:border-blue-500 flex-1 block w-full rounded-none rounded-l-md sm:text-sm border-gray-300" placeholder="0.00">
+                            <input type="number" step="0.01" x-model="estatura" class="focus:ring-[#0061F5] focus:border-[#0061F5] flex-1 block w-full rounded-none rounded-l-md sm:text-sm border-gray-300" placeholder="0.00">
                             <span class="inline-flex items-center px-3 rounded-r-md border border-l-0 border-gray-300 bg-gray-50 text-gray-500 sm:text-sm">
                                 m
                             </span>
@@ -81,7 +81,7 @@
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700">Alergias</label>
-                        <textarea x-model="alergias" rows="1" class="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-md" placeholder="Ninguna conocida..."></textarea>
+                        <textarea x-model="alergias" rows="1" class="shadow-sm focus:ring-[#0061F5] focus:border-[#0061F5] block w-full sm:text-sm border-gray-300 rounded-md" placeholder="Ninguna conocida..."></textarea>
                     </div>
                 </div>
             </div>
@@ -152,12 +152,12 @@
                 <div class="border-b border-gray-200">
                     <nav class="-mb-px flex" aria-label="Tabs">
                         <button @click="activeTab = 'consulta'" 
-                            :class="{'border-blue-500 text-blue-600': activeTab === 'consulta', 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300': activeTab !== 'consulta'}"
+                            :class="{'border-[#0061F5] text-[#0061F5]': activeTab === 'consulta', 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300': activeTab !== 'consulta'}"
                             class="w-1/2 py-4 px-1 text-center border-b-2 font-medium text-sm">
                             <i class="fas fa-notes-medical mr-2"></i> Consulta
                         </button>
                         <button @click="activeTab = 'estudios'"
-                            :class="{'border-blue-500 text-blue-600': activeTab === 'estudios', 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300': activeTab !== 'estudios'}"
+                            :class="{'border-[#0061F5] text-[#0061F5]': activeTab === 'estudios', 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300': activeTab !== 'estudios'}"
                             class="w-1/2 py-4 px-1 text-center border-b-2 font-medium text-sm">
                             <i class="fas fa-microscope mr-2"></i> Estudios
                         </button>
@@ -175,7 +175,7 @@
                         
                         <div class="mb-4">
                             <label class="block text-sm font-medium text-gray-700 mb-2">Plantilla</label>
-                            <select name="plantilla_id" x-model="selectedPlantillaId" @change="loadPlantillaCampos()" class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+                            <select name="plantilla_id" x-model="selectedPlantillaId" @change="loadPlantillaCampos()" class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-[#0061F5] focus:border-[#0061F5] sm:text-sm">
                                 <option value="">Seleccione una plantilla</option>
                                 @foreach($plantillas as $plantilla)
                                     <option value="{{ $plantilla->id }}">{{ $plantilla->nombre }}</option>
@@ -198,22 +198,22 @@
                                     
                                     <!-- Text Input -->
                                     <template x-if="campo.tipo === 'text'">
-                                        <input type="text" :name="'valores[' + campo.id + ']'" class="mt-1 focus:ring-blue-500 focus:border-blue-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md">
+                                        <input type="text" :name="'valores[' + campo.id + ']'" class="mt-1 focus:ring-[#0061F5] focus:border-[#0061F5] block w-full shadow-sm sm:text-sm border-gray-300 rounded-md">
                                     </template>
                                     
                                     <!-- Textarea -->
                                     <template x-if="campo.tipo === 'textarea'">
-                                        <textarea :name="'valores[' + campo.id + ']'" rows="3" class="mt-1 shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-md"></textarea>
+                                        <textarea :name="'valores[' + campo.id + ']'" rows="3" class="mt-1 shadow-sm focus:ring-[#0061F5] focus:border-[#0061F5] block w-full sm:text-sm border-gray-300 rounded-md"></textarea>
                                     </template>
                                     
                                     <!-- Number -->
                                     <template x-if="campo.tipo === 'number'">
-                                        <input type="number" :name="'valores[' + campo.id + ']'" class="mt-1 focus:ring-blue-500 focus:border-blue-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md">
+                                        <input type="number" :name="'valores[' + campo.id + ']'" class="mt-1 focus:ring-[#0061F5] focus:border-[#0061F5] block w-full shadow-sm sm:text-sm border-gray-300 rounded-md">
                                     </template>
                                     
                                     <!-- Select -->
                                     <template x-if="campo.tipo === 'select'">
-                                        <select :name="'valores[' + campo.id + ']'" class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+                                        <select :name="'valores[' + campo.id + ']'" class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-[#0061F5] focus:border-[#0061F5] sm:text-sm">
                                             <template x-for="opcion in campo.opciones.split(',')" :key="opcion">
                                                 <option :value="opcion.trim()" x-text="opcion.trim()"></option>
                                             </template>
@@ -224,7 +224,7 @@
                         </div>
 
                         <div class="flex justify-end">
-                            <button type="submit" class="inline-flex items-center px-4 py-2 bg-blue-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-blue-700 active:bg-blue-900 focus:outline-none focus:border-blue-900 focus:ring ring-blue-300 disabled:opacity-25 transition ease-in-out duration-150">
+                            <button type="submit" class="inline-flex items-center px-4 py-2 bg-[#0061F5] border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-[#0051CC] active:bg-[#004499] focus:outline-none focus:border-[#004499] focus:ring ring-[#80B0FA] disabled:opacity-25 transition ease-in-out duration-150">
                                 <i class="fas fa-save mr-2"></i> Guardar Consulta
                             </button>
                         </div>
@@ -285,11 +285,11 @@
                             @csrf
                             <div class="mb-4">
                                 <label class="block text-sm font-medium text-gray-700">Orden de Estudio</label>
-                                <textarea name="orden" rows="4" class="mt-1 shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-md" placeholder="Escriba los estudios requeridos..."></textarea>
+                                <textarea name="orden" rows="4" class="mt-1 shadow-sm focus:ring-[#0061F5] focus:border-[#0061F5] block w-full sm:text-sm border-gray-300 rounded-md" placeholder="Escriba los estudios requeridos..."></textarea>
                             </div>
                             <div class="mb-4">
                                 <label class="block text-sm font-medium text-gray-700">Observaciones</label>
-                                <textarea name="observacion" rows="2" class="mt-1 shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-md" placeholder="Observaciones adicionales..."></textarea>
+                                <textarea name="observacion" rows="2" class="mt-1 shadow-sm focus:ring-[#0061F5] focus:border-[#0061F5] block w-full sm:text-sm border-gray-300 rounded-md" placeholder="Observaciones adicionales..."></textarea>
                             </div>
                             
                             <div class="mb-4">
@@ -297,15 +297,15 @@
                                 
                                 <div 
                                     class="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-md transition-colors duration-200"
-                                    :class="{ 'border-blue-500 bg-blue-50': isDragging }"
+                                    :class="{ 'border-[#0061F5] bg-[#E6F0FF]': isDragging }"
                                     @dragover.prevent="isDragging = true"
                                     @dragleave.prevent="isDragging = false"
                                     @drop.prevent="handleDrop($event)"
                                 >
                                     <div class="space-y-1 text-center">
-                                        <i class="fas fa-cloud-upload-alt text-4xl text-gray-400 mb-2" :class="{ 'text-blue-500': isDragging }"></i>
+                                        <i class="fas fa-cloud-upload-alt text-4xl text-gray-400 mb-2" :class="{ 'text-[#0061F5]': isDragging }"></i>
                                         <div class="flex text-sm text-gray-600 justify-center">
-                                            <label for="file-upload" class="relative cursor-pointer bg-white rounded-md font-medium text-blue-600 hover:text-blue-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-blue-500">
+                                            <label for="file-upload" class="relative cursor-pointer bg-white rounded-md font-medium text-[#0061F5] hover:text-[#0061F5] focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-[#0061F5]">
                                                 <span>Subir archivos</span>
                                                 <input id="file-upload" name="archivos[]" type="file" class="sr-only" multiple accept="image/*,.pdf" x-ref="fileInput" @change="handleFiles($event)">
                                             </label>
@@ -333,7 +333,7 @@
                             </div>
 
                             <div class="flex justify-end">
-                                <button type="submit" class="inline-flex items-center px-4 py-2 bg-blue-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-blue-700 active:bg-blue-900 focus:outline-none focus:border-blue-900 focus:ring ring-blue-300 disabled:opacity-25 transition ease-in-out duration-150">
+                                <button type="submit" class="inline-flex items-center px-4 py-2 bg-[#0061F5] border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-[#0051CC] active:bg-[#004499] focus:outline-none focus:border-[#004499] focus:ring ring-[#80B0FA] disabled:opacity-25 transition ease-in-out duration-150">
                                     <i class="fas fa-save mr-2"></i> Guardar Orden
                                 </button>
                             </div>

@@ -58,7 +58,7 @@
 
             <!-- Step 1: Tipo de Registro -->
             <div x-show="step === 1" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 transform translate-x-4" x-transition:enter-end="opacity-100 transform translate-x-0">
-                <h2 class="text-2xl font-bold text-center mb-6">Seleccione su tipo de registro</h2>
+                <h2 class="text-2xl font-bold text-center mb-6">Seleccione su tipo de registro <span class="text-red-500 text-lg">*</span></h2>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <!-- Doctor -->
                     <div @click="tipo_registro = 'doctor'" 
@@ -86,7 +86,7 @@
 
             <!-- Step 2: Tipo de Establecimiento -->
             <div x-show="step === 2" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 transform translate-x-4" x-transition:enter-end="opacity-100 transform translate-x-0" style="display: none;">
-                <h2 class="text-2xl font-bold text-center mb-6">Seleccione su tipo de establecimiento</h2>
+                <h2 class="text-2xl font-bold text-center mb-6">Seleccione su tipo de establecimiento <span class="text-red-500 text-lg">*</span></h2>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <!-- Clinica -->
                     <div @click="tipo_establecimiento = 'clinica'" 
@@ -114,7 +114,7 @@
 
             <!-- Step 3: Paquetes -->
             <div x-show="step === 3" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 transform translate-x-4" x-transition:enter-end="opacity-100 transform translate-x-0" style="display: none;">
-                <h2 class="text-2xl font-bold text-center mb-6">Seleccione un Paquete</h2>
+                <h2 class="text-2xl font-bold text-center mb-6">Seleccione un Paquete <span class="text-red-500 text-lg">*</span></h2>
                 
                 <div x-show="filteredPaquetes.length === 0" class="text-center py-10 text-gray-500">
                     <p>No hay paquetes disponibles para la combinación seleccionada.</p>
@@ -287,7 +287,7 @@
                 <div class="flex items-center justify-center">
                     <label class="inline-flex items-center cursor-pointer">
                         <input type="checkbox" name="terms_accepted" x-model="terms_accepted" class="rounded border-gray-300 text-[#004E8B] shadow-sm focus:ring-[#004E8B] h-5 w-5">
-                        <span class="ml-3 text-gray-700 font-medium">He leído y acepto los términos y condiciones</span>
+                        <span class="ml-3 text-gray-700 font-medium">He leído y acepto los términos y condiciones <span class="text-red-500">*</span></span>
                     </label>
                 </div>
             </div>
@@ -326,7 +326,7 @@
                 </div>
 
                 <!-- Método de Pago -->
-                <h3 class="text-lg font-medium text-gray-900 mb-4">Seleccione Método de Pago</h3>
+                <h3 class="text-lg font-medium text-gray-900 mb-4">Seleccione Método de Pago <span class="text-red-500">*</span></h3>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
                     <!-- Tarjeta (CLIP) -->
                     <div @click="payment_method = 'tarjeta'" 
@@ -408,7 +408,20 @@
     <script>
         function registerWizard() {
             return {
-                step: {{ old('current_step') ?? ($errors->any() ? ($errors->has('terms_accepted') ? 5 : ($errors->has('payment_method') ? 6 : 4)) : 1) }},
+                step: @php
+                    $initialStep = 1;
+                    if ($errors->any()) {
+                        if ($errors->has('tipo_registro')) $initialStep = 1;
+                        elseif ($errors->has('tipo_establecimiento')) $initialStep = 2;
+                        elseif ($errors->has('paquete_id')) $initialStep = 3;
+                        elseif ($errors->has('terms_accepted')) $initialStep = 5;
+                        elseif ($errors->has('payment_method')) $initialStep = 6;
+                        else $initialStep = 4; // Default for personal info errors (name, email, password, etc.)
+                    } elseif (old('current_step')) {
+                        $initialStep = old('current_step');
+                    }
+                    echo $initialStep;
+                @endphp,
                 tipo_registro: '{{ old('tipo_registro', '') }}',
                 tipo_establecimiento: '{{ old('tipo_establecimiento', '') }}',
                 paquete_id: '{{ old('paquete_id', '') }}',

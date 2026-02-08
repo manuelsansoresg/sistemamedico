@@ -5,7 +5,7 @@
             <nav class="flex mb-4" aria-label="Breadcrumb">
                 <ol class="inline-flex items-center space-x-1 md:space-x-3">
                     <li class="inline-flex items-center">
-                        <a href="{{ auth()->user()->hasRole('doctor') ? route('dashboard') : route('admin.dashboard') }}" class="inline-flex items-center text-sm font-medium text-gray-700 hover:text-blue-600">
+                        <a href="{{ auth()->user()->hasRole('doctor') ? route('dashboard') : route('admin.dashboard') }}" class="inline-flex items-center text-sm font-medium text-gray-700 hover:text-[#0061F5]">
                             <i class="fas fa-home mr-2"></i>
                             Inicio
                         </a>
@@ -35,9 +35,9 @@
                         <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
                             <i class="fas fa-search text-gray-400"></i>
                         </div>
-                        <input type="text" name="search" value="{{ request('search') }}" class="block w-64 p-2 pl-10 text-sm text-gray-900 border border-gray-300 rounded-md bg-gray-50 focus:ring-blue-500 focus:border-blue-500 placeholder-gray-400" placeholder="Buscar médico...">
+                        <input type="text" name="search" value="{{ request('search') }}" class="block w-64 p-2 pl-10 text-sm text-gray-900 border border-gray-300 rounded-md bg-gray-50 focus:ring-[#0061F5] focus:border-[#0061F5] placeholder-gray-400" placeholder="Buscar médico...">
                     </div>
-                    <button type="submit" class="ml-2 text-white bg-blue-600 hover:bg-blue-700 font-medium rounded-md text-sm px-4 py-2 shadow-sm">Buscar</button>
+                    <button type="submit" class="ml-2 text-white bg-[#0061F5] hover:bg-[#0051CC] font-medium rounded-md text-sm px-4 py-2 shadow-sm">Buscar</button>
                     @if(request('search'))
                         <a href="{{ route('horarios.index') }}" class="ml-2 text-gray-500 hover:text-gray-700 text-sm">Limpiar</a>
                     @endif
@@ -57,7 +57,7 @@
                     <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg border border-gray-100">
                         <div class="p-6">
                             <div class="flex items-center mb-4">
-                                <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center text-blue-600 font-bold text-xl mr-4">
+                                <div class="w-12 h-12 bg-[#E6F0FF] rounded-full flex items-center justify-center text-[#0061F5] font-bold text-xl mr-4">
                                     {{ substr($user->name, 0, 1) }}
                                 </div>
                                 <div>
@@ -74,7 +74,7 @@
                                         <form action="{{ route('horarios.manage') }}" method="GET">
                                             <input type="hidden" name="user_id" value="{{ $user->id }}">
                                             <input type="hidden" name="consultorio_id" value="{{ $consultorio->id }}">
-                                            <button type="submit" class="px-3 py-1 bg-white border border-blue-600 text-blue-600 text-xs font-bold rounded hover:bg-blue-600 hover:text-white transition-colors">
+                                            <button type="submit" class="px-3 py-1 bg-white border border-[#0061F5] text-[#0061F5] text-xs font-bold rounded hover:bg-[#0061F5] hover:text-white transition-colors">
                                                 GESTIONAR
                                             </button>
                                         </form>
@@ -88,7 +88,7 @@
                 @empty
                     <div class="col-span-full bg-white p-8 text-center rounded-lg shadow-sm">
                         <p class="text-gray-500 text-lg">No hay usuarios con consultorios asignados.</p>
-                        <a href="{{ route('users.index') }}" class="text-blue-600 hover:underline mt-2 inline-block">Ir a gestión de usuarios</a>
+                        <a href="{{ route('users.index') }}" class="text-[#0061F5] hover:underline mt-2 inline-block">Ir a gestión de usuarios</a>
                     </div>
                 @endforelse
             </div>

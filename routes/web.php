@@ -12,6 +12,7 @@ Route::get('/', function () {
 // Ruta pública para subir comprobantes
 Route::get('/subir-comprobante/{token}', [ComprobantePagoController::class, 'show'])->name('suscripciones.subir_comprobante');
 Route::post('/subir-comprobante/{token}', [ComprobantePagoController::class, 'store'])->name('suscripciones.guardar_comprobante');
+Route::get('/subir-comprobante/{token}/enviado', [ComprobantePagoController::class, 'enviado'])->name('suscripciones.comprobante_enviado');
 
 Route::get('/dashboard', [App\Http\Controllers\DashboardController::class, 'index'])
     ->middleware(['auth', 'verified', 'check.doctor.status'])
@@ -30,6 +31,8 @@ Route::middleware(['auth', 'role:root'])->group(function () {
     
     // Gestión de Suscripciones y Validaciones (Root)
     Route::get('admin/suscripciones', [\App\Http\Controllers\Admin\SuscripcionController::class, 'index'])->name('admin.suscripciones.index');
+    Route::get('admin/suscripciones/create', [\App\Http\Controllers\Admin\SuscripcionController::class, 'create'])->name('admin.suscripciones.create');
+    Route::post('admin/suscripciones', [\App\Http\Controllers\Admin\SuscripcionController::class, 'store'])->name('admin.suscripciones.store');
     Route::get('admin/suscripciones/{suscripcion}', [\App\Http\Controllers\Admin\SuscripcionController::class, 'show'])->name('admin.suscripciones.show');
     Route::put('admin/suscripciones/{suscripcion}', [\App\Http\Controllers\Admin\SuscripcionController::class, 'update'])->name('admin.suscripciones.update');
     Route::post('admin/users/{user}/validar-cedula', [\App\Http\Controllers\Admin\SuscripcionController::class, 'validarCedula'])->name('admin.users.validar_cedula');
@@ -87,6 +90,11 @@ Route::middleware('auth')->group(function () {
 
     // Pendientes Routes (Doctor/User specific)
     Route::resource('pendientes', \App\Http\Controllers\PendienteController::class);
+
+    // Compras / Catálogo (Doctor)
+    Route::get('compras', [\App\Http\Controllers\CompraController::class, 'index'])->name('compras.index');
+    Route::post('compras', [\App\Http\Controllers\CompraController::class, 'store'])->name('compras.store');
+    Route::post('compras/{suscripcion}/comprobante', [\App\Http\Controllers\CompraController::class, 'uploadComprobante'])->name('compras.upload_comprobante');
 });
 
 require __DIR__.'/auth.php';

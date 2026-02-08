@@ -6,7 +6,7 @@
             <nav class="flex" aria-label="Breadcrumb">
                 <ol class="inline-flex items-center space-x-1 md:space-x-3">
                     <li class="inline-flex items-center">
-                        <a href="{{ route('dashboard') }}" class="inline-flex items-center text-sm font-medium text-gray-700 hover:text-blue-600">
+                        <a href="{{ route('dashboard') }}" class="inline-flex items-center text-sm font-medium text-gray-700 hover:text-[#0061F5]">
                             <i class="fas fa-home mr-2"></i>
                             Inicio
                         </a>
@@ -14,7 +14,7 @@
                     <li>
                         <div class="flex items-center">
                             <i class="fas fa-chevron-right text-gray-400 mx-1"></i>
-                            <a href="{{ route('consultas.create', $estudio->consulta->cita_id) }}" class="ml-1 text-sm font-medium text-gray-700 hover:text-blue-600 md:ml-2">Consulta</a>
+                            <a href="{{ route('consultas.create', $estudio->consulta->cita_id) }}" class="ml-1 text-sm font-medium text-gray-700 hover:text-[#0061F5] md:ml-2">Consulta</a>
                         </div>
                     </li>
                     <li aria-current="page">
@@ -27,7 +27,7 @@
             </nav>
 
             <!-- Header Info -->
-            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6 border-l-4 border-blue-600">
+            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6 border-l-4 border-[#0061F5]">
                 <div class="flex justify-between items-start">
                     <div>
                         <h2 class="text-2xl font-bold text-gray-800">
@@ -48,12 +48,12 @@
                     
                     <div class="mb-4">
                         <label class="block text-sm font-medium text-gray-700">Orden de Estudio</label>
-                        <textarea name="orden" rows="4" class="mt-1 shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-md" placeholder="Escriba los estudios requeridos...">{{ old('orden', $estudio->orden) }}</textarea>
+                        <textarea name="orden" rows="4" class="mt-1 shadow-sm focus:ring-[#0061F5] focus:border-[#0061F5] block w-full sm:text-sm border-gray-300 rounded-md" placeholder="Escriba los estudios requeridos...">{{ old('orden', $estudio->orden) }}</textarea>
                     </div>
                     
                     <div class="mb-4">
                         <label class="block text-sm font-medium text-gray-700">Observaciones</label>
-                        <textarea name="observacion" rows="2" class="mt-1 shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-md" placeholder="Observaciones adicionales...">{{ old('observacion', $estudio->observacion) }}</textarea>
+                        <textarea name="observacion" rows="2" class="mt-1 shadow-sm focus:ring-[#0061F5] focus:border-[#0061F5] block w-full sm:text-sm border-gray-300 rounded-md" placeholder="Observaciones adicionales...">{{ old('observacion', $estudio->observacion) }}</textarea>
                     </div>
 
                     <!-- Existing Files -->
@@ -65,7 +65,7 @@
                                 <div class="flex items-center justify-between p-2 bg-white rounded-md border border-gray-100 shadow-sm">
                                     <div class="flex items-center space-x-3 truncate">
                                         <i class="fas fa-file-alt text-gray-400"></i>
-                                        <a href="{{ Storage::url($archivo->path) }}" target="_blank" class="text-sm text-blue-600 hover:text-blue-800 hover:underline truncate">
+                                        <a href="{{ Storage::url($archivo->path) }}" target="_blank" class="text-sm text-[#0061F5] hover:text-[#004499] hover:underline truncate">
                                             {{ $archivo->nombre_original }}
                                         </a>
                                         <span class="text-xs text-gray-400">({{ number_format($archivo->size / 1024, 2) }} KB)</span>
@@ -87,15 +87,15 @@
                         
                         <div 
                             class="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-md transition-colors duration-200"
-                            :class="{ 'border-blue-500 bg-blue-50': isDragging }"
+                            :class="{ 'border-[#0061F5] bg-[#E6F0FF]': isDragging }"
                             @dragover.prevent="isDragging = true"
                             @dragleave.prevent="isDragging = false"
                             @drop.prevent="handleDrop($event)"
                         >
                             <div class="space-y-1 text-center">
-                                <i class="fas fa-cloud-upload-alt text-4xl text-gray-400 mb-2" :class="{ 'text-blue-500': isDragging }"></i>
+                                <i class="fas fa-cloud-upload-alt text-4xl text-gray-400 mb-2" :class="{ 'text-[#0061F5]': isDragging }"></i>
                                 <div class="flex text-sm text-gray-600 justify-center">
-                                    <label for="file-upload" class="relative cursor-pointer bg-white rounded-md font-medium text-blue-600 hover:text-blue-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-blue-500">
+                                    <label for="file-upload" class="relative cursor-pointer bg-white rounded-md font-medium text-[#0061F5] hover:text-[#0061F5] focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-[#0061F5]">
                                         <span>Subir archivos</span>
                                         <input id="file-upload" name="archivos[]" type="file" class="sr-only" multiple accept="image/*,.pdf" x-ref="fileInput" @change="handleFiles($event)">
                                     </label>
@@ -126,7 +126,7 @@
                         <a href="{{ route('consultas.create', $estudio->consulta->cita_id) }}" class="inline-flex items-center px-4 py-2 bg-gray-200 border border-transparent rounded-md font-semibold text-xs text-gray-700 uppercase tracking-widest hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transition ease-in-out duration-150">
                             Cancelar
                         </a>
-                        <button type="submit" class="inline-flex items-center px-4 py-2 bg-blue-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-blue-700 active:bg-blue-900 focus:outline-none focus:border-blue-900 focus:ring ring-blue-300 disabled:opacity-25 transition ease-in-out duration-150">
+                        <button type="submit" class="inline-flex items-center px-4 py-2 bg-[#0061F5] border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-[#0051CC] active:bg-[#004499] focus:outline-none focus:border-[#004499] focus:ring ring-[#80B0FA] disabled:opacity-25 transition ease-in-out duration-150">
                             <i class="fas fa-save mr-2"></i> Actualizar Estudio
                         </button>
                     </div>

@@ -5,7 +5,7 @@
             <nav class="flex mb-4" aria-label="Breadcrumb">
                 <ol class="inline-flex items-center space-x-1 md:space-x-3">
                     <li class="inline-flex items-center">
-                        <a href="{{ route('dashboard') }}" class="inline-flex items-center text-sm font-medium text-gray-700 hover:text-blue-600">
+                        <a href="{{ route('dashboard') }}" class="inline-flex items-center text-sm font-medium text-gray-700 hover:text-[#0061F5]">
                             <i class="fas fa-home mr-2"></i>
                             Inicio
                         </a>
@@ -13,7 +13,7 @@
                     <li>
                         <div class="flex items-center">
                             <i class="fas fa-chevron-right text-gray-400 mx-1"></i>
-                            <a href="{{ route('citas.index') }}" class="ml-1 text-sm font-medium text-gray-700 hover:text-blue-600 md:ml-2">Citas</a>
+                            <a href="{{ route('citas.index') }}" class="ml-1 text-sm font-medium text-gray-700 hover:text-[#0061F5] md:ml-2">Citas</a>
                         </div>
                     </li>
                     <li aria-current="page">
@@ -46,8 +46,8 @@
                                 <label class="block text-gray-700 text-sm font-bold mb-2">1. Seleccionar Doctor</label>
                                 
                                 <div x-show="isDoctorFixed" class="p-4 bg-gray-50 border border-gray-200 rounded-lg flex items-center mb-2">
-                                    <div class="bg-blue-100 p-2 rounded-full mr-3">
-                                        <i class="fas fa-user-md text-blue-600"></i>
+                                    <div class="bg-[#E6F0FF] p-2 rounded-full mr-3">
+                                        <i class="fas fa-user-md text-[#0061F5]"></i>
                                     </div>
                                     <div>
                                         <p class="font-bold text-gray-800" x-text="searchDoctor"></p>
@@ -61,7 +61,7 @@
                                            x-model="searchDoctor" 
                                            @input.debounce.300ms="findDoctors()"
                                            placeholder="Buscar doctor por nombre..." 
-                                           class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                                           class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:border-[#0061F5] focus:ring-[#0061F5] focus:outline-none"
                                            :class="{'border-green-500': selectedDoctor}"
                                     >
                                     <input type="hidden" name="doctor_id" x-model="selectedDoctorId">
@@ -85,7 +85,7 @@
                             <div x-show="selectedDoctorId" class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6" x-transition>
                                 <div>
                                     <label class="block text-gray-700 text-sm font-bold mb-2">2. Consultorio</label>
-                                    <select name="consultorio_id" x-model="selectedConsultorioId" @change="fetchSlotsIfReady" class="shadow border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+                                    <select name="consultorio_id" x-model="selectedConsultorioId" @change="fetchSlotsIfReady" class="shadow border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:border-[#0061F5] focus:ring-[#0061F5] focus:outline-none">
                                         <option value="">Seleccione Consultorio</option>
                                         <template x-for="consultorio in consultorios" :key="consultorio.id">
                                             <option :value="consultorio.id" x-text="consultorio.nombre"></option>
@@ -94,7 +94,7 @@
                                 </div>
                                 <div>
                                     <label class="block text-gray-700 text-sm font-bold mb-2">3. Clínica</label>
-                                    <select name="clinica_id" x-model="selectedClinicaId" class="shadow border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+                                    <select name="clinica_id" x-model="selectedClinicaId" class="shadow border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:border-[#0061F5] focus:ring-[#0061F5] focus:outline-none">
                                         <option value="">Seleccione Clínica</option>
                                         <template x-for="clinica in clinicas" :key="clinica.id">
                                             <option :value="clinica.id" x-text="clinica.nombre"></option>
@@ -111,7 +111,7 @@
                                            name="fecha" 
                                            x-model="fecha" 
                                            @change="fetchSlotsIfReady" 
-                                           class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+                                           class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:border-[#0061F5] focus:ring-[#0061F5] focus:outline-none">
                                 </div>
                             </div>
 
@@ -123,7 +123,7 @@
                                            x-model="searchPatient" 
                                            @input.debounce.300ms="findPatients()"
                                            placeholder="Buscar paciente por nombre..." 
-                                           class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                                           class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:border-[#0061F5] focus:ring-[#0061F5] focus:outline-none"
                                            :class="{'border-green-500': selectedPatient}"
                                     >
                                     <input type="hidden" name="paciente_id" x-model="selectedPatientId">
@@ -145,7 +145,7 @@
 
                             <!-- 6. Horarios Disponibles (Slots) -->
                             <div x-show="isLoading" class="mb-6 text-center">
-                                <span class="text-blue-600 font-bold">Cargando horarios...</span>
+                                <span class="text-[#0061F5] font-bold">Cargando horarios...</span>
                             </div>
 
                             <div x-show="!isLoading && totalSlots > 0" class="mb-6" x-transition>
@@ -228,7 +228,7 @@
                             <!-- 7. Motivo -->
                             <div x-show="selectedSlot" class="mb-6" x-transition>
                                 <label class="block text-gray-700 text-sm font-bold mb-2">7. Motivo de la Consulta</label>
-                                <textarea name="motivo" rows="4" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"></textarea>
+                                <textarea name="motivo" rows="4" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:border-[#0061F5] focus:ring-[#0061F5] focus:outline-none"></textarea>
                             </div>
 
                             <div class="flex items-center justify-end mt-6 space-x-4">

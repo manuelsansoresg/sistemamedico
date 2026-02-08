@@ -5,7 +5,7 @@
             <nav class="flex mb-4" aria-label="Breadcrumb">
                 <ol class="inline-flex items-center space-x-1 md:space-x-3">
                     <li class="inline-flex items-center">
-                        <a href="{{ route('admin.dashboard') }}" class="inline-flex items-center text-sm font-medium text-gray-700 hover:text-blue-600">
+                        <a href="{{ route('admin.dashboard') }}" class="inline-flex items-center text-sm font-medium text-gray-700 hover:text-[#0061F5]">
                             <i class="fas fa-home mr-2"></i>
                             Inicio
                         </a>
@@ -13,7 +13,7 @@
                     <li>
                         <div class="flex items-center">
                             <i class="fas fa-chevron-right text-gray-400 mx-1"></i>
-                            <a href="{{ route('catalogos.index') }}" class="ml-1 text-sm font-medium text-gray-700 hover:text-blue-600 md:ml-2">Catálogos</a>
+                            <a href="{{ route('catalogos.index') }}" class="ml-1 text-sm font-medium text-gray-700 hover:text-[#0061F5] md:ml-2">Catálogos</a>
                         </div>
                     </li>
                     <li aria-current="page">
@@ -35,25 +35,25 @@
                             <!-- Nombre -->
                             <div>
                                 <label for="nombre" class="block text-sm font-bold text-gray-700 uppercase">*Nombre</label>
-                                <input type="text" name="nombre" id="nombre" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" required>
+                                <input type="text" name="nombre" id="nombre" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-[#0061F5] focus:ring-[#0061F5]" required>
                             </div>
 
                             <!-- Precio -->
                             <div>
                                 <label for="precio" class="block text-sm font-bold text-gray-700 uppercase">*Precio</label>
-                                <input type="number" step="0.01" name="precio" id="precio" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" required>
+                                <input type="number" step="0.01" name="precio" id="precio" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-[#0061F5] focus:ring-[#0061F5]" required>
                             </div>
 
                             <!-- Porcentaje Ganancia -->
                             <div>
                                 <label for="porcentaje_ganancia" class="block text-sm font-bold text-gray-700 uppercase">Porcentaje Ganancias</label>
-                                <input type="number" step="0.01" name="porcentaje_ganancia" id="porcentaje_ganancia" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" required>
+                                <input type="number" step="0.01" name="porcentaje_ganancia" id="porcentaje_ganancia" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-[#0061F5] focus:ring-[#0061F5]" required>
                             </div>
 
                             <!-- Descripción -->
                             <div class="md:col-span-2">
                                 <label for="descripcion" class="block text-sm font-bold text-gray-700 uppercase">Descripción</label>
-                                <textarea name="descripcion" id="descripcion" rows="3" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"></textarea>
+                                <textarea name="descripcion" id="descripcion" rows="3" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-[#0061F5] focus:ring-[#0061F5]"></textarea>
                             </div>
 
                             <!-- Activo -->
@@ -61,7 +61,7 @@
                                 <label for="activo" class="block text-sm font-bold text-gray-700 uppercase">*Activo</label>
                                 <div class="mt-2">
                                     <label class="inline-flex items-center">
-                                        <input type="checkbox" name="activo" class="rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-500 focus:ring-blue-500" checked>
+                                        <input type="checkbox" name="activo" class="rounded border-gray-300 text-[#0061F5] shadow-sm focus:border-[#0061F5] focus:ring-[#0061F5]" checked>
                                         <span class="ml-2 text-gray-600">Activo</span>
                                     </label>
                                 </div>

@@ -20,6 +20,7 @@ use Illuminate\Validation\Rules;
 use Illuminate\View\View;
 
 use App\Mail\InstruccionesTransferenciaMail;
+use App\Mail\BienvenidaTarjetaMail;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\URL;
 
@@ -153,6 +154,14 @@ class RegisteredUserController extends Controller
 
             return view('auth.register_success_transfer', ['paquete' => $paquete]);
         } elseif ($request->payment_method === 'tarjeta') {
+            
+            // Enviar correo de bienvenida
+            try {
+                Mail::to($user)->send(new BienvenidaTarjetaMail($suscripcion, $user));
+            } catch (\Exception $e) {
+                Log::error('Error enviando correo de bienvenida tarjeta: ' . $e->getMessage());
+            }
+
             // CLIP API Integration
             try {
                 $apikey = 'test_d22465de-7165-4b99-93da-fc333209d1d2';

@@ -5,7 +5,7 @@
             <nav class="flex mb-4" aria-label="Breadcrumb">
                 <ol class="inline-flex items-center space-x-1 md:space-x-3">
                     <li class="inline-flex items-center">
-                        <a href="{{ route('dashboard') }}" class="inline-flex items-center text-sm font-medium text-gray-700 hover:text-blue-600">
+                        <a href="{{ route('dashboard') }}" class="inline-flex items-center text-sm font-medium text-gray-700 hover:text-[#0061F5]">
                             <i class="fas fa-home mr-2"></i>
                             Inicio
                         </a>
@@ -13,7 +13,7 @@
                     <li>
                         <div class="flex items-center">
                             <i class="fas fa-chevron-right text-gray-400 mx-1"></i>
-                            <a href="{{ route('consultorios.index') }}" class="ml-1 text-sm font-medium text-gray-700 hover:text-blue-600 md:ml-2">Consultorios</a>
+                            <a href="{{ route('consultorios.index') }}" class="ml-1 text-sm font-medium text-gray-700 hover:text-[#0061F5] md:ml-2">Consultorios</a>
                         </div>
                     </li>
                     <li aria-current="page">
@@ -46,25 +46,25 @@
                             <!-- Nombre -->
                             <div>
                                 <label for="nombre" class="block text-sm font-bold text-gray-700">Nombre</label>
-                                <input type="text" name="nombre" id="nombre" value="{{ old('nombre', $consultorio->nombre) }}" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" required>
+                                <input type="text" name="nombre" id="nombre" value="{{ old('nombre', $consultorio->nombre) }}" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-[#0061F5] focus:ring-[#0061F5]" required>
                             </div>
 
                             <!-- Teléfono -->
                             <div>
                                 <label for="telefono" class="block text-sm font-bold text-gray-700">Teléfono</label>
-                                <input type="text" name="telefono" id="telefono" value="{{ old('telefono', $consultorio->telefono) }}" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" required>
+                                <input type="text" name="telefono" id="telefono" value="{{ old('telefono', $consultorio->telefono) }}" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-[#0061F5] focus:ring-[#0061F5]" required>
                             </div>
 
                             <!-- Activo -->
                             <div class="flex items-center">
-                                <input type="checkbox" name="activo" id="activo" value="1" class="rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-500 focus:ring-blue-500" {{ old('activo', $consultorio->activo) ? 'checked' : '' }}>
+                                <input type="checkbox" name="activo" id="activo" value="1" class="rounded border-gray-300 text-[#0061F5] shadow-sm focus:border-[#0061F5] focus:ring-[#0061F5]" {{ old('activo', $consultorio->activo) ? 'checked' : '' }}>
                                 <label for="activo" class="ml-2 block text-sm font-medium text-gray-700">Activo</label>
                             </div>
                         </div>
 
                         <div class="flex justify-end mt-6">
                             <a href="{{ route('consultorios.index') }}" class="px-4 py-2 bg-gray-500 text-white font-bold rounded-md hover:bg-gray-600 transition-colors mr-2">Cancelar</a>
-                            <button type="submit" class="px-4 py-2 bg-blue-600 text-white font-bold rounded-md hover:bg-blue-700 transition-colors">Actualizar</button>
+                            <button type="submit" class="px-4 py-2 bg-[#0061F5] text-white font-bold rounded-md hover:bg-[#0051CC] transition-colors">Actualizar</button>
                         </div>
                     </form>
                 </div>

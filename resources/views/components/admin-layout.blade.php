@@ -14,11 +14,11 @@
         <!-- Scripts -->
         @vite(['resources/css/app.css', 'resources/js/app.js'])
     </head>
-    <body class="font-sans antialiased bg-white">
+    <body class="font-sans antialiased bg-[#F8FAFC]">
         <div class="min-h-screen">
             
-            <!-- Admin Header - Azul claro/cian según referencia -->
-            <header class="bg-[#4FC3F7] shadow-sm">
+            <!-- Admin Header -->
+            <header class="bg-[#27ADFA] shadow-sm">
                 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
                     <div class="flex items-center">
                         <!-- Logo / Title -->
@@ -38,6 +38,15 @@
                     </div>
                 </div>
             </header>
+
+            <!-- Breadcrumbs Area -->
+            @isset($breadcrumbs)
+                <div class="bg-white shadow-sm border-b border-gray-100">
+                    <div class="max-w-7xl mx-auto py-3 px-4 sm:px-6 lg:px-8">
+                        {{ $breadcrumbs }}
+                    </div>
+                </div>
+            @endisset
 
             <!-- Page Content -->
             <main>

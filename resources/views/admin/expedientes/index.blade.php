@@ -5,7 +5,7 @@
             <nav class="flex mb-4" aria-label="Breadcrumb">
                 <ol class="inline-flex items-center space-x-1 md:space-x-3">
                     <li class="inline-flex items-center">
-                        <a href="{{ route('dashboard') }}" class="inline-flex items-center text-sm font-medium text-gray-700 hover:text-blue-600">
+                        <a href="{{ route('dashboard') }}" class="inline-flex items-center text-sm font-medium text-gray-700 hover:text-[#0061F5]">
                             <i class="fas fa-home mr-2"></i>
                             Inicio
                         </a>
@@ -29,12 +29,12 @@
                                 <button 
                                     type="button" 
                                     @click="downloadSelected()"
-                                    class="px-4 py-2 bg-blue-600 text-white font-bold rounded-md hover:bg-blue-700 transition-colors shadow-sm flex items-center">
+                                    class="px-4 py-2 bg-[#0061F5] text-white font-bold rounded-md hover:bg-[#0051CC] transition-colors shadow-sm flex items-center">
                                     <i class="fas fa-download mr-2 text-xl"></i> DESCARGAR SELECCIONADOS
                                 </button>
 
                                 @if(auth()->user()->hasRole('root') || auth()->user()->hasRole('doctor') || auth()->user()->can('descargar expedientes') || auth()->user()->can('descargar consultas') || auth()->user()->can('descargar estudios'))
-                                <a href="{{ route('expedientes.download.all', request()->query()) }}" class="px-4 py-2 bg-blue-600 text-white font-bold rounded-md hover:bg-blue-700 transition-colors shadow-sm flex items-center ml-2">
+                                <a href="{{ route('expedientes.download.all', request()->query()) }}" class="px-4 py-2 bg-[#0061F5] text-white font-bold rounded-md hover:bg-[#0051CC] transition-colors shadow-sm flex items-center ml-2">
                                     <i class="fas fa-file-archive mr-2 text-xl"></i> DESCARGAR TODO
                                 </a>
                                 @endif
@@ -54,7 +54,7 @@
                         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 items-end">
                             <div>
                                 <label for="clinica_id" class="block text-sm font-medium text-gray-700">Clínica</label>
-                                <select name="clinica_id" id="clinica_id" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm">
+                                <select name="clinica_id" id="clinica_id" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-[#0061F5] focus:ring-[#0061F5] sm:text-sm">
                                     <option value="">Todas</option>
                                     @foreach($clinicas as $clinica)
                                         <option value="{{ $clinica->id }}" {{ request('clinica_id') == $clinica->id ? 'selected' : '' }}>{{ $clinica->nombre }}</option>
@@ -63,7 +63,7 @@
                             </div>
                             <div>
                                 <label for="consultorio_id" class="block text-sm font-medium text-gray-700">Consultorio</label>
-                                <select name="consultorio_id" id="consultorio_id" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm">
+                                <select name="consultorio_id" id="consultorio_id" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-[#0061F5] focus:ring-[#0061F5] sm:text-sm">
                                     <option value="">Todos</option>
                                     @foreach($consultorios as $consultorio)
                                         <option value="{{ $consultorio->id }}" {{ request('consultorio_id') == $consultorio->id ? 'selected' : '' }}>{{ $consultorio->nombre }}</option>
@@ -72,15 +72,15 @@
                             </div>
                             <div>
                                 <label for="fecha_inicio" class="block text-sm font-medium text-gray-700">Fecha Inicio</label>
-                                <input type="date" name="fecha_inicio" id="fecha_inicio" value="{{ request('fecha_inicio') }}" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm">
+                                <input type="date" name="fecha_inicio" id="fecha_inicio" value="{{ request('fecha_inicio') }}" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-[#0061F5] focus:ring-[#0061F5] sm:text-sm">
                             </div>
                             <div>
                                 <label for="fecha_fin" class="block text-sm font-medium text-gray-700">Fecha Fin</label>
-                                <input type="date" name="fecha_fin" id="fecha_fin" value="{{ request('fecha_fin') }}" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm">
+                                <input type="date" name="fecha_fin" id="fecha_fin" value="{{ request('fecha_fin') }}" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-[#0061F5] focus:ring-[#0061F5] sm:text-sm">
                             </div>
                             <div>
                                 <label class="block text-sm font-medium text-transparent">Filtrar</label>
-                                <button type="submit" class="w-full px-4 py-2 bg-blue-600 text-white font-bold rounded-md hover:bg-blue-700 transition-colors shadow-sm flex items-center justify-center mt-1">
+                                <button type="submit" class="w-full px-4 py-2 bg-[#0061F5] text-white font-bold rounded-md hover:bg-[#0051CC] transition-colors shadow-sm flex items-center justify-center mt-1">
                                     <i class="fas fa-filter mr-2"></i> Filtrar
                                 </button>
                             </div>
@@ -91,21 +91,21 @@
                         <table class="min-w-full divide-y divide-gray-200">
                             <thead class="bg-gray-50">
                                 <tr>
-                                    <th class="px-6 py-3 text-left text-xs font-bold text-blue-600 uppercase tracking-wider">
-                                        <input type="checkbox" x-model="allSelected" @change="toggleAll" class="rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                                    <th class="px-6 py-3 text-left text-xs font-bold text-[#0061F5] uppercase tracking-wider">
+                                        <input type="checkbox" x-model="allSelected" @change="toggleAll" class="rounded border-gray-300 text-[#0061F5] shadow-sm focus:border-[#0061F5] focus:ring-[#0061F5]">
                                     </th>
-                                    <th class="px-6 py-3 text-left text-xs font-bold text-blue-600 uppercase tracking-wider">FECHA</th>
-                                    <th class="px-6 py-3 text-left text-xs font-bold text-blue-600 uppercase tracking-wider">PACIENTE</th>
-                                    <th class="px-6 py-3 text-left text-xs font-bold text-blue-600 uppercase tracking-wider">DOCTOR</th>
-                                    <th class="px-6 py-3 text-left text-xs font-bold text-blue-600 uppercase tracking-wider">CLÍNICA / CONSULTORIO</th>
-                                    <th class="px-6 py-3 text-right text-xs font-bold text-blue-600 uppercase tracking-wider">ACCIONES</th>
+                                    <th class="px-6 py-3 text-left text-xs font-bold text-[#0061F5] uppercase tracking-wider">FECHA</th>
+                                    <th class="px-6 py-3 text-left text-xs font-bold text-[#0061F5] uppercase tracking-wider">PACIENTE</th>
+                                    <th class="px-6 py-3 text-left text-xs font-bold text-[#0061F5] uppercase tracking-wider">DOCTOR</th>
+                                    <th class="px-6 py-3 text-left text-xs font-bold text-[#0061F5] uppercase tracking-wider">CLÍNICA / CONSULTORIO</th>
+                                    <th class="px-6 py-3 text-right text-xs font-bold text-[#0061F5] uppercase tracking-wider">ACCIONES</th>
                                 </tr>
                             </thead>
                             <tbody class="bg-white divide-y divide-gray-200">
                                 @forelse($expedientes as $expediente)
                                     <tr>
                                         <td class="px-6 py-4 whitespace-nowrap">
-                                            <input type="checkbox" value="{{ $expediente->id }}" x-model="selected" class="rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                                            <input type="checkbox" value="{{ $expediente->id }}" x-model="selected" class="rounded border-gray-300 text-[#0061F5] shadow-sm focus:border-[#0061F5] focus:ring-[#0061F5]">
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                                             {{ $expediente->cita->fecha->format('d/m/Y') }}
@@ -123,7 +123,7 @@
                                         <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                                             <div class="flex justify-end items-center space-x-2">
                                                 @can('descargar consultas')
-                                                <a href="{{ route('consultas.print', $expediente->id) }}" target="_blank" class="inline-flex items-center justify-center w-10 h-10 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors shadow-sm" title="Descargar Consulta">
+                                                <a href="{{ route('consultas.print', $expediente->id) }}" target="_blank" class="inline-flex items-center justify-center w-10 h-10 bg-[#0061F5] text-white rounded-md hover:bg-[#0051CC] transition-colors shadow-sm" title="Descargar Consulta">
                                                     <i class="fas fa-file-pdf text-xl"></i>
                                                 </a>
                                                 @endcan

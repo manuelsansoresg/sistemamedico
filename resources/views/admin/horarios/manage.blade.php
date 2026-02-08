@@ -5,13 +5,13 @@
             <nav class="flex mb-4" aria-label="Breadcrumb">
                 <ol class="inline-flex items-center space-x-1 md:space-x-3">
                     <li class="inline-flex items-center">
-                        <a href="{{ auth()->user()->hasRole('doctor') ? route('dashboard') : route('admin.dashboard') }}" class="inline-flex items-center text-sm font-medium text-gray-700 hover:text-blue-600">
+                        <a href="{{ auth()->user()->hasRole('doctor') ? route('dashboard') : route('admin.dashboard') }}" class="inline-flex items-center text-sm font-medium text-gray-700 hover:text-[#0061F5]">
                             <i class="fas fa-home mr-2"></i>
                             Inicio
                         </a>
                     </li>
                     <li class="inline-flex items-center">
-                        <a href="{{ route('horarios.index') }}" class="inline-flex items-center text-sm font-medium text-gray-700 hover:text-blue-600">
+                        <a href="{{ route('horarios.index') }}" class="inline-flex items-center text-sm font-medium text-gray-700 hover:text-[#0061F5]">
                             <i class="fas fa-chevron-right text-gray-400 mx-1"></i>
                             Horarios
                         </a>
@@ -58,7 +58,7 @@
                         <select
                             name="duracion_consulta"
                             id="duracion_consulta"
-                            class="mt-1 block w-40 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm"
+                            class="mt-1 block w-40 rounded-md border-gray-300 shadow-sm focus:border-[#0061F5] focus:ring-[#0061F5] text-sm"
                         >
                             @foreach($duraciones as $min)
                                 <option value="{{ $min }}" {{ (int)$valorDuracion === $min ? 'selected' : '' }}>

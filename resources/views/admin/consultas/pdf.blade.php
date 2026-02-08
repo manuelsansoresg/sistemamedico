@@ -14,7 +14,7 @@
         .label { font-weight: bold; color: #34495e; width: 120px; }
         .content-section { margin-top: 20px; }
         .field-group { margin-bottom: 15px; }
-        .field-label { font-weight: bold; display: block; margin-bottom: 5px; color: #2980b9; }
+        .field-label { font-weight: bold; display: block; margin-bottom: 5px; color: #0061F5; }
         .field-value { background: #f9f9f9; padding: 10px; border-radius: 5px; border: 1px solid #eee; }
         .footer { position: fixed; bottom: 0; width: 100%; text-align: center; font-size: 10px; color: #95a5a6; border-top: 1px solid #eee; padding-top: 10px; }
     </style>

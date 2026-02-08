@@ -14,6 +14,9 @@ class Suscripcion extends Model
     protected $fillable = [
         'user_id',
         'paquete_id',
+        'catalogo_id',
+        'cantidad',
+        'tipo',
         'precio',
         'metodo_pago',
         'estatus_pago',
@@ -38,5 +41,10 @@ class Suscripcion extends Model
     public function paquete()
     {
         return $this->belongsTo(Paquete::class);
+    }
+
+    public function catalogo()
+    {
+        return $this->belongsTo(Catalogo::class);
     }
 }

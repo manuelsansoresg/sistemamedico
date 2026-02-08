@@ -5,7 +5,7 @@
             <nav class="flex mb-4" aria-label="Breadcrumb">
                 <ol class="inline-flex items-center space-x-1 md:space-x-3">
                     <li class="inline-flex items-center">
-                        <a href="{{ route('dashboard') }}" class="inline-flex items-center text-sm font-medium text-gray-700 hover:text-blue-600">
+                        <a href="{{ route('dashboard') }}" class="inline-flex items-center text-sm font-medium text-gray-700 hover:text-[#0061F5]">
                             <i class="fas fa-home mr-2"></i>
                             Inicio
                         </a>
@@ -23,7 +23,7 @@
                 <div class="p-6 bg-white border-b border-gray-200">
                     <div class="flex justify-between items-center mb-6">
                         <h2 class="text-xl font-bold text-gray-800">Listado de Usuarios</h2>
-                        <a href="{{ route('users.create') }}" class="px-4 py-2 bg-blue-600 text-white font-bold rounded-md hover:bg-blue-700 transition-colors shadow-sm flex items-center">
+                        <a href="{{ route('users.create') }}" class="px-4 py-2 bg-[#0061F5] text-white font-bold rounded-md hover:bg-[#0051CC] transition-colors shadow-sm flex items-center">
                             <i class="fas fa-plus mr-2"></i> NUEVO USUARIO
                         </a>
                     </div>
@@ -44,11 +44,11 @@
                         <table class="min-w-full divide-y divide-gray-200">
                             <thead class="bg-gray-50">
                                 <tr>
-                                    <th class="px-6 py-3 text-left text-xs font-bold text-blue-600 uppercase tracking-wider">NOMBRE / EMAIL</th>
-                                    <th class="px-6 py-3 text-left text-xs font-bold text-blue-600 uppercase tracking-wider">ROL</th>
-                                    <th class="px-6 py-3 text-left text-xs font-bold text-blue-600 uppercase tracking-wider">CLÍNICAS</th>
-                                    <th class="px-6 py-3 text-left text-xs font-bold text-blue-600 uppercase tracking-wider">CONSULTORIOS</th>
-                                    <th class="px-6 py-3 text-right text-xs font-bold text-blue-600 uppercase tracking-wider"></th>
+                                    <th class="px-6 py-3 text-left text-xs font-bold text-[#0061F5] uppercase tracking-wider">NOMBRE / EMAIL</th>
+                                    <th class="px-6 py-3 text-left text-xs font-bold text-[#0061F5] uppercase tracking-wider">ROL</th>
+                                    <th class="px-6 py-3 text-left text-xs font-bold text-[#0061F5] uppercase tracking-wider">CLÍNICAS</th>
+                                    <th class="px-6 py-3 text-left text-xs font-bold text-[#0061F5] uppercase tracking-wider">CONSULTORIOS</th>
+                                    <th class="px-6 py-3 text-right text-xs font-bold text-[#0061F5] uppercase tracking-wider"></th>
                                 </tr>
                             </thead>
                             <tbody class="bg-white divide-y divide-gray-200">
@@ -57,7 +57,7 @@
                                         <td class="px-6 py-4 whitespace-nowrap">
                                             <div class="flex items-center">
                                                 <div class="flex-shrink-0 h-10 w-10">
-                                                    <div class="h-10 w-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-bold">
+                                                    <div class="h-10 w-10 rounded-full bg-[#E6F0FF] flex items-center justify-center text-[#0061F5] font-bold">
                                                         {{ strtoupper(substr($user->name, 0, 1)) }}
                                                     </div>
                                                 </div>
@@ -69,7 +69,7 @@
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap">
                                             @foreach($user->roles as $role)
-                                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">
+                                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-[#E6F0FF] text-[#0051CC]">
                                                     {{ $role->name }}
                                                 </span>
                                             @endforeach
@@ -98,7 +98,7 @@
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                                             <div class="flex justify-end items-center space-x-2">
-                                                <a href="{{ route('users.edit', $user) }}" class="inline-flex items-center justify-center w-9 h-9 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors shadow-sm" title="Editar">
+                                                <a href="{{ route('users.edit', $user) }}" class="inline-flex items-center justify-center w-9 h-9 bg-[#0061F5] text-white rounded-md hover:bg-[#0051CC] transition-colors shadow-sm" title="Editar">
                                                     <i class="fas fa-edit"></i>
                                                 </a>
                                                 <form action="{{ route('users.destroy', $user) }}" method="POST" class="inline-block" onsubmit="return confirm('¿Estás seguro de que deseas eliminar este usuario?');">

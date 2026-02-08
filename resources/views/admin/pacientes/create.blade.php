@@ -5,7 +5,7 @@
             <nav class="flex mb-4" aria-label="Breadcrumb">
                 <ol class="inline-flex items-center space-x-1 md:space-x-3">
                     <li class="inline-flex items-center">
-                        <a href="{{ route('dashboard') }}" class="inline-flex items-center text-sm font-medium text-gray-700 hover:text-blue-600">
+                        <a href="{{ route('dashboard') }}" class="inline-flex items-center text-sm font-medium text-gray-700 hover:text-[#0061F5]">
                             <i class="fas fa-home mr-2"></i>
                             Inicio
                         </a>
@@ -13,7 +13,7 @@
                     <li>
                         <div class="flex items-center">
                             <i class="fas fa-chevron-right text-gray-400 mx-1"></i>
-                            <a href="{{ route('pacientes.index') }}" class="ml-1 text-sm font-medium text-gray-700 hover:text-blue-600 md:ml-2">Pacientes</a>
+                            <a href="{{ route('pacientes.index') }}" class="ml-1 text-sm font-medium text-gray-700 hover:text-[#0061F5] md:ml-2">Pacientes</a>
                         </div>
                     </li>
                     <li aria-current="page">
@@ -29,7 +29,7 @@
                 <div class="p-6 bg-white border-b border-gray-200">
                     <div class="flex justify-between items-center mb-6">
                         <h2 class="text-xl font-bold text-gray-800">Agregar Nuevo Paciente</h2>
-                        <a href="{{ route('pacientes.index') }}" class="text-gray-600 hover:text-blue-600 transition-colors">
+                        <a href="{{ route('pacientes.index') }}" class="text-gray-600 hover:text-[#0061F5] transition-colors">
                             <i class="fas fa-arrow-left mr-1"></i> Volver
                         </a>
                     </div>
@@ -75,7 +75,7 @@
 
                             <div>
                                 <x-input-label for="sexo" :value="__('Sexo')" />
-                                <select id="sexo" name="sexo" class="block mt-1 w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm">
+                                <select id="sexo" name="sexo" class="block mt-1 w-full border-gray-300 focus:border-[#0061F5] focus:ring-[#0061F5] rounded-md shadow-sm">
                                     <option value="">Seleccione...</option>
                                     <option value="M" {{ old('sexo') == 'M' ? 'selected' : '' }}>Masculino</option>
                                     <option value="F" {{ old('sexo') == 'F' ? 'selected' : '' }}>Femenino</option>
@@ -141,7 +141,7 @@
                             <h3 class="text-lg font-semibold border-b pb-2 mb-4 text-gray-700">Asignación</h3>
                             <div>
                                 <x-input-label for="doctor_id" :value="__('Médico Asignado *')" />
-                                <select id="doctor_id" name="doctor_id" class="block mt-1 w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm" required>
+                                <select id="doctor_id" name="doctor_id" class="block mt-1 w-full border-gray-300 focus:border-[#0061F5] focus:ring-[#0061F5] rounded-md shadow-sm" required>
                                     <option value="">Seleccione un médico...</option>
                                     @foreach($doctors as $doctor)
                                         <option value="{{ $doctor->id }}" {{ old('doctor_id') == $doctor->id ? 'selected' : '' }}>
@@ -156,12 +156,12 @@
 
                         <div class="flex items-center space-x-6 mb-6 relative z-10">
                             <div class="flex items-center">
-                                <input id="activo" type="checkbox" name="activo" value="1" {{ old('activo', 1) ? 'checked' : '' }} class="rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-500 focus:ring-blue-500 cursor-pointer w-5 h-5">
+                                <input id="activo" type="checkbox" name="activo" value="1" {{ old('activo', 1) ? 'checked' : '' }} class="rounded border-gray-300 text-[#0061F5] shadow-sm focus:border-[#0061F5] focus:ring-[#0061F5] cursor-pointer w-5 h-5">
                                 <label for="activo" class="ml-2 text-sm font-medium text-gray-900 cursor-pointer">Activo</label>
                             </div>
 
                             <div class="flex items-center">
-                                <input id="perfil_compartido" type="checkbox" name="perfil_compartido" value="1" {{ old('perfil_compartido') ? 'checked' : '' }} class="rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-500 focus:ring-blue-500 cursor-pointer w-5 h-5">
+                                <input id="perfil_compartido" type="checkbox" name="perfil_compartido" value="1" {{ old('perfil_compartido') ? 'checked' : '' }} class="rounded border-gray-300 text-[#0061F5] shadow-sm focus:border-[#0061F5] focus:ring-[#0061F5] cursor-pointer w-5 h-5">
                                 <label for="perfil_compartido" class="ml-2 text-sm font-medium text-gray-900 cursor-pointer">Perfil Compartido</label>
                             </div>
                         </div>

@@ -5,7 +5,7 @@
             <nav class="flex mb-4" aria-label="Breadcrumb">
                 <ol class="inline-flex items-center space-x-1 md:space-x-3">
                     <li class="inline-flex items-center">
-                        <a href="{{ route('admin.dashboard') }}" class="inline-flex items-center text-sm font-medium text-gray-700 hover:text-blue-600">
+                        <a href="{{ route('admin.dashboard') }}" class="inline-flex items-center text-sm font-medium text-gray-700 hover:text-[#0061F5]">
                             <i class="fas fa-home mr-2"></i>
                             Inicio
                         </a>
@@ -23,7 +23,7 @@
                 <div class="p-6 bg-white border-b border-gray-200">
                     <div class="flex justify-between items-center mb-6">
                         <h2 class="text-xl font-bold text-gray-800">Catálogos de Precios</h2>
-                        <a href="{{ route('catalogos.create') }}" class="px-4 py-2 bg-blue-600 text-white font-bold rounded-md hover:bg-blue-700 transition-colors shadow-sm flex items-center">
+                        <a href="{{ route('catalogos.create') }}" class="px-4 py-2 bg-[#0061F5] text-white font-bold rounded-md hover:bg-[#0051CC] transition-colors shadow-sm flex items-center">
                             <i class="fas fa-plus mr-2"></i> NUEVO CATÁLOGO
                         </a>
                     </div>
@@ -49,7 +49,7 @@
                             <tbody class="bg-white divide-y divide-gray-200">
                                 @foreach($catalogos as $catalogo)
                                     <tr>
-                                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-blue-600">{{ $catalogo->nombre }}</td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-[#0061F5]">{{ $catalogo->nombre }}</td>
                                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${{ number_format($catalogo->precio, 2) }}</td>
                                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $catalogo->porcentaje_ganancia }}%</td>
                                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ Str::limit($catalogo->descripcion, 30) }}</td>
@@ -62,7 +62,7 @@
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                                             <div class="flex justify-end items-center space-x-2">
-                                                <a href="{{ route('catalogos.edit', $catalogo) }}" class="inline-flex items-center justify-center w-9 h-9 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors shadow-sm" title="Editar">
+                                                <a href="{{ route('catalogos.edit', $catalogo) }}" class="inline-flex items-center justify-center w-9 h-9 bg-[#0061F5] text-white rounded-md hover:bg-[#0051CC] transition-colors shadow-sm" title="Editar">
                                                     <i class="fas fa-edit"></i>
                                                 </a>
                                                 <form action="{{ route('catalogos.destroy', $catalogo) }}" method="POST" class="inline-block" onsubmit="return confirm('¿Estás seguro de querer eliminar este catálogo?');">

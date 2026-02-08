@@ -13,14 +13,115 @@ class SuscripcionController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        // Obtener suscripciones con sus relaciones
-        $suscripciones = Suscripcion::with(['user', 'paquete'])
-            ->latest()
-            ->paginate(15);
+        $query = Suscripcion::with(['user', 'paquete', 'catalogo']);
+
+        // Filtro por búsqueda (Nombre o Email del usuario)
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->whereHas('user', function ($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                  ->orWhere('email', 'like', "%{$search}%");
+            });
+        }
+
+        // Filtro por rango de fechas
+        if ($request->filled('date_start')) {
+            $query->whereDate('created_at', '>=', $request->date_start);
+        }
+        if ($request->filled('date_end')) {
+            $query->whereDate('created_at', '<=', $request->date_end);
+        }
+
+        // Ordenar por fecha (mayor a menor tiempo)
+        $suscripciones = $query->latest()
+            ->paginate(15)
+            ->withQueryString(); // Mantener parámetros de filtros en paginación
             
         return view('admin.suscripciones.index', compact('suscripciones'));
+    }
+
+    /**
+     * Show the form for creating a new resource.
+     */
+    public function create()
+    {
+        $users = User::role('doctor')->get();
+        $paquetes = \App\Models\Paquete::where('activo', true)->get();
+        $catalogos = \App\Models\Catalogo::where('activo', true)->get();
+        
+        return view('admin.suscripciones.create', compact('users', 'paquetes', 'catalogos'));
+    }
+
+    /**
+     * Store a newly created resource in storage.
+     */
+    public function store(Request $request)
+    {
+        $request->validate([
+            'user_id' => 'required|exists:users,id',
+            'tipo' => 'required|in:paquete,individual',
+            'item_id' => 'required',
+            'cantidad' => 'required_if:tipo,individual|integer|min:1',
+            'metodo_pago' => 'required|in:tarjeta,transferencia',
+            'comprobante_pago' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:2048',
+        ]);
+
+        $tipo = $request->tipo;
+        $itemId = $request->item_id;
+        $cantidad = ($tipo === 'individual') ? $request->cantidad : 1;
+        $price = 0;
+        $paqueteId = null;
+        $catalogoId = null;
+
+        if ($tipo === 'paquete') {
+            // Verificar si el usuario ya tiene un paquete activo
+            $activePackage = Suscripcion::where('user_id', $request->user_id)
+                ->where('tipo', 'paquete')
+                ->where('estatus_pago', 'pagado')
+                ->where(function($q) {
+                    $q->whereNull('fecha_fin')
+                      ->orWhere('fecha_fin', '>', now());
+                })
+                ->exists();
+
+            if ($activePackage) {
+                return back()->with('error', 'El usuario ya tiene un paquete activo. Solo se permite un paquete activo a la vez.');
+            }
+
+            $item = \App\Models\Paquete::findOrFail($itemId);
+            $price = $item->precio; // Paquetes son siempre cantidad 1
+            $paqueteId = $itemId;
+        } else {
+            $item = \App\Models\Catalogo::findOrFail($itemId);
+            $price = $item->precio * $cantidad;
+            $catalogoId = $itemId;
+        }
+
+        $comprobantePath = null;
+        if ($request->hasFile('comprobante_pago')) {
+             $file = $request->file('comprobante_pago');
+             $filename = time() . '_' . $file->getClientOriginalName();
+             $file->move(public_path('comprobantes'), $filename);
+             $comprobantePath = 'comprobantes/' . $filename;
+        }
+
+        Suscripcion::create([
+            'user_id' => $request->user_id,
+            'paquete_id' => $paqueteId,
+            'catalogo_id' => $catalogoId,
+            'cantidad' => $cantidad,
+            'tipo' => $tipo,
+            'precio' => $price,
+            'metodo_pago' => $request->metodo_pago,
+            'estatus_pago' => $request->metodo_pago === 'transferencia' ? 'pendiente' : 'pagado',
+            'comprobante_pago' => $comprobantePath,
+            'fecha_inicio' => now(),
+            'fecha_fin' => $tipo === 'paquete' ? now()->addMonth() : null,
+        ]);
+
+        return redirect()->route('admin.suscripciones.index')->with('success', 'Suscripción creada correctamente.');
     }
 
     /**
@@ -38,17 +139,33 @@ class SuscripcionController extends Controller
     public function update(Request $request, Suscripcion $suscripcion)
     {
         $request->validate([
-            'estatus_pago' => 'required|in:pendiente,pagado,fallido,vencido',
+            'estatus_pago' => 'nullable|in:pendiente,pagado,fallido,vencido',
+            'user_activo' => 'nullable|boolean',
         ]);
 
-        $suscripcion->update([
-            'estatus_pago' => $request->estatus_pago
-        ]);
+        // Actualizar estatus de pago si se envía
+        if ($request->filled('estatus_pago')) {
+            $suscripcion->update([
+                'estatus_pago' => $request->estatus_pago
+            ]);
+            
+            // Si se marca como pagado, asegurar que las fechas sean válidas (si es necesario)
+            if ($request->estatus_pago === 'pagado' && !$suscripcion->fecha_inicio) {
+                 $suscripcion->update([
+                     'fecha_inicio' => now(),
+                     'fecha_fin' => $suscripcion->tipo === 'paquete' ? now()->addMonth() : null,
+                 ]);
+            }
+        }
 
-        // Si se marca como pagado, podríamos activar al usuario si estaba inactivo por pago
-        // O enviar notificación
-        
-        return redirect()->back()->with('success', 'Estatus de suscripción actualizado correctamente.');
+        // Actualizar acceso del usuario si se envía
+        if ($request->has('user_activo')) {
+            $suscripcion->user->update([
+                'activo' => $request->user_activo
+            ]);
+        }
+
+        return redirect()->back()->with('success', 'Suscripción actualizada correctamente.');
     }
 
     /**
@@ -89,6 +206,17 @@ class SuscripcionController extends Controller
             return back()->with('error', 'No hay comprobante disponible.');
         }
         
-        return Storage::disk('public')->download($suscripcion->comprobante_pago);
+        // La ruta guardada es relativa a public (ej: "comprobantes/archivo.jpg")
+        $path = public_path($suscripcion->comprobante_pago);
+        
+        if (!file_exists($path)) {
+            // Intentar con storage path por si acaso (compatibilidad anterior)
+            if (Storage::disk('public')->exists($suscripcion->comprobante_pago)) {
+                return Storage::disk('public')->download($suscripcion->comprobante_pago);
+            }
+            return back()->with('error', 'El archivo no existe.');
+        }
+        
+        return response()->download($path);
     }
 }

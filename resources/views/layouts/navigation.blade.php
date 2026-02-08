@@ -58,6 +58,12 @@
                     <x-nav-link :href="route('plantillas.index')" :active="request()->routeIs('plantillas.*')">
                         {{ __('Plantillas') }}
                     </x-nav-link>
+
+                    @hasanyrole('root|doctor')
+                    <x-nav-link :href="route('compras.index')" :active="request()->routeIs('compras.*')">
+                        {{ __('Suscripciones') }}
+                    </x-nav-link>
+                    @endhasanyrole
                     @endhasanyrole
 
                     @role('root')
@@ -141,6 +147,12 @@
             <x-responsive-nav-link :href="route('clinicas.index')" :active="request()->routeIs('clinicas.*')">
                 {{ __('Clínicas') }}
             </x-responsive-nav-link>
+
+            @hasanyrole('root|doctor')
+            <x-responsive-nav-link :href="route('compras.index')" :active="request()->routeIs('compras.*')">
+                {{ __('Catálogo / Compras') }}
+            </x-responsive-nav-link>
+            @endhasanyrole
 
             <x-responsive-nav-link :href="route('consultorios.index')" :active="request()->routeIs('consultorios.*')">
                 {{ __('Consultorios') }}
