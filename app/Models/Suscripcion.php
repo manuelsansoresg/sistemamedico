@@ -47,4 +47,9 @@ class Suscripcion extends Model
     {
         return $this->belongsTo(Catalogo::class);
     }
+
+    public function ganancia()
+    {
+        return $this->hasOne(Ganancia::class);
+    }
 }

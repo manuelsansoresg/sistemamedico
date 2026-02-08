@@ -8,8 +8,10 @@ use App\Models\User;
 use App\Models\Horario;
 use App\Models\Consultorio;
 use App\Models\Clinica;
+use App\Models\DiaSinCita;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
 class CitaController extends Controller
@@ -19,7 +21,8 @@ class CitaController extends Controller
      */
     public function index()
     {
-        $user = auth()->user();
+        /** @var \App\Models\User $user */
+        $user = Auth::user();
         $query = Cita::with(['doctor', 'paciente', 'consultorio', 'clinica']);
 
         if ($user->hasRole('doctor')) {
@@ -30,21 +33,25 @@ class CitaController extends Controller
         return view('admin.citas.index', compact('citas'));
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
     public function create()
     {
-        $doctor = null;
-        if (auth()->user()->hasRole('doctor')) {
-            $doctor = auth()->user()->load(['consultorios', 'clinicas']);
+        $doctors = User::role('doctor')->get();
+        $pacientes = User::role('paciente')->get();
+        
+        /** @var \App\Models\User $user */
+        $user = Auth::user();
+        
+        if ($user->hasRole('doctor')) {
+            $clinicas = Clinica::where('created_by', $user->id)->where('activo', true)->get();
+            $consultorios = Consultorio::where('created_by', $user->id)->where('activo', true)->get();
+        } else {
+            $clinicas = Clinica::where('activo', true)->get();
+            $consultorios = Consultorio::where('activo', true)->get();
         }
-        return view('admin.citas.create', compact('doctor'));
+
+        return view('admin.citas.create', compact('doctors', 'pacientes', 'consultorios', 'clinicas'));
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(Request $request)
     {
         $validated = $request->validate([
@@ -57,47 +64,108 @@ class CitaController extends Controller
             'motivo' => 'nullable|string',
         ]);
 
-        // Calculate end time based on schedule duration
-        // We need to fetch the schedule again or pass duration, but better fetch safe.
+        // Get schedule to determine duration
         $dayOfWeek = Carbon::parse($validated['fecha'])->dayOfWeek;
         $horario = Horario::where('user_id', $validated['doctor_id'])
             ->where('consultorio_id', $validated['consultorio_id'])
             ->where('dia', $dayOfWeek)
             ->first();
 
-        if (!$horario) {
-             return back()->withErrors(['hora_inicio' => 'No hay horario disponible para este médico en esta fecha/consultorio.']);
+        // Check for DiaSinCita blockages
+        $blockedDays = DiaSinCita::whereDate('fecha_inicio', '<=', $validated['fecha'])
+            ->whereDate('fecha_fin', '>=', $validated['fecha'])
+            ->whereHas('consultorios', function($q) use ($validated) {
+                $q->where('consultorios.id', $validated['consultorio_id']);
+            })
+            ->get();
+
+        foreach ($blockedDays as $blockedDay) {
+            if ($blockedDay->todo_el_dia) {
+                return back()->withErrors(['hora_inicio' => 'El día está bloqueado: ' . $blockedDay->motivo]);
+            }
+
+            $citaStart = Carbon::parse($validated['fecha'] . ' ' . $validated['hora_inicio']);
+            $duration = $horario ? $horario->duracion_minutos : 30; // Default fallback
+            $citaEnd = $citaStart->copy()->addMinutes($duration);
+
+            $blockStart = Carbon::parse($validated['fecha'] . ' ' . $blockedDay->hora_inicio);
+            $blockEnd = Carbon::parse($validated['fecha'] . ' ' . $blockedDay->hora_fin);
+            
+            // Overlap check: start < blockEnd && end > blockStart
+            if ($citaStart->lt($blockEnd) && $citaEnd->gt($blockStart)) {
+                return back()->withErrors(['hora_inicio' => 'El horario seleccionado está bloqueado: ' . $blockedDay->motivo]);
+            }
         }
 
-        $start = Carbon::createFromFormat('H:i', $validated['hora_inicio']);
-        $end = $start->copy()->addMinutes($horario->duracion_minutos);
+        // Calculate end time based on schedule duration
+        // If schedule not found, default to 30 mins or handle error. 
+        // Existing logic assumed schedule exists or didn't use it for duration in saving?
+        // Let's see original code. It used $horario later to set hora_fin.
+        
+        if (!$horario) {
+             // If no schedule, maybe allow but default 30 mins? Or fail?
+             // Original code: $horario = Horario::where...->first();
+             // $horaFin = Carbon::parse($validated['hora_inicio'])->addMinutes($horario->duracion_minutos);
+             // This would crash if $horario is null. So let's assume it's required.
+             return back()->withErrors(['hora_inicio' => 'No hay horario configurado para este doctor/consultorio en esta fecha.']);
+        }
 
-        $validated['hora_fin'] = $end->format('H:i');
-        $validated['estado'] = 'pendiente';
+        $horaFin = Carbon::parse($validated['hora_inicio'])->addMinutes($horario->duracion_minutos);
 
-        Cita::create($validated);
+        $cita = new Cita();
+        $cita->doctor_id = $validated['doctor_id'];
+        $cita->paciente_id = $validated['paciente_id'];
+        $cita->consultorio_id = $validated['consultorio_id'];
+        $cita->clinica_id = $validated['clinica_id'];
+        $cita->fecha = $validated['fecha'];
+        $cita->hora_inicio = $validated['hora_inicio'];
+        $cita->hora_fin = $horaFin->format('H:i');
+        $cita->motivo = $validated['motivo'];
+        $cita->status = 'programada';
+        /** @var \App\Models\User $user */
+        $user = Auth::user();
+        $cita->created_by = $user->id;
+        $cita->save();
 
-        return redirect()->route('citas.index')->with('success', 'Cita creada correctamente.');
+        return redirect()->route('admin.citas.index')
+            ->with('success', 'Cita creada correctamente.');
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
+    public function show(Cita $cita)
+    {
+        /** @var \App\Models\User $user */
+        $user = Auth::user();
+        if ($user->hasRole('doctor') && $cita->doctor_id !== $user->id) {
+            abort(403);
+        }
+        return view('admin.citas.show', compact('cita'));
+    }
+
     public function edit(Cita $cita)
     {
-        if (auth()->user()->hasRole('doctor') && $cita->doctor_id !== auth()->id()) {
-            abort(403, 'No tiene permiso para editar esta cita.');
+        $doctors = User::role('doctor')->get();
+        $pacientes = User::role('paciente')->get();
+        
+        /** @var \App\Models\User $user */
+        $user = Auth::user();
+        
+        if ($user->hasRole('doctor')) {
+            $clinicas = Clinica::where('created_by', $user->id)->where('activo', true)->get();
+            $consultorios = Consultorio::where('created_by', $user->id)->where('activo', true)->get();
+        } else {
+            $clinicas = Clinica::where('activo', true)->get();
+            $consultorios = Consultorio::where('activo', true)->get();
         }
-        return view('admin.citas.edit', compact('cita'));
+
+        return view('admin.citas.edit', compact('cita', 'doctors', 'pacientes', 'consultorios', 'clinicas'));
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
     public function update(Request $request, Cita $cita)
     {
-        if (auth()->user()->hasRole('doctor') && $cita->doctor_id !== auth()->id()) {
-            abort(403, 'No tiene permiso para actualizar esta cita.');
+        /** @var \App\Models\User $user */
+        $user = Auth::user();
+        if ($user->hasRole('doctor') && $cita->doctor_id !== $user->id) {
+            abort(403);
         }
 
         $validated = $request->validate([
@@ -120,6 +188,32 @@ class CitaController extends Controller
             ->where('consultorio_id', $validated['consultorio_id'])
             ->where('dia', $dayOfWeek)
             ->first();
+
+        // Check for DiaSinCita blockages
+        $blockedDays = DiaSinCita::whereDate('fecha_inicio', '<=', $validated['fecha'])
+            ->whereDate('fecha_fin', '>=', $validated['fecha'])
+            ->whereHas('consultorios', function($q) use ($validated) {
+                $q->where('consultorios.id', $validated['consultorio_id']);
+            })
+            ->get();
+
+        foreach ($blockedDays as $blockedDay) {
+            if ($blockedDay->todo_el_dia) {
+                return back()->withErrors(['hora_inicio' => 'El día está bloqueado: ' . $blockedDay->motivo]);
+            }
+
+            $citaStart = Carbon::parse($validated['fecha'] . ' ' . $validated['hora_inicio']);
+            $duration = $horario ? $horario->duracion_minutos : 30; // Default fallback
+            $citaEnd = $citaStart->copy()->addMinutes($duration);
+
+            $blockStart = Carbon::parse($validated['fecha'] . ' ' . $blockedDay->hora_inicio);
+            $blockEnd = Carbon::parse($validated['fecha'] . ' ' . $blockedDay->hora_fin);
+            
+            // Overlap check: start < blockEnd && end > blockStart
+            if ($citaStart->lt($blockEnd) && $citaEnd->gt($blockStart)) {
+                return back()->withErrors(['hora_inicio' => 'El horario seleccionado está bloqueado: ' . $blockedDay->motivo]);
+            }
+        }
 
         if (!$horario) {
              return back()->withErrors(['hora_inicio' => 'No hay horario disponible para este médico en esta fecha/consultorio.']);
@@ -172,7 +266,8 @@ class CitaController extends Controller
     public function searchPatients(Request $request)
     {
         $search = $request->get('q');
-        $user = auth()->user();
+        /** @var \App\Models\User $user */
+        $user = Auth::user();
 
         $query = User::role('paciente')
             ->where(function($q) use ($search) {
@@ -198,15 +293,29 @@ class CitaController extends Controller
      */
     public function getDoctorData($doctorId)
     {
-        $doctor = User::with(['consultorios', 'clinicas'])->findOrFail($doctorId);
+        $doctor = User::findOrFail($doctorId);
         
-        // Return consultorios and clinicas
-        // Note: Logic might need refinement if Consultorios are linked to Clinicas specifically.
-        // Assuming independent many-to-many relationships as per User model.
+        // If Auth user is doctor, only return created by Auth user (strictly ownership)
+        /** @var \App\Models\User $user */
+        $user = Auth::user();
+
+        if ($user->hasRole('doctor')) {
+            $allConsultorios = Consultorio::where('created_by', $user->id)->where('activo', true)->get();
+            $allClinicas = Clinica::where('created_by', $user->id)->where('activo', true)->get();
+        } else {
+            // Root sees everything related to the doctor
+            $assignedConsultorios = $doctor->consultorios()->where('activo', true)->get();
+            $createdConsultorios = Consultorio::where('created_by', $doctorId)->where('activo', true)->get();
+            $allConsultorios = $assignedConsultorios->merge($createdConsultorios)->unique('id')->values();
+
+            $assignedClinicas = $doctor->clinicas()->where('activo', true)->get();
+            $createdClinicas = Clinica::where('created_by', $doctorId)->where('activo', true)->get();
+            $allClinicas = $assignedClinicas->merge($createdClinicas)->unique('id')->values();
+        }
         
         return response()->json([
-            'consultorios' => $doctor->consultorios,
-            'clinicas' => $doctor->clinicas
+            'consultorios' => $allConsultorios,
+            'clinicas' => $allClinicas
         ]);
     }
 
@@ -216,6 +325,10 @@ class CitaController extends Controller
     public function getSlots(Request $request)
     {
         try {
+            /** @var \App\Models\User $user */
+            $user = Auth::user();
+            
+            // Validate input
             $request->validate([
                 'doctor_id' => 'required|exists:users,id',
                 'consultorio_id' => 'required|exists:consultorios,id',
@@ -224,8 +337,32 @@ class CitaController extends Controller
 
             $doctorId = $request->doctor_id;
             $consultorioId = $request->consultorio_id;
+            
+            // Security check: if doctor, can only check own schedule? 
+            // Usually dashboard allows checking slots for anyone if allowed, but let's keep it open or restricted as per logic.
+            // Existing code didn't have strict check here, but let's just fix the auth()->user() usage if it was there.
+            // Actually, existing code had: $user = auth()->user();
+            
             $date = Carbon::parse($request->fecha);
             $dayOfWeek = $date->dayOfWeek; // 0 (Sunday) - 6 (Saturday)
+
+            // Check for DiaSinCita blockages
+            $blockedDays = DiaSinCita::whereDate('fecha_inicio', '<=', $date->format('Y-m-d'))
+                ->whereDate('fecha_fin', '>=', $date->format('Y-m-d'))
+                ->whereHas('consultorios', function($q) use ($consultorioId) {
+                    $q->where('consultorios.id', $consultorioId);
+                })
+                ->get();
+
+            foreach ($blockedDays as $blockedDay) {
+                if ($blockedDay->todo_el_dia) {
+                    return response()->json([
+                        'slots' => [],
+                        'message' => 'El consultorio no tiene disponibilidad este día: ' . $blockedDay->motivo,
+                        'debug' => ['blocked' => true, 'reason' => $blockedDay->motivo]
+                    ]);
+                }
+            }
 
             // Find schedules (plural)
             $horarios = Horario::where('user_id', $doctorId)
@@ -286,7 +423,25 @@ class CitaController extends Controller
                     $timeString = $current->format('H:i');
                     
                     // Check if slot is taken
-                    if (!in_array($timeString, $existingCitas)) {
+                    $isTaken = in_array($timeString, $existingCitas);
+                    
+                    // Check if slot is blocked by DiaSinCita (partial day)
+                    $isBlocked = false;
+                    foreach ($blockedDays as $blockedDay) {
+                        if (!$blockedDay->todo_el_dia) {
+                            $blockStart = Carbon::parse($blockedDay->hora_inicio);
+                            $blockEnd = Carbon::parse($blockedDay->hora_fin);
+                            
+                            // Precise overlap check:
+                            $slotEnd = $current->copy()->addMinutes($duration);
+                            if ($current->lt($blockEnd) && $slotEnd->gt($blockStart)) {
+                                $isBlocked = true;
+                                break;
+                            }
+                        }
+                    }
+
+                    if (!$isTaken && !$isBlocked) {
                         $hour = $current->hour;
                         if ($hour < 12) {
                             $slots['Mañana'][] = $timeString;

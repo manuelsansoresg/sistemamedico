@@ -10,6 +10,7 @@ class Paquete extends Model
         'user_id',
         'nombre',
         'precio',
+        'porcentaje_ganancia',
         'activo',
         'tipo',
         'validar_cedula',

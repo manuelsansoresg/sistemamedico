@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+use App\Services\SubscriptionService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -10,6 +11,13 @@ use Illuminate\Validation\Rules;
 
 class PacienteController extends Controller
 {
+    protected $subscriptionService;
+
+    public function __construct(SubscriptionService $subscriptionService)
+    {
+        $this->subscriptionService = $subscriptionService;
+    }
+
     /**
      * Display a listing of the resource.
      */
@@ -65,6 +73,11 @@ class PacienteController extends Controller
      */
     public function store(Request $request)
     {
+        $user = Auth::user();
+        if (!$this->subscriptionService->canCreate($user, 'paciente')) {
+            return redirect()->back()->with('error', 'Ha alcanzado el límite de pacientes permitidos por su suscripción.');
+        }
+
         $rules = [
             'name' => ['required', 'string', 'max:255'],
             'apellido_paterno' => ['nullable', 'string', 'max:255'],

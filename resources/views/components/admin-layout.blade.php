@@ -20,19 +20,23 @@
             <!-- Admin Header -->
             <header class="bg-[#27ADFA] shadow-sm">
                 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-                    <div class="flex items-center">
-                        <!-- Logo / Title -->
+                    <!-- Left spacer for balance -->
+                    <div class="w-24 hidden md:block"></div>
+                    
+                    <!-- Center Brand -->
+                    <div class="flex-grow text-center flex justify-center">
                         <a href="{{ route('dashboard') }}" class="text-white text-2xl font-bold tracking-wider hover:text-gray-100 transition-colors">
-                            SOLIC
+                            {{ config('app.name', 'Sistema Medico') }}
                         </a>
                     </div>
                     
-                    <div class="flex items-center space-x-4">
-                        <span class="text-white font-medium">{{ Auth::user()->name }}</span>
+                    <!-- Right User Info -->
+                    <div class="w-24 flex justify-end items-center space-x-4">
+                        <span class="text-white font-medium hidden sm:inline-block">{{ Auth::user()->name }}</span>
                         <form method="POST" action="{{ route('logout') }}">
                             @csrf
-                            <button type="submit" class="text-white hover:text-gray-100 focus:outline-none transition-colors">
-                                <i class="fas fa-sign-out-alt text-lg"></i>
+                            <button type="submit" class="text-white hover:text-gray-200 transition-colors">
+                                <i class="fas fa-sign-out-alt text-xl"></i>
                             </button>
                         </form>
                     </div>

@@ -1,4 +1,27 @@
 <nav x-data="{ open: false }" class="bg-white border-b border-gray-100">
+    @role('doctor')
+    <!-- Doctor Header Style -->
+    <div class="w-full bg-[#27ADFA] h-16 flex items-center justify-between px-4 sm:px-6 lg:px-8">
+        <!-- Empty left side for balance or back button if needed -->
+        <div class="w-24"></div>
+
+        <!-- Center Brand -->
+        <div class="flex-grow text-center">
+            <span class="text-white font-bold text-2xl tracking-widest">SOLIC</span>
+        </div>
+
+        <!-- Right Side User & Logout -->
+        <div class="w-24 flex justify-end items-center space-x-4">
+            <span class="text-white font-medium">{{ Auth::user()->name }}</span>
+            <form method="POST" action="{{ route('logout') }}">
+                @csrf
+                <button type="submit" class="text-white hover:text-gray-200 transition-colors">
+                    <i class="fas fa-sign-out-alt text-xl"></i>
+                </button>
+            </form>
+        </div>
+    </div>
+    @else
     <!-- Primary Navigation Menu -->
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex justify-between h-16">
@@ -30,7 +53,7 @@
                     </x-nav-link>
                     @endrole
 
-                    @hasanyrole('root|doctor')
+                    @hasanyrole('root')
                     <x-nav-link :href="route('clinicas.index')" :active="request()->routeIs('clinicas.*')">
                         {{ __('Clínicas') }}
                     </x-nav-link>
@@ -46,7 +69,7 @@
                     </x-nav-link>
                     @endrole
 
-                    @hasanyrole('root|doctor')
+                    @hasanyrole('root')
                     <x-nav-link :href="route('users.index')" :active="request()->routeIs('users.*')">
                         {{ __('Usuarios') }}
                     </x-nav-link>
@@ -59,7 +82,7 @@
                         {{ __('Plantillas') }}
                     </x-nav-link>
 
-                    @hasanyrole('root|doctor')
+                    @hasanyrole('root')
                     <x-nav-link :href="route('compras.index')" :active="request()->routeIs('compras.*')">
                         {{ __('Suscripciones') }}
                     </x-nav-link>
@@ -69,6 +92,14 @@
                     @role('root')
                     <x-nav-link :href="route('horarios.index')" :active="request()->routeIs('horarios.*')">
                         {{ __('Horarios') }}
+                    </x-nav-link>
+
+                    <x-nav-link :href="route('dias-sin-citas.index')" :active="request()->routeIs('dias-sin-citas.*')">
+                        {{ __('Días Sin Citas') }}
+                    </x-nav-link>
+
+                    <x-nav-link :href="route('ganancias.index')" :active="request()->routeIs('ganancias.*')">
+                        {{ __('Ganancias') }}
                     </x-nav-link>
 
                     <x-nav-link :href="route('configuraciones.index')" :active="request()->routeIs('configuraciones.*')">
@@ -133,45 +164,15 @@
 
             @role('root')
             <x-responsive-nav-link :href="route('admin.dashboard')" :active="request()->routeIs('admin.dashboard')">
-                {{ __('Admin') }}
+                {{ __('Admin Dashboard') }}
             </x-responsive-nav-link>
 
-            <x-responsive-nav-link :href="route('catalogos.index')" :active="request()->routeIs('catalogos.*')">
-                {{ __('Catálogos') }}
+            <x-responsive-nav-link :href="route('ganancias.index')" :active="request()->routeIs('ganancias.*')">
+                {{ __('Ganancias') }}
             </x-responsive-nav-link>
-
-            <x-responsive-nav-link :href="route('paquetes.index')" :active="request()->routeIs('paquetes.*')">
-                {{ __('Paquetes') }}
-            </x-responsive-nav-link>
-
-            <x-responsive-nav-link :href="route('clinicas.index')" :active="request()->routeIs('clinicas.*')">
-                {{ __('Clínicas') }}
-            </x-responsive-nav-link>
-
-            @hasanyrole('root|doctor')
-            <x-responsive-nav-link :href="route('compras.index')" :active="request()->routeIs('compras.*')">
-                {{ __('Catálogo / Compras') }}
-            </x-responsive-nav-link>
-            @endhasanyrole
-
-            <x-responsive-nav-link :href="route('consultorios.index')" :active="request()->routeIs('consultorios.*')">
-                {{ __('Consultorios') }}
-            </x-responsive-nav-link>
-
-            <x-responsive-nav-link :href="route('especialidades.index')" :active="request()->routeIs('especialidades.*')">
-                {{ __('Especialidades') }}
-            </x-responsive-nav-link>
-
-            <x-responsive-nav-link :href="route('users.index')" :active="request()->routeIs('users.*')">
-                {{ __('Usuarios') }}
-            </x-responsive-nav-link>
-
-            <x-responsive-nav-link :href="route('horarios.index')" :active="request()->routeIs('horarios.*')">
-                {{ __('Horarios') }}
-            </x-responsive-nav-link>
-
-            <x-responsive-nav-link :href="route('configuraciones.index')" :active="request()->routeIs('configuraciones.*')">
-                {{ __('Configuración') }}
+            
+            <x-responsive-nav-link :href="route('dias-sin-citas.index')" :active="request()->routeIs('dias-sin-citas.*')">
+                {{ __('Días Sin Citas') }}
             </x-responsive-nav-link>
             @endrole
         </div>
@@ -201,4 +202,5 @@
             </div>
         </div>
     </div>
+    @endrole
 </nav>

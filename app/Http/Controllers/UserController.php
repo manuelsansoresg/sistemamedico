@@ -12,9 +12,17 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rules;
 use Illuminate\Support\Facades\Auth;
+use App\Services\SubscriptionService;
 
 class UserController extends Controller
 {
+    protected $subscriptionService;
+
+    public function __construct(SubscriptionService $subscriptionService)
+    {
+        $this->subscriptionService = $subscriptionService;
+    }
+
     /**
      * Display a listing of the resource.
      */
@@ -92,6 +100,15 @@ class UserController extends Controller
             'permissions' => ['nullable', 'array'],
             'permissions.*' => ['exists:permissions,name'],
         ]);
+
+        /** @var \App\Models\User $currentUser */
+        $currentUser = Auth::user();
+
+        if ($currentUser->hasRole('doctor') && in_array($request->role, ['asistente', 'secretaria'])) {
+             if (!$this->subscriptionService->canCreate($currentUser, 'usuario')) {
+                 return back()->withErrors(['role' => 'Ha alcanzado el límite de usuarios permitidos por su suscripción.'])->withInput();
+             }
+        }
 
         $user = User::create([
             'name' => $request->name,

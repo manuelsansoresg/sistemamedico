@@ -3,18 +3,35 @@
 namespace App\Http\Controllers;
 
 use App\Models\Clinica;
+use App\Services\SubscriptionService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\File;
 
 class ClinicaController extends Controller
 {
+    protected $subscriptionService;
+
+    public function __construct(SubscriptionService $subscriptionService)
+    {
+        $this->subscriptionService = $subscriptionService;
+    }
+
     /**
      * Display a listing of the resource.
      */
     public function index()
     {
-        $clinicas = Clinica::with('creator')->latest()->paginate(10);
+        $query = Clinica::with('creator')->latest();
+
+        /** @var \App\Models\User $user */
+        $user = Auth::user();
+
+        if ($user->hasRole('doctor')) {
+            $query->where('created_by', $user->id);
+        }
+
+        $clinicas = $query->paginate(10);
         return view('admin.clinicas.index', compact('clinicas'));
     }
 
@@ -31,12 +48,19 @@ class ClinicaController extends Controller
      */
     public function store(Request $request)
     {
+        $user = Auth::user();
+        if (!$this->subscriptionService->canCreate($user, 'clinica')) {
+            return redirect()->back()->with('error', 'Ha alcanzado el límite de clínicas permitidas por su suscripción.');
+        }
+
         $request->validate([
             'nombre' => 'required|string|max:255',
             'direccion' => 'required|string|max:255',
             'telefono' => 'required|string|max:20',
             'logotipo' => 'nullable|image|max:2048', // 2MB Max
             'ubicacion' => 'nullable|string',
+            'lat' => 'nullable|numeric',
+            'lng' => 'nullable|numeric',
             'activo' => 'boolean',
         ]);
 
@@ -54,6 +78,8 @@ class ClinicaController extends Controller
             'telefono' => $request->telefono,
             'logotipo' => $logotipoPath,
             'ubicacion' => $request->ubicacion,
+            'lat' => $request->lat,
+            'lng' => $request->lng,
             'activo' => $request->has('activo'),
             'created_by' => Auth::id(),
         ]);
@@ -80,6 +106,8 @@ class ClinicaController extends Controller
             'telefono' => 'required|string|max:20',
             'logotipo' => 'nullable|image|max:2048', // 2MB Max
             'ubicacion' => 'nullable|string',
+            'lat' => 'nullable|numeric',
+            'lng' => 'nullable|numeric',
             'activo' => 'boolean',
         ]);
 
@@ -101,8 +129,9 @@ class ClinicaController extends Controller
             'telefono' => $request->telefono,
             'logotipo' => $logotipoPath,
             'ubicacion' => $request->ubicacion,
+            'lat' => $request->lat,
+            'lng' => $request->lng,
             'activo' => $request->has('activo'),
-            // 'created_by' logic could be here if we want to track last modifier, but usually creator stays same
         ]);
 
         return redirect()->route('clinicas.index')->with('success', 'Clínica actualizada exitosamente.');

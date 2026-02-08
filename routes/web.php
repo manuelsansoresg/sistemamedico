@@ -22,6 +22,12 @@ Route::get('/doctor/verification-notice', function () {
     return view('doctor.verification_notice');
 })->middleware(['auth', 'role:doctor'])->name('doctor.verification.notice');
 
+Route::middleware(['auth', 'role:doctor', 'check.doctor.status'])->group(function () {
+    Route::get('/doctor/wizard', [\App\Http\Controllers\Doctor\WizardController::class, 'index'])->name('doctor.wizard.index');
+    Route::post('/doctor/wizard/clinica', [\App\Http\Controllers\Doctor\WizardController::class, 'storeClinica'])->name('doctor.wizard.store_clinica');
+    Route::post('/doctor/wizard/consultorio', [\App\Http\Controllers\Doctor\WizardController::class, 'storeConsultorio'])->name('doctor.wizard.store_consultorio');
+});
+
 Route::middleware(['auth', 'role:root'])->group(function () {
     Route::get('/admin/dashboard', [AdminController::class, 'index'])->name('admin.dashboard');
     Route::resource('admin/catalogos', \App\Http\Controllers\CatalogoController::class);
@@ -81,6 +87,15 @@ Route::middleware(['auth', 'role:root|doctor', 'check.doctor.status'])->group(fu
     Route::get('estudios/{estudio}/edit', [\App\Http\Controllers\ConsultaController::class, 'editEstudio'])->name('consultas.estudios.edit');
     Route::put('estudios/{estudio}', [\App\Http\Controllers\ConsultaController::class, 'updateEstudio'])->name('consultas.estudios.update');
     Route::delete('estudios/{estudio}', [\App\Http\Controllers\ConsultaController::class, 'destroyEstudio'])->name('consultas.estudios.destroy');
+
+    // Ganancias Routes
+    Route::get('ganancias', [\App\Http\Controllers\GananciaController::class, 'index'])->name('ganancias.index');
+
+    // Días Sin Citas
+    Route::resource('dias-sin-citas', \App\Http\Controllers\DiaSinCitaController::class);
+
+    // Notifications
+    Route::get('admin/notifications/{id}/read', [\App\Http\Controllers\DashboardController::class, 'markNotificationRead'])->name('admin.notifications.read');
 });
 
 Route::middleware('auth')->group(function () {

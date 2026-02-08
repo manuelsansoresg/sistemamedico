@@ -35,6 +35,7 @@ class PaqueteController extends Controller
         $request->validate([
             'nombre' => 'required|string|max:255',
             'precio' => 'required|numeric|min:0',
+            'porcentaje_ganancia' => 'required|numeric|min:0|max:100',
             'tipo' => 'required|in:clinica,consultorio',
             'elementos' => 'required|array',
             'elementos.*.cantidad_maxima' => 'nullable|integer|min:0',
@@ -45,6 +46,7 @@ class PaqueteController extends Controller
             'user_id' => Auth::id(),
             'nombre' => $request->nombre,
             'precio' => $request->precio,
+            'porcentaje_ganancia' => $request->porcentaje_ganancia,
             'activo' => $request->has('activo'),
             'tipo' => $request->tipo,
             'validar_cedula' => $request->has('validar_cedula'),
@@ -92,6 +94,7 @@ class PaqueteController extends Controller
         $request->validate([
             'nombre' => 'required|string|max:255',
             'precio' => 'required|numeric|min:0',
+            'porcentaje_ganancia' => 'required|numeric|min:0|max:100',
             'tipo' => 'required|in:clinica,consultorio',
             'elementos' => 'nullable|array',
         ]);
@@ -99,6 +102,7 @@ class PaqueteController extends Controller
         $paquete->update([
             'nombre' => $request->nombre,
             'precio' => $request->precio,
+            'porcentaje_ganancia' => $request->porcentaje_ganancia,
             'activo' => $request->has('activo'),
             'tipo' => $request->tipo,
             'validar_cedula' => $request->has('validar_cedula'),

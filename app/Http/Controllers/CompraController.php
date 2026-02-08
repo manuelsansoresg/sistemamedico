@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Catalogo;
 use App\Models\Suscripcion;
+use App\Models\Ganancia;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -42,7 +43,7 @@ class CompraController extends Controller
             $fechaInicio = now();
         }
 
-        Suscripcion::create([
+        $suscripcion = Suscripcion::create([
             'user_id' => Auth::id(),
             'paquete_id' => null,
             'catalogo_id' => $item->id,
@@ -55,6 +56,28 @@ class CompraController extends Controller
             'fecha_inicio' => $fechaInicio,
             'fecha_fin' => null, 
         ]);
+
+        // Si se paga con tarjeta, registrar ganancia inmediatamente
+        if ($estatusPago === 'pagado') {
+            $montoGanancia = 0;
+            $porcentajeAplicado = 0;
+
+            if ($item->porcentaje_ganancia > 0) {
+                $montoGanancia = $precioTotal * ($item->porcentaje_ganancia / 100);
+                $porcentajeAplicado = $item->porcentaje_ganancia;
+            }
+            
+            Ganancia::create([
+                'user_id' => Auth::id(),
+                'suscripcion_id' => $suscripcion->id,
+                'catalogo_id' => $item->id,
+                'monto_total' => $precioTotal,
+                'monto_ganancia_doctor' => $montoGanancia,
+                'porcentaje_aplicado' => $porcentajeAplicado,
+                'concepto' => 'Ganancia por adquisición de: ' . $item->nombre,
+                'fecha' => now(),
+            ]);
+        }
 
         $mensaje = ($estatusPago === 'pagado') 
             ? 'Compra realizada exitosamente.' 

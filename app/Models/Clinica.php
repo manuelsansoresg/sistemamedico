@@ -9,6 +9,8 @@ class Clinica extends Model
     protected $fillable = [
         'nombre',
         'direccion',
+        'lat',
+        'lng',
         'telefono',
         'logotipo',
         'ubicacion',
@@ -19,5 +21,10 @@ class Clinica extends Model
     public function creator()
     {
         return $this->belongsTo(User::class, 'created_by');
+    }
+
+    public function users()
+    {
+        return $this->belongsToMany(User::class, 'clinica_user');
     }
 }

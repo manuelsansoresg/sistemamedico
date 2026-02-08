@@ -126,6 +126,9 @@
                                     <input type="number" step="0.01" name="precio" id="precio" value="{{ old('precio') }}" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-[#0061F5] focus:ring-[#0061F5]" required>
                                 </div>
 
+                                <!-- Porcentaje Ganancia (Oculto, por defecto 0 para indicar 100% Root) -->
+                                <input type="hidden" name="porcentaje_ganancia" value="0">
+
                                 <!-- Validar Cédula -->
                                 <div>
                                     <label for="validar_cedula" class="block text-sm font-bold text-gray-700 uppercase">*VALIDAR CÉDULA</label>

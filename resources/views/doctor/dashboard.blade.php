@@ -3,6 +3,63 @@
     <div class="py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-6">
 
+            <!-- Subscription Alerts -->
+            @if(isset($notifications) && $notifications->count() > 0)
+                <div class="space-y-4">
+                @foreach($notifications as $notification)
+                    <div class="bg-yellow-50 border-l-4 border-yellow-400 p-4 shadow-sm rounded-md flex justify-between items-center">
+                        <div class="flex">
+                            <div class="flex-shrink-0">
+                                <i class="fas fa-exclamation-triangle text-yellow-400"></i>
+                            </div>
+                            <div class="ml-3">
+                                <p class="text-sm text-yellow-700 font-bold">
+                                    Atención: {{ $notification->data['mensaje'] }}
+                                </p>
+                            </div>
+                        </div>
+                        <div>
+                             <a href="{{ route('admin.notifications.read', $notification->id) }}" class="text-xs text-yellow-600 hover:text-yellow-800 underline">Marcar como leído</a>
+                        </div>
+                    </div>
+                @endforeach
+                </div>
+            @endif
+
+            <!-- Section: Días Sin Citas Alert -->
+            @if(isset($diasBloqueadosHoy) && $diasBloqueadosHoy->count() > 0)
+                <div class="bg-red-50 border-l-4 border-red-500 p-4 shadow-sm rounded-md">
+                    <div class="flex">
+                        <div class="flex-shrink-0">
+                            <i class="fas fa-exclamation-circle text-red-500 text-xl"></i>
+                        </div>
+                        <div class="ml-3">
+                            <h3 class="text-lg font-medium text-red-800">Día(s) Sin Citas Activo(s)</h3>
+                            <div class="mt-2 text-sm text-red-700">
+                                <ul class="list-disc pl-5 space-y-1">
+                                    @foreach($diasBloqueadosHoy as $dia)
+                                        <li>
+                                            <strong>{{ $dia->motivo }}</strong>
+                                            @if($dia->todo_el_dia)
+                                                (Todo el día)
+                                            @else
+                                                ({{ \Carbon\Carbon::parse($dia->hora_inicio)->format('H:i') }} - {{ \Carbon\Carbon::parse($dia->hora_fin)->format('H:i') }})
+                                            @endif
+                                            - Afecta: 
+                                            @foreach($dia->consultorios as $consultorio)
+                                                <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-red-100 text-red-800">
+                                                    {{ $consultorio->nombre }}
+                                                </span>
+                                            @endforeach
+                                        </li>
+                                    @endforeach
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            @endif
+
             <!-- Section 1: Citas del Día -->
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                 <div class="p-6 bg-white border-b border-gray-200">
@@ -117,6 +174,14 @@
             <!-- Section 3: Accesos Rápidos (Iconos) -->
             <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6 px-4">
                 
+                <!-- Wizard / Configuración Inicial -->
+                <a href="{{ route('doctor.wizard.index') }}" class="flex flex-col items-center justify-center p-8 bg-white border border-gray-100 rounded-2xl shadow-[0_2px_15px_-3px_rgba(0,0,0,0.07),0_10px_20px_-2px_rgba(0,0,0,0.04)] hover:shadow-lg transition-all duration-300 group h-48">
+                    <div class="w-20 h-20 bg-blue-50 rounded-full flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300">
+                        <i class="fas fa-magic text-3xl text-[#0061F5]"></i>
+                    </div>
+                    <span class="font-bold text-gray-800 text-sm tracking-wide text-center">WIZZARD</span>
+                </a>
+
                 <!-- Suscripciones -->
                 <a href="{{ route('compras.index') }}" class="flex flex-col items-center justify-center p-8 bg-white border border-gray-100 rounded-2xl shadow-[0_2px_15px_-3px_rgba(0,0,0,0.07),0_10px_20px_-2px_rgba(0,0,0,0.04)] hover:shadow-lg transition-all duration-300 group h-48">
                     <div class="w-20 h-20 bg-blue-50 rounded-full flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300">
@@ -155,6 +220,22 @@
                         <i class="fas fa-clock text-3xl text-[#2563EB]"></i>
                     </div>
                     <span class="font-bold text-gray-800 text-sm tracking-wide">HORARIOS</span>
+                </a>
+
+                <!-- Ganancias -->
+                <a href="{{ route('ganancias.index') }}" class="flex flex-col items-center justify-center p-8 bg-white border border-gray-100 rounded-2xl shadow-[0_2px_15px_-3px_rgba(0,0,0,0.07),0_10px_20px_-2px_rgba(0,0,0,0.04)] hover:shadow-lg transition-all duration-300 group h-48">
+                    <div class="w-20 h-20 bg-green-50 rounded-full flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300">
+                        <i class="fas fa-chart-line text-3xl text-green-600"></i>
+                    </div>
+                    <span class="font-bold text-gray-800 text-sm tracking-wide">GANANCIAS</span>
+                </a>
+
+                <!-- Días Sin Citas -->
+                <a href="{{ route('dias-sin-citas.index') }}" class="flex flex-col items-center justify-center p-8 bg-white border border-gray-100 rounded-2xl shadow-[0_2px_15px_-3px_rgba(0,0,0,0.07),0_10px_20px_-2px_rgba(0,0,0,0.04)] hover:shadow-lg transition-all duration-300 group h-48">
+                    <div class="w-20 h-20 bg-blue-50 rounded-full flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300">
+                        <i class="fas fa-calendar-times text-3xl text-[#2563EB]"></i>
+                    </div>
+                    <span class="font-bold text-gray-800 text-sm tracking-wide text-center">DÍAS SIN CITAS</span>
                 </a>
 
                 <!-- Pacientes -->

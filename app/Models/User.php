@@ -109,4 +109,20 @@ class User extends Authenticatable
     {
         return $this->hasMany(Suscripcion::class);
     }
+
+    public function getActivePackageTypeAttribute()
+    {
+        $subscription = $this->suscripciones()
+            ->where('tipo', 'paquete')
+            ->where('estatus_pago', 'pagado')
+            ->where(function($q) {
+                $q->whereNull('fecha_fin')
+                  ->orWhere('fecha_fin', '>', now());
+            })
+            ->with('paquete')
+            ->latest()
+            ->first();
+
+        return $subscription ? $subscription->paquete->tipo : null;
+    }
 }

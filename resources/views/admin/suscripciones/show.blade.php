@@ -37,7 +37,22 @@
                         <dl class="grid grid-cols-1 gap-x-4 gap-y-6 sm:grid-cols-2">
                             <div class="sm:col-span-1">
                                 <dt class="text-sm font-medium text-gray-500">Usuario</dt>
-                                <dd class="mt-1 text-sm text-gray-900">{{ $suscripcion->user->name }}</dd>
+                                <dd class="mt-1 text-sm text-gray-900">
+                                    <form action="{{ route('admin.suscripciones.update', $suscripcion) }}" method="POST" class="flex items-center gap-2">
+                                        @csrf
+                                        @method('PUT')
+                                        <select name="user_id" class="block w-full rounded-md border-gray-300 shadow-sm focus:border-[#0061F5] focus:ring-[#0061F5] sm:text-sm py-1">
+                                            @foreach($users as $user)
+                                                <option value="{{ $user->id }}" {{ $suscripcion->user_id == $user->id ? 'selected' : '' }}>
+                                                    {{ $user->name }} {{ $user->apellido_paterno ?? '' }} ({{ $user->email }})
+                                                </option>
+                                            @endforeach
+                                        </select>
+                                        <button type="submit" class="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md text-white bg-[#0061F5] hover:bg-[#0051CC] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#0061F5]">
+                                            Guardar
+                                        </button>
+                                    </form>
+                                </dd>
                             </div>
                             <div class="sm:col-span-1">
                                 <dt class="text-sm font-medium text-gray-500">Email</dt>

@@ -1,5 +1,5 @@
 <x-admin-layout>
-    <div class="py-10">
+    <div class="py-10" x-data="consultorioForm()">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
             <!-- Breadcrumbs -->
             <nav class="flex mb-4" aria-label="Breadcrumb">
@@ -48,6 +48,21 @@
                                 <input type="text" name="nombre" id="nombre" value="{{ old('nombre') }}" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-[#0061F5] focus:ring-[#0061F5]" required>
                             </div>
 
+                            <!-- Dirección -->
+                            <div>
+                                <label for="direccion" class="block text-sm font-bold text-gray-700">Dirección (Opcional)</label>
+                                <input x-ref="addressInput" type="text" name="direccion" id="direccion" x-model="address" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-[#0061F5] focus:ring-[#0061F5]" placeholder="Escribe la dirección para buscar...">
+                                <input type="hidden" name="lat" x-model="lat">
+                                <input type="hidden" name="lng" x-model="lng">
+                            </div>
+
+                            @if(Auth::user()->hasRole('root') || Auth::user()->active_package_type === 'consultorio')
+                            <!-- Mapa -->
+                            <div class="h-96 w-full rounded-lg border border-gray-300 overflow-hidden">
+                                <div x-ref="mapContainer" class="w-full h-full"></div>
+                            </div>
+                            @endif
+
                             <!-- Teléfono -->
                             <div>
                                 <label for="telefono" class="block text-sm font-bold text-gray-700">Teléfono</label>
@@ -70,4 +85,79 @@
             </div>
         </div>
     </div>
+
+    <script src="https://maps.googleapis.com/maps/api/js?key={{ config('services.google.maps_api_key') }}&libraries=places" async defer></script>
+    <script>
+        function consultorioForm() {
+            return {
+                address: "{{ old('direccion') }}",
+                lat: "{{ old('lat') }}",
+                lng: "{{ old('lng') }}",
+                map: null,
+                marker: null,
+                init() {
+                    const checkGoogle = setInterval(() => {
+                        if (window.google && window.google.maps) {
+                            clearInterval(checkGoogle);
+                            this.initMap();
+                        }
+                    }, 100);
+                },
+                initMap() {
+                    if (!this.$refs.mapContainer) return;
+
+                    const defaultLocation = { lat: 19.4326, lng: -99.1332 }; // CDMX default
+                    let latVal = (this.lat && this.lat !== 'null') ? parseFloat(this.lat) : null;
+                    let lngVal = (this.lng && this.lng !== 'null') ? parseFloat(this.lng) : null;
+
+                    const initialLocation = (latVal && lngVal) ? { lat: latVal, lng: lngVal } : defaultLocation;
+                    
+                    this.map = new google.maps.Map(this.$refs.mapContainer, {
+                        center: initialLocation,
+                        zoom: (latVal && lngVal) ? 17 : 13,
+                    });
+
+                    if (latVal && lngVal) {
+                        this.placeMarker(initialLocation);
+                    }
+                    
+                    const autocomplete = new google.maps.places.Autocomplete(this.$refs.addressInput);
+                    autocomplete.bindTo('bounds', this.map);
+                    autocomplete.addListener('place_changed', () => {
+                        const place = autocomplete.getPlace();
+                        if (!place.geometry || !place.geometry.location) return;
+                        
+                        this.address = place.formatted_address; // Sync input
+                        this.placeMarker(place.geometry.location);
+                        this.map.setCenter(place.geometry.location);
+                        this.map.setZoom(17);
+                    });
+
+                    this.map.addListener('click', (e) => {
+                        this.placeMarker(e.latLng);
+                    });
+                },
+                placeMarker(location) {
+                    this.lat = location.lat();
+                    this.lng = location.lng();
+                    
+                    if (this.marker) {
+                        this.marker.setPosition(location);
+                    } else {
+                        this.marker = new google.maps.Marker({
+                            position: location,
+                            map: this.map,
+                            draggable: true
+                        });
+                        
+                        this.marker.addListener('dragend', () => {
+                            const pos = this.marker.getPosition();
+                            this.lat = pos.lat();
+                            this.lng = pos.lng();
+                        });
+                    }
+                }
+            }
+        }
+    </script>
 </x-admin-layout>
