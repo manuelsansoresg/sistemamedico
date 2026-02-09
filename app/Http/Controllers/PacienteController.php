@@ -27,17 +27,16 @@ class PacienteController extends Controller
         $query = User::role('paciente');
 
         // If user is doctor, show only their patients (assigned or created by them)
-        if ($user->hasRole('doctor')) {
-            $query->where(function($q) use ($user) {
-                $q->whereHas('doctors', function ($subQ) use ($user) {
-                    $subQ->where('users.id', $user->id);
+        if ($user->hasRole(['doctor', 'asistente', 'secretaria'])) {
+            $ownerId = $user->hasRole('doctor') ? $user->id : $user->created_by;
+            
+            $query->where(function($q) use ($ownerId) {
+                $q->whereHas('doctors', function ($subQ) use ($ownerId) {
+                    $subQ->where('users.id', $ownerId);
                 })
-                ->orWhere('created_by', $user->id);
+                ->orWhere('created_by', $ownerId);
             });
         }
-        // If root, shows all (already set by default query)
-        // If asistente/secretaria, logic might be needed (e.g. show patients of doctors in same clinic/consultorio). 
-        // For now, assuming root/doctor context or general access.
 
         if ($request->has('search') && $request->search != '') {
             $search = $request->search;
@@ -73,8 +72,11 @@ class PacienteController extends Controller
      */
     public function store(Request $request)
     {
+        /** @var \App\Models\User $user */
         $user = Auth::user();
-        if (!$this->subscriptionService->canCreate($user, 'paciente')) {
+        $owner = $user->hasRole('doctor') ? $user : User::find($user->created_by);
+
+        if (!$this->subscriptionService->canCreate($owner, 'paciente')) {
             return redirect()->back()->with('error', 'Ha alcanzado el límite de pacientes permitidos por su suscripción.');
         }
 
@@ -114,6 +116,7 @@ class PacienteController extends Controller
             'numero_imss' => $request->numero_imss,
             'activo' => $request->has('activo'),
             'perfil_compartido' => $request->has('perfil_compartido'),
+            'created_by' => $owner->id,
         ]);
 
         $user->assignRole('paciente');
@@ -121,8 +124,8 @@ class PacienteController extends Controller
         // Link to doctor
         if (Auth::user()->hasRole('root')) {
             $user->doctors()->attach($request->doctor_id);
-        } elseif (Auth::user()->hasRole('doctor')) {
-            $user->doctors()->attach(Auth::id());
+        } elseif (Auth::user()->hasRole(['doctor', 'asistente', 'secretaria'])) {
+            $user->doctors()->attach($owner->id);
         }
 
         return redirect()->route('pacientes.index')->with('success', 'Paciente creado exitosamente.');
@@ -208,14 +211,22 @@ class PacienteController extends Controller
 
     private function authorizeAccess(User $paciente)
     {
+        /** @var \App\Models\User $user */
         $user = Auth::user();
 
         if ($user->hasRole('root')) {
             return;
         }
 
-        if ($user->hasRole('doctor')) {
-            if (!$user->patients()->where('users.id', $paciente->id)->exists()) {
+        if ($user->hasRole(['doctor', 'asistente', 'secretaria'])) {
+            $ownerId = $user->hasRole('doctor') ? $user->id : $user->created_by;
+            
+            // Check if patient is linked to owner doctor
+            $linked = $paciente->doctors()->where('users.id', $ownerId)->exists();
+            // Or created by owner
+            $created = $paciente->created_by == $ownerId;
+
+            if (!$linked && !$created) {
                 abort(403, 'No tiene permiso para acceder a este paciente.');
             }
             return;

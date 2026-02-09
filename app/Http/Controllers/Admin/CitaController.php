@@ -25,8 +25,9 @@ class CitaController extends Controller
         $user = Auth::user();
         $query = Cita::with(['doctor', 'paciente', 'consultorio', 'clinica']);
 
-        if ($user->hasRole('doctor')) {
-            $query->where('doctor_id', $user->id);
+        if ($user->hasRole(['doctor', 'asistente', 'secretaria'])) {
+            $ownerId = $user->hasRole('doctor') ? $user->id : $user->created_by;
+            $query->where('doctor_id', $ownerId);
         }
 
         $citas = $query->latest()->paginate(10);
@@ -35,16 +36,26 @@ class CitaController extends Controller
 
     public function create()
     {
-        $doctors = User::role('doctor')->get();
-        $pacientes = User::role('paciente')->get();
-        
         /** @var \App\Models\User $user */
         $user = Auth::user();
         
-        if ($user->hasRole('doctor')) {
-            $clinicas = Clinica::where('created_by', $user->id)->where('activo', true)->get();
-            $consultorios = Consultorio::where('created_by', $user->id)->where('activo', true)->get();
+        if ($user->hasRole(['doctor', 'asistente', 'secretaria'])) {
+            $ownerId = $user->hasRole('doctor') ? $user->id : $user->created_by;
+            
+            $doctors = User::where('id', $ownerId)->get();
+            $pacientes = User::role('paciente')
+                ->where(function($q) use ($ownerId) {
+                    $q->whereHas('doctors', function ($subQ) use ($ownerId) {
+                        $subQ->where('users.id', $ownerId);
+                    })
+                    ->orWhere('created_by', $ownerId);
+                })->get();
+                
+            $clinicas = Clinica::where('created_by', $ownerId)->where('activo', true)->get();
+            $consultorios = Consultorio::where('created_by', $ownerId)->where('activo', true)->get();
         } else {
+            $doctors = User::role('doctor')->get();
+            $pacientes = User::role('paciente')->get();
             $clinicas = Clinica::where('activo', true)->get();
             $consultorios = Consultorio::where('activo', true)->get();
         }
@@ -63,6 +74,15 @@ class CitaController extends Controller
             'hora_inicio' => 'required|date_format:H:i',
             'motivo' => 'nullable|string',
         ]);
+        
+        /** @var \App\Models\User $user */
+        $user = Auth::user();
+        
+        if ($user->hasRole(['asistente', 'secretaria'])) {
+             if ($validated['doctor_id'] != $user->created_by) {
+                 abort(403, 'No puedes crear citas para otro doctor.');
+             }
+        }
 
         // Get schedule to determine duration
         $dayOfWeek = Carbon::parse($validated['fecha'])->dayOfWeek;
@@ -135,24 +155,43 @@ class CitaController extends Controller
     {
         /** @var \App\Models\User $user */
         $user = Auth::user();
-        if ($user->hasRole('doctor') && $cita->doctor_id !== $user->id) {
-            abort(403);
+        
+        if ($user->hasRole(['doctor', 'asistente', 'secretaria'])) {
+             $ownerId = $user->hasRole('doctor') ? $user->id : $user->created_by;
+             if ($cita->doctor_id !== $ownerId) {
+                abort(403);
+             }
         }
+        
         return view('admin.citas.show', compact('cita'));
     }
 
     public function edit(Cita $cita)
     {
-        $doctors = User::role('doctor')->get();
-        $pacientes = User::role('paciente')->get();
-        
         /** @var \App\Models\User $user */
         $user = Auth::user();
         
-        if ($user->hasRole('doctor')) {
-            $clinicas = Clinica::where('created_by', $user->id)->where('activo', true)->get();
-            $consultorios = Consultorio::where('created_by', $user->id)->where('activo', true)->get();
+        if ($user->hasRole(['doctor', 'asistente', 'secretaria'])) {
+             $ownerId = $user->hasRole('doctor') ? $user->id : $user->created_by;
+             
+             if ($cita->doctor_id !== $ownerId) {
+                abort(403);
+             }
+
+             $doctors = User::where('id', $ownerId)->get();
+             $pacientes = User::role('paciente')
+                 ->where(function($q) use ($ownerId) {
+                     $q->whereHas('doctors', function ($subQ) use ($ownerId) {
+                         $subQ->where('users.id', $ownerId);
+                     })
+                     ->orWhere('created_by', $ownerId);
+                 })->get();
+                 
+             $clinicas = Clinica::where('created_by', $ownerId)->where('activo', true)->get();
+             $consultorios = Consultorio::where('created_by', $ownerId)->where('activo', true)->get();
         } else {
+            $doctors = User::role('doctor')->get();
+            $pacientes = User::role('paciente')->get();
             $clinicas = Clinica::where('activo', true)->get();
             $consultorios = Consultorio::where('activo', true)->get();
         }
@@ -164,8 +203,12 @@ class CitaController extends Controller
     {
         /** @var \App\Models\User $user */
         $user = Auth::user();
-        if ($user->hasRole('doctor') && $cita->doctor_id !== $user->id) {
-            abort(403);
+        
+        if ($user->hasRole(['doctor', 'asistente', 'secretaria'])) {
+             $ownerId = $user->hasRole('doctor') ? $user->id : $user->created_by;
+             if ($cita->doctor_id !== $ownerId) {
+                abort(403);
+             }
         }
 
         $validated = $request->validate([
@@ -178,6 +221,12 @@ class CitaController extends Controller
             'motivo' => 'nullable|string',
             'estado' => 'required|in:pendiente,confirmada,cancelada,completada',
         ]);
+        
+        if ($user->hasRole(['asistente', 'secretaria'])) {
+             if ($validated['doctor_id'] != $user->created_by) {
+                 abort(403, 'No puedes asignar citas a otro doctor.');
+             }
+        }
 
         // If time/date/doctor changed, we need to validate availability again
         // But for now let's assume if they change it, they picked a valid slot from the UI.
@@ -234,8 +283,14 @@ class CitaController extends Controller
      */
     public function destroy(Cita $cita)
     {
-        if (auth()->user()->hasRole('doctor') && $cita->doctor_id !== auth()->id()) {
-            abort(403, 'No tiene permiso para eliminar esta cita.');
+        /** @var \App\Models\User $user */
+        $user = Auth::user();
+
+        if ($user->hasRole(['doctor', 'asistente', 'secretaria'])) {
+             $ownerId = $user->hasRole('doctor') ? $user->id : $user->created_by;
+             if ($cita->doctor_id !== $ownerId) {
+                abort(403, 'No tiene permiso para eliminar esta cita.');
+             }
         }
         
         $cita->delete();
@@ -276,9 +331,10 @@ class CitaController extends Controller
                   ->orWhere('email', 'like', "%{$search}%");
             });
 
-        if ($user->hasRole('doctor')) {
-            $query->whereHas('doctors', function($q) use ($user) {
-                $q->where('users.id', $user->id);
+        if ($user->hasRole(['doctor', 'asistente', 'secretaria'])) {
+            $ownerId = $user->hasRole('doctor') ? $user->id : $user->created_by;
+            $query->whereHas('doctors', function($q) use ($ownerId) {
+                $q->where('users.id', $ownerId);
             });
         }
 

@@ -13,7 +13,11 @@ class PendienteController extends Controller
      */
     public function index()
     {
-        $pendientes = Pendiente::where('user_id', Auth::id())
+        /** @var \App\Models\User $user */
+        $user = Auth::user();
+        $ownerId = $user->hasRole('doctor') ? $user->id : $user->created_by;
+
+        $pendientes = Pendiente::where('user_id', $ownerId)
             ->orderBy('fecha', 'desc')
             ->orderBy('hora', 'desc')
             ->paginate(10);
@@ -41,8 +45,12 @@ class PendienteController extends Controller
             'activo' => 'boolean',
         ]);
 
-        $validated['user_id'] = Auth::id();
-        $validated['activo'] = $request->has('activo') ? true : false; // Handle checkbox
+        /** @var \App\Models\User $user */
+        $user = Auth::user();
+        $ownerId = $user->hasRole('doctor') ? $user->id : $user->created_by;
+
+        $validated['user_id'] = $ownerId;
+        $validated['activo'] = $request->has('activo') ? true : false; 
 
         Pendiente::create($validated);
 
@@ -54,8 +62,12 @@ class PendienteController extends Controller
      */
     public function edit(Pendiente $pendiente)
     {
+        /** @var \App\Models\User $user */
+        $user = Auth::user();
+        $ownerId = $user->hasRole('doctor') ? $user->id : $user->created_by;
+
         // Authorization check
-        if ($pendiente->user_id !== Auth::id()) {
+        if ($pendiente->user_id !== $ownerId) {
             abort(403);
         }
 
@@ -67,8 +79,12 @@ class PendienteController extends Controller
      */
     public function update(Request $request, Pendiente $pendiente)
     {
+        /** @var \App\Models\User $user */
+        $user = Auth::user();
+        $ownerId = $user->hasRole('doctor') ? $user->id : $user->created_by;
+
         // Authorization check
-        if ($pendiente->user_id !== Auth::id()) {
+        if ($pendiente->user_id !== $ownerId) {
             abort(403);
         }
 
@@ -79,8 +95,6 @@ class PendienteController extends Controller
             'activo' => 'boolean',
         ]);
         
-        // Handle checkbox logic manually if not present in request it's false, but validate boolean handles '1', 'true', 'on', etc.
-        // If uncheck, it's missing from request usually.
         $validated['activo'] = $request->has('activo') ? true : false;
 
         $pendiente->update($validated);
@@ -93,8 +107,12 @@ class PendienteController extends Controller
      */
     public function destroy(Pendiente $pendiente)
     {
+        /** @var \App\Models\User $user */
+        $user = Auth::user();
+        $ownerId = $user->hasRole('doctor') ? $user->id : $user->created_by;
+
         // Authorization check
-        if ($pendiente->user_id !== Auth::id()) {
+        if ($pendiente->user_id !== $ownerId) {
             abort(403);
         }
 

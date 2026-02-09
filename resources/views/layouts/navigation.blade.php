@@ -1,5 +1,5 @@
 <nav x-data="{ open: false }" class="bg-white border-b border-gray-100">
-    @role('doctor')
+    @hasanyrole('doctor|asistente|secretaria')
     <!-- Doctor Header Style -->
     <div class="w-full bg-[#27ADFA] h-16 flex items-center justify-between px-4 sm:px-6 lg:px-8">
         <!-- Empty left side for balance or back button if needed -->
@@ -7,7 +7,7 @@
 
         <!-- Center Brand -->
         <div class="flex-grow text-center">
-            <span class="text-white font-bold text-2xl tracking-widest">SOLIC</span>
+            <span class="text-white font-bold text-2xl tracking-widest">{{ config('app.name', 'Sistema Médico') }}</span>
         </div>
 
         <!-- Right Side User & Logout -->
@@ -202,5 +202,5 @@
             </div>
         </div>
     </div>
-    @endrole
+    @endhasanyrole
 </nav>

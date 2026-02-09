@@ -6,18 +6,21 @@ use App\Models\Horario;
 use App\Models\User;
 use App\Models\Consultorio;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class HorarioController extends Controller
 {
     public function index(Request $request)
     {
-        $user = auth()->user();
+        /** @var \App\Models\User $user */
+        $user = Auth::user();
 
-        // If user is doctor, only show their own profile/consultorios
-        if ($user->hasRole('doctor')) {
-            $query = User::where('id', $user->id)->with('consultorios');
+        // If user is doctor or assistant/secretary, only show their owner's profile/consultorios
+        if ($user->hasRole(['doctor', 'asistente', 'secretaria'])) {
+            $ownerId = $user->hasRole('doctor') ? $user->id : $user->created_by;
+            $query = User::where('id', $ownerId)->with('consultorios');
         } else {
-            // Show selection form
+            // Show selection form for Root
             // We need users who have 'doctor' role (or any user assigned to consultorios)
             // And consultorios.
             $query = User::whereHas('consultorios')->with('consultorios');
@@ -48,9 +51,17 @@ class HorarioController extends Controller
             'consultorio_id' => 'required|exists:consultorios,id',
         ]);
 
-        // Security check for doctors
-        if (auth()->user()->hasRole('doctor') && $request->user_id != auth()->id()) {
-            abort(403, 'No tiene permiso para gestionar los horarios de otro médico.');
+        /** @var \App\Models\User $currentUser */
+        $currentUser = Auth::user();
+
+        // Security check for doctors and assistants
+        if ($currentUser->hasRole(['doctor', 'asistente', 'secretaria'])) {
+            $ownerId = $currentUser->hasRole('doctor') ? $currentUser->id : $currentUser->created_by;
+            
+            // Can only manage the owner's schedule
+            if ($request->user_id != $ownerId) {
+                abort(403, 'No tiene permiso para gestionar los horarios de otro médico.');
+            }
         }
 
         $user = User::findOrFail($request->user_id);
@@ -84,9 +95,17 @@ class HorarioController extends Controller
             'duracion_consulta' => 'required|integer|in:20,30,45,60',
         ]);
 
-        // Security check for doctors
-        if (auth()->user()->hasRole('doctor') && $request->user_id != auth()->id()) {
-            abort(403, 'No tiene permiso para gestionar los horarios de otro médico.');
+        /** @var \App\Models\User $currentUser */
+        $currentUser = Auth::user();
+
+        // Security check for doctors and assistants
+        if ($currentUser->hasRole(['doctor', 'asistente', 'secretaria'])) {
+            $ownerId = $currentUser->hasRole('doctor') ? $currentUser->id : $currentUser->created_by;
+            
+            // Can only manage the owner's schedule
+            if ($request->user_id != $ownerId) {
+                abort(403, 'No tiene permiso para gestionar los horarios de otro médico.');
+            }
         }
 
         $userId = $request->user_id;

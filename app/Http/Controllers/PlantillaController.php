@@ -14,7 +14,14 @@ class PlantillaController extends Controller
 {
     public function index()
     {
+        /** @var \App\Models\User $user */
         $user = Auth::user();
+        
+        // Assistants and secretaries cannot access templates
+        if ($user->hasRole(['asistente', 'secretaria'])) {
+            abort(403, 'No tiene permiso para acceder a plantillas.');
+        }
+
         $query = Plantilla::with(['user', 'creator']);
 
         if ($user->hasRole('doctor')) {
@@ -27,8 +34,11 @@ class PlantillaController extends Controller
 
     public function create()
     {
+        /** @var \App\Models\User $user */
+        $user = Auth::user();
+
         $doctors = null;
-        if (Auth::user()->hasRole('root')) {
+        if ($user->hasRole('root')) {
             $doctors = User::role('doctor')->get();
         }
 
@@ -37,6 +47,9 @@ class PlantillaController extends Controller
 
     public function store(Request $request)
     {
+        /** @var \App\Models\User $user */
+        $user = Auth::user();
+
         $request->validate([
             'nombre' => 'required|string|max:255',
             'user_id' => 'nullable|exists:users,id', // Required if root
@@ -47,17 +60,17 @@ class PlantillaController extends Controller
             'campos.*.opciones' => 'nullable|string', // Comma separated or JSON string from frontend
         ]);
 
-        if (Auth::user()->hasRole('root') && !$request->user_id) {
+        if ($user->hasRole('root') && !$request->user_id) {
             return back()->withErrors(['user_id' => 'Debe seleccionar un doctor.'])->withInput();
         }
 
-        $userId = Auth::user()->hasRole('root') ? $request->user_id : Auth::id();
+        $userId = $user->hasRole('root') ? $request->user_id : $user->id;
 
-        DB::transaction(function () use ($request, $userId) {
+        DB::transaction(function () use ($request, $userId, $user) {
             $plantilla = Plantilla::create([
                 'nombre' => $request->nombre,
                 'user_id' => $userId,
-                'created_by' => Auth::id(),
+                'created_by' => $user->id,
             ]);
 
             foreach ($request->campos as $index => $campoData) {
@@ -91,13 +104,16 @@ class PlantillaController extends Controller
 
     public function edit(Plantilla $plantilla)
     {
+        /** @var \App\Models\User $user */
+        $user = Auth::user();
+
         // Authorization check
-        if (Auth::user()->hasRole('doctor') && $plantilla->user_id !== Auth::id()) {
+        if ($user->hasRole('doctor') && $plantilla->user_id !== $user->id) {
             abort(403);
         }
 
         $doctors = null;
-        if (Auth::user()->hasRole('root')) {
+        if ($user->hasRole('root')) {
             $doctors = User::role('doctor')->get();
         }
 
@@ -108,8 +124,11 @@ class PlantillaController extends Controller
 
     public function update(Request $request, Plantilla $plantilla)
     {
+        /** @var \App\Models\User $user */
+        $user = Auth::user();
+
         // Authorization check
-        if (Auth::user()->hasRole('doctor') && $plantilla->user_id !== Auth::id()) {
+        if ($user->hasRole('doctor') && $plantilla->user_id !== $user->id) {
             abort(403);
         }
 
@@ -123,14 +142,14 @@ class PlantillaController extends Controller
             'campos.*.opciones' => 'nullable|string',
         ]);
 
-        if (Auth::user()->hasRole('root') && !$request->user_id) {
+        if ($user->hasRole('root') && !$request->user_id) {
             return back()->withErrors(['user_id' => 'Debe seleccionar un doctor.'])->withInput();
         }
 
-        DB::transaction(function () use ($request, $plantilla) {
+        DB::transaction(function () use ($request, $plantilla, $user) {
             $plantilla->update([
                 'nombre' => $request->nombre,
-                'user_id' => Auth::user()->hasRole('root') ? $request->user_id : $plantilla->user_id,
+                'user_id' => $user->hasRole('root') ? $request->user_id : $plantilla->user_id,
             ]);
 
             // Replace fields strategy: Delete all and recreate.
@@ -170,7 +189,10 @@ class PlantillaController extends Controller
 
     public function destroy(Plantilla $plantilla)
     {
-        if (Auth::user()->hasRole('doctor') && $plantilla->user_id !== Auth::id()) {
+        /** @var \App\Models\User $user */
+        $user = Auth::user();
+
+        if ($user->hasRole('doctor') && $plantilla->user_id !== $user->id) {
             abort(403);
         }
 
@@ -180,8 +202,11 @@ class PlantillaController extends Controller
 
     public function getCampos(Plantilla $plantilla)
     {
+        /** @var \App\Models\User $user */
+        $user = Auth::user();
+
         // Allow if root or if doctor owns it
-        if (Auth::user()->hasRole('doctor') && $plantilla->user_id !== Auth::id()) {
+        if ($user->hasRole('doctor') && $plantilla->user_id !== $user->id) {
             return response()->json(['error' => 'Unauthorized'], 403);
         }
 

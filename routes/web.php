@@ -47,7 +47,7 @@ Route::middleware(['auth', 'role:root'])->group(function () {
     // Horarios Routes (Moved to shared group)
 });
 
-Route::middleware(['auth', 'role:root|doctor', 'check.doctor.status'])->group(function () {
+Route::middleware(['auth', 'role:root|doctor|asistente|secretaria', 'check.doctor.status'])->group(function () {
     Route::resource('admin/clinicas', \App\Http\Controllers\ClinicaController::class);
     Route::resource('admin/consultorios', \App\Http\Controllers\ConsultorioController::class);
     Route::resource('admin/users', \App\Http\Controllers\UserController::class);
@@ -88,14 +88,23 @@ Route::middleware(['auth', 'role:root|doctor', 'check.doctor.status'])->group(fu
     Route::put('estudios/{estudio}', [\App\Http\Controllers\ConsultaController::class, 'updateEstudio'])->name('consultas.estudios.update');
     Route::delete('estudios/{estudio}', [\App\Http\Controllers\ConsultaController::class, 'destroyEstudio'])->name('consultas.estudios.destroy');
 
-    // Ganancias Routes
-    Route::get('ganancias', [\App\Http\Controllers\GananciaController::class, 'index'])->name('ganancias.index');
+    // Ganancias Routes (Restricted to Root and Doctor)
+    Route::get('ganancias', [\App\Http\Controllers\GananciaController::class, 'index'])
+        ->middleware('role:root|doctor')
+        ->name('ganancias.index');
 
     // Días Sin Citas
     Route::resource('dias-sin-citas', \App\Http\Controllers\DiaSinCitaController::class);
 
     // Notifications
     Route::get('admin/notifications/{id}/read', [\App\Http\Controllers\DashboardController::class, 'markNotificationRead'])->name('admin.notifications.read');
+});
+
+Route::middleware(['auth', 'role:doctor'])->group(function () {
+    // Compras / Catálogo (Doctor only)
+    Route::get('compras', [\App\Http\Controllers\CompraController::class, 'index'])->name('compras.index');
+    Route::post('compras', [\App\Http\Controllers\CompraController::class, 'store'])->name('compras.store');
+    Route::post('compras/{suscripcion}/comprobante', [\App\Http\Controllers\CompraController::class, 'uploadComprobante'])->name('compras.upload_comprobante');
 });
 
 Route::middleware('auth')->group(function () {
@@ -105,11 +114,6 @@ Route::middleware('auth')->group(function () {
 
     // Pendientes Routes (Doctor/User specific)
     Route::resource('pendientes', \App\Http\Controllers\PendienteController::class);
-
-    // Compras / Catálogo (Doctor)
-    Route::get('compras', [\App\Http\Controllers\CompraController::class, 'index'])->name('compras.index');
-    Route::post('compras', [\App\Http\Controllers\CompraController::class, 'store'])->name('compras.store');
-    Route::post('compras/{suscripcion}/comprobante', [\App\Http\Controllers\CompraController::class, 'uploadComprobante'])->name('compras.upload_comprobante');
 });
 
 require __DIR__.'/auth.php';

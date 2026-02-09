@@ -15,9 +15,11 @@ class DiaSinCitaController extends Controller
         $user = Auth::user();
         $query = DiaSinCita::with(['consultorios', 'user']);
 
-        if ($user->hasRole('doctor')) {
-            // Doctor sees blocks affecting their consultorios
-            $consultorioIds = Consultorio::where('created_by', $user->id)->pluck('id');
+        if ($user->hasRole(['doctor', 'asistente', 'secretaria'])) {
+            $ownerId = $user->hasRole('doctor') ? $user->id : $user->created_by;
+            
+            // Doctor/Assistant sees blocks affecting their owner's consultorios
+            $consultorioIds = Consultorio::where('created_by', $ownerId)->pluck('id');
             $query->whereHas('consultorios', function($q) use ($consultorioIds) {
                 $q->whereIn('consultorios.id', $consultorioIds);
             });
@@ -33,8 +35,9 @@ class DiaSinCitaController extends Controller
         /** @var \App\Models\User $user */
         $user = Auth::user();
         
-        if ($user->hasRole('doctor')) {
-            $consultorios = Consultorio::where('created_by', $user->id)->where('activo', true)->get();
+        if ($user->hasRole(['doctor', 'asistente', 'secretaria'])) {
+            $ownerId = $user->hasRole('doctor') ? $user->id : $user->created_by;
+            $consultorios = Consultorio::where('created_by', $ownerId)->where('activo', true)->get();
         } else {
             $consultorios = Consultorio::where('activo', true)->get();
         }
@@ -54,6 +57,22 @@ class DiaSinCitaController extends Controller
             'hora_inicio' => 'nullable|required_if:todo_el_dia,false|date_format:H:i',
             'hora_fin' => 'nullable|required_if:todo_el_dia,false|date_format:H:i|after:hora_inicio',
         ]);
+
+        /** @var \App\Models\User $user */
+        $user = Auth::user();
+        
+        // Security check: ensure consultorios belong to the user's scope
+        if ($user->hasRole(['doctor', 'asistente', 'secretaria'])) {
+            $ownerId = $user->hasRole('doctor') ? $user->id : $user->created_by;
+            
+            $validConsultorios = Consultorio::where('created_by', $ownerId)
+                ->whereIn('id', $request->consultorios)
+                ->count();
+                
+            if ($validConsultorios !== count($request->consultorios)) {
+                abort(403, 'No tiene permiso para asignar estos consultorios.');
+            }
+        }
 
         $diaSinCita = DiaSinCita::create([
             'user_id' => Auth::id(),
@@ -75,8 +94,20 @@ class DiaSinCitaController extends Controller
         /** @var \App\Models\User $user */
         $user = Auth::user();
 
-        if ($user->hasRole('doctor') && $diaSinCita->user_id !== $user->id) {
-            abort(403, 'No tienes permiso para eliminar este registro.');
+        if ($user->hasRole(['doctor', 'asistente', 'secretaria'])) {
+            $ownerId = $user->hasRole('doctor') ? $user->id : $user->created_by;
+            
+            // Check if the record was created by someone in the same scope (doctor or assistants)
+            // Or affects the doctor's consultorios
+            
+            // Simpler: Check if the creator of the record is the owner or an assistant of the owner
+            // But 'user_id' on DiaSinCita is the creator.
+            $creator = $diaSinCita->user;
+            $creatorOwnerId = $creator->hasRole('doctor') ? $creator->id : $creator->created_by;
+            
+            if ($creatorOwnerId !== $ownerId) {
+                 abort(403, 'No tienes permiso para eliminar este registro.');
+            }
         }
 
         $diaSinCita->delete();

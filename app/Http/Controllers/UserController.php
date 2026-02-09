@@ -33,10 +33,12 @@ class UserController extends Controller
         /** @var \App\Models\User $currentUser */
         $currentUser = Auth::user();
 
-        if ($currentUser->hasRole('doctor')) {
-            $query->where(function ($q) use ($currentUser) {
-                $q->where('id', $currentUser->id)
-                  ->orWhere('created_by', $currentUser->id);
+        if ($currentUser->hasRole(['doctor', 'asistente', 'secretaria'])) {
+            $ownerId = $currentUser->hasRole('doctor') ? $currentUser->id : $currentUser->created_by;
+            
+            $query->where(function ($q) use ($ownerId) {
+                $q->where('id', $ownerId)
+                  ->orWhere('created_by', $ownerId);
             });
         }
 
@@ -52,7 +54,7 @@ class UserController extends Controller
         /** @var \App\Models\User $currentUser */
         $currentUser = Auth::user();
 
-        if ($currentUser->hasRole('doctor')) {
+        if ($currentUser->hasRole(['doctor', 'asistente', 'secretaria'])) {
             $roles = Role::whereIn('name', ['asistente', 'secretaria'])->get();
         } else {
             $roles = Role::all();
@@ -89,7 +91,7 @@ class UserController extends Controller
             'role' => ['required', 'exists:roles,name', function ($attribute, $value, $fail) {
                 /** @var \App\Models\User $currentUser */
                 $currentUser = Auth::user();
-                if ($currentUser->hasRole('doctor') && !in_array($value, ['asistente', 'secretaria'])) {
+                if ($currentUser->hasRole(['doctor', 'asistente', 'secretaria']) && !in_array($value, ['asistente', 'secretaria'])) {
                     $fail('No tienes permisos para asignar este rol.');
                 }
             }],
@@ -103,9 +105,10 @@ class UserController extends Controller
 
         /** @var \App\Models\User $currentUser */
         $currentUser = Auth::user();
+        $owner = $currentUser->hasRole('doctor') ? $currentUser : User::find($currentUser->created_by);
 
-        if ($currentUser->hasRole('doctor') && in_array($request->role, ['asistente', 'secretaria'])) {
-             if (!$this->subscriptionService->canCreate($currentUser, 'usuario')) {
+        if ($currentUser->hasRole(['doctor', 'asistente', 'secretaria']) && in_array($request->role, ['asistente', 'secretaria'])) {
+             if (!$this->subscriptionService->canCreate($owner, 'usuario')) {
                  return back()->withErrors(['role' => 'Ha alcanzado el límite de usuarios permitidos por su suscripción.'])->withInput();
              }
         }
@@ -119,7 +122,7 @@ class UserController extends Controller
             'telefono' => $request->telefono,
             'cedula_profesional' => $request->cedula_profesional,
             'especialidad_id' => $request->especialidad_id,
-            'created_by' => Auth::id(),
+            'created_by' => $owner->id,
         ]);
 
         $user->assignRole($request->role);
@@ -147,7 +150,7 @@ class UserController extends Controller
         /** @var \App\Models\User $currentUser */
         $currentUser = Auth::user();
 
-        if ($currentUser->hasRole('doctor')) {
+        if ($currentUser->hasRole(['doctor', 'asistente', 'secretaria'])) {
             $roles = Role::whereIn('name', ['asistente', 'secretaria'])->get();
         } else {
             $roles = Role::all();
@@ -164,6 +167,10 @@ class UserController extends Controller
             'descargar estudios con imagenes'
         ])->get();
         
+        if ($currentUser->hasRole(['asistente', 'secretaria']) && $user->hasRole('doctor')) {
+            abort(403, 'No tienes permiso para editar al doctor.');
+        }
+
         return view('admin.users.edit', compact('user', 'roles', 'clinicas', 'consultorios', 'especialidades', 'permissions'));
     }
 
@@ -174,6 +181,10 @@ class UserController extends Controller
     {
         /** @var \App\Models\User $currentUser */
         $currentUser = Auth::user();
+        
+        if ($currentUser->hasRole(['asistente', 'secretaria']) && $user->hasRole('doctor')) {
+            abort(403, 'No tienes permiso para editar al doctor.');
+        }
 
         $rules = [
             'name' => ['required', 'string', 'max:255'],
@@ -197,7 +208,7 @@ class UserController extends Controller
         
         if (!$isDoctorSelfEdit) {
             $rules['role'] = ['required', 'exists:roles,name', function ($attribute, $value, $fail) use ($currentUser) {
-                if ($currentUser->hasRole('doctor') && !in_array($value, ['asistente', 'secretaria'])) {
+                if ($currentUser->hasRole(['doctor', 'asistente', 'secretaria']) && !in_array($value, ['asistente', 'secretaria'])) {
                     $fail('No tienes permisos para asignar este rol.');
                 }
             }];
@@ -257,8 +268,27 @@ class UserController extends Controller
      */
     public function destroy(User $user)
     {
-        if ($user->id === Auth::id()) {
+        /** @var \App\Models\User $currentUser */
+        $currentUser = Auth::user();
+
+        if ($user->id === $currentUser->id) {
             return redirect()->route('users.index')->with('error', 'No puedes eliminar tu propio usuario.');
+        }
+
+        if ($currentUser->hasRole(['doctor', 'asistente', 'secretaria'])) {
+             $ownerId = $currentUser->hasRole('doctor') ? $currentUser->id : $currentUser->created_by;
+             
+             // Check if target user belongs to the owner's scope
+             $isOwned = ($user->id === $ownerId) || ($user->created_by === $ownerId);
+             
+             if (!$isOwned) {
+                 abort(403, 'No tiene permiso para eliminar este usuario.');
+             }
+
+             // Assistants cannot delete the doctor (owner)
+             if ($user->id === $ownerId) {
+                abort(403, 'No tiene permiso para eliminar al doctor titular.');
+             }
         }
         
         $user->delete();

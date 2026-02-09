@@ -20,22 +20,26 @@ class DashboardController extends Controller
             return redirect()->route('admin.dashboard');
         }
 
-        if ($user->hasRole('doctor')) {
+        if ($user->hasRole(['doctor', 'asistente', 'secretaria'])) {
+            // Determine scope (Doctor ID)
+            $doctorId = $user->hasRole('doctor') ? $user->id : $user->created_by;
+            $doctor = $user->hasRole('doctor') ? $user : \App\Models\User::find($doctorId);
+
             // Get today's appointments (Use server date or allow a wider range to catch timezone diffs)
             // Using now()->toDateString() relies on app timezone. If app is UTC, it might differ from user.
             // We'll fetch appointments where date is effectively "today" in general terms.
             $today = now()->timezone('America/Mexico_City')->toDateString();
             
             $citasHoy = Cita::with(['paciente', 'consultorio'])
-                ->where('doctor_id', $user->id)
+                ->where('doctor_id', $doctorId)
                 ->whereDate('fecha', $today)
                 ->where('estado', '!=', 'cancelada')
                 ->orderBy('hora_inicio')
                 ->take(5) // Limit for preview
                 ->get();
 
-            // Get pending reminders
-            $pendientes = Pendiente::where('user_id', $user->id)
+            // Get pending reminders (Scoped to Doctor)
+            $pendientes = Pendiente::where('user_id', $doctorId)
                 ->where('activo', true)
                 ->orderBy('fecha')
                 ->orderBy('hora')
@@ -43,19 +47,24 @@ class DashboardController extends Controller
                 ->get();
 
             // Check for blocked days
-            // Get consultorio IDs: both assigned (pivot) and created (created_by)
-            $assignedIds = $user->consultorios()->pluck('consultorios.id')->toArray();
-            $createdIds = \App\Models\Consultorio::where('created_by', $user->id)->pluck('id')->toArray();
-            $userConsultorioIds = array_unique(array_merge($assignedIds, $createdIds));
+            // Get consultorio IDs from the Doctor context
+            if ($doctor) {
+                $assignedIds = $doctor->consultorios()->pluck('consultorios.id')->toArray();
+                $createdIds = \App\Models\Consultorio::where('created_by', $doctorId)->pluck('id')->toArray();
+                $userConsultorioIds = array_unique(array_merge($assignedIds, $createdIds));
 
-            $diasBloqueadosHoy = DiaSinCita::whereDate('fecha_inicio', '<=', $today)
-                ->whereDate('fecha_fin', '>=', $today)
-                ->whereHas('consultorios', function($q) use ($userConsultorioIds) {
-                    $q->whereIn('consultorios.id', $userConsultorioIds);
-                })
-                ->with('consultorios')
-                ->get();
+                $diasBloqueadosHoy = DiaSinCita::whereDate('fecha_inicio', '<=', $today)
+                    ->whereDate('fecha_fin', '>=', $today)
+                    ->whereHas('consultorios', function($q) use ($userConsultorioIds) {
+                        $q->whereIn('consultorios.id', $userConsultorioIds);
+                    })
+                    ->with('consultorios')
+                    ->get();
+            } else {
+                $diasBloqueadosHoy = collect();
+            }
 
+            // Notifications (Personal)
             $notifications = $user->unreadNotifications()
                 ->where('type', 'App\Notifications\SubscriptionExpiringNotification')
                 ->get();

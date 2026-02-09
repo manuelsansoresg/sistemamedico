@@ -49,9 +49,12 @@ class ExpedienteController extends Controller
         $expedientes = $query->paginate(15);
         
         // Load filter options
-        if ($user->hasRole('doctor')) {
-            $clinicas = $user->clinicas;
-            $consultorios = $user->consultorios;
+        if ($user->hasRole(['doctor', 'asistente', 'secretaria'])) {
+            $ownerId = $user->hasRole('doctor') ? $user->id : $user->created_by;
+            $owner = $user->hasRole('doctor') ? $user : \App\Models\User::find($ownerId);
+            
+            $clinicas = $owner->clinicas;
+            $consultorios = $owner->consultorios;
         } else {
             $clinicas = Clinica::where('activo', true)->get();
             $consultorios = Consultorio::where('activo', true)->get();
@@ -104,14 +107,17 @@ class ExpedienteController extends Controller
             ->join('citas', 'consultas.cita_id', '=', 'citas.id')
             ->select('consultas.*');
 
-        if ($user->hasRole('doctor')) {
-            $assignedClinicas = $user->clinicas->pluck('id');
-            $assignedConsultorios = $user->consultorios->pluck('id');
+        if ($user->hasRole(['doctor', 'asistente', 'secretaria'])) {
+            $ownerId = $user->hasRole('doctor') ? $user->id : $user->created_by;
+            $owner = $user->hasRole('doctor') ? $user : \App\Models\User::find($ownerId);
             
-            $query->where(function($q) use ($assignedClinicas, $assignedConsultorios, $user) {
+            $assignedClinicas = $owner->clinicas->pluck('id');
+            $assignedConsultorios = $owner->consultorios->pluck('id');
+            
+            $query->where(function($q) use ($assignedClinicas, $assignedConsultorios, $ownerId) {
                 $q->whereIn('citas.clinica_id', $assignedClinicas)
                   ->orWhereIn('citas.consultorio_id', $assignedConsultorios)
-                  ->orWhere('citas.doctor_id', $user->id);
+                  ->orWhere('citas.doctor_id', $ownerId);
             });
         }
         
@@ -120,6 +126,7 @@ class ExpedienteController extends Controller
 
     private function generateZip($ids)
     {
+        /** @var \App\Models\User $user */
         $user = Auth::user();
         
         // Permission checks
