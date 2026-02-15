@@ -171,11 +171,9 @@
                 </div>
             </div>
 
-            <!-- Section 3: Accesos Rápidos (Iconos) -->
             <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6 px-4">
                 
                 @role('doctor')
-                <!-- Wizard / Configuración Inicial -->
                 <a href="{{ route('doctor.wizard.index') }}" class="flex flex-col items-center justify-center p-8 bg-white border border-gray-100 rounded-2xl shadow-[0_2px_15px_-3px_rgba(0,0,0,0.07),0_10px_20px_-2px_rgba(0,0,0,0.04)] hover:shadow-lg transition-all duration-300 group h-48">
                     <div class="w-20 h-20 bg-blue-50 rounded-full flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300">
                         <i class="fas fa-magic text-3xl text-[#0061F5]"></i>
@@ -183,7 +181,6 @@
                     <span class="font-bold text-gray-800 text-sm tracking-wide text-center">WIZZARD</span>
                 </a>
 
-                <!-- Suscripciones -->
                 <a href="{{ route('compras.index') }}" class="flex flex-col items-center justify-center p-8 bg-white border border-gray-100 rounded-2xl shadow-[0_2px_15px_-3px_rgba(0,0,0,0.07),0_10px_20px_-2px_rgba(0,0,0,0.04)] hover:shadow-lg transition-all duration-300 group h-48">
                     <div class="w-20 h-20 bg-blue-50 rounded-full flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300">
                         <i class="fas fa-shopping-cart text-3xl text-[#0061F5]"></i>
@@ -192,7 +189,7 @@
                 </a>
                 @endrole
 
-                <!-- Usuarios -->
+                @hasanyrole('doctor|asistente')
                 <a href="{{ route('users.index') }}" class="flex flex-col items-center justify-center p-8 bg-white border border-gray-100 rounded-2xl shadow-[0_2px_15px_-3px_rgba(0,0,0,0.07),0_10px_20px_-2px_rgba(0,0,0,0.04)] hover:shadow-lg transition-all duration-300 group h-48">
                     <div class="w-20 h-20 bg-blue-50 rounded-full flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300">
                         <i class="fas fa-users text-3xl text-[#2563EB]"></i>
@@ -200,7 +197,6 @@
                     <span class="font-bold text-gray-800 text-sm tracking-wide">USUARIOS</span>
                 </a>
 
-                <!-- Clínica -->
                 <a href="{{ route('clinicas.index') }}" class="flex flex-col items-center justify-center p-8 bg-white border border-gray-100 rounded-2xl shadow-[0_2px_15px_-3px_rgba(0,0,0,0.07),0_10px_20px_-2px_rgba(0,0,0,0.04)] hover:shadow-lg transition-all duration-300 group h-48">
                     <div class="w-20 h-20 bg-blue-50 rounded-full flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300">
                         <i class="fas fa-hospital-alt text-3xl text-[#2563EB]"></i>
@@ -208,15 +204,14 @@
                     <span class="font-bold text-gray-800 text-sm tracking-wide">CLÍNICA</span>
                 </a>
 
-                <!-- Consultorios -->
                 <a href="{{ route('consultorios.index') }}" class="flex flex-col items-center justify-center p-8 bg-white border border-gray-100 rounded-2xl shadow-[0_2px_15px_-3px_rgba(0,0,0,0.07),0_10px_20px_-2px_rgba(0,0,0,0.04)] hover:shadow-lg transition-all duration-300 group h-48">
                     <div class="w-20 h-20 bg-blue-50 rounded-full flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300">
                         <i class="fas fa-building text-3xl text-[#2563EB]"></i>
                     </div>
                     <span class="font-bold text-gray-800 text-sm tracking-wide">CONSULTORIOS</span>
                 </a>
+                @endhasanyrole
 
-                <!-- Horarios -->
                 <a href="{{ route('horarios.index') }}" class="flex flex-col items-center justify-center p-8 bg-white border border-gray-100 rounded-2xl shadow-[0_2px_15px_-3px_rgba(0,0,0,0.07),0_10px_20px_-2px_rgba(0,0,0,0.04)] hover:shadow-lg transition-all duration-300 group h-48">
                     <div class="w-20 h-20 bg-blue-50 rounded-full flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300">
                         <i class="fas fa-clock text-3xl text-[#2563EB]"></i>
@@ -225,7 +220,6 @@
                 </a>
 
                 @role('doctor')
-                <!-- Ganancias -->
                 <a href="{{ route('ganancias.index') }}" class="flex flex-col items-center justify-center p-8 bg-white border border-gray-100 rounded-2xl shadow-[0_2px_15px_-3px_rgba(0,0,0,0.07),0_10px_20px_-2px_rgba(0,0,0,0.04)] hover:shadow-lg transition-all duration-300 group h-48">
                     <div class="w-20 h-20 bg-green-50 rounded-full flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300">
                         <i class="fas fa-chart-line text-3xl text-green-600"></i>
@@ -234,7 +228,6 @@
                 </a>
                 @endrole
 
-                <!-- Días Sin Citas -->
                 <a href="{{ route('dias-sin-citas.index') }}" class="flex flex-col items-center justify-center p-8 bg-white border border-gray-100 rounded-2xl shadow-[0_2px_15px_-3px_rgba(0,0,0,0.07),0_10px_20px_-2px_rgba(0,0,0,0.04)] hover:shadow-lg transition-all duration-300 group h-48">
                     <div class="w-20 h-20 bg-blue-50 rounded-full flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300">
                         <i class="fas fa-calendar-times text-3xl text-[#2563EB]"></i>
@@ -242,7 +235,6 @@
                     <span class="font-bold text-gray-800 text-sm tracking-wide text-center">DÍAS SIN CITAS</span>
                 </a>
 
-                <!-- Pacientes -->
                 <a href="{{ route('pacientes.index') }}" class="flex flex-col items-center justify-center p-8 bg-white border border-gray-100 rounded-2xl shadow-[0_2px_15px_-3px_rgba(0,0,0,0.07),0_10px_20px_-2px_rgba(0,0,0,0.04)] hover:shadow-lg transition-all duration-300 group h-48">
                     <div class="w-20 h-20 bg-blue-50 rounded-full flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300">
                         <i class="fas fa-user text-3xl text-[#2563EB]"></i>
@@ -250,7 +242,6 @@
                     <span class="font-bold text-gray-800 text-sm tracking-wide">PACIENTES</span>
                 </a>
 
-                <!-- Citas -->
                 <a href="{{ route('citas.index') }}" class="flex flex-col items-center justify-center p-8 bg-white border border-gray-100 rounded-2xl shadow-[0_2px_15px_-3px_rgba(0,0,0,0.07),0_10px_20px_-2px_rgba(0,0,0,0.04)] hover:shadow-lg transition-all duration-300 group h-48">
                     <div class="w-20 h-20 bg-blue-50 rounded-full flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300">
                         <i class="fas fa-calendar-alt text-3xl text-[#2563EB]"></i>
@@ -258,7 +249,6 @@
                     <span class="font-bold text-gray-800 text-sm tracking-wide">CITAS</span>
                 </a>
 
-                <!-- Pendientes -->
                 <a href="{{ route('pendientes.index') }}" class="flex flex-col items-center justify-center p-8 bg-white border border-gray-100 rounded-2xl shadow-[0_2px_15px_-3px_rgba(0,0,0,0.07),0_10px_20px_-2px_rgba(0,0,0,0.04)] hover:shadow-lg transition-all duration-300 group h-48">
                     <div class="w-20 h-20 bg-blue-50 rounded-full flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300">
                         <i class="fas fa-clipboard-list text-3xl text-[#2563EB]"></i>
@@ -266,7 +256,6 @@
                     <span class="font-bold text-gray-800 text-sm tracking-wide">PENDIENTES</span>
                 </a>
 
-                <!-- Expedientes -->
                 <a href="{{ route('expedientes.index') }}" class="flex flex-col items-center justify-center p-8 bg-white border border-gray-100 rounded-2xl shadow-[0_2px_15px_-3px_rgba(0,0,0,0.07),0_10px_20px_-2px_rgba(0,0,0,0.04)] hover:shadow-lg transition-all duration-300 group h-48">
                     <div class="w-20 h-20 bg-blue-50 rounded-full flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300">
                         <i class="fas fa-folder-open text-3xl text-[#2563EB]"></i>
@@ -275,7 +264,6 @@
                 </a>
 
                 @role('doctor')
-                <!-- Plantillas -->
                 <a href="{{ route('plantillas.index') }}" class="flex flex-col items-center justify-center p-8 bg-white border border-gray-100 rounded-2xl shadow-[0_2px_15px_-3px_rgba(0,0,0,0.07),0_10px_20px_-2px_rgba(0,0,0,0.04)] hover:shadow-lg transition-all duration-300 group h-48">
                     <div class="w-20 h-20 bg-blue-50 rounded-full flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300">
                         <i class="fas fa-file-medical-alt text-3xl text-[#2563EB]"></i>

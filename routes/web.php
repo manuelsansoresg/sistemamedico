@@ -6,7 +6,7 @@ use App\Http\Controllers\Public\ComprobantePagoController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
-    return view('welcome');
+    return view('public.home');
 });
 
 // Ruta pública para subir comprobantes
@@ -114,6 +114,11 @@ Route::middleware('auth')->group(function () {
 
     // Pendientes Routes (Doctor/User specific)
     Route::resource('pendientes', \App\Http\Controllers\PendienteController::class);
+});
+
+// Portal Paciente
+Route::middleware(['auth', 'role:paciente'])->group(function () {
+    Route::get('/mis-expedientes', [\App\Http\Controllers\ExpedienteController::class, 'patientIndex'])->name('paciente.expedientes.index');
 });
 
 require __DIR__.'/auth.php';

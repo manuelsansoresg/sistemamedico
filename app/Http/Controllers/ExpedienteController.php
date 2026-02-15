@@ -63,6 +63,58 @@ class ExpedienteController extends Controller
         return view('admin.expedientes.index', compact('expedientes', 'clinicas', 'consultorios'));
     }
 
+    /**
+     * Expedientes para Paciente autenticado
+     */
+    public function patientIndex(Request $request)
+    {
+        /** @var \App\Models\User $user */
+        $user = Auth::user();
+        if (!$user->hasRole('paciente')) {
+            abort(403);
+        }
+
+        $query = \App\Models\Consulta::with(['cita.clinica', 'cita.consultorio', 'doctor'])
+            ->join('citas', 'consultas.cita_id', '=', 'citas.id')
+            ->select('consultas.*')
+            ->where('consultas.paciente_id', $user->id);
+
+        if ($request->filled('clinica_id')) {
+            $query->where('citas.clinica_id', $request->clinica_id);
+        }
+        if ($request->filled('consultorio_id')) {
+            $query->where('citas.consultorio_id', $request->consultorio_id);
+        }
+        if ($request->filled('fecha_inicio')) {
+            $query->whereDate('citas.fecha', '>=', $request->fecha_inicio);
+        }
+        if ($request->filled('fecha_fin')) {
+            $query->whereDate('citas.fecha', '<=', $request->fecha_fin);
+        }
+
+        $query->orderBy('citas.fecha', 'desc');
+        $expedientes = $query->paginate(15)->withQueryString();
+
+        // Opciones de filtro a partir de su propio historial
+        $clinicas = \App\Models\Clinica::whereIn('id', function($q) use ($user) {
+            $q->select('clinica_id')
+              ->from('citas')
+              ->whereIn('id', function($q2) use ($user) {
+                  $q2->select('cita_id')->from('consultas')->where('paciente_id', $user->id);
+              });
+        })->get();
+
+        $consultorios = \App\Models\Consultorio::whereIn('id', function($q) use ($user) {
+            $q->select('consultorio_id')
+              ->from('citas')
+              ->whereIn('id', function($q2) use ($user) {
+                  $q2->select('cita_id')->from('consultas')->where('paciente_id', $user->id);
+              });
+        })->get();
+
+        return view('paciente.expedientes.index', compact('expedientes', 'clinicas', 'consultorios'));
+    }
+
     public function downloadBulk(Request $request)
     {
         $request->validate([

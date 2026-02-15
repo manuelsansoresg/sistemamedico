@@ -20,6 +20,15 @@ class DashboardController extends Controller
             return redirect()->route('admin.dashboard');
         }
 
+        if ($user->hasRole('paciente')) {
+            $consultas = \App\Models\Consulta::with(['doctor', 'cita.clinica', 'cita.consultorio'])
+                ->where('paciente_id', $user->id)
+                ->orderByDesc('created_at')
+                ->take(5)
+                ->get();
+            return view('paciente.dashboard', compact('consultas'));
+        }
+
         if ($user->hasRole(['doctor', 'asistente', 'secretaria'])) {
             // Determine scope (Doctor ID)
             $doctorId = $user->hasRole('doctor') ? $user->id : $user->created_by;
