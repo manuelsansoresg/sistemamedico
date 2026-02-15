@@ -23,6 +23,7 @@ class PacienteController extends Controller
      */
     public function index(Request $request)
     {
+        /** @var \App\Models\User $user */
         $user = Auth::user();
         $query = User::role('paciente');
 
@@ -55,12 +56,93 @@ class PacienteController extends Controller
     }
 
     /**
+     * Listado enfocado a gestión de perfiles compartidos.
+     */
+    public function sharedIndex(Request $request)
+    {
+        /** @var \App\Models\User $user */
+        $user = Auth::user();
+
+        $query = User::role('paciente')->with('doctors');
+
+        if ($request->filled('paciente_id')) {
+            $query->where('id', $request->paciente_id);
+        }
+
+        if ($user->hasRole(['doctor', 'asistente', 'secretaria'])) {
+            $ownerId = $user->hasRole('doctor') ? $user->id : $user->created_by;
+
+            $query->where(function($q) use ($ownerId) {
+                $q->whereHas('doctors', function ($subQ) use ($ownerId) {
+                    $subQ->where('users.id', $ownerId);
+                })
+                ->orWhere('created_by', $ownerId);
+            });
+        }
+
+        $estado = $request->input('estado', 'todos');
+
+        if ($estado === 'compartidos') {
+            $query->where('perfil_compartido', true);
+        } elseif ($estado === 'no_compartidos') {
+            $query->where('perfil_compartido', false);
+        }
+
+        if ($request->has('search') && $request->search != '') {
+            $search = $request->search;
+            $query->where(function($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                  ->orWhere('apellido_paterno', 'like', "%{$search}%")
+                  ->orWhere('apellido_materno', 'like', "%{$search}%")
+                  ->orWhere('email', 'like', "%{$search}%")
+                  ->orWhere('curp', 'like', "%{$search}%");
+            });
+        }
+
+        if ($user->hasRole('root') && $request->filled('doctor_id')) {
+            $doctorId = $request->doctor_id;
+
+            $query->where(function($q) use ($doctorId) {
+                $q->where('created_by', $doctorId)
+                  ->orWhereHas('doctors', function($subQ) use ($doctorId) {
+                      $subQ->where('users.id', $doctorId);
+                  });
+            });
+        }
+
+        $pacientes = $query->paginate(10)->withQueryString();
+
+        $doctors = $user->hasRole('root') ? User::role('doctor')->get() : collect();
+
+        $canSharePacientes = null;
+
+        if ($user->hasRole(['doctor', 'asistente', 'secretaria'])) {
+            $ownerId = $user->hasRole('doctor') ? $user->id : $user->created_by;
+            $owner = $user->hasRole('doctor') ? $user : User::find($ownerId);
+
+            if ($owner) {
+                $canSharePacientes = $this->subscriptionService->hasActiveFeature($owner, 'paciente');
+            }
+        }
+
+        return view('admin.pacientes.shared', [
+            'pacientes' => $pacientes,
+            'doctors' => $doctors,
+            'estado' => $estado,
+            'canSharePacientes' => $canSharePacientes,
+            'isRoot' => $user->hasRole('root'),
+        ]);
+    }
+
+    /**
      * Show the form for creating a new resource.
      */
     public function create()
     {
         $doctors = [];
-        if (Auth::user()->hasRole('root')) {
+        /** @var \App\Models\User $authUser */
+        $authUser = Auth::user();
+        if ($authUser->hasRole('root')) {
             $doctors = User::role('doctor')->get();
         }
 
@@ -75,8 +157,9 @@ class PacienteController extends Controller
         /** @var \App\Models\User $user */
         $user = Auth::user();
         $owner = $user->hasRole('doctor') ? $user : User::find($user->created_by);
+        $ownerForLimits = $owner ?: $user;
 
-        if (!$this->subscriptionService->canCreate($owner, 'paciente')) {
+        if (!$this->subscriptionService->canCreate($ownerForLimits, 'paciente')) {
             return redirect()->back()->with('error', 'Ha alcanzado el límite de pacientes permitidos por su suscripción.');
         }
 
@@ -93,16 +176,17 @@ class PacienteController extends Controller
             'direccion' => ['nullable', 'string', 'max:255'],
             'numero_imss' => ['nullable', 'string', 'max:20'],
             'activo' => ['boolean'],
-            'perfil_compartido' => ['boolean'],
         ];
 
-        if (Auth::user()->hasRole('root')) {
+        /** @var \App\Models\User $authUser */
+        $authUser = Auth::user();
+        if ($authUser->hasRole('root')) {
             $rules['doctor_id'] = ['required', 'exists:users,id'];
         }
 
         $request->validate($rules);
 
-        $user = User::create([
+        $newUser = User::create([
             'name' => $request->name,
             'apellido_paterno' => $request->apellido_paterno,
             'apellido_materno' => $request->apellido_materno,
@@ -115,17 +199,17 @@ class PacienteController extends Controller
             'direccion' => $request->direccion,
             'numero_imss' => $request->numero_imss,
             'activo' => $request->has('activo'),
-            'perfil_compartido' => $request->has('perfil_compartido'),
-            'created_by' => $owner->id,
+            'perfil_compartido' => false,
+            'created_by' => $ownerForLimits->id,
         ]);
 
-        $user->assignRole('paciente');
+        $newUser->assignRole('paciente');
 
         // Link to doctor
-        if (Auth::user()->hasRole('root')) {
-            $user->doctors()->attach($request->doctor_id);
-        } elseif (Auth::user()->hasRole(['doctor', 'asistente', 'secretaria'])) {
-            $user->doctors()->attach($owner->id);
+        if ($authUser->hasRole('root')) {
+            $newUser->doctors()->attach($request->doctor_id);
+        } elseif ($authUser->hasRole(['doctor', 'asistente', 'secretaria'])) {
+            $newUser->doctors()->attach($owner->id);
         }
 
         return redirect()->route('pacientes.index')->with('success', 'Paciente creado exitosamente.');
@@ -156,6 +240,8 @@ class PacienteController extends Controller
     {
         $this->authorizeAccess($paciente);
 
+        $currentUser = Auth::user();
+
         $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'apellido_paterno' => ['nullable', 'string', 'max:255'],
@@ -168,7 +254,6 @@ class PacienteController extends Controller
             'direccion' => ['nullable', 'string', 'max:255'],
             'numero_imss' => ['nullable', 'string', 'max:20'],
             'activo' => ['boolean'],
-            'perfil_compartido' => ['boolean'],
         ]);
 
         $data = [
@@ -183,8 +268,9 @@ class PacienteController extends Controller
             'direccion' => $request->direccion,
             'numero_imss' => $request->numero_imss,
             'activo' => $request->has('activo'),
-            'perfil_compartido' => $request->has('perfil_compartido'),
         ];
+
+        $data['perfil_compartido'] = $paciente->perfil_compartido;
 
         if ($request->filled('password')) {
             $request->validate([
@@ -196,6 +282,124 @@ class PacienteController extends Controller
         $paciente->update($data);
 
         return redirect()->route('pacientes.index')->with('success', 'Paciente actualizado exitosamente.');
+    }
+
+    /**
+     * Marcar un paciente como con perfil compartido.
+     */
+    public function share(Request $request, User $paciente)
+    {
+        $this->authorizeAccess($paciente);
+
+        /** @var \App\Models\User $currentUser */
+        $currentUser = Auth::user();
+
+        if ($paciente->perfil_compartido) {
+            return back()->with('success', 'El perfil del paciente ya está compartido.');
+        }
+
+        if ($currentUser->hasRole('root')) {
+            $request->validate([
+                'doctor_id' => ['required', 'exists:users,id'],
+            ]);
+
+            $doctor = User::role('doctor')->findOrFail($request->doctor_id);
+
+            $paciente->perfil_compartido = true;
+
+            if (!$paciente->created_by) {
+                $paciente->created_by = $doctor->id;
+            }
+
+            $paciente->save();
+
+            if (!$paciente->doctors()->where('users.id', $doctor->id)->exists()) {
+                $paciente->doctors()->attach($doctor->id);
+            }
+
+            return back()->with('success', 'Perfil compartido correctamente.');
+        }
+
+        if ($currentUser->hasRole(['doctor', 'asistente', 'secretaria'])) {
+            $ownerId = $currentUser->hasRole('doctor') ? $currentUser->id : $currentUser->created_by;
+            $owner = $currentUser->hasRole('doctor') ? $currentUser : User::find($ownerId);
+
+            if (!$owner || !$this->subscriptionService->hasActiveFeature($owner, 'paciente')) {
+                return back()->with('error', 'Necesita una suscripción de Paciente activa para compartir perfiles.');
+            }
+
+            $paciente->perfil_compartido = true;
+
+            if (!$paciente->created_by) {
+                $paciente->created_by = $owner->id;
+            }
+
+            $paciente->save();
+
+            if (!$paciente->doctors()->where('users.id', $owner->id)->exists()) {
+                $paciente->doctors()->attach($owner->id);
+            }
+
+            return back()->with('success', 'Perfil compartido correctamente.');
+        }
+
+        return back()->with('error', 'No tiene permiso para compartir este paciente.');
+    }
+
+    /**
+     * Quitar el perfil compartido de un paciente (solo Root).
+     */
+    public function unshare(User $paciente)
+    {
+        /** @var \App\Models\User $currentUser */
+        $currentUser = Auth::user();
+
+        if (!$currentUser->hasRole('root')) {
+            return back()->with('error', 'Solo el rol Root puede quitar el perfil compartido.');
+        }
+
+        $paciente->perfil_compartido = false;
+        $paciente->save();
+
+        return back()->with('success', 'Perfil compartido eliminado correctamente.');
+    }
+
+    /**
+     * Toggle compartir (Root): si no está compartido lo comparte (requiere doctor_id),
+     * si ya está compartido lo descomparte.
+     */
+    public function toggleShare(Request $request, User $paciente)
+    {
+        /** @var \App\Models\User $currentUser */
+        $currentUser = Auth::user();
+
+        if (!$currentUser->hasRole('root')) {
+            return back()->with('error', 'Solo el rol Root puede alternar el estado de compartir.');
+        }
+
+        if ($paciente->perfil_compartido) {
+            $paciente->perfil_compartido = false;
+            $paciente->save();
+            return back()->with('success', 'Perfil compartido eliminado correctamente.');
+        }
+
+        $request->validate([
+            'doctor_id' => ['required', 'exists:users,id'],
+        ]);
+
+        $doctor = User::role('doctor')->findOrFail($request->doctor_id);
+
+        $paciente->perfil_compartido = true;
+        if (!$paciente->created_by) {
+            $paciente->created_by = $doctor->id;
+        }
+        $paciente->save();
+
+        if (!$paciente->doctors()->where('users.id', $doctor->id)->exists()) {
+            $paciente->doctors()->attach($doctor->id);
+        }
+
+        return back()->with('success', 'Perfil compartido correctamente.');
     }
 
     /**

@@ -86,13 +86,13 @@ class User extends Authenticatable
     // Relación: Un médico tiene muchos pacientes (a través de la tabla pivote)
     public function patients()
     {
-        return $this->belongsToMany(User::class, 'doctor_patient', 'doctor_id', 'patient_id');
+        return $this->belongsToMany(User::class, 'doctor_patient', 'doctor_id', 'patient_id')->withTimestamps();
     }
 
     // Relación: Un paciente tiene muchos médicos (a través de la tabla pivote)
     public function doctors()
     {
-        return $this->belongsToMany(User::class, 'doctor_patient', 'patient_id', 'doctor_id');
+        return $this->belongsToMany(User::class, 'doctor_patient', 'patient_id', 'doctor_id')->withTimestamps();
     }
 
     public function creator()

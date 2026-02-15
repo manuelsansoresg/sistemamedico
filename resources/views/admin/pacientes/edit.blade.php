@@ -142,11 +142,6 @@
                                 <input id="activo" type="checkbox" name="activo" value="1" {{ old('activo', $paciente->activo) ? 'checked' : '' }} class="rounded border-gray-300 text-[#0061F5] shadow-sm focus:border-[#0061F5] focus:ring-[#0061F5] cursor-pointer w-5 h-5">
                                 <label for="activo" class="ml-2 text-sm font-medium text-gray-900 cursor-pointer">Activo</label>
                             </div>
-
-                            <div class="flex items-center">
-                                <input id="perfil_compartido" type="checkbox" name="perfil_compartido" value="1" {{ old('perfil_compartido', $paciente->perfil_compartido) ? 'checked' : '' }} class="rounded border-gray-300 text-[#0061F5] shadow-sm focus:border-[#0061F5] focus:ring-[#0061F5] cursor-pointer w-5 h-5">
-                                <label for="perfil_compartido" class="ml-2 text-sm font-medium text-gray-900 cursor-pointer">Perfil Compartido</label>
-                            </div>
                         </div>
 
                         <div class="flex items-center justify-end mt-4">

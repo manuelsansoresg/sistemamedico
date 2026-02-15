@@ -7,10 +7,18 @@ use Illuminate\Support\Facades\Auth;
 use App\Models\Cita;
 use App\Models\Pendiente;
 use App\Models\DiaSinCita;
+use App\Services\SubscriptionService;
 use Carbon\Carbon;
 
 class DashboardController extends Controller
 {
+    protected SubscriptionService $subscriptionService;
+
+    public function __construct(SubscriptionService $subscriptionService)
+    {
+        $this->subscriptionService = $subscriptionService;
+    }
+
     public function index()
     {
         /** @var \App\Models\User $user */
@@ -73,12 +81,13 @@ class DashboardController extends Controller
                 $diasBloqueadosHoy = collect();
             }
 
-            // Notifications (Personal)
             $notifications = $user->unreadNotifications()
                 ->where('type', 'App\Notifications\SubscriptionExpiringNotification')
                 ->get();
+            
+            $canSharePacientes = $doctor ? $this->subscriptionService->hasActiveFeature($doctor, 'paciente') : false;
 
-            return view('doctor.dashboard', compact('citasHoy', 'pendientes', 'diasBloqueadosHoy', 'notifications'));
+            return view('doctor.dashboard', compact('citasHoy', 'pendientes', 'diasBloqueadosHoy', 'notifications', 'canSharePacientes'));
         }
 
         return view('dashboard');

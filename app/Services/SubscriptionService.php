@@ -64,21 +64,14 @@ class SubscriptionService
      */
     public function canCreate(User $user, string $type)
     {
-        // Si es Root, siempre puede (o definir lógica específica)
         if ($user->hasRole('root')) {
             return true;
         }
 
         $limites = $this->calculateLimits($user);
-        
-        // Mapear el tipo de recurso a la key del array de límites
-        // $type esperado: 'clinica', 'consultorio', 'usuario', 'paciente'
-        $limitKey = $this->mapCatalogoToKey($type); // Devuelve plural (ej: 'clinicas')
-        
+        $limitKey = $this->mapCatalogoToKey($type);
+
         if (!$limitKey || !isset($limites[$limitKey])) {
-            // Si no hay límite definido para esto, asumimos 0 o bloqueado?
-            // Por seguridad, si no está en la lista de límites controlados, bloqueamos o permitimos?
-            // Asumiremos que si no hay límite, es 0.
             return false;
         }
 
@@ -93,7 +86,6 @@ class SubscriptionService
                 $current = Consultorio::where('created_by', $user->id)->count();
                 break;
             case 'usuarios':
-                // Excluir pacientes si 'usuarios' se refiere a staff (asistentes/secretarias)
                 $current = User::where('created_by', $user->id)
                     ->whereHas('roles', function($q) {
                         $q->whereIn('name', ['asistente', 'secretaria']);
@@ -105,6 +97,22 @@ class SubscriptionService
         }
 
         return $current < $limit;
+    }
+
+    /**
+     * Verificar si el usuario tiene activa alguna característica de catálogo.
+     * Ejemplo de $feature: 'paciente', 'clinica'.
+     */
+    public function hasActiveFeature(User $user, string $feature): bool
+    {
+        $limites = $this->calculateLimits($user);
+        $key = $this->mapCatalogoToKey($feature);
+
+        if (!$key) {
+            return false;
+        }
+
+        return ($limites[$key] ?? 0) > 0;
     }
 
     private function mapCatalogoToKey($nombre)

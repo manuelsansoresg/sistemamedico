@@ -53,6 +53,10 @@ Route::middleware(['auth', 'role:root|doctor|asistente|secretaria', 'check.docto
     Route::resource('admin/users', \App\Http\Controllers\UserController::class);
     
     // Pacientes Routes
+    Route::get('admin/pacientes/compartidos', [\App\Http\Controllers\PacienteController::class, 'sharedIndex'])->name('pacientes.shared.index');
+    Route::post('admin/pacientes/{paciente}/compartir', [\App\Http\Controllers\PacienteController::class, 'share'])->name('pacientes.share');
+    Route::post('admin/pacientes/{paciente}/dejar-compartir', [\App\Http\Controllers\PacienteController::class, 'unshare'])->name('pacientes.unshare');
+    Route::post('admin/pacientes/{paciente}/toggle-compartir', [\App\Http\Controllers\PacienteController::class, 'toggleShare'])->name('pacientes.toggle_share');
     Route::resource('admin/pacientes', \App\Http\Controllers\PacienteController::class);
 
     // Citas Routes
