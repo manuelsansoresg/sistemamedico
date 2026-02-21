@@ -28,12 +28,6 @@
                         </a>
                     </div>
 
-                    @if(session('success'))
-                        <div class="mb-4 p-4 bg-green-100 text-green-700 rounded-lg">
-                            {{ session('success') }}
-                        </div>
-                    @endif
-
                     <div class="overflow-x-auto">
                         <table class="min-w-full divide-y divide-gray-200">
                             <thead class="bg-gray-50">
@@ -85,7 +79,7 @@
                                                 <form action="{{ route('citas.destroy', $cita) }}" method="POST" class="inline-block" onsubmit="return confirm('¿Estás seguro de que deseas eliminar esta cita?');">
                                                     @csrf
                                                     @method('DELETE')
-                                                    <button type="submit" class="inline-flex items-center justify-center w-10 h-10 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors shadow-sm" title="Eliminar">
+                                                    <button type="submit" class="inline-flex cursor-pointer items-center justify-center w-10 h-10 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors shadow-sm" title="Eliminar">
                                                         <i class="fas fa-trash text-lg"></i>
                                                     </button>
                                                 </form>

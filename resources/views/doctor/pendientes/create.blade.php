@@ -47,7 +47,7 @@
                         </div>
 
                         <div class="flex items-center justify-end">
-                            <x-primary-button>
+                            <x-primary-button type="submit">
                                 Guardar
                             </x-primary-button>
                         </div>

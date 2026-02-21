@@ -2,12 +2,10 @@
 
 namespace App\Services;
 
-use App\Models\Suscripcion;
-use App\Models\User;
 use App\Models\Clinica;
 use App\Models\Consultorio;
-use App\Models\Horario;
-use App\Models\Plantilla;
+use App\Models\Suscripcion;
+use App\Models\User;
 
 class SubscriptionService
 {
@@ -28,9 +26,9 @@ class SubscriptionService
         // Obtener suscripciones activas (Pagadas y Vigentes)
         $suscripciones = Suscripcion::where('user_id', $user->id)
             ->where('estatus_pago', 'pagado')
-            ->where(function($q) {
+            ->where(function ($q) {
                 $q->whereNull('fecha_fin')
-                  ->orWhere('fecha_fin', '>=', now());
+                    ->orWhere('fecha_fin', '>=', now());
             })
             ->with(['paquete.catalogos', 'catalogo'])
             ->get();
@@ -44,7 +42,7 @@ class SubscriptionService
                         $limites[$key] += $cat->pivot->cantidad_maxima ?? 0;
                     }
                 }
-            } 
+            }
             // Caso 2: Individual (Extras del catálogo)
             elseif ($sub->tipo == 'individual' && $sub->catalogo) {
                 $key = $this->mapCatalogoToKey($sub->catalogo->nombre);
@@ -71,7 +69,7 @@ class SubscriptionService
         $limites = $this->calculateLimits($user);
         $limitKey = $this->mapCatalogoToKey($type);
 
-        if (!$limitKey || !isset($limites[$limitKey])) {
+        if (! $limitKey || ! isset($limites[$limitKey])) {
             return false;
         }
 
@@ -87,7 +85,7 @@ class SubscriptionService
                 break;
             case 'usuarios':
                 $current = User::where('created_by', $user->id)
-                    ->whereHas('roles', function($q) {
+                    ->whereHas('roles', function ($q) {
                         $q->whereIn('name', ['asistente', 'secretaria']);
                     })->count();
                 break;
@@ -108,7 +106,7 @@ class SubscriptionService
         $limites = $this->calculateLimits($user);
         $key = $this->mapCatalogoToKey($feature);
 
-        if (!$key) {
+        if (! $key) {
             return false;
         }
 
@@ -118,10 +116,19 @@ class SubscriptionService
     private function mapCatalogoToKey($nombre)
     {
         $nombre = strtolower($nombre);
-        if (str_contains($nombre, 'clínica') || str_contains($nombre, 'clinica')) return 'clinicas';
-        if (str_contains($nombre, 'consultorio')) return 'consultorios';
-        if (str_contains($nombre, 'usuario')) return 'usuarios';
-        if (str_contains($nombre, 'paciente')) return 'pacientes';
+        if (str_contains($nombre, 'clínica') || str_contains($nombre, 'clinica')) {
+            return 'clinicas';
+        }
+        if (str_contains($nombre, 'consultorio')) {
+            return 'consultorios';
+        }
+        if (str_contains($nombre, 'usuario')) {
+            return 'usuarios';
+        }
+        if (str_contains($nombre, 'paciente')) {
+            return 'pacientes';
+        }
+
         return null;
     }
 }

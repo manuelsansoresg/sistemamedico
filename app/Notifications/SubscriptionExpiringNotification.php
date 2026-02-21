@@ -5,7 +5,6 @@ namespace App\Notifications;
 use App\Mail\SubscriptionExpiryNotification as SubscriptionExpiryMailable;
 use App\Models\Suscripcion;
 use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Notification;
 
 class SubscriptionExpiringNotification extends Notification
@@ -48,8 +47,8 @@ class SubscriptionExpiringNotification extends Notification
      */
     public function toArray(object $notifiable): array
     {
-        $nombre = $this->suscripcion->tipo == 'paquete' 
-            ? ($this->suscripcion->paquete->nombre ?? 'Paquete') 
+        $nombre = $this->suscripcion->tipo == 'paquete'
+            ? ($this->suscripcion->paquete->nombre ?? 'Paquete')
             : ($this->suscripcion->catalogo->nombre ?? 'Servicio Extra');
 
         return [
@@ -57,7 +56,7 @@ class SubscriptionExpiringNotification extends Notification
             'tipo' => $this->suscripcion->tipo,
             'nombre' => $nombre,
             'fecha_fin' => $this->suscripcion->fecha_fin,
-            'mensaje' => "Su suscripción ($nombre) vence el " . \Carbon\Carbon::parse($this->suscripcion->fecha_fin)->format('d/m/Y'),
+            'mensaje' => "Su suscripción ($nombre) vence el ".\Carbon\Carbon::parse($this->suscripcion->fecha_fin)->format('d/m/Y'),
         ];
     }
 }

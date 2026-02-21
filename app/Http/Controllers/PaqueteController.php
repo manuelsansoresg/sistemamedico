@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Paquete;
 use App\Models\Catalogo;
+use App\Models\Paquete;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -15,6 +15,7 @@ class PaqueteController extends Controller
     public function index()
     {
         $paquetes = Paquete::with('catalogos')->paginate(10);
+
         return view('admin.paquetes.index', compact('paquetes'));
     }
 
@@ -24,6 +25,7 @@ class PaqueteController extends Controller
     public function create()
     {
         $catalogos = Catalogo::where('activo', true)->get();
+
         return view('admin.paquetes.create', compact('catalogos'));
     }
 
@@ -83,6 +85,7 @@ class PaqueteController extends Controller
     public function edit(Paquete $paquete)
     {
         $catalogos = Catalogo::where('activo', true)->get();
+
         return view('admin.paquetes.edit', compact('paquete', 'catalogos'));
     }
 
@@ -131,6 +134,7 @@ class PaqueteController extends Controller
     public function destroy(Paquete $paquete)
     {
         $paquete->delete();
+
         return redirect()->route('paquetes.index')->with('success', 'Paquete eliminado exitosamente.');
     }
 }

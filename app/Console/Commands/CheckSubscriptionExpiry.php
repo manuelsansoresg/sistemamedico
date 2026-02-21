@@ -33,7 +33,7 @@ class CheckSubscriptionExpiry extends Command
 
         foreach ($daysToNotify as $days) {
             $date = Carbon::now()->addDays($days)->format('Y-m-d');
-            
+
             $this->info("Checking subscriptions expiring on $date ($days days from now)...");
 
             $suscripciones = Suscripcion::whereDate('fecha_fin', $date)
@@ -43,13 +43,13 @@ class CheckSubscriptionExpiry extends Command
 
             foreach ($suscripciones as $suscripcion) {
                 if ($suscripcion->user) {
-                     try {
+                    try {
                         $suscripcion->user->notify(new SubscriptionExpiringNotification($suscripcion));
                         $this->info("Sent notification to {$suscripcion->user->email} (ID: {$suscripcion->id})");
                         $count++;
-                     } catch (\Exception $e) {
-                        $this->error("Failed to notify user {$suscripcion->user->id}: " . $e->getMessage());
-                     }
+                    } catch (\Exception $e) {
+                        $this->error("Failed to notify user {$suscripcion->user->id}: ".$e->getMessage());
+                    }
                 }
             }
         }

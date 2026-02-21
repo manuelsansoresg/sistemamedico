@@ -2,10 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
-
 use App\Models\DiaSinCita;
-use Carbon\Carbon;
 
 class AdminController extends Controller
 {

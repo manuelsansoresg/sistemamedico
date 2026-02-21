@@ -38,7 +38,7 @@ class PermissionsSeeder extends Seeder
         if ($roleDoctor) {
             $roleDoctor->givePermissionTo(Permission::all());
         }
-        
+
         // Asistente and Secretaria start with no permissions by default
     }
 }

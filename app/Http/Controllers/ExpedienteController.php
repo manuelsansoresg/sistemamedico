@@ -2,17 +2,17 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Consulta;
 use App\Models\Clinica;
+use App\Models\Consulta;
 use App\Models\Consultorio;
+use App\Models\User;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Spatie\Permission\Models\Role;
-use Barryvdh\DomPDF\Facade\Pdf;
-use Illuminate\Support\Facades\Storage;
-use ZipArchive;
-use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
+use ZipArchive;
 
 class ExpedienteController extends Controller
 {
@@ -23,7 +23,7 @@ class ExpedienteController extends Controller
     {
         /** @var \App\Models\User $user */
         $user = Auth::user();
-        
+
         $query = $this->buildQuery($user);
 
         // Apply filters
@@ -35,6 +35,10 @@ class ExpedienteController extends Controller
             $query->where('citas.consultorio_id', $request->consultorio_id);
         }
 
+        if ($request->filled('paciente_id')) {
+            $query->where('consultas.paciente_id', $request->paciente_id);
+        }
+
         if ($request->filled('fecha_inicio')) {
             $query->whereDate('citas.fecha', '>=', $request->fecha_inicio);
         }
@@ -42,25 +46,46 @@ class ExpedienteController extends Controller
         if ($request->filled('fecha_fin')) {
             $query->whereDate('citas.fecha', '<=', $request->fecha_fin);
         }
-        
+
         // Order by date desc
         $query->orderBy('citas.fecha', 'desc');
 
         $expedientes = $query->paginate(15);
-        
+
         // Load filter options
+        $pacientes = collect();
         if ($user->hasRole(['doctor', 'asistente', 'secretaria'])) {
             $ownerId = $user->hasRole('doctor') ? $user->id : $user->created_by;
             $owner = $user->hasRole('doctor') ? $user : \App\Models\User::find($ownerId);
-            
+
             $clinicas = $owner->clinicas;
             $consultorios = $owner->consultorios;
+
+            if ($owner) {
+                $pacientesQuery = User::role('paciente')
+                    ->where(function ($q) use ($ownerId) {
+                        $q->whereHas('doctors', function ($subQ) use ($ownerId) {
+                            $subQ->where('users.id', $ownerId);
+                        })
+                            ->orWhere('created_by', $ownerId);
+                    });
+
+                $pacientes = $pacientesQuery
+                    ->orderBy('name')
+                    ->orderBy('apellido_paterno')
+                    ->get();
+            }
         } else {
             $clinicas = Clinica::where('activo', true)->get();
             $consultorios = Consultorio::where('activo', true)->get();
+
+            $pacientes = User::role('paciente')
+                ->orderBy('name')
+                ->orderBy('apellido_paterno')
+                ->get();
         }
 
-        return view('admin.expedientes.index', compact('expedientes', 'clinicas', 'consultorios'));
+        return view('admin.expedientes.index', compact('expedientes', 'clinicas', 'consultorios', 'pacientes'));
     }
 
     /**
@@ -70,7 +95,7 @@ class ExpedienteController extends Controller
     {
         /** @var \App\Models\User $user */
         $user = Auth::user();
-        if (!$user->hasRole('paciente')) {
+        if (! $user->hasRole('paciente')) {
             abort(403);
         }
 
@@ -96,23 +121,87 @@ class ExpedienteController extends Controller
         $expedientes = $query->paginate(15)->withQueryString();
 
         // Opciones de filtro a partir de su propio historial
-        $clinicas = \App\Models\Clinica::whereIn('id', function($q) use ($user) {
+        $clinicas = \App\Models\Clinica::whereIn('id', function ($q) use ($user) {
             $q->select('clinica_id')
-              ->from('citas')
-              ->whereIn('id', function($q2) use ($user) {
-                  $q2->select('cita_id')->from('consultas')->where('paciente_id', $user->id);
-              });
+                ->from('citas')
+                ->whereIn('id', function ($q2) use ($user) {
+                    $q2->select('cita_id')->from('consultas')->where('paciente_id', $user->id);
+                });
         })->get();
 
-        $consultorios = \App\Models\Consultorio::whereIn('id', function($q) use ($user) {
+        $consultorios = \App\Models\Consultorio::whereIn('id', function ($q) use ($user) {
             $q->select('consultorio_id')
-              ->from('citas')
-              ->whereIn('id', function($q2) use ($user) {
-                  $q2->select('cita_id')->from('consultas')->where('paciente_id', $user->id);
-              });
+                ->from('citas')
+                ->whereIn('id', function ($q2) use ($user) {
+                    $q2->select('cita_id')->from('consultas')->where('paciente_id', $user->id);
+                });
         })->get();
 
         return view('paciente.expedientes.index', compact('expedientes', 'clinicas', 'consultorios'));
+    }
+
+    /**
+     * Historial completo de un paciente (para root/doctor/asistente/secretaria).
+     */
+    public function patientHistory(User $paciente, Request $request)
+    {
+        /** @var \App\Models\User $user */
+        $user = Auth::user();
+
+        if ($user->hasRole(['doctor', 'asistente', 'secretaria'])) {
+            $ownerId = $user->hasRole('doctor') ? $user->id : $user->created_by;
+
+            $isRelated = $paciente->hasRole('paciente') && (
+                $paciente->created_by === $ownerId ||
+                $paciente->doctors()->where('users.id', $ownerId)->exists()
+            );
+
+            if (! $isRelated) {
+                abort(403);
+            }
+        }
+
+        $query = Consulta::with(['cita.clinica', 'cita.consultorio', 'doctor', 'estudios'])
+            ->join('citas', 'consultas.cita_id', '=', 'citas.id')
+            ->select('consultas.*')
+            ->where('consultas.paciente_id', $paciente->id);
+
+        if ($request->filled('clinica_id')) {
+            $query->where('citas.clinica_id', $request->clinica_id);
+        }
+
+        if ($request->filled('consultorio_id')) {
+            $query->where('citas.consultorio_id', $request->consultorio_id);
+        }
+
+        if ($request->filled('fecha_inicio')) {
+            $query->whereDate('citas.fecha', '>=', $request->fecha_inicio);
+        }
+
+        if ($request->filled('fecha_fin')) {
+            $query->whereDate('citas.fecha', '<=', $request->fecha_fin);
+        }
+
+        $query->orderBy('citas.fecha', 'desc');
+        $expedientes = $query->paginate(15)->withQueryString();
+
+        $clinicas = Clinica::whereIn('id', function ($q) use ($paciente) {
+            $q->select('clinica_id')
+                ->from('citas')
+                ->whereIn('id', function ($q2) use ($paciente) {
+                    $q2->select('cita_id')->from('consultas')->where('paciente_id', $paciente->id);
+                });
+        })->get();
+
+        $consultorios = Consultorio::whereIn('id', function ($q) use ($paciente) {
+            $q->select('consultorio_id')
+                ->from('citas')
+                ->whereIn('id', function ($q2) use ($paciente) {
+                    $q2->select('cita_id')->from('consultas')->where('paciente_id', $paciente->id);
+                });
+        })->get();
+
+        return view('admin.expedientes.paciente', compact('paciente', 'expedientes', 'clinicas', 'consultorios'));
     }
 
     public function downloadBulk(Request $request)
@@ -137,6 +226,9 @@ class ExpedienteController extends Controller
         if ($request->filled('consultorio_id')) {
             $query->where('citas.consultorio_id', $request->consultorio_id);
         }
+        if ($request->filled('paciente_id')) {
+            $query->where('consultas.paciente_id', $request->paciente_id);
+        }
         if ($request->filled('fecha_inicio')) {
             $query->whereDate('citas.fecha', '>=', $request->fecha_inicio);
         }
@@ -145,7 +237,7 @@ class ExpedienteController extends Controller
         }
 
         $ids = $query->pluck('consultas.id')->toArray();
-        
+
         if (empty($ids)) {
             return back()->with('error', 'No hay expedientes para descargar con los filtros seleccionados.');
         }
@@ -162,17 +254,17 @@ class ExpedienteController extends Controller
         if ($user->hasRole(['doctor', 'asistente', 'secretaria'])) {
             $ownerId = $user->hasRole('doctor') ? $user->id : $user->created_by;
             $owner = $user->hasRole('doctor') ? $user : \App\Models\User::find($ownerId);
-            
+
             $assignedClinicas = $owner->clinicas->pluck('id');
             $assignedConsultorios = $owner->consultorios->pluck('id');
-            
-            $query->where(function($q) use ($assignedClinicas, $assignedConsultorios, $ownerId) {
+
+            $query->where(function ($q) use ($assignedClinicas, $assignedConsultorios, $ownerId) {
                 $q->whereIn('citas.clinica_id', $assignedClinicas)
-                  ->orWhereIn('citas.consultorio_id', $assignedConsultorios)
-                  ->orWhere('citas.doctor_id', $ownerId);
+                    ->orWhereIn('citas.consultorio_id', $assignedConsultorios)
+                    ->orWhere('citas.doctor_id', $ownerId);
             });
         }
-        
+
         return $query;
     }
 
@@ -180,74 +272,81 @@ class ExpedienteController extends Controller
     {
         /** @var \App\Models\User $user */
         $user = Auth::user();
-        
+
         // Permission checks
         $canDownloadConsultas = $user->can('descargar consultas');
         $canDownloadEstudios = $user->can('descargar estudios');
         $canDownloadImages = $user->can('descargar estudios con imagenes');
         $canDownloadAll = $user->can('descargar expedientes'); // or 'descargar todo'?
 
-        if (!$canDownloadConsultas && !$canDownloadEstudios && !$canDownloadAll) {
-             return back()->with('error', 'No tienes permisos para descargar expedientes.');
+        if (! $canDownloadConsultas && ! $canDownloadEstudios && ! $canDownloadAll) {
+            return back()->with('error', 'No tienes permisos para descargar expedientes.');
         }
 
         $consultas = Consulta::with(['paciente', 'doctor', 'cita', 'estudios.archivos'])
             ->whereIn('consultas.id', $ids)
             ->get();
 
-        $zipFileName = 'expedientes_' . date('Y-m-d_H-i-s') . '.zip';
+        $zipFileName = 'expedientes_'.date('Y-m-d_H-i-s').'.zip';
         // Ensure storage directory exists
-        if (!Storage::disk('public')->exists('zips')) {
+        if (! Storage::disk('public')->exists('zips')) {
             Storage::disk('public')->makeDirectory('zips');
         }
-        $zipPath = storage_path('app/public/zips/' . $zipFileName);
-        
+        $zipPath = storage_path('app/public/zips/'.$zipFileName);
+
         $zip = new ZipArchive;
-        if ($zip->open($zipPath, ZipArchive::CREATE | ZipArchive::OVERWRITE) === TRUE) {
-            
+        if ($zip->open($zipPath, ZipArchive::CREATE | ZipArchive::OVERWRITE) === true) {
+
             foreach ($consultas as $consulta) {
-                $folderName = Str::slug($consulta->paciente->name . '_' . $consulta->paciente->apellido_paterno) . '_' . $consulta->cita->fecha->format('Y-m-d');
-                
+                $folderName = Str::slug($consulta->paciente->name.'_'.$consulta->paciente->apellido_paterno).'_'.$consulta->cita->fecha->format('Y-m-d');
+
                 // 1. Generate PDF of Consulta
                 if ($canDownloadConsultas || $canDownloadAll) {
                     try {
                         // We need to ensure the view exists and data is sufficient
                         // 'admin.consultas.pdf' expects 'consulta'
                         $pdfContent = Pdf::loadView('admin.consultas.pdf', compact('consulta'))->output();
-                        $zip->addFromString($folderName . '/consulta.pdf', $pdfContent);
+                        $zip->addFromString($folderName.'/consulta.pdf', $pdfContent);
                     } catch (\Exception $e) {
                         // Log error but continue
-                        Log::error("Error generating PDF for consulta {$consulta->id}: " . $e->getMessage());
+                        Log::error("Error generating PDF for consulta {$consulta->id}: ".$e->getMessage());
                     }
                 }
-                
+
                 // 2. Add Estudios
                 if (($canDownloadEstudios || $canDownloadAll) && $consulta->estudios->isNotEmpty()) {
                     foreach ($consulta->estudios as $estudio) {
-                         if ($estudio->archivos->isNotEmpty()) {
-                             foreach ($estudio->archivos as $archivo) {
-                                 // Check if image
-                                 $isImage = str_starts_with($archivo->mime_type, 'image/');
-                                 
-                                 if ($isImage && !$canDownloadImages && !$canDownloadAll) {
-                                     continue;
-                                 }
-                                 
-                                 if (Storage::disk('public')->exists($archivo->path)) {
-                                     $content = Storage::disk('public')->get($archivo->path);
-                                     $zip->addFromString($folderName . '/estudios/' . $archivo->nombre_original, $content);
-                                 }
-                             }
-                         }
+                        if ($estudio->archivos->isNotEmpty()) {
+                            foreach ($estudio->archivos as $archivo) {
+                                // Check if image
+                                $isImage = str_starts_with($archivo->mime_type, 'image/');
+
+                                if ($isImage && ! $canDownloadImages && ! $canDownloadAll) {
+                                    continue;
+                                }
+
+                                $content = null;
+
+                                if (Storage::disk('public')->exists($archivo->path)) {
+                                    $content = Storage::disk('public')->get($archivo->path);
+                                } elseif (file_exists(public_path($archivo->path))) {
+                                    $content = file_get_contents(public_path($archivo->path));
+                                }
+
+                                if ($content !== null) {
+                                    $zip->addFromString($folderName.'/estudios/'.$archivo->nombre_original, $content);
+                                }
+                            }
+                        }
                     }
                 }
             }
-            
+
             $zip->close();
         } else {
             return back()->with('error', 'No se pudo crear el archivo ZIP.');
         }
-        
+
         return response()->download($zipPath)->deleteFileAfterSend(true);
     }
 }

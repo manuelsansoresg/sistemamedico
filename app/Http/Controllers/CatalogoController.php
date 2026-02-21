@@ -14,6 +14,7 @@ class CatalogoController extends Controller
     public function index()
     {
         $catalogos = Catalogo::paginate(10);
+
         return view('admin.catalogos.index', compact('catalogos'));
     }
 
@@ -94,6 +95,7 @@ class CatalogoController extends Controller
     public function destroy(Catalogo $catalogo)
     {
         $catalogo->delete();
+
         return redirect()->route('catalogos.index')->with('success', 'Catálogo eliminado exitosamente.');
     }
 }

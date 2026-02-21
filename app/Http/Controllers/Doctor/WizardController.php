@@ -3,16 +3,14 @@
 namespace App\Http\Controllers\Doctor;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use App\Models\Clinica;
 use App\Models\Consultorio;
 use App\Models\Horario;
 use App\Models\Plantilla;
 use App\Models\User;
-use App\Models\Suscripcion;
-
 use App\Services\SubscriptionService;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class WizardController extends Controller
 {
@@ -26,16 +24,16 @@ class WizardController extends Controller
     public function index()
     {
         $user = Auth::user();
-        
+
         // Calcular límites usando el servicio
         $limites = $this->subscriptionService->calculateLimits($user);
-        
+
         // Contadores actuales
         $actuales = [
             'clinicas' => Clinica::where('created_by', $user->id)->count(),
             'consultorios' => Consultorio::where('created_by', $user->id)->count(),
             'usuarios' => User::where('created_by', $user->id)
-                ->whereHas('roles', function($q) {
+                ->whereHas('roles', function ($q) {
                     $q->whereIn('name', ['asistente', 'secretaria']);
                 })->count(),
             'horarios' => Horario::where('user_id', $user->id)->count(),
@@ -52,10 +50,10 @@ class WizardController extends Controller
         $user = Auth::user();
 
         // Validar límite
-        if (!$this->subscriptionService->canCreate($user, 'clinica')) {
+        if (! $this->subscriptionService->canCreate($user, 'clinica')) {
             return response()->json([
                 'success' => false,
-                'message' => 'Ha alcanzado el límite de clínicas permitidas por su suscripción.'
+                'message' => 'Ha alcanzado el límite de clínicas permitidas por su suscripción.',
             ], 403);
         }
 
@@ -72,16 +70,16 @@ class WizardController extends Controller
         $logotipoPath = null;
         if ($request->hasFile('logotipo')) {
             $file = $request->file('logotipo');
-            $filename = time() . '_' . $file->getClientOriginalName();
+            $filename = time().'_'.$file->getClientOriginalName();
             $file->move(public_path('clinicas'), $filename);
-            $logotipoPath = 'clinicas/' . $filename;
+            $logotipoPath = 'clinicas/'.$filename;
         }
 
         /** @var \App\Models\User $user */
         $user = Auth::user();
         $activo = $user->hasRole('root') ? $request->boolean('activo') : true;
 
-        Clinica::create([
+        $clinica = Clinica::create([
             'nombre' => $request->nombre,
             'direccion' => $request->direccion,
             'lat' => $request->lat,
@@ -93,11 +91,15 @@ class WizardController extends Controller
             'activo' => $activo,
         ]);
 
+        if ($user && $user->hasRole('doctor')) {
+            $clinica->users()->syncWithoutDetaching([$user->id]);
+        }
+
         return response()->json([
             'success' => true,
             'actuales' => [
-                'clinicas' => Clinica::where('created_by', Auth::id())->count()
-            ]
+                'clinicas' => Clinica::where('created_by', Auth::id())->count(),
+            ],
         ]);
     }
 
@@ -107,10 +109,10 @@ class WizardController extends Controller
         $user = Auth::user();
 
         // Validar límite
-        if (!$this->subscriptionService->canCreate($user, 'consultorio')) {
+        if (! $this->subscriptionService->canCreate($user, 'consultorio')) {
             return response()->json([
                 'success' => false,
-                'message' => 'Ha alcanzado el límite de consultorios permitidos por su suscripción.'
+                'message' => 'Ha alcanzado el límite de consultorios permitidos por su suscripción.',
             ], 403);
         }
 
@@ -126,7 +128,7 @@ class WizardController extends Controller
         $user = Auth::user();
         $activo = $user->hasRole('root') ? $request->boolean('activo') : true;
 
-        Consultorio::create([
+        $consultorio = Consultorio::create([
             'nombre' => $request->nombre,
             'telefono' => $request->telefono,
             'direccion' => $request->direccion,
@@ -136,11 +138,15 @@ class WizardController extends Controller
             'activo' => $activo,
         ]);
 
+        if ($user && $user->hasRole('doctor')) {
+            $consultorio->users()->syncWithoutDetaching([$user->id]);
+        }
+
         return response()->json([
             'success' => true,
             'actuales' => [
-                'consultorios' => Consultorio::where('created_by', Auth::id())->count()
-            ]
+                'consultorios' => Consultorio::where('created_by', Auth::id())->count(),
+            ],
         ]);
     }
 }

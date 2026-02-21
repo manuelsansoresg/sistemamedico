@@ -15,6 +15,7 @@ use Spatie\Permission\Models\Permission;
 class RecursoReservaController extends Controller
 {
     protected SubscriptionService $subscriptionService;
+
     private const RECURSOS_PERMISSION = 'manage recursos';
 
     public function __construct(SubscriptionService $subscriptionService)
@@ -135,7 +136,7 @@ class RecursoReservaController extends Controller
             })
             ->firstOrFail();
 
-        if (!$responsable->hasRole('doctor') && !$responsable->hasPermissionTo(self::RECURSOS_PERMISSION)) {
+        if (! $responsable->hasRole('doctor') && ! $responsable->hasPermissionTo(self::RECURSOS_PERMISSION)) {
             abort(403);
         }
 
@@ -200,7 +201,7 @@ class RecursoReservaController extends Controller
 
         $doctorId = $this->resolveDoctorId($user, $request->input('doctor_id'));
 
-        if ($reserva->recurso->user_id !== $doctorId && !$user->hasRole('root')) {
+        if ($reserva->recurso->user_id !== $doctorId && ! $user->hasRole('root')) {
             abort(403);
         }
 
@@ -257,7 +258,7 @@ class RecursoReservaController extends Controller
 
         $doctorId = $this->resolveDoctorId($user, $request->input('doctor_id'));
 
-        if ($reserva->recurso->user_id !== $doctorId && !$user->hasRole('root')) {
+        if ($reserva->recurso->user_id !== $doctorId && ! $user->hasRole('root')) {
             abort(403);
         }
 
@@ -283,7 +284,7 @@ class RecursoReservaController extends Controller
 
         if ($user->hasRole(['asistente', 'secretaria'])) {
             $ownerId = $user->created_by;
-            if (!$ownerId) {
+            if (! $ownerId) {
                 abort(403);
             }
             $owner = User::find($ownerId);

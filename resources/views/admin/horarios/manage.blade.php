@@ -25,28 +25,49 @@
                 </ol>
             </nav>
 
-            <div class="mb-6 flex justify-between items-start">
-                <div>
-                    <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-                        Horario de {{ $user->name }} {{ $user->apellido_paterno }}
-                    </h2>
-                    <p class="text-gray-600 text-sm mt-1">Consultorio: <span class="font-bold">{{ $consultorio->nombre }}</span></p>
-                </div>
-            </div>
-
-            @if (session('success'))
-                <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative mb-4" role="alert">
-                    <strong class="font-bold">¡Éxito!</strong>
-                    <span class="block sm:inline">{{ session('success') }}</span>
-                </div>
-            @endif
-
             <form action="{{ route('horarios.store') }}" method="POST" class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                 @csrf
                 <input type="hidden" name="user_id" value="{{ $user->id }}">
                 <input type="hidden" name="consultorio_id" value="{{ $consultorio->id }}">
 
-                <div class="p-6 text-gray-900">
+                <div class="mb-6 flex flex-col md:flex-row md:items-center md:justify-between gap-4 px-6 pt-6">
+                    <div>
+                        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
+                            Horario de {{ $user->name }} {{ $user->apellido_paterno }}
+                        </h2>
+                        <p class="text-gray-600 text-sm mt-1">
+                            Consultorio: <span class="font-bold">{{ $consultorio->nombre }}</span>
+                        </p>
+                    </div>
+
+                    @if($user->consultorios->count() > 1)
+                        <div class="bg-blue-50 border border-blue-100 rounded-lg px-4 py-3">
+                            <p class="text-xs font-semibold text-blue-700 mb-2">Atajo rápido</p>
+                            <div class="flex flex-col md:flex-row md:items-center md:space-x-3 gap-2">
+                                <span class="text-xs text-blue-800">Copiar horarios desde otro consultorio:</span>
+                                <select
+                                    name="copiar_desde_consultorio_id"
+                                    class="mt-1 md:mt-0 block w-full md:w-56 rounded-md border-gray-300 shadow-sm focus:border-[#0061F5] focus:ring-[#0061F5] text-xs"
+                                    onchange="if(this.value){ this.form.submit(); }"
+                                >
+                                    <option value="">Selecciona consultorio origen</option>
+                                    @foreach($user->consultorios as $otroConsultorio)
+                                        @if($otroConsultorio->id !== $consultorio->id)
+                                            <option value="{{ $otroConsultorio->id }}">
+                                                {{ $otroConsultorio->nombre }}
+                                            </option>
+                                        @endif
+                                    @endforeach
+                                </select>
+                            </div>
+                            <p class="text-[11px] text-blue-500 mt-1">
+                                Se sobrescribirá el horario actual de este consultorio con el elegido.
+                            </p>
+                        </div>
+                    @endif
+                </div>
+
+                <div class="px-6 pb-6 text-gray-900">
                     <div class="mb-6">
                         <label for="duracion_consulta" class="block text-sm font-bold text-gray-700 mb-1">
                             Tiempo de consulta

@@ -15,6 +15,7 @@ class ConfiguracionController extends Controller
     public function index()
     {
         $configuraciones = Configuracion::with(['user', 'creator'])->latest()->paginate(10);
+
         return view('admin.configuraciones.index', compact('configuraciones'));
     }
 
@@ -24,6 +25,7 @@ class ConfiguracionController extends Controller
     public function create()
     {
         $users = User::all();
+
         return view('admin.configuraciones.create', compact('users'));
     }
 
@@ -62,6 +64,7 @@ class ConfiguracionController extends Controller
     public function edit(Configuracion $configuracion)
     {
         $users = User::all();
+
         return view('admin.configuraciones.edit', compact('configuracion', 'users'));
     }
 
@@ -71,7 +74,7 @@ class ConfiguracionController extends Controller
     public function update(Request $request, Configuracion $configuracion)
     {
         $request->validate([
-            'user_id' => 'required|exists:users,id|unique:configuracions,user_id,' . $configuracion->id,
+            'user_id' => 'required|exists:users,id|unique:configuracions,user_id,'.$configuracion->id,
             'aceptar_transferencia_bancaria' => 'nullable|boolean',
             'banco' => 'nullable|required_if:aceptar_transferencia_bancaria,1|string|max:255',
             'titular' => 'nullable|required_if:aceptar_transferencia_bancaria,1|string|max:255',
@@ -99,6 +102,7 @@ class ConfiguracionController extends Controller
     public function destroy(Configuracion $configuracion)
     {
         $configuracion->delete();
+
         return redirect()->route('configuraciones.index')->with('success', 'Configuración eliminada exitosamente.');
     }
 }

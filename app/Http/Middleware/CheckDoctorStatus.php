@@ -20,7 +20,7 @@ class CheckDoctorStatus
         if ($user && $user->hasRole('doctor')) {
             // Si el estatus es pendiente o rechazada, bloquear acceso
             if (in_array($user->estatus_cedula, ['pendiente', 'rechazada'])) {
-                
+
                 // Permitir acceso a la ruta de logout y a la página de aviso
                 if ($request->routeIs('logout') || $request->routeIs('doctor.verification.notice')) {
                     return $next($request);
@@ -29,7 +29,7 @@ class CheckDoctorStatus
                 if ($request->expectsJson()) {
                     return response()->json(['message' => 'Tu cuenta requiere validación de cédula.'], 403);
                 }
-                
+
                 return redirect()->route('doctor.verification.notice');
             }
         }

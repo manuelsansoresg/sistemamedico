@@ -3,8 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\Catalogo;
-use App\Models\Suscripcion;
 use App\Models\Ganancia;
+use App\Models\Suscripcion;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -17,7 +17,7 @@ class CompraController extends Controller
             ->with(['paquete', 'catalogo'])
             ->latest()
             ->get();
-            
+
         return view('compras.index', compact('catalogos', 'suscripciones'));
     }
 
@@ -36,7 +36,7 @@ class CompraController extends Controller
         // Determinar estatus y fechas según método de pago
         $estatusPago = 'pendiente';
         $fechaInicio = null;
-        
+
         // Si es tarjeta, se asume pago exitoso inmediato (simulación o integración futura)
         if ($request->metodo_pago === 'tarjeta') {
             $estatusPago = 'pagado';
@@ -54,7 +54,7 @@ class CompraController extends Controller
             'estatus_pago' => $estatusPago,
             'comprobante_pago' => null, // Se subirá después si es transferencia
             'fecha_inicio' => $fechaInicio,
-            'fecha_fin' => null, 
+            'fecha_fin' => null,
         ]);
 
         // Si se paga con tarjeta, registrar ganancia inmediatamente
@@ -66,7 +66,7 @@ class CompraController extends Controller
                 $montoGanancia = $precioTotal * ($item->porcentaje_ganancia / 100);
                 $porcentajeAplicado = $item->porcentaje_ganancia;
             }
-            
+
             Ganancia::create([
                 'user_id' => Auth::id(),
                 'suscripcion_id' => $suscripcion->id,
@@ -74,13 +74,13 @@ class CompraController extends Controller
                 'monto_total' => $precioTotal,
                 'monto_ganancia_doctor' => $montoGanancia,
                 'porcentaje_aplicado' => $porcentajeAplicado,
-                'concepto' => 'Ganancia por adquisición de: ' . $item->nombre,
+                'concepto' => 'Ganancia por adquisición de: '.$item->nombre,
                 'fecha' => now(),
             ]);
         }
 
-        $mensaje = ($estatusPago === 'pagado') 
-            ? 'Compra realizada exitosamente.' 
+        $mensaje = ($estatusPago === 'pagado')
+            ? 'Compra realizada exitosamente.'
             : 'Solicitud generada. Por favor sube tu comprobante de pago para activar el servicio.';
 
         return redirect()->route('compras.index')->with('success', $mensaje);
@@ -97,14 +97,14 @@ class CompraController extends Controller
         ]);
 
         if ($request->hasFile('comprobante_pago')) {
-             $file = $request->file('comprobante_pago');
-             $filename = time() . '_' . $file->getClientOriginalName();
-             $file->move(public_path('comprobantes'), $filename);
-             
-             $suscripcion->update([
-                 'comprobante_pago' => 'comprobantes/' . $filename,
-                 // Mantenemos estatus 'pendiente' hasta que admin valide
-             ]);
+            $file = $request->file('comprobante_pago');
+            $filename = time().'_'.$file->getClientOriginalName();
+            $file->move(public_path('comprobantes'), $filename);
+
+            $suscripcion->update([
+                'comprobante_pago' => 'comprobantes/'.$filename,
+                // Mantenemos estatus 'pendiente' hasta que admin valide
+            ]);
         }
 
         return back()->with('success', 'Comprobante subido correctamente. Esperando validación del administrador.');

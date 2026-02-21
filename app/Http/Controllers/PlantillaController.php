@@ -6,9 +6,9 @@ use App\Models\Plantilla;
 use App\Models\PlantillaCampo;
 use App\Models\User;
 use Illuminate\Http\Request;
-use Illuminate\Support\Str;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 
 class PlantillaController extends Controller
 {
@@ -16,7 +16,7 @@ class PlantillaController extends Controller
     {
         /** @var \App\Models\User $user */
         $user = Auth::user();
-        
+
         // Assistants and secretaries cannot access templates
         if ($user->hasRole(['asistente', 'secretaria'])) {
             abort(403, 'No tiene permiso para acceder a plantillas.');
@@ -29,6 +29,7 @@ class PlantillaController extends Controller
         }
 
         $plantillas = $query->paginate(10);
+
         return view('admin.plantillas.index', compact('plantillas'));
     }
 
@@ -60,7 +61,7 @@ class PlantillaController extends Controller
             'campos.*.opciones' => 'nullable|string', // Comma separated or JSON string from frontend
         ]);
 
-        if ($user->hasRole('root') && !$request->user_id) {
+        if ($user->hasRole('root') && ! $request->user_id) {
             return back()->withErrors(['user_id' => 'Debe seleccionar un doctor.'])->withInput();
         }
 
@@ -76,7 +77,7 @@ class PlantillaController extends Controller
             foreach ($request->campos as $index => $campoData) {
                 // Process options if select
                 $opciones = null;
-                if ($campoData['tipo'] === 'select' && !empty($campoData['opciones'])) {
+                if ($campoData['tipo'] === 'select' && ! empty($campoData['opciones'])) {
                     // Expecting options as comma separated string or array?
                     // Let's assume the frontend sends a string or array.
                     // If string "A,B,C", split it.
@@ -142,7 +143,7 @@ class PlantillaController extends Controller
             'campos.*.opciones' => 'nullable|string',
         ]);
 
-        if ($user->hasRole('root') && !$request->user_id) {
+        if ($user->hasRole('root') && ! $request->user_id) {
             return back()->withErrors(['user_id' => 'Debe seleccionar un doctor.'])->withInput();
         }
 
@@ -159,12 +160,12 @@ class PlantillaController extends Controller
             // But if there are consultations using this template, we shouldn't delete fields blindly.
             // The prompt doesn't mention consultations yet, just "iniciar una consulta".
             // Let's assume for now we can wipe and recreate fields for the template.
-            
+
             $plantilla->campos()->delete();
 
             foreach ($request->campos as $index => $campoData) {
                 $opciones = null;
-                if ($campoData['tipo'] === 'select' && !empty($campoData['opciones'])) {
+                if ($campoData['tipo'] === 'select' && ! empty($campoData['opciones'])) {
                     if (is_string($campoData['opciones'])) {
                         $opciones = array_map('trim', explode(',', $campoData['opciones']));
                     } else {
@@ -197,6 +198,7 @@ class PlantillaController extends Controller
         }
 
         $plantilla->delete();
+
         return redirect()->route('plantillas.index')->with('success', 'Plantilla eliminada exitosamente.');
     }
 
@@ -210,13 +212,13 @@ class PlantillaController extends Controller
             return response()->json(['error' => 'Unauthorized'], 403);
         }
 
-        $campos = $plantilla->campos()->orderBy('orden')->get()->map(function($campo) {
+        $campos = $plantilla->campos()->orderBy('orden')->get()->map(function ($campo) {
             return [
                 'id' => $campo->id,
                 'etiqueta' => $campo->nombre,
                 'tipo' => $campo->tipo,
                 'opciones' => is_array($campo->opciones) ? implode(',', $campo->opciones) : $campo->opciones,
-                'required' => $campo->es_obligatorio
+                'required' => $campo->es_obligatorio,
             ];
         });
 

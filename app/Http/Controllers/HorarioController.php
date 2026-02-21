@@ -2,9 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Consultorio;
 use App\Models\Horario;
 use App\Models\User;
-use App\Models\Consultorio;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -27,10 +27,10 @@ class HorarioController extends Controller
 
             if ($request->has('search') && $request->search != '') {
                 $search = $request->search;
-                $query->where(function($q) use ($search) {
+                $query->where(function ($q) use ($search) {
                     $q->where('name', 'like', "%{$search}%")
-                      ->orWhere('apellido_paterno', 'like', "%{$search}%")
-                      ->orWhere('apellido_materno', 'like', "%{$search}%");
+                        ->orWhere('apellido_paterno', 'like', "%{$search}%")
+                        ->orWhere('apellido_materno', 'like', "%{$search}%");
                 });
             }
         }
@@ -38,9 +38,9 @@ class HorarioController extends Controller
         // For simplicity, get all users with role 'doctor' or 'root'.
         // Or better, get users who have consultorios assigned.
         $users = $query->paginate(9)->withQueryString();
-        
+
         // Also get all consultorios to map if needed, but user->consultorios is better context.
-        
+
         return view('admin.horarios.index', compact('users'));
     }
 
@@ -57,7 +57,7 @@ class HorarioController extends Controller
         // Security check for doctors and assistants
         if ($currentUser->hasRole(['doctor', 'asistente', 'secretaria'])) {
             $ownerId = $currentUser->hasRole('doctor') ? $currentUser->id : $currentUser->created_by;
-            
+
             // Can only manage the owner's schedule
             if ($request->user_id != $ownerId) {
                 abort(403, 'No tiene permiso para gestionar los horarios de otro médico.');
@@ -68,15 +68,15 @@ class HorarioController extends Controller
         $consultorio = Consultorio::findOrFail($request->consultorio_id);
 
         // Check if user is assigned to this consultorio
-        if (!$user->consultorios->contains($consultorio->id)) {
+        if (! $user->consultorios->contains($consultorio->id)) {
             return redirect()->route('horarios.index')->with('error', 'El usuario no está asignado a este consultorio.');
         }
 
         $horariosCollection = Horario::where('user_id', $user->id)
-                            ->where('consultorio_id', $consultorio->id)
-                            ->orderBy('dia')
-                            ->orderBy('hora_inicio')
-                            ->get();
+            ->where('consultorio_id', $consultorio->id)
+            ->orderBy('dia')
+            ->orderBy('hora_inicio')
+            ->get();
 
         $horarios = $horariosCollection->groupBy('dia');
         $duracionConsulta = $horariosCollection->first()->duracion_minutos ?? 30;
@@ -93,6 +93,7 @@ class HorarioController extends Controller
             'consultorio_id' => 'required|exists:consultorios,id',
             'horarios' => 'array', // horarios[dia][] = ['inicio' => 'HH:MM', 'fin' => 'HH:MM']
             'duracion_consulta' => 'required|integer|in:20,30,45,60',
+            'copiar_desde_consultorio_id' => 'nullable|exists:consultorios,id',
         ]);
 
         /** @var \App\Models\User $currentUser */
@@ -101,7 +102,7 @@ class HorarioController extends Controller
         // Security check for doctors and assistants
         if ($currentUser->hasRole(['doctor', 'asistente', 'secretaria'])) {
             $ownerId = $currentUser->hasRole('doctor') ? $currentUser->id : $currentUser->created_by;
-            
+
             // Can only manage the owner's schedule
             if ($request->user_id != $ownerId) {
                 abort(403, 'No tiene permiso para gestionar los horarios de otro médico.');
@@ -112,33 +113,51 @@ class HorarioController extends Controller
         $consultorioId = $request->consultorio_id;
         $duracion = $request->duracion_consulta;
 
-        // Delete existing
         Horario::where('user_id', $userId)
-               ->where('consultorio_id', $consultorioId)
-               ->delete();
+            ->where('consultorio_id', $consultorioId)
+            ->delete();
 
-        if ($request->has('horarios')) {
-            foreach ($request->horarios as $dia => $rangos) {
-                foreach ($rangos as $rango) {
-                    if (!empty($rango['inicio']) && !empty($rango['fin'])) {
-                        if ($rango['inicio'] >= $rango['fin']) {
-                            continue;
+        if ($request->filled('copiar_desde_consultorio_id')) {
+            $sourceConsultorioId = $request->copiar_desde_consultorio_id;
+
+            $sourceHorarios = Horario::where('user_id', $userId)
+                ->where('consultorio_id', $sourceConsultorioId)
+                ->get();
+
+            foreach ($sourceHorarios as $horario) {
+                Horario::create([
+                    'user_id' => $userId,
+                    'consultorio_id' => $consultorioId,
+                    'dia' => $horario->dia,
+                    'hora_inicio' => $horario->hora_inicio,
+                    'hora_fin' => $horario->hora_fin,
+                    'duracion_minutos' => $duracion,
+                ]);
+            }
+        } else {
+            if ($request->has('horarios')) {
+                foreach ($request->horarios as $dia => $rangos) {
+                    foreach ($rangos as $rango) {
+                        if (! empty($rango['inicio']) && ! empty($rango['fin'])) {
+                            if ($rango['inicio'] >= $rango['fin']) {
+                                continue;
+                            }
+
+                            Horario::create([
+                                'user_id' => $userId,
+                                'consultorio_id' => $consultorioId,
+                                'dia' => $dia,
+                                'hora_inicio' => $rango['inicio'],
+                                'hora_fin' => $rango['fin'],
+                                'duracion_minutos' => $duracion,
+                            ]);
                         }
-
-                        Horario::create([
-                            'user_id' => $userId,
-                            'consultorio_id' => $consultorioId,
-                            'dia' => $dia,
-                            'hora_inicio' => $rango['inicio'],
-                            'hora_fin' => $rango['fin'],
-                            'duracion_minutos' => $duracion,
-                        ]);
                     }
                 }
             }
         }
 
         return redirect()->route('horarios.manage', ['user_id' => $userId, 'consultorio_id' => $consultorioId])
-                         ->with('success', 'Horarios actualizados exitosamente.');
+            ->with('success', 'Horarios actualizados exitosamente.');
     }
 }

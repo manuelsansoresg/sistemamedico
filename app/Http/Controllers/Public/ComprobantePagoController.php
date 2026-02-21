@@ -5,7 +5,6 @@ namespace App\Http\Controllers\Public;
 use App\Http\Controllers\Controller;
 use App\Models\Suscripcion;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Storage;
 
 class ComprobantePagoController extends Controller
 {
@@ -30,14 +29,14 @@ class ComprobantePagoController extends Controller
 
         if ($request->hasFile('comprobante')) {
             $file = $request->file('comprobante');
-            $filename = time() . '_' . $file->getClientOriginalName();
-            
+            $filename = time().'_'.$file->getClientOriginalName();
+
             // Guardar directamente en public/comprobantes
             $file->move(public_path('comprobantes'), $filename);
-            
+
             // Guardar la ruta relativa para acceso web
-            $path = 'comprobantes/' . $filename;
-            
+            $path = 'comprobantes/'.$filename;
+
             $suscripcion->update([
                 'comprobante_pago' => $path,
             ]);
@@ -52,6 +51,7 @@ class ComprobantePagoController extends Controller
     {
         // Validar que exista la suscripción
         $suscripcion = Suscripcion::where('token_pago', $token)->firstOrFail();
+
         return view('public.comprobante_enviado');
     }
 }

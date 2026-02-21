@@ -12,6 +12,7 @@ use Spatie\Permission\Models\Permission;
 class RecursoController extends Controller
 {
     protected SubscriptionService $subscriptionService;
+
     private const RECURSOS_PERMISSION = 'manage recursos';
 
     public function __construct(SubscriptionService $subscriptionService)
@@ -112,7 +113,7 @@ class RecursoController extends Controller
     public function permisos(Request $request)
     {
         $user = Auth::user();
-        if (!$user->hasRole(['root', 'doctor'])) {
+        if (! $user->hasRole(['root', 'doctor'])) {
             abort(403);
         }
 
@@ -148,7 +149,7 @@ class RecursoController extends Controller
     public function actualizarPermisos(Request $request)
     {
         $user = Auth::user();
-        if (!$user->hasRole(['root', 'doctor'])) {
+        if (! $user->hasRole(['root', 'doctor'])) {
             abort(403);
         }
 
@@ -174,7 +175,7 @@ class RecursoController extends Controller
             }
         }
 
-        if (!empty($ids)) {
+        if (! empty($ids)) {
             $usuariosSeleccionados = User::whereIn('id', $ids)
                 ->whereHas('roles', function ($q) {
                     $q->whereIn('name', ['doctor', 'asistente', 'secretaria']);
@@ -185,7 +186,7 @@ class RecursoController extends Controller
             }
         }
 
-        if (!$doctor->hasPermissionTo(self::RECURSOS_PERMISSION)) {
+        if (! $doctor->hasPermissionTo(self::RECURSOS_PERMISSION)) {
             $doctor->givePermissionTo(self::RECURSOS_PERMISSION);
         }
 
@@ -209,7 +210,7 @@ class RecursoController extends Controller
 
         if ($user->hasRole(['asistente', 'secretaria'])) {
             $ownerId = $user->created_by;
-            if (!$ownerId) {
+            if (! $ownerId) {
                 abort(403);
             }
             $owner = User::find($ownerId);

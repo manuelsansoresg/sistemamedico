@@ -2,13 +2,11 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use App\Models\Cita;
-use App\Models\Pendiente;
 use App\Models\DiaSinCita;
+use App\Models\Pendiente;
 use App\Services\SubscriptionService;
-use Carbon\Carbon;
+use Illuminate\Support\Facades\Auth;
 
 class DashboardController extends Controller
 {
@@ -34,6 +32,7 @@ class DashboardController extends Controller
                 ->orderByDesc('created_at')
                 ->take(5)
                 ->get();
+
             return view('paciente.dashboard', compact('consultas'));
         }
 
@@ -46,7 +45,7 @@ class DashboardController extends Controller
             // Using now()->toDateString() relies on app timezone. If app is UTC, it might differ from user.
             // We'll fetch appointments where date is effectively "today" in general terms.
             $today = now()->timezone('America/Mexico_City')->toDateString();
-            
+
             $citasHoy = Cita::with(['paciente', 'consultorio'])
                 ->where('doctor_id', $doctorId)
                 ->whereDate('fecha', $today)
@@ -72,7 +71,7 @@ class DashboardController extends Controller
 
                 $diasBloqueadosHoy = DiaSinCita::whereDate('fecha_inicio', '<=', $today)
                     ->whereDate('fecha_fin', '>=', $today)
-                    ->whereHas('consultorios', function($q) use ($userConsultorioIds) {
+                    ->whereHas('consultorios', function ($q) use ($userConsultorioIds) {
                         $q->whereIn('consultorios.id', $userConsultorioIds);
                     })
                     ->with('consultorios')
@@ -84,7 +83,7 @@ class DashboardController extends Controller
             $notifications = $user->unreadNotifications()
                 ->where('type', 'App\Notifications\SubscriptionExpiringNotification')
                 ->get();
-            
+
             $canSharePacientes = $doctor ? $this->subscriptionService->hasActiveFeature($doctor, 'paciente') : false;
 
             return view('doctor.dashboard', compact('citasHoy', 'pendientes', 'diasBloqueadosHoy', 'notifications', 'canSharePacientes'));
@@ -99,6 +98,7 @@ class DashboardController extends Controller
         $user = Auth::user();
         $notification = $user->notifications()->findOrFail($id);
         $notification->markAsRead();
+
         return back();
     }
 }

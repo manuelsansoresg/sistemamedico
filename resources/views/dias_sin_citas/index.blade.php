@@ -28,17 +28,13 @@
                         </a>
                     </div>
 
-                    @if (session('success'))
-                        <div class="mb-4 p-4 bg-green-100 text-green-700 rounded-lg">
-                            {{ session('success') }}
-                        </div>
-                    @endif
+                    <!-- Mensaje de éxito centralizado en el layout; evitamos duplicar alertas aquí -->
 
                     <div class="overflow-x-auto">
                         <table class="min-w-full divide-y divide-gray-200">
                             <thead class="bg-gray-50">
                                 <tr>
-                                    <th class="px-6 py-3 text-left text-xs font-bold text-[#0061F5] uppercase tracking-wider">MOTIVO</th>
+                                    <th class="px-6 py-3 text-left text-xs font-bold text-[#0061F5] uppercase tracking-wider">MOTIVO / ID</th>
                                     <th class="px-6 py-3 text-left text-xs font-bold text-[#0061F5] uppercase tracking-wider">FECHAS</th>
                                     <th class="px-6 py-3 text-left text-xs font-bold text-[#0061F5] uppercase tracking-wider">HORARIO</th>
                                     <th class="px-6 py-3 text-left text-xs font-bold text-[#0061F5] uppercase tracking-wider">CONSULTORIOS</th>
@@ -46,10 +42,15 @@
                                 </tr>
                             </thead>
                             <tbody class="bg-white divide-y divide-gray-200">
+                                @php($skipId = session('last_deleted_id'))
                                 @forelse ($diasSinCitas as $dia)
+                                    @if($skipId && $dia->id == $skipId)
+                                        @continue
+                                    @endif
                                     <tr>
                                         <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                                             {{ $dia->motivo }}
+                                            <span class="ml-2 inline-flex items-center px-2 py-0.5 rounded text-[10px] font-semibold bg-gray-100 text-gray-600 align-middle">#{{ $dia->id }}</span>
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                             {{ $dia->fecha_inicio->format('d/m/Y') }}
@@ -76,11 +77,11 @@
                                             </div>
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                            <form action="{{ route('dias-sin-citas.destroy', $dia) }}" method="POST" class="inline-block" onsubmit="return confirm('¿Estás seguro de eliminar este registro?');">
+                                            <form action="{{ route('dias-sin-citas.destroy', $dia->id) }}" method="POST" class="inline-block" onsubmit="return confirm('¿Estás seguro de eliminar este registro?');">
                                                 @csrf
                                                 @method('DELETE')
-                                                <button type="submit" class="text-red-600 hover:text-red-900 ml-2">
-                                                    <i class="fas fa-trash"></i>
+                                                <button type="submit" class="inline-flex cursor-pointer items-center justify-center w-10 h-10 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors shadow-sm" title="Eliminar">
+                                                    <i class="fas fa-trash text-lg"></i>
                                                 </button>
                                             </form>
                                         </td>

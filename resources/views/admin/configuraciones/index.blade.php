@@ -107,7 +107,7 @@
                                             <form action="{{ route('configuraciones.destroy', $configuracion) }}" method="POST" class="inline-block" onsubmit="return confirm('¿Estás seguro de que deseas eliminar esta configuración?');">
                                                 @csrf
                                                 @method('DELETE')
-                                                <button type="submit" class="text-red-600 hover:text-red-900">Eliminar</button>
+                                                <button type="submit" class="text-red-600 hover:text-red-900 cursor-pointer">Eliminar</button>
                                             </form>
                                         </td>
                                     </tr>

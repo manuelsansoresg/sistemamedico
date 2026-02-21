@@ -30,23 +30,23 @@ class PacienteController extends Controller
         // If user is doctor, show only their patients (assigned or created by them)
         if ($user->hasRole(['doctor', 'asistente', 'secretaria'])) {
             $ownerId = $user->hasRole('doctor') ? $user->id : $user->created_by;
-            
-            $query->where(function($q) use ($ownerId) {
+
+            $query->where(function ($q) use ($ownerId) {
                 $q->whereHas('doctors', function ($subQ) use ($ownerId) {
                     $subQ->where('users.id', $ownerId);
                 })
-                ->orWhere('created_by', $ownerId);
+                    ->orWhere('created_by', $ownerId);
             });
         }
 
         if ($request->has('search') && $request->search != '') {
             $search = $request->search;
-            $query->where(function($q) use ($search) {
+            $query->where(function ($q) use ($search) {
                 $q->where('name', 'like', "%{$search}%")
-                  ->orWhere('apellido_paterno', 'like', "%{$search}%")
-                  ->orWhere('apellido_materno', 'like', "%{$search}%")
-                  ->orWhere('email', 'like', "%{$search}%")
-                  ->orWhere('curp', 'like', "%{$search}%");
+                    ->orWhere('apellido_paterno', 'like', "%{$search}%")
+                    ->orWhere('apellido_materno', 'like', "%{$search}%")
+                    ->orWhere('email', 'like', "%{$search}%")
+                    ->orWhere('curp', 'like', "%{$search}%");
             });
         }
 
@@ -72,11 +72,11 @@ class PacienteController extends Controller
         if ($user->hasRole(['doctor', 'asistente', 'secretaria'])) {
             $ownerId = $user->hasRole('doctor') ? $user->id : $user->created_by;
 
-            $query->where(function($q) use ($ownerId) {
+            $query->where(function ($q) use ($ownerId) {
                 $q->whereHas('doctors', function ($subQ) use ($ownerId) {
                     $subQ->where('users.id', $ownerId);
                 })
-                ->orWhere('created_by', $ownerId);
+                    ->orWhere('created_by', $ownerId);
             });
         }
 
@@ -90,23 +90,23 @@ class PacienteController extends Controller
 
         if ($request->has('search') && $request->search != '') {
             $search = $request->search;
-            $query->where(function($q) use ($search) {
+            $query->where(function ($q) use ($search) {
                 $q->where('name', 'like', "%{$search}%")
-                  ->orWhere('apellido_paterno', 'like', "%{$search}%")
-                  ->orWhere('apellido_materno', 'like', "%{$search}%")
-                  ->orWhere('email', 'like', "%{$search}%")
-                  ->orWhere('curp', 'like', "%{$search}%");
+                    ->orWhere('apellido_paterno', 'like', "%{$search}%")
+                    ->orWhere('apellido_materno', 'like', "%{$search}%")
+                    ->orWhere('email', 'like', "%{$search}%")
+                    ->orWhere('curp', 'like', "%{$search}%");
             });
         }
 
         if ($user->hasRole('root') && $request->filled('doctor_id')) {
             $doctorId = $request->doctor_id;
 
-            $query->where(function($q) use ($doctorId) {
+            $query->where(function ($q) use ($doctorId) {
                 $q->where('created_by', $doctorId)
-                  ->orWhereHas('doctors', function($subQ) use ($doctorId) {
-                      $subQ->where('users.id', $doctorId);
-                  });
+                    ->orWhereHas('doctors', function ($subQ) use ($doctorId) {
+                        $subQ->where('users.id', $doctorId);
+                    });
             });
         }
 
@@ -159,7 +159,7 @@ class PacienteController extends Controller
         $owner = $user->hasRole('doctor') ? $user : User::find($user->created_by);
         $ownerForLimits = $owner ?: $user;
 
-        if (!$this->subscriptionService->canCreate($ownerForLimits, 'paciente')) {
+        if (! $this->subscriptionService->canCreate($ownerForLimits, 'paciente')) {
             return redirect()->back()->with('error', 'Ha alcanzado el límite de pacientes permitidos por su suscripción.');
         }
 
@@ -229,7 +229,7 @@ class PacienteController extends Controller
     public function edit(User $paciente)
     {
         $this->authorizeAccess($paciente);
-        
+
         return view('admin.pacientes.edit', compact('paciente'));
     }
 
@@ -246,7 +246,7 @@ class PacienteController extends Controller
             'name' => ['required', 'string', 'max:255'],
             'apellido_paterno' => ['nullable', 'string', 'max:255'],
             'apellido_materno' => ['nullable', 'string', 'max:255'],
-            'email' => ['required', 'string', 'email', 'max:255', 'unique:users,email,' . $paciente->id],
+            'email' => ['required', 'string', 'email', 'max:255', 'unique:users,email,'.$paciente->id],
             'telefono' => ['nullable', 'string', 'max:20'],
             'curp' => ['nullable', 'string', 'max:18'],
             'fecha_nacimiento' => ['nullable', 'date'],
@@ -307,13 +307,13 @@ class PacienteController extends Controller
 
             $paciente->perfil_compartido = true;
 
-            if (!$paciente->created_by) {
+            if (! $paciente->created_by) {
                 $paciente->created_by = $doctor->id;
             }
 
             $paciente->save();
 
-            if (!$paciente->doctors()->where('users.id', $doctor->id)->exists()) {
+            if (! $paciente->doctors()->where('users.id', $doctor->id)->exists()) {
                 $paciente->doctors()->attach($doctor->id);
             }
 
@@ -324,19 +324,19 @@ class PacienteController extends Controller
             $ownerId = $currentUser->hasRole('doctor') ? $currentUser->id : $currentUser->created_by;
             $owner = $currentUser->hasRole('doctor') ? $currentUser : User::find($ownerId);
 
-            if (!$owner || !$this->subscriptionService->hasActiveFeature($owner, 'paciente')) {
+            if (! $owner || ! $this->subscriptionService->hasActiveFeature($owner, 'paciente')) {
                 return back()->with('error', 'Necesita una suscripción de Paciente activa para compartir perfiles.');
             }
 
             $paciente->perfil_compartido = true;
 
-            if (!$paciente->created_by) {
+            if (! $paciente->created_by) {
                 $paciente->created_by = $owner->id;
             }
 
             $paciente->save();
 
-            if (!$paciente->doctors()->where('users.id', $owner->id)->exists()) {
+            if (! $paciente->doctors()->where('users.id', $owner->id)->exists()) {
                 $paciente->doctors()->attach($owner->id);
             }
 
@@ -354,7 +354,7 @@ class PacienteController extends Controller
         /** @var \App\Models\User $currentUser */
         $currentUser = Auth::user();
 
-        if (!$currentUser->hasRole('root')) {
+        if (! $currentUser->hasRole('root')) {
             return back()->with('error', 'Solo el rol Root puede quitar el perfil compartido.');
         }
 
@@ -373,13 +373,14 @@ class PacienteController extends Controller
         /** @var \App\Models\User $currentUser */
         $currentUser = Auth::user();
 
-        if (!$currentUser->hasRole('root')) {
+        if (! $currentUser->hasRole('root')) {
             return back()->with('error', 'Solo el rol Root puede alternar el estado de compartir.');
         }
 
         if ($paciente->perfil_compartido) {
             $paciente->perfil_compartido = false;
             $paciente->save();
+
             return back()->with('success', 'Perfil compartido eliminado correctamente.');
         }
 
@@ -390,12 +391,12 @@ class PacienteController extends Controller
         $doctor = User::role('doctor')->findOrFail($request->doctor_id);
 
         $paciente->perfil_compartido = true;
-        if (!$paciente->created_by) {
+        if (! $paciente->created_by) {
             $paciente->created_by = $doctor->id;
         }
         $paciente->save();
 
-        if (!$paciente->doctors()->where('users.id', $doctor->id)->exists()) {
+        if (! $paciente->doctors()->where('users.id', $doctor->id)->exists()) {
             $paciente->doctors()->attach($doctor->id);
         }
 
@@ -410,6 +411,7 @@ class PacienteController extends Controller
         $this->authorizeAccess($paciente);
 
         $paciente->delete();
+
         return redirect()->route('pacientes.index')->with('success', 'Paciente eliminado exitosamente.');
     }
 
@@ -424,15 +426,16 @@ class PacienteController extends Controller
 
         if ($user->hasRole(['doctor', 'asistente', 'secretaria'])) {
             $ownerId = $user->hasRole('doctor') ? $user->id : $user->created_by;
-            
+
             // Check if patient is linked to owner doctor
             $linked = $paciente->doctors()->where('users.id', $ownerId)->exists();
             // Or created by owner
             $created = $paciente->created_by == $ownerId;
 
-            if (!$linked && !$created) {
+            if (! $linked && ! $created) {
                 abort(403, 'No tiene permiso para acceder a este paciente.');
             }
+
             return;
         }
 

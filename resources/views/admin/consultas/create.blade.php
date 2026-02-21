@@ -249,20 +249,34 @@
                                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $historia->created_at->format('d/m/Y H:i') }}</td>
                                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ $historia->doctor->name }} {{ $historia->doctor->apellido_paterno }}</td>
                                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $historia->plantilla->nombre }}</td>
-                                            <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium space-x-2">
-                                                <a href="{{ route('consultas.edit', $historia) }}" class="inline-flex items-center justify-center w-10 h-10 bg-yellow-500 text-white rounded-md hover:bg-yellow-600 transition-colors shadow-sm" title="Editar">
-                                                    <i class="fas fa-edit text-xl"></i>
-                                                </a>
+                                            <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                                <div class="flex justify-end items-center space-x-2">
+                                                    @if(auth()->user()->hasRole('doctor'))
+                                                        <a href="{{ route('consultas.edit', $historia) }}" class="inline-flex items-center justify-center w-10 h-10 bg-[#0061F5] text-white rounded-md hover:bg-[#0051CC] transition-colors shadow-sm" title="Editar Consulta">
+                                                            <i class="fas fa-edit text-xl"></i>
+                                                        </a>
+                                                    @elseif(auth()->user()->hasRole(['asistente','secretaria']))
+                                                        <a href="{{ route('consultas.show', $historia) }}" class="inline-flex items-center justify-center w-10 h-10 bg-gray-600 text-white rounded-md hover:bg-gray-700 transition-colors shadow-sm" title="Ver Consulta">
+                                                            <i class="fas fa-eye text-xl"></i>
+                                                        </a>
+                                                    @else
+                                                        <a href="{{ route('consultas.edit', $historia) }}" class="inline-flex items-center justify-center w-10 h-10 bg-yellow-500 text-white rounded-md hover:bg-yellow-600 transition-colors shadow-sm" title="Editar">
+                                                            <i class="fas fa-edit text-xl"></i>
+                                                        </a>
+                                                    @endif
                                                 <a href="{{ route('consultas.print', $historia) }}" target="_blank" class="inline-flex items-center justify-center w-10 h-10 bg-gray-800 text-white rounded-md hover:bg-gray-900 transition-colors shadow-sm" style="background-color: #1f2937;" title="Imprimir">
                                                     <i class="fas fa-print text-xl"></i>
                                                 </a>
-                                                <form action="{{ route('consultas.destroy', $historia) }}" method="POST" class="inline-block" onsubmit="return confirm('¿Estás seguro de eliminar esta consulta?');">
-                                                    @csrf
-                                                    @method('DELETE')
-                                                    <button type="submit" class="inline-flex items-center justify-center w-10 h-10 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors shadow-sm" title="Borrar">
-                                                        <i class="fas fa-trash text-xl"></i>
-                                                    </button>
-                                                </form>
+                                                @if(!auth()->user()->hasRole(['asistente','secretaria']))
+                                                    <form action="{{ route('consultas.destroy', $historia) }}" method="POST" class="inline-block" onsubmit="return confirm('¿Estás seguro de eliminar esta consulta?');">
+                                                        @csrf
+                                                        @method('DELETE')
+                                                        <button type="submit" class="inline-flex cursor-pointer items-center justify-center w-10 h-10 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors shadow-sm" title="Borrar">
+                                                            <i class="fas fa-trash text-xl"></i>
+                                                        </button>
+                                                    </form>
+                                                @endif
+                                                </div>
                                             </td>
                                         </tr>
                                     @empty
@@ -386,7 +400,7 @@
                                                             <ul class="py-1">
                                                                 @foreach($estudio->archivos as $archivo)
                                                                     <li>
-                                                                        <a href="{{ Storage::url($archivo->path) }}" target="_blank" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 truncate">
+                                                                        <a href="{{ asset($archivo->path) }}" target="_blank" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 truncate">
                                                                             <i class="fas fa-file mr-2 text-gray-400"></i> {{ $archivo->nombre_original }}
                                                                         </a>
                                                                     </li>
@@ -400,7 +414,7 @@
                                                     <form action="{{ route('consultas.estudios.destroy', $estudio) }}" method="POST" class="inline-block" onsubmit="return confirm('¿Estás seguro de eliminar esta orden de estudio?');">
                                                         @csrf
                                                         @method('DELETE')
-                                                        <button type="submit" class="inline-flex items-center justify-center w-10 h-10 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors shadow-sm" title="Borrar">
+                                                        <button type="submit" class="inline-flex cursor-pointer items-center justify-center w-10 h-10 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors shadow-sm" title="Borrar">
                                                             <i class="fas fa-trash text-xl"></i>
                                                         </button>
                                                     </form>

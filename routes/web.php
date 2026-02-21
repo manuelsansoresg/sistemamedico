@@ -1,7 +1,7 @@
 <?php
 
-use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\AdminController;
+use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Public\ComprobantePagoController;
 use Illuminate\Support\Facades\Route;
 
@@ -34,7 +34,7 @@ Route::middleware(['auth', 'role:root'])->group(function () {
     Route::resource('admin/paquetes', \App\Http\Controllers\PaqueteController::class);
     Route::resource('admin/configuraciones', \App\Http\Controllers\ConfiguracionController::class);
     Route::resource('admin/especialidades', \App\Http\Controllers\EspecialidadController::class);
-    
+
     // Gestión de Suscripciones y Validaciones (Root)
     Route::get('admin/suscripciones', [\App\Http\Controllers\Admin\SuscripcionController::class, 'index'])->name('admin.suscripciones.index');
     Route::get('admin/suscripciones/create', [\App\Http\Controllers\Admin\SuscripcionController::class, 'create'])->name('admin.suscripciones.create');
@@ -43,7 +43,7 @@ Route::middleware(['auth', 'role:root'])->group(function () {
     Route::put('admin/suscripciones/{suscripcion}', [\App\Http\Controllers\Admin\SuscripcionController::class, 'update'])->name('admin.suscripciones.update');
     Route::post('admin/users/{user}/validar-cedula', [\App\Http\Controllers\Admin\SuscripcionController::class, 'validarCedula'])->name('admin.users.validar_cedula');
     Route::get('admin/suscripciones/{suscripcion}/download-comprobante', [\App\Http\Controllers\Admin\SuscripcionController::class, 'downloadComprobante'])->name('admin.suscripciones.download_comprobante');
-    
+
     // Horarios Routes (Moved to shared group)
 });
 
@@ -51,7 +51,7 @@ Route::middleware(['auth', 'role:root|doctor|asistente|secretaria', 'check.docto
     Route::resource('admin/clinicas', \App\Http\Controllers\ClinicaController::class);
     Route::resource('admin/consultorios', \App\Http\Controllers\ConsultorioController::class);
     Route::resource('admin/users', \App\Http\Controllers\UserController::class);
-    
+
     // Pacientes Routes
     Route::get('admin/pacientes/compartidos', [\App\Http\Controllers\PacienteController::class, 'sharedIndex'])->name('pacientes.shared.index');
     Route::post('admin/pacientes/{paciente}/compartir', [\App\Http\Controllers\PacienteController::class, 'share'])->name('pacientes.share');
@@ -68,6 +68,7 @@ Route::middleware(['auth', 'role:root|doctor|asistente|secretaria', 'check.docto
 
     // Expedientes Routes
     Route::get('admin/expedientes', [\App\Http\Controllers\ExpedienteController::class, 'index'])->name('expedientes.index');
+    Route::get('admin/expedientes/paciente/{paciente}', [\App\Http\Controllers\ExpedienteController::class, 'patientHistory'])->name('expedientes.paciente');
     Route::post('admin/expedientes/download', [\App\Http\Controllers\ExpedienteController::class, 'downloadBulk'])->name('expedientes.download.bulk');
     Route::get('admin/expedientes/download-all', [\App\Http\Controllers\ExpedienteController::class, 'downloadAll'])->name('expedientes.download.all');
 
@@ -90,7 +91,9 @@ Route::middleware(['auth', 'role:root|doctor|asistente|secretaria', 'check.docto
     Route::post('estudios/{estudio}/upload', [\App\Http\Controllers\ConsultaController::class, 'uploadEstudioFile'])->name('consultas.estudios.upload');
     Route::get('estudios/{estudio}/edit', [\App\Http\Controllers\ConsultaController::class, 'editEstudio'])->name('consultas.estudios.edit');
     Route::put('estudios/{estudio}', [\App\Http\Controllers\ConsultaController::class, 'updateEstudio'])->name('consultas.estudios.update');
+    Route::post('estudios/{estudio}/actualizar', [\App\Http\Controllers\ConsultaController::class, 'updateEstudio'])->name('consultas.estudios.update.post');
     Route::delete('estudios/{estudio}', [\App\Http\Controllers\ConsultaController::class, 'destroyEstudio'])->name('consultas.estudios.destroy');
+    Route::get('estudios-archivos/{archivo}/delete', [\App\Http\Controllers\ConsultaController::class, 'destroyEstudioArchivo'])->name('consultas.estudios.archivos.delete');
 
     // Ganancias Routes (Restricted to Root and Doctor)
     Route::get('ganancias', [\App\Http\Controllers\GananciaController::class, 'index'])

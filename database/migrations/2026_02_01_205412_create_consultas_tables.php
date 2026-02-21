@@ -17,13 +17,13 @@ return new class extends Migration
             $table->foreignId('doctor_id')->constrained('users');
             $table->foreignId('paciente_id')->constrained('users');
             $table->foreignId('plantilla_id')->constrained('plantillas');
-            
+
             // Historical health data snapshot
             $table->decimal('peso', 5, 2)->nullable();
             $table->decimal('estatura', 5, 2)->nullable();
             $table->text('alergias')->nullable();
             $table->text('diagnostico')->nullable(); // Just in case, general field
-            
+
             $table->timestamps();
         });
 

@@ -2,14 +2,14 @@
 
 namespace App\Console\Commands;
 
-use Illuminate\Console\Command;
-use App\Models\Suscripcion;
 use App\Models\Ganancia;
-use Illuminate\Support\Facades\DB;
+use App\Models\Suscripcion;
+use Illuminate\Console\Command;
 
 class SyncGanancias extends Command
 {
     protected $signature = 'ganancias:sync';
+
     protected $description = 'Sincronizar ganancias para suscripciones pagadas existentes (Catálogos y Paquetes)';
 
     public function handle()
@@ -33,14 +33,15 @@ class SyncGanancias extends Command
             ->get();
 
         $this->processBatch($suscripcionesPaquete, 'paquete');
-        
-        $this->info("Sincronización finalizada.");
+
+        $this->info('Sincronización finalizada.');
     }
 
     private function processBatch($suscripciones, $type)
     {
         if ($suscripciones->isEmpty()) {
             $this->info("No se encontraron suscripciones de tipo {$type} pendientes.");
+
             return;
         }
 
@@ -49,19 +50,21 @@ class SyncGanancias extends Command
 
         foreach ($suscripciones as $sub) {
             $item = ($type === 'catalogo') ? $sub->catalogo : $sub->paquete;
-            
-            if (!$item) continue;
+
+            if (! $item) {
+                continue;
+            }
 
             $porcentaje = $item->porcentaje_ganancia ?? 0;
             $montoGananciaDoctor = 0;
             $porcentajeAplicado = 0;
-            
+
             // Reglas:
             // Paquetes: 100% Root -> Doctor = 0
             if ($type === 'paquete') {
                 $montoGananciaDoctor = 0;
                 $porcentajeAplicado = 0;
-            } 
+            }
             // Catálogos
             else {
                 if ($porcentaje == 0) {
@@ -83,7 +86,7 @@ class SyncGanancias extends Command
                 'monto_total' => $sub->precio,
                 'monto_ganancia_doctor' => $montoGananciaDoctor,
                 'porcentaje_aplicado' => $porcentajeAplicado,
-                'concepto' => 'Ganancia por adquisición de: ' . $item->nombre,
+                'concepto' => 'Ganancia por adquisición de: '.$item->nombre,
                 'fecha' => $sub->fecha_inicio ?? $sub->created_at,
             ]);
 

@@ -100,6 +100,10 @@
                             </div>
                         </div>
 
+                        @php
+                            $isDoctorSelf = auth()->user()->hasRole('doctor') && auth()->id() === $user->id;
+                        @endphp
+
                         <!-- Sección: Rol y Asignaciones -->
                         <div class="mb-8" x-data="{ selectedRole: '{{ old('role', $user->roles->first()?->name) }}' }">
                             <h3 class="text-lg font-medium leading-6 text-gray-900 border-b pb-2 mb-4">Rol y Asignaciones</h3>
@@ -131,7 +135,7 @@
                                     <div class="bg-gray-50 p-4 rounded-md border border-gray-200 h-48 overflow-y-auto">
                                         @foreach($clinicas as $clinica)
                                             <div class="flex items-center mb-2">
-                                                <input type="checkbox" name="clinicas[]" id="clinica_{{ $clinica->id }}" value="{{ $clinica->id }}" class="rounded border-gray-300 text-[#0061F5] shadow-sm focus:border-[#0061F5] focus:ring-[#0061F5]" {{ (is_array(old('clinicas')) && in_array($clinica->id, old('clinicas'))) || (empty(old('clinicas')) && $user->clinicas->contains($clinica->id)) ? 'checked' : '' }}>
+                                                <input type="checkbox" name="clinicas[]" id="clinica_{{ $clinica->id }}" value="{{ $clinica->id }}" class="rounded border-gray-300 text-[#0061F5] shadow-sm focus:border-[#0061F5] focus:ring-[#0061F5]" {{ (is_array(old('clinicas')) && in_array($clinica->id, old('clinicas'))) || (empty(old('clinicas')) && $user->clinicas->contains($clinica->id)) ? 'checked' : '' }} @if($isDoctorSelf) disabled @endif>
                                                 <label for="clinica_{{ $clinica->id }}" class="ml-2 text-sm text-gray-700">
                                                     {{ $clinica->nombre }}
                                                 </label>
@@ -146,7 +150,7 @@
                                     <div class="bg-gray-50 p-4 rounded-md border border-gray-200 h-48 overflow-y-auto">
                                         @foreach($consultorios as $consultorio)
                                             <div class="flex items-center mb-2">
-                                                <input type="checkbox" name="consultorios[]" id="consultorio_{{ $consultorio->id }}" value="{{ $consultorio->id }}" class="rounded border-gray-300 text-[#0061F5] shadow-sm focus:border-[#0061F5] focus:ring-[#0061F5]" {{ (is_array(old('consultorios')) && in_array($consultorio->id, old('consultorios'))) || (empty(old('consultorios')) && $user->consultorios->contains($consultorio->id)) ? 'checked' : '' }}>
+                                                <input type="checkbox" name="consultorios[]" id="consultorio_{{ $consultorio->id }}" value="{{ $consultorio->id }}" class="rounded border-gray-300 text-[#0061F5] shadow-sm focus:border-[#0061F5] focus:ring-[#0061F5]" {{ (is_array(old('consultorios')) && in_array($consultorio->id, old('consultorios'))) || (empty(old('consultorios')) && $user->consultorios->contains($consultorio->id)) ? 'checked' : '' }} @if($isDoctorSelf) disabled @endif>
                                                 <label for="consultorio_{{ $consultorio->id }}" class="ml-2 text-sm text-gray-700">
                                                     {{ $consultorio->nombre }}
                                                 </label>

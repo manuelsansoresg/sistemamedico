@@ -51,7 +51,7 @@
 
                     <!-- Filters -->
                     <form method="GET" action="{{ route('expedientes.index') }}" class="mb-6 bg-gray-50 p-4 rounded-lg border border-gray-200">
-                        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 items-end">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-4 items-end">
                             <div>
                                 <label for="clinica_id" class="block text-sm font-medium text-gray-700">Clínica</label>
                                 <select name="clinica_id" id="clinica_id" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-[#0061F5] focus:ring-[#0061F5] sm:text-sm">
@@ -67,6 +67,17 @@
                                     <option value="">Todos</option>
                                     @foreach($consultorios as $consultorio)
                                         <option value="{{ $consultorio->id }}" {{ request('consultorio_id') == $consultorio->id ? 'selected' : '' }}>{{ $consultorio->nombre }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            <div>
+                                <label for="paciente_id" class="block text-sm font-medium text-gray-700">Paciente</label>
+                                <select name="paciente_id" id="paciente_id" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-[#0061F5] focus:ring-[#0061F5] sm:text-sm">
+                                    <option value="">Todos</option>
+                                    @foreach($pacientes as $paciente)
+                                        <option value="{{ $paciente->id }}" {{ request('paciente_id') == $paciente->id ? 'selected' : '' }}>
+                                            {{ $paciente->name }} {{ $paciente->apellido_paterno }}
+                                        </option>
                                     @endforeach
                                 </select>
                             </div>
@@ -98,6 +109,7 @@
                                     <th class="px-6 py-3 text-left text-xs font-bold text-[#0061F5] uppercase tracking-wider">PACIENTE</th>
                                     <th class="px-6 py-3 text-left text-xs font-bold text-[#0061F5] uppercase tracking-wider">DOCTOR</th>
                                     <th class="px-6 py-3 text-left text-xs font-bold text-[#0061F5] uppercase tracking-wider">CLÍNICA / CONSULTORIO</th>
+                                    <th class="px-6 py-3 text-left text-xs font-bold text-[#0061F5] uppercase tracking-wider">DETALLE</th>
                                     <th class="px-6 py-3 text-right text-xs font-bold text-[#0061F5] uppercase tracking-wider">ACCIONES</th>
                                 </tr>
                             </thead>
@@ -111,7 +123,9 @@
                                             {{ $expediente->cita->fecha->format('d/m/Y') }}
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                            {{ $expediente->paciente->name }} {{ $expediente->paciente->apellido_paterno }}
+                                            <a href="{{ route('expedientes.paciente', $expediente->paciente_id) }}" class="text-[#0061F5] hover:underline">
+                                                {{ $expediente->paciente->name }} {{ $expediente->paciente->apellido_paterno }}
+                                            </a>
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                                             {{ $expediente->doctor->name }} {{ $expediente->doctor->apellido_paterno }}
@@ -120,8 +134,22 @@
                                             <div>{{ $expediente->cita->clinica->nombre }}</div>
                                             <div class="text-xs">{{ $expediente->cita->consultorio->nombre }}</div>
                                         </td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                            <div class="text-xs text-gray-500">
+                                                <span class="font-semibold">Motivo:</span>
+                                                {{ \Illuminate\Support\Str::limit($expediente->cita->motivo ?? 'Sin motivo registrado', 60) }}
+                                            </div>
+                                            <div class="text-xs text-gray-500 mt-1">
+                                                <span class="font-semibold">Plantilla:</span>
+                                                {{ $expediente->plantilla->nombre ?? 'Sin plantilla' }}
+                                            </div>
+                                        </td>
                                         <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                                             <div class="flex justify-end items-center space-x-2">
+                                                <a href="{{ route('consultas.show', $expediente->id) }}" class="inline-flex items-center justify-center w-10 h-10 bg-white border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 transition-colors shadow-sm" title="Ver Consulta">
+                                                    <i class="fas fa-eye text-lg"></i>
+                                                </a>
+
                                                 @can('descargar consultas')
                                                 <a href="{{ route('consultas.print', $expediente->id) }}" target="_blank" class="inline-flex items-center justify-center w-10 h-10 bg-[#0061F5] text-white rounded-md hover:bg-[#0051CC] transition-colors shadow-sm" title="Descargar Consulta">
                                                     <i class="fas fa-file-pdf text-xl"></i>

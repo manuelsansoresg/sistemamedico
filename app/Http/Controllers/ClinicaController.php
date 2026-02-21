@@ -33,6 +33,7 @@ class ClinicaController extends Controller
         }
 
         $clinicas = $query->paginate(10);
+
         return view('admin.clinicas.index', compact('clinicas'));
     }
 
@@ -52,7 +53,7 @@ class ClinicaController extends Controller
         $user = Auth::user();
         $owner = $user->hasRole('doctor') ? $user : \App\Models\User::find($user->created_by);
 
-        if (!$this->subscriptionService->canCreate($owner, 'clinica')) {
+        if (! $this->subscriptionService->canCreate($owner, 'clinica')) {
             return redirect()->back()->with('error', 'Ha alcanzado el límite de clínicas permitidas por su suscripción.');
         }
 
@@ -70,12 +71,12 @@ class ClinicaController extends Controller
         $logotipoPath = null;
         if ($request->hasFile('logotipo')) {
             $file = $request->file('logotipo');
-            $filename = time() . '_' . $file->getClientOriginalName();
+            $filename = time().'_'.$file->getClientOriginalName();
             $file->move(public_path('clinicas'), $filename);
-            $logotipoPath = 'clinicas/' . $filename;
+            $logotipoPath = 'clinicas/'.$filename;
         }
 
-        Clinica::create([
+        $clinica = Clinica::create([
             'nombre' => $request->nombre,
             'direccion' => $request->direccion,
             'telefono' => $request->telefono,
@@ -86,6 +87,10 @@ class ClinicaController extends Controller
             'activo' => $request->has('activo'),
             'created_by' => $owner->id,
         ]);
+
+        if ($owner && $owner->hasRole('doctor')) {
+            $clinica->users()->syncWithoutDetaching([$owner->id]);
+        }
 
         return redirect()->route('clinicas.index')->with('success', 'Clínica creada exitosamente.');
     }
@@ -121,9 +126,9 @@ class ClinicaController extends Controller
                 File::delete(public_path($logotipoPath));
             }
             $file = $request->file('logotipo');
-            $filename = time() . '_' . $file->getClientOriginalName();
+            $filename = time().'_'.$file->getClientOriginalName();
             $file->move(public_path('clinicas'), $filename);
-            $logotipoPath = 'clinicas/' . $filename;
+            $logotipoPath = 'clinicas/'.$filename;
         }
 
         $clinica->update([
@@ -149,6 +154,7 @@ class ClinicaController extends Controller
             File::delete(public_path($clinica->logotipo));
         }
         $clinica->delete();
+
         return redirect()->route('clinicas.index')->with('success', 'Clínica eliminada exitosamente.');
     }
 }

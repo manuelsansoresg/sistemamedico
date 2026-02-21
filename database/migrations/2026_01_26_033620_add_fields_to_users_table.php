@@ -14,7 +14,7 @@ return new class extends Migration
         // Cleanup from potentially failed previous run
         if (Schema::hasColumn('users', 'apellido_paterno')) {
             Schema::table('users', function (Blueprint $table) {
-                // We wrap this in a try-catch or just hope the columns exist to be dropped. 
+                // We wrap this in a try-catch or just hope the columns exist to be dropped.
                 // To be safe, we list them.
                 $columns = ['apellido_paterno', 'apellido_materno', 'telefono', 'cedula_profesional', 'especialidad_id'];
                 $table->dropColumn($columns);
@@ -37,11 +37,11 @@ return new class extends Migration
     {
         Schema::table('users', function (Blueprint $table) {
             if (Schema::hasColumn('users', 'especialidad_id')) {
-                 // Check for foreign key existence before dropping? 
-                 // Schema::dropForeign doesn't check, but usually down() is deterministic.
-                 // We'll just try standard drop.
-                 $table->dropForeign(['especialidad_id']);
-                 $table->dropColumn(['apellido_paterno', 'apellido_materno', 'telefono', 'cedula_profesional', 'especialidad_id']);
+                // Check for foreign key existence before dropping?
+                // Schema::dropForeign doesn't check, but usually down() is deterministic.
+                // We'll just try standard drop.
+                $table->dropForeign(['especialidad_id']);
+                $table->dropColumn(['apellido_paterno', 'apellido_materno', 'telefono', 'cedula_profesional', 'especialidad_id']);
             }
         });
     }

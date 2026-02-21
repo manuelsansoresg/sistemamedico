@@ -198,6 +198,20 @@
                 height: 'auto',
                 slotMinTime: '06:00:00',
                 slotMaxTime: '22:00:00',
+                slotDuration: '01:00:00',
+                slotLabelInterval: '01:00:00',
+                slotLabelFormat: {
+                    hour: 'numeric',
+                    minute: '2-digit',
+                    meridiem: 'short',
+                    hour12: true
+                },
+                dayHeaderFormat: {
+                    weekday: 'short',
+                    day: 'numeric'
+                },
+                nowIndicator: true,
+                scrollTime: '07:00:00',
                 events: function (info, successCallback, failureCallback) {
                     const params = new URLSearchParams();
                     params.append('doctor_id', doctorId);

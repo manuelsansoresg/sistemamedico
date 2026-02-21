@@ -3,9 +3,9 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\Ganancia;
 use App\Models\Suscripcion;
 use App\Models\User;
-use App\Models\Ganancia;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
@@ -23,7 +23,7 @@ class SuscripcionController extends Controller
             $search = $request->search;
             $query->whereHas('user', function ($q) use ($search) {
                 $q->where('name', 'like', "%{$search}%")
-                  ->orWhere('email', 'like', "%{$search}%");
+                    ->orWhere('email', 'like', "%{$search}%");
             });
         }
 
@@ -39,7 +39,7 @@ class SuscripcionController extends Controller
         $suscripciones = $query->latest()
             ->paginate(15)
             ->withQueryString(); // Mantener parámetros de filtros en paginación
-            
+
         return view('admin.suscripciones.index', compact('suscripciones'));
     }
 
@@ -51,7 +51,7 @@ class SuscripcionController extends Controller
         $users = User::role('doctor')->get();
         $paquetes = \App\Models\Paquete::where('activo', true)->get();
         $catalogos = \App\Models\Catalogo::where('activo', true)->get();
-        
+
         return view('admin.suscripciones.create', compact('users', 'paquetes', 'catalogos'));
     }
 
@@ -81,9 +81,9 @@ class SuscripcionController extends Controller
             $activePackage = Suscripcion::where('user_id', $request->user_id)
                 ->where('tipo', 'paquete')
                 ->where('estatus_pago', 'pagado')
-                ->where(function($q) {
+                ->where(function ($q) {
                     $q->whereNull('fecha_fin')
-                      ->orWhere('fecha_fin', '>', now());
+                        ->orWhere('fecha_fin', '>', now());
                 })
                 ->exists();
 
@@ -102,10 +102,10 @@ class SuscripcionController extends Controller
 
         $comprobantePath = null;
         if ($request->hasFile('comprobante_pago')) {
-             $file = $request->file('comprobante_pago');
-             $filename = time() . '_' . $file->getClientOriginalName();
-             $file->move(public_path('comprobantes'), $filename);
-             $comprobantePath = 'comprobantes/' . $filename;
+            $file = $request->file('comprobante_pago');
+            $filename = time().'_'.$file->getClientOriginalName();
+            $file->move(public_path('comprobantes'), $filename);
+            $comprobantePath = 'comprobantes/'.$filename;
         }
 
         $suscripcion = Suscripcion::create([
@@ -136,42 +136,42 @@ class SuscripcionController extends Controller
             }
 
             if ($item) {
-                 $montoGananciaDoctor = 0;
-                 $porcentajeAplicado = 0;
- 
-                 // Lógica de cálculo según reglas:
-                 // 1. Paquetes: 100% ganancia para Root (Doctor = 0)
-                 if ($type === 'paquete') {
-                     $montoGananciaDoctor = 0;
-                     $porcentajeAplicado = 0;
-                 } 
-                 // 2. Catálogos:
-                 else {
-                     $porcentaje = $item->porcentaje_ganancia ?? 0;
-                     
-                     if ($porcentaje == 0) {
-                         // Si es 0%, Root se lleva el 100% (Doctor = 0)
-                         $montoGananciaDoctor = 0;
-                         $porcentajeAplicado = 0;
-                     } else {
-                         // Si es X% (ej: 5%), Doctor se lleva X%
-                         $montoGananciaDoctor = $suscripcion->precio * ($porcentaje / 100);
-                         $porcentajeAplicado = $porcentaje;
-                     }
-                 }
-                 
-                 Ganancia::create([
-                     'user_id' => $suscripcion->user_id,
-                     'suscripcion_id' => $suscripcion->id,
-                     'catalogo_id' => ($type === 'catalogo') ? $item->id : null,
-                     'paquete_id' => ($type === 'paquete') ? $item->id : null,
-                     'monto_total' => $suscripcion->precio,
-                     'monto_ganancia_doctor' => $montoGananciaDoctor,
-                     'porcentaje_aplicado' => $porcentajeAplicado,
-                     'concepto' => 'Ganancia por adquisición de: ' . $item->nombre,
-                     'fecha' => now(),
-                 ]);
-             }
+                $montoGananciaDoctor = 0;
+                $porcentajeAplicado = 0;
+
+                // Lógica de cálculo según reglas:
+                // 1. Paquetes: 100% ganancia para Root (Doctor = 0)
+                if ($type === 'paquete') {
+                    $montoGananciaDoctor = 0;
+                    $porcentajeAplicado = 0;
+                }
+                // 2. Catálogos:
+                else {
+                    $porcentaje = $item->porcentaje_ganancia ?? 0;
+
+                    if ($porcentaje == 0) {
+                        // Si es 0%, Root se lleva el 100% (Doctor = 0)
+                        $montoGananciaDoctor = 0;
+                        $porcentajeAplicado = 0;
+                    } else {
+                        // Si es X% (ej: 5%), Doctor se lleva X%
+                        $montoGananciaDoctor = $suscripcion->precio * ($porcentaje / 100);
+                        $porcentajeAplicado = $porcentaje;
+                    }
+                }
+
+                Ganancia::create([
+                    'user_id' => $suscripcion->user_id,
+                    'suscripcion_id' => $suscripcion->id,
+                    'catalogo_id' => ($type === 'catalogo') ? $item->id : null,
+                    'paquete_id' => ($type === 'paquete') ? $item->id : null,
+                    'monto_total' => $suscripcion->precio,
+                    'monto_ganancia_doctor' => $montoGananciaDoctor,
+                    'porcentaje_aplicado' => $porcentajeAplicado,
+                    'concepto' => 'Ganancia por adquisición de: '.$item->nombre,
+                    'fecha' => now(),
+                ]);
+            }
         }
 
         return redirect()->route('admin.suscripciones.index')->with('success', 'Suscripción creada correctamente.');
@@ -184,6 +184,7 @@ class SuscripcionController extends Controller
     {
         $suscripcion->load(['user', 'paquete']);
         $users = User::role('doctor')->get();
+
         return view('admin.suscripciones.show', compact('suscripcion', 'users'));
     }
 
@@ -201,26 +202,26 @@ class SuscripcionController extends Controller
         // Actualizar usuario asignado si se envía
         if ($request->filled('user_id')) {
             $suscripcion->update([
-                'user_id' => $request->user_id
+                'user_id' => $request->user_id,
             ]);
         }
 
         // Actualizar estatus de pago si se envía
         if ($request->filled('estatus_pago')) {
             $suscripcion->update([
-                'estatus_pago' => $request->estatus_pago
+                'estatus_pago' => $request->estatus_pago,
             ]);
-            
+
             // Si se marca como pagado, asegurar que las fechas sean válidas (si es necesario)
-            if ($request->estatus_pago === 'pagado' && !$suscripcion->fecha_inicio) {
-                 $suscripcion->update([
-                     'fecha_inicio' => now(),
-                     'fecha_fin' => $suscripcion->tipo === 'paquete' ? now()->addMonth() : null,
-                 ]);
+            if ($request->estatus_pago === 'pagado' && ! $suscripcion->fecha_inicio) {
+                $suscripcion->update([
+                    'fecha_inicio' => now(),
+                    'fecha_fin' => $suscripcion->tipo === 'paquete' ? now()->addMonth() : null,
+                ]);
             }
 
             // Verificar si hay ganancia pendiente de registrar al marcar como pagado
-            if ($request->estatus_pago === 'pagado' && !$suscripcion->ganancia) {
+            if ($request->estatus_pago === 'pagado' && ! $suscripcion->ganancia) {
                 $item = null;
                 $type = null;
 
@@ -241,11 +242,11 @@ class SuscripcionController extends Controller
                     if ($type === 'paquete') {
                         $montoGananciaDoctor = 0;
                         $porcentajeAplicado = 0;
-                    } 
+                    }
                     // 2. Catálogos:
                     else {
                         $porcentaje = $item->porcentaje_ganancia ?? 0;
-                        
+
                         if ($porcentaje == 0) {
                             // Si es 0%, Root se lleva el 100% (Doctor = 0)
                             $montoGananciaDoctor = 0;
@@ -256,7 +257,7 @@ class SuscripcionController extends Controller
                             $porcentajeAplicado = $porcentaje;
                         }
                     }
-                    
+
                     Ganancia::create([
                         'user_id' => $suscripcion->user_id,
                         'suscripcion_id' => $suscripcion->id,
@@ -265,7 +266,7 @@ class SuscripcionController extends Controller
                         'monto_total' => $suscripcion->precio,
                         'monto_ganancia_doctor' => $montoGananciaDoctor,
                         'porcentaje_aplicado' => $porcentajeAplicado,
-                        'concepto' => 'Ganancia por adquisición de: ' . $item->nombre,
+                        'concepto' => 'Ganancia por adquisición de: '.$item->nombre,
                         'fecha' => now(),
                     ]);
                 }
@@ -275,7 +276,7 @@ class SuscripcionController extends Controller
         // Actualizar acceso del usuario si se envía
         if ($request->has('user_activo')) {
             $suscripcion->user->update([
-                'activo' => $request->user_activo
+                'activo' => $request->user_activo,
             ]);
         }
 
@@ -287,7 +288,7 @@ class SuscripcionController extends Controller
      */
     public function validarCedula(Request $request, User $user)
     {
-        if (!$user->hasRole('doctor')) {
+        if (! $user->hasRole('doctor')) {
             return back()->with('error', 'El usuario no es un doctor.');
         }
 
@@ -310,27 +311,28 @@ class SuscripcionController extends Controller
 
         return back()->with('success', $mensaje);
     }
-    
+
     /**
      * Descargar comprobante
      */
     public function downloadComprobante(Suscripcion $suscripcion)
     {
-        if (!$suscripcion->comprobante_pago) {
+        if (! $suscripcion->comprobante_pago) {
             return back()->with('error', 'No hay comprobante disponible.');
         }
-        
+
         // La ruta guardada es relativa a public (ej: "comprobantes/archivo.jpg")
         $path = public_path($suscripcion->comprobante_pago);
-        
-        if (!file_exists($path)) {
+
+        if (! file_exists($path)) {
             // Intentar con storage path por si acaso (compatibilidad anterior)
             if (Storage::disk('public')->exists($suscripcion->comprobante_pago)) {
                 return Storage::disk('public')->download($suscripcion->comprobante_pago);
             }
+
             return back()->with('error', 'El archivo no existe.');
         }
-        
+
         return response()->download($path);
     }
 }

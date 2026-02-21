@@ -13,6 +13,7 @@ class EspecialidadController extends Controller
     public function index()
     {
         $especialidades = Especialidad::paginate(10);
+
         return view('admin.especialidades.index', compact('especialidades'));
     }
 
@@ -58,7 +59,7 @@ class EspecialidadController extends Controller
     public function update(Request $request, Especialidad $especialidad)
     {
         $request->validate([
-            'nombre' => 'required|string|max:255|unique:especialidades,nombre,' . $especialidad->id,
+            'nombre' => 'required|string|max:255|unique:especialidades,nombre,'.$especialidad->id,
             'descripcion' => 'nullable|string',
             'activo' => 'boolean',
         ]);
@@ -78,6 +79,7 @@ class EspecialidadController extends Controller
     public function destroy(Especialidad $especialidad)
     {
         $especialidad->delete();
+
         return redirect()->route('especialidades.index')->with('success', 'Especialidad eliminada exitosamente.');
     }
 }

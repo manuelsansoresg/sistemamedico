@@ -4,7 +4,6 @@ namespace App\Mail;
 
 use App\Models\Suscripcion;
 use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
 use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
@@ -30,6 +29,7 @@ class SubscriptionExpiryNotification extends Mailable
     public function envelope(): Envelope
     {
         $tipo = $this->suscripcion->tipo == 'paquete' ? 'Paquete' : 'Servicio Extra';
+
         return new Envelope(
             subject: "Aviso de Vencimiento de Suscripción: $tipo",
         );

@@ -1,20 +1,44 @@
 <x-app-layout>
-    <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-            {{ __('Editar Pendiente') }}
-        </h2>
-    </x-slot>
-
-    <div class="py-12">
+    <div class="py-10">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+            <nav class="flex mb-4" aria-label="Breadcrumb">
+                <ol class="inline-flex items-center space-x-1 md:space-x-3">
+                    <li class="inline-flex items-center">
+                        <a href="{{ route('dashboard') }}" class="inline-flex items-center text-sm font-medium text-gray-700 hover:text-[#0061F5]">
+                            <i class="fas fa-home mr-2"></i>
+                            Inicio
+                        </a>
+                    </li>
+                    <li>
+                        <div class="flex items-center">
+                            <i class="fas fa-chevron-right text-gray-400 mx-1"></i>
+                            <a href="{{ route('pendientes.index') }}" class="ml-1 text-sm font-medium text-gray-700 hover:text-[#0061F5] md:ml-2">
+                                Pendientes
+                            </a>
+                        </div>
+                    </li>
+                    <li aria-current="page">
+                        <div class="flex items-center">
+                            <i class="fas fa-chevron-right text-gray-400 mx-1"></i>
+                            <span class="ml-1 text-sm font-medium text-gray-500 md:ml-2">Editar Pendiente</span>
+                        </div>
+                    </li>
+                </ol>
+            </nav>
+
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                 <div class="p-6 bg-white border-b border-gray-200">
-                    <h2 class="text-2xl font-bold mb-6">Editar Pendiente</h2>
+                    <div class="flex justify-between items-center mb-6">
+                        <h2 class="text-xl font-bold text-gray-800">Editar Pendiente</h2>
+                        <a href="{{ route('pendientes.index') }}" class="text-sm text-blue-600 hover:text-blue-800 hover:underline">
+                            <i class="fas fa-arrow-left mr-1"></i> Volver al listado
+                        </a>
+                    </div>
 
                     <form action="{{ route('pendientes.update', $pendiente) }}" method="POST">
                         @csrf
                         @method('PUT')
-                        
+
                         <div class="mb-4">
                             <label for="recordatorio" class="block text-gray-700 text-sm font-bold mb-2">Recordatorio</label>
                             <textarea name="recordatorio" id="recordatorio" rows="4" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" required>{{ old('recordatorio', $pendiente->recordatorio) }}</textarea>

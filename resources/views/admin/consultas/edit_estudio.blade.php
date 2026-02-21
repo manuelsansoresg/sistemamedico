@@ -42,9 +42,8 @@
 
             <!-- Edit Form -->
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6">
-                <form action="{{ route('consultas.estudios.update', $estudio) }}" method="POST" enctype="multipart/form-data">
+                <form action="{{ route('consultas.estudios.update.post', $estudio) }}" method="POST" enctype="multipart/form-data">
                     @csrf
-                    @method('PUT')
                     
                     <div class="mb-4">
                         <label class="block text-sm font-medium text-gray-700">Orden de Estudio</label>
@@ -65,19 +64,21 @@
                                 <div class="flex items-center justify-between p-2 bg-white rounded-md border border-gray-100 shadow-sm">
                                     <div class="flex items-center space-x-3 truncate">
                                         <i class="fas fa-file-alt text-gray-400"></i>
-                                        <a href="{{ Storage::url($archivo->path) }}" target="_blank" class="text-sm text-[#0061F5] hover:text-[#004499] hover:underline truncate">
+                                        <a href="{{ asset($archivo->path) }}" target="_blank" class="text-sm text-[#0061F5] hover:text-[#004499] hover:underline truncate">
                                             {{ $archivo->nombre_original }}
                                         </a>
                                         <span class="text-xs text-gray-400">({{ number_format($archivo->size / 1024, 2) }} KB)</span>
                                     </div>
-                                    <label class="inline-flex items-center">
-                                        <input type="checkbox" name="delete_files[]" value="{{ $archivo->id }}" class="rounded border-gray-300 text-red-600 shadow-sm focus:border-red-300 focus:ring focus:ring-red-200 focus:ring-opacity-50">
-                                        <span class="ml-2 text-sm text-red-600">Eliminar</span>
-                                    </label>
+                                    <a href="{{ route('consultas.estudios.archivos.delete', $archivo) }}"
+                                       onclick="return confirm('¿Deseas eliminar este archivo?');"
+                                       class="inline-flex cursor-pointer items-center justify-center w-9 h-9 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors shadow-sm"
+                                       title="Eliminar archivo">
+                                        <i class="fas fa-trash text-sm"></i>
+                                    </a>
                                 </div>
                             @endforeach
                         </div>
-                        <p class="text-xs text-gray-500 mt-1">Marque la casilla para eliminar el archivo al guardar.</p>
+                        <p class="text-xs text-gray-500 mt-1">Haz clic en el ícono de eliminar para borrar el archivo.</p>
                     </div>
                     @endif
                     
