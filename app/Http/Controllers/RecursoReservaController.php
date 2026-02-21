@@ -9,6 +9,7 @@ use App\Services\SubscriptionService;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use Spatie\Permission\Models\Permission;
 
 class RecursoReservaController extends Controller
@@ -116,7 +117,7 @@ class RecursoReservaController extends Controller
             'recurso_id' => ['required', 'exists:recursos,id'],
             'user_id' => ['required', 'exists:users,id'],
             'inicio' => ['required', 'date'],
-            'fin' => ['required', 'date', 'after:inicio'],
+            'duracion' => ['required', 'integer', 'min:1', 'max:1440'],
             'titulo' => ['nullable', 'string', 'max:255'],
             'comentario' => ['nullable', 'string'],
         ]);
@@ -139,7 +140,19 @@ class RecursoReservaController extends Controller
         }
 
         $inicio = Carbon::parse($request->inicio);
-        $fin = Carbon::parse($request->fin);
+        $duracionMinutos = (int) $request->duracion;
+        $fin = (clone $inicio)->addMinutes($duracionMinutos);
+
+        Log::info('RecursoReserva store request', [
+            'user_id' => $user->id,
+            'doctor_id_param' => $request->input('doctor_id'),
+            'recurso_id' => $request->input('recurso_id'),
+            'responsable_id' => $request->input('user_id'),
+            'inicio_raw' => $request->input('inicio'),
+            'duracion_raw' => $request->input('duracion'),
+            'inicio_final' => $inicio->toDateTimeString(),
+            'fin_final' => $fin->toDateTimeString(),
+        ]);
 
         $conflicto = RecursoReserva::where('recurso_id', $recurso->id)
             ->where('estado', 'activo')
@@ -151,14 +164,16 @@ class RecursoReservaController extends Controller
             ->first();
 
         if ($conflicto) {
-            $mensaje = sprintf(
-                'Este recurso ya está reservado entre %s y %s en esa fecha.',
-                $conflicto->inicio->format('H:i'),
-                $conflicto->fin->format('H:i')
-            );
+            Log::info('RecursoReserva store conflicto', [
+                'nuevo_inicio' => $inicio->toDateTimeString(),
+                'nuevo_fin' => $fin->toDateTimeString(),
+                'conflicto_id' => $conflicto->id,
+                'conflicto_inicio' => $conflicto->inicio ? $conflicto->inicio->toDateTimeString() : null,
+                'conflicto_fin' => $conflicto->fin ? $conflicto->fin->toDateTimeString() : null,
+            ]);
 
             return response()->json([
-                'message' => $mensaje,
+                'message' => 'Este recurso ya está reservado.',
             ], 422);
         }
 
@@ -210,14 +225,17 @@ class RecursoReservaController extends Controller
             ->first();
 
         if ($conflicto) {
-            $mensaje = sprintf(
-                'Este recurso ya está reservado entre %s y %s en esa fecha.',
-                $conflicto->inicio->format('H:i'),
-                $conflicto->fin->format('H:i')
-            );
+            Log::info('RecursoReserva update conflicto', [
+                'reserva_id' => $reserva->id,
+                'nuevo_inicio' => $inicio->toDateTimeString(),
+                'nuevo_fin' => $fin->toDateTimeString(),
+                'conflicto_id' => $conflicto->id,
+                'conflicto_inicio' => $conflicto->inicio ? $conflicto->inicio->toDateTimeString() : null,
+                'conflicto_fin' => $conflicto->fin ? $conflicto->fin->toDateTimeString() : null,
+            ]);
 
             return response()->json([
-                'message' => $mensaje,
+                'message' => 'Este recurso ya está reservado.',
             ], 422);
         }
 

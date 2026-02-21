@@ -300,42 +300,6 @@
                 });
             }
 
-            function tieneConflictoLocal(recursoId, inicioIso, finIso, ignorarEventoId) {
-                if (!recursoId) {
-                    return null;
-                }
-                const inicio = new Date(inicioIso);
-                const fin = new Date(finIso);
-                if (!(inicio instanceof Date) || isNaN(inicio.getTime()) || !(fin instanceof Date) || isNaN(fin.getTime())) {
-                    return null;
-                }
-
-                const eventos = calendar.getEvents();
-                for (let i = 0; i < eventos.length; i++) {
-                    const ev = eventos[i];
-                    if (ignorarEventoId && String(ev.id) === String(ignorarEventoId)) {
-                        continue;
-                    }
-                    const props = ev.extendedProps || {};
-                    if (!props.recurso_id || String(props.recurso_id) !== String(recursoId)) {
-                        continue;
-                    }
-                    const evInicio = ev.start;
-                    const evFin = ev.end || ev.start;
-                    if (!evInicio || !evFin) {
-                        continue;
-                    }
-                    if (evInicio < fin && evFin > inicio) {
-                        const fecha = evInicio.toISOString().slice(0, 10);
-                        const horaInicio = evInicio.toTimeString().slice(0, 5);
-                        const horaFin = evFin.toTimeString().slice(0, 5);
-                        return 'Este recurso ya está reservado entre ' + horaInicio + ' y ' + horaFin + ' en ' + fecha + '.';
-                    }
-                }
-
-                return null;
-            }
-
             function openCreateModal(date) {
                 editingEventId = null;
                 deleteBtn.classList.add('hidden');
@@ -450,18 +414,13 @@
                 finDate.setMinutes(finDate.getMinutes() + duracion);
                 const fin = finDate.toISOString().slice(0, 19);
 
-                const conflictoLocal = tieneConflictoLocal(recursoId, inicio, fin, editingEventId);
-                if (conflictoLocal) {
-                    showError(conflictoLocal);
-                    return;
-                }
-
                 const formData = new URLSearchParams();
                 formData.append('doctor_id', doctorId);
                 formData.append('titulo', titulo);
                 formData.append('comentario', comentario);
                 formData.append('inicio', inicio);
                 formData.append('fin', fin);
+                formData.append('duracion', String(duracion));
                 formData.append('_token', '{{ csrf_token() }}');
 
                 if (editingEventId === null) {
@@ -477,9 +436,17 @@
                         },
                         body: formData.toString()
                     })
-                        .then(response => {
+                        .then(async response => {
                             if (!response.ok) {
-                                return handleErrorResponse(response, 'No se pudo crear la reserva.');
+                                let message = 'No se pudo crear la reserva.';
+                                try {
+                                    const data = await response.json();
+                                    if (data && typeof data.message === 'string') {
+                                        message = data.message;
+                                    }
+                                } catch (e) {
+                                }
+                                throw new Error(message);
                             }
                             return response.json();
                         })
@@ -502,7 +469,14 @@
                     })
                         .then(response => {
                             if (!response.ok) {
-                                return handleErrorResponse(response, 'No se pudo actualizar la reserva.');
+                                return response.json().then(function (data) {
+                                    if (data && data.message) {
+                                        throw new Error(data.message);
+                                    }
+                                    throw new Error('No se pudo actualizar la reserva.');
+                                }).catch(function () {
+                                    throw new Error('No se pudo actualizar la reserva.');
+                                });
                             }
                         })
                         .then(() => {
