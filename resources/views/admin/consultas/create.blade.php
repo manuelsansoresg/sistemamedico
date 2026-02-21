@@ -391,23 +391,9 @@
 
                                                     <!-- View Files Button -->
                                                     @if($estudio->archivos && $estudio->archivos->count() > 0)
-                                                    <div x-data="{ openFiles: false }">
-                                                        <button @click="openFiles = !openFiles" type="button" class="inline-flex items-center justify-center w-10 h-10 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors shadow-sm" title="Ver Archivos">
+                                                        <button type="button" @click="openFilesModal({{ $estudio->id }})" class="inline-flex items-center justify-center w-10 h-10 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors shadow-sm" title="Ver archivos">
                                                             <i class="fas fa-images text-xl"></i>
                                                         </button>
-                                                        <!-- Files Popover -->
-                                                        <div x-show="openFiles" @click.away="openFiles = false" class="absolute right-0 mt-2 w-64 bg-white rounded-md shadow-lg z-50 border border-gray-200 max-h-60 overflow-y-auto" style="display: none;">
-                                                            <ul class="py-1">
-                                                                @foreach($estudio->archivos as $archivo)
-                                                                    <li>
-                                                                        <a href="{{ asset($archivo->path) }}" target="_blank" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 truncate">
-                                                                            <i class="fas fa-file mr-2 text-gray-400"></i> {{ $archivo->nombre_original }}
-                                                                        </a>
-                                                                    </li>
-                                                                @endforeach
-                                                            </ul>
-                                                        </div>
-                                                    </div>
                                                     @endif
 
                                                     <!-- Delete Button -->
@@ -430,12 +416,77 @@
                             </table>
                         </div>
                     </div>
+
+                    <!-- Files Modal -->
+                    <div x-show="filesModalOpen" style="display: none;" class="relative z-50" aria-labelledby="files-modal-title" role="dialog" aria-modal="true">
+                        <div x-show="filesModalOpen" 
+                             x-transition:enter="ease-out duration-300"
+                             x-transition:enter-start="opacity-0"
+                             x-transition:enter-end="opacity-100"
+                             x-transition:leave="ease-in duration-200"
+                             x-transition:leave-start="opacity-100"
+                             x-transition:leave-end="opacity-0"
+                             class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity"></div>
+
+                        <div class="fixed inset-0 z-10 w-screen overflow-y-auto">
+                            <div class="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0">
+                                <div x-show="filesModalOpen" 
+                                     x-transition:enter="ease-out duration-300"
+                                     x-transition:enter-start="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
+                                     x-transition:enter-end="opacity-100 translate-y-0 sm:scale-100"
+                                     x-transition:leave="ease-in duration-200"
+                                     x-transition:leave-start="opacity-100 translate-y-0 sm:scale-100"
+                                     x-transition:leave-end="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
+                                     @click.away="closeFilesModal()"
+                                     class="relative transform overflow-hidden rounded-lg bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-lg">
+                                    
+                                    <div class="bg-white px-4 pb-4 pt-5 sm:p-6 sm:pb-4">
+                                        <div class="mt-3 text-center sm:mt-0 sm:text-left">
+                                            <h3 class="text-base font-semibold leading-6 text-gray-900" id="files-modal-title">Archivos del estudio</h3>
+                                            <p class="mt-2 text-sm text-gray-500">Selecciona un archivo para verlo o descargarlo.</p>
+                                            <div class="mt-4 space-y-2 max-h-[60vh] overflow-y-auto">
+                                                <template x-if="filesModalItems.length === 0">
+                                                    <p class="text-sm text-gray-500">Este estudio no tiene archivos adjuntos.</p>
+                                                </template>
+                                                <template x-for="(archivo, index) in filesModalItems" :key="index">
+                                                    <a :href="archivo.url" target="_blank" class="flex items-center justify-between px-4 py-2 bg-gray-50 rounded-md border border-gray-200 hover:bg-gray-100">
+                                                        <div class="flex items-center space-x-2">
+                                                            <i class="fas fa-file text-gray-400"></i>
+                                                            <span class="text-sm text-gray-700 truncate" x-text="archivo.nombre"></span>
+                                                        </div>
+                                                        <span class="text-xs text-[#0061F5] font-medium">Abrir</span>
+                                                    </a>
+                                                </template>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="bg-gray-50 px-4 py-3 sm:flex sm:flex-row-reverse sm:px-6">
+                                        <button type="button" @click="closeFilesModal()" class="inline-flex w-full justify-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 sm:ml-3 sm:w-auto">Cerrar</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 
     <script>
+        window.estudiosArchivos = {!! json_encode(
+            $historialEstudios->mapWithKeys(function ($estudio) {
+                return [
+                    $estudio->id => $estudio->archivos->map(function ($archivo) {
+                        return [
+                            'nombre' => $archivo->nombre_original,
+                            'url' => asset($archivo->path),
+                        ];
+                    }),
+                ];
+            }),
+            JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_AMP | JSON_HEX_QUOT
+        ) !!};
+
         function consultaHandler() {
             return {
                 activeTab: 'consulta',
@@ -445,6 +496,8 @@
                 selectedPlantillaId: '',
                 campos: [],
                 showHistory: false,
+                filesModalOpen: false,
+                filesModalItems: [],
                 
                 // File Upload Logic
                 isDragging: false,
@@ -482,6 +535,20 @@
                     const dt = new DataTransfer();
                     this.filesArray.forEach(file => dt.items.add(file));
                     this.$refs.fileInput.files = dt.files;
+                },
+
+                openFilesModal(estudioId) {
+                    if (window.estudiosArchivos && window.estudiosArchivos[estudioId]) {
+                        this.filesModalItems = window.estudiosArchivos[estudioId];
+                    } else {
+                        this.filesModalItems = [];
+                    }
+                    this.filesModalOpen = true;
+                },
+
+                closeFilesModal() {
+                    this.filesModalOpen = false;
+                    this.filesModalItems = [];
                 },
                     
                 async loadPlantillaCampos() {

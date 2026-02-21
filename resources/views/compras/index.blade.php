@@ -76,6 +76,15 @@
                                         <th scope="col" class="px-6 py-3 text-right text-xs font-bold text-gray-500 uppercase tracking-wider">Acciones</th>
                                     </tr>
                                 </thead>
+                                @php
+                                    $limitesGlobales = app(\App\Services\SubscriptionService::class)->calculateLimits(auth()->user());
+                                    $currentCounts = [
+                                        'clinicas' => \App\Models\Clinica::where('created_by', auth()->id())->count(),
+                                        'consultorios' => \App\Models\Consultorio::where('created_by', auth()->id())->count(),
+                                        'usuarios' => \App\Models\User::where('created_by', auth()->id())->whereHas('roles', function ($q) { $q->whereIn('name', ['asistente','secretaria']); })->count(),
+                                        'pacientes' => \App\Models\User::role('paciente')->where('created_by', auth()->id())->count(),
+                                    ];
+                                @endphp
                                 <tbody class="bg-white divide-y divide-gray-200">
                                     @foreach($suscripciones as $sub)
                                         <tr>
@@ -93,9 +102,45 @@
                                                     {{ ucfirst($sub->tipo) }}
                                                 </span>
                                             </td>
-                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                                @if($sub->tipo == 'individual' && $sub->cantidad > 1)
-                                                    Cantidad: {{ $sub->cantidad }}
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
+                                                @if($sub->tipo == 'individual')
+                                                    @if($sub->cantidad > 1)
+                                                        Cantidad: {{ $sub->cantidad }}
+                                                    @else
+                                                        1 unidad
+                                                    @endif
+                                                @elseif($sub->tipo == 'paquete' && $sub->paquete)
+                                                    <div class="space-y-1">
+                                                        @foreach($sub->paquete->catalogos as $cat)
+                                                            @php
+                                                                $nombre = strtolower($cat->nombre ?? '');
+                                                                $key = null;
+                                                                if (str_contains($nombre, 'clínica') || str_contains($nombre, 'clinica')) $key = 'clinicas';
+                                                                elseif (str_contains($nombre, 'consultorio')) $key = 'consultorios';
+                                                                elseif (str_contains($nombre, 'usuario')) $key = 'usuarios';
+                                                                elseif (str_contains($nombre, 'paciente')) $key = 'pacientes';
+
+                                                                $limitePaquete = $cat->pivot->cantidad_maxima ?? 0;
+                                                                $limiteGlobal = $key ? ($limitesGlobales[$key] ?? 0) : 0;
+                                                                $usados = $key ? ($currentCounts[$key] ?? 0) : 0;
+                                                                $restante = max(0, $limiteGlobal - $usados);
+                                                            @endphp
+                                                            <div class="text-xs text-gray-600">
+                                                                <span class="font-semibold capitalize">{{ $cat->nombre }}:</span>
+                                                                <span class="inline-flex items-center px-2 py-0.5 rounded-full bg-blue-50 text-blue-700 font-semibold ml-1">
+                                                                    Límite paquete: {{ $limitePaquete }}
+                                                                </span>
+                                                                @if($key)
+                                                                    <span class="inline-flex items-center px-2 py-0.5 rounded-full bg-gray-100 text-gray-700 ml-1">
+                                                                        Usados: {{ $usados }}/{{ $limiteGlobal }}
+                                                                    </span>
+                                                                    <span class="inline-flex items-center px-2 py-0.5 rounded-full bg-green-50 text-green-700 ml-1">
+                                                                        Faltan: {{ $restante }}
+                                                                    </span>
+                                                                @endif
+                                                            </div>
+                                                        @endforeach
+                                                    </div>
                                                 @else
                                                     -
                                                 @endif

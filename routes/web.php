@@ -141,6 +141,8 @@ Route::middleware('auth')->group(function () {
 // Portal Paciente
 Route::middleware(['auth', 'role:paciente'])->group(function () {
     Route::get('/mis-expedientes', [\App\Http\Controllers\ExpedienteController::class, 'patientIndex'])->name('paciente.expedientes.index');
+    Route::post('/mis-expedientes/descargar', [\App\Http\Controllers\ExpedienteController::class, 'patientDownloadBulk'])->name('paciente.expedientes.download.bulk');
+    Route::get('/mis-expedientes/descargar-todo', [\App\Http\Controllers\ExpedienteController::class, 'patientDownloadAll'])->name('paciente.expedientes.download.all');
 });
 
 require __DIR__.'/auth.php';

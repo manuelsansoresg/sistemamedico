@@ -3,9 +3,13 @@
 namespace App\Http\Controllers;
 
 use App\Models\Cita;
+use App\Models\Suscripcion;
+use App\Models\Clinica;
+use App\Models\Consultorio;
 use App\Models\DiaSinCita;
 use App\Models\Pendiente;
 use App\Services\SubscriptionService;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
 class DashboardController extends Controller
@@ -17,7 +21,7 @@ class DashboardController extends Controller
         $this->subscriptionService = $subscriptionService;
     }
 
-    public function index()
+    public function index(Request $request)
     {
         /** @var \App\Models\User $user */
         $user = Auth::user();
@@ -27,13 +31,44 @@ class DashboardController extends Controller
         }
 
         if ($user->hasRole('paciente')) {
-            $consultas = \App\Models\Consulta::with(['doctor', 'cita.clinica', 'cita.consultorio'])
-                ->where('paciente_id', $user->id)
-                ->orderByDesc('created_at')
-                ->take(5)
-                ->get();
+            $query = \App\Models\Consulta::with(['cita.clinica', 'cita.consultorio', 'doctor'])
+                ->join('citas', 'consultas.cita_id', '=', 'citas.id')
+                ->select('consultas.*')
+                ->where('consultas.paciente_id', $user->id);
 
-            return view('paciente.dashboard', compact('consultas'));
+            if ($request->filled('clinica_id')) {
+                $query->where('citas.clinica_id', $request->clinica_id);
+            }
+            if ($request->filled('consultorio_id')) {
+                $query->where('citas.consultorio_id', $request->consultorio_id);
+            }
+            if ($request->filled('fecha_inicio')) {
+                $query->whereDate('citas.fecha', '>=', $request->fecha_inicio);
+            }
+            if ($request->filled('fecha_fin')) {
+                $query->whereDate('citas.fecha', '<=', $request->fecha_fin);
+            }
+
+            $query->orderBy('citas.fecha', 'desc');
+            $expedientes = $query->paginate(15)->withQueryString();
+
+            $clinicas = Clinica::whereIn('id', function ($q) use ($user) {
+                $q->select('clinica_id')
+                    ->from('citas')
+                    ->whereIn('id', function ($q2) use ($user) {
+                        $q2->select('cita_id')->from('consultas')->where('paciente_id', $user->id);
+                    });
+            })->get();
+
+            $consultorios = Consultorio::whereIn('id', function ($q) use ($user) {
+                $q->select('consultorio_id')
+                    ->from('citas')
+                    ->whereIn('id', function ($q2) use ($user) {
+                        $q2->select('cita_id')->from('consultas')->where('paciente_id', $user->id);
+                    });
+            })->get();
+
+            return view('paciente.dashboard', compact('expedientes', 'clinicas', 'consultorios'));
         }
 
         if ($user->hasRole(['doctor', 'asistente', 'secretaria'])) {
@@ -86,7 +121,23 @@ class DashboardController extends Controller
 
             $canSharePacientes = $doctor ? $this->subscriptionService->hasActiveFeature($doctor, 'paciente') : false;
 
-            return view('doctor.dashboard', compact('citasHoy', 'pendientes', 'diasBloqueadosHoy', 'notifications', 'canSharePacientes'));
+            // Cedula validation requirement based on active packages
+            $requiresCedulaValidation = Suscripcion::where('user_id', $user->id)
+                ->where('tipo', 'paquete')
+                ->where('estatus_pago', 'pagado')
+                ->where(function ($q) {
+                    $q->whereNull('fecha_fin')
+                        ->orWhere('fecha_fin', '>=', now());
+                })
+                ->with('paquete')
+                ->get()
+                ->contains(function ($s) {
+                    return optional($s->paquete)->validar_cedula === true;
+                });
+
+            $cedulaStatus = $user->estatus_cedula ?? 'na';
+
+            return view('doctor.dashboard', compact('citasHoy', 'pendientes', 'diasBloqueadosHoy', 'notifications', 'canSharePacientes', 'requiresCedulaValidation', 'cedulaStatus'));
         }
 
         return view('dashboard');

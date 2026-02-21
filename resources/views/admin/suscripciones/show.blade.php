@@ -196,6 +196,9 @@
                             </div>
 
                             <form action="{{ route('admin.users.validar_cedula', $suscripcion->user) }}" method="POST" class="flex gap-4">
+                                <a href="https://cedulaprofesional.sep.gob.mx" target="_blank" class="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-[#0061F5] hover:bg-[#0061F5]/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#0061F5]">
+                                    Buscador de cédula profesional
+                                </a>
                                 @csrf
                                 <button type="submit" name="accion" value="validar" class="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500">
                                     Validar Cédula

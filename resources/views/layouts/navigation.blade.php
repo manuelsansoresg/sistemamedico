@@ -8,7 +8,7 @@
             <span class="text-white font-medium">{{ Auth::user()->name }}</span>
             <form method="POST" action="{{ route('logout') }}">
                 @csrf
-                <button type="submit" class="text-white hover:text-gray-200 transition-colors">
+                <button type="submit" class="text-white hover:text-gray-200 transition-colors cursor-pointer" title="Cerrar sesión">
                     <i class="fas fa-sign-out-alt text-xl"></i>
                 </button>
             </form>

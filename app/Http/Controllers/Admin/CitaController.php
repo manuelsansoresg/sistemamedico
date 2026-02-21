@@ -8,6 +8,7 @@ use App\Models\Clinica;
 use App\Models\Consultorio;
 use App\Models\DiaSinCita;
 use App\Models\Horario;
+use App\Models\Suscripcion;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -41,6 +42,11 @@ class CitaController extends Controller
 
         if ($user->hasRole(['doctor', 'asistente', 'secretaria'])) {
             $ownerId = $user->hasRole('doctor') ? $user->id : $user->created_by;
+
+            if ($this->doctorBlockedByCedula($ownerId)) {
+                return redirect()->route('citas.index')
+                    ->with('error', 'No puedes crear citas porque la cédula profesional del médico aún no ha sido validada.');
+            }
 
             $doctors = User::where('id', $ownerId)->get();
             $pacientes = User::role('paciente')
@@ -77,6 +83,12 @@ class CitaController extends Controller
 
         /** @var \App\Models\User $user */
         $user = Auth::user();
+
+        if ($this->doctorBlockedByCedula((int) $validated['doctor_id'])) {
+            return back()
+                ->withInput()
+                ->withErrors(['doctor_id' => 'No se pueden crear citas para este médico hasta que su cédula profesional sea validada.']);
+        }
 
         if ($user->hasRole(['asistente', 'secretaria'])) {
             if ($validated['doctor_id'] != $user->created_by) {
@@ -392,8 +404,16 @@ class CitaController extends Controller
                 'fecha' => 'required|date',
             ]);
 
-            $doctorId = $request->doctor_id;
+            $doctorId = (int) $request->doctor_id;
             $consultorioId = $request->consultorio_id;
+
+            if ($this->doctorBlockedByCedula($doctorId)) {
+                return response()->json([
+                    'slots' => [],
+                    'message' => 'No hay disponibilidad porque la cédula profesional del médico aún no ha sido validada.',
+                    'debug' => ['blocked_cedula' => true],
+                ]);
+            }
 
             // Security check: if doctor, can only check own schedule?
             // Usually dashboard allows checking slots for anyone if allowed, but let's keep it open or restricted as per logic.
@@ -534,5 +554,37 @@ class CitaController extends Controller
                 'debug' => ['exception' => $e->getTraceAsString()],
             ], 500);
         }
+    }
+
+    /**
+     * Determina si un médico tiene bloqueada la creación de citas
+     * por requerir validación de cédula aún no validada.
+     */
+    private function doctorBlockedByCedula(int $doctorId): bool
+    {
+        $doctor = User::find($doctorId);
+
+        if (! $doctor) {
+            return false;
+        }
+
+        $requiresCedula = Suscripcion::where('user_id', $doctorId)
+            ->where('tipo', 'paquete')
+            ->where('estatus_pago', 'pagado')
+            ->where(function ($q) {
+                $q->whereNull('fecha_fin')
+                    ->orWhere('fecha_fin', '>=', now());
+            })
+            ->with('paquete')
+            ->get()
+            ->contains(function ($s) {
+                return optional($s->paquete)->validar_cedula === true;
+            });
+
+        if (! $requiresCedula) {
+            return false;
+        }
+
+        return $doctor->estatus_cedula !== 'validada';
     }
 }

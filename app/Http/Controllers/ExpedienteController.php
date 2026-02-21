@@ -99,9 +99,33 @@ class ExpedienteController extends Controller
             abort(403);
         }
 
-        $query = \App\Models\Consulta::with(['cita.clinica', 'cita.consultorio', 'doctor'])
-            ->join('citas', 'consultas.cita_id', '=', 'citas.id')
-            ->select('consultas.*')
+        return redirect()->route('dashboard', $request->query());
+    }
+
+    public function patientDownloadBulk(Request $request)
+    {
+        $user = Auth::user();
+        if (! $user->hasRole('paciente')) {
+            abort(403);
+        }
+
+        $request->validate([
+            'selected' => 'required|array',
+            'selected.*' => 'integer',
+        ]);
+
+        return $this->generateZip($request->selected);
+    }
+
+    public function patientDownloadAll(Request $request)
+    {
+        $user = Auth::user();
+        if (! $user->hasRole('paciente')) {
+            abort(403);
+        }
+
+        $query = \App\Models\Consulta::join('citas', 'consultas.cita_id', '=', 'citas.id')
+            ->select('consultas.id')
             ->where('consultas.paciente_id', $user->id);
 
         if ($request->filled('clinica_id')) {
@@ -117,27 +141,13 @@ class ExpedienteController extends Controller
             $query->whereDate('citas.fecha', '<=', $request->fecha_fin);
         }
 
-        $query->orderBy('citas.fecha', 'desc');
-        $expedientes = $query->paginate(15)->withQueryString();
+        $ids = $query->pluck('consultas.id')->toArray();
 
-        // Opciones de filtro a partir de su propio historial
-        $clinicas = \App\Models\Clinica::whereIn('id', function ($q) use ($user) {
-            $q->select('clinica_id')
-                ->from('citas')
-                ->whereIn('id', function ($q2) use ($user) {
-                    $q2->select('cita_id')->from('consultas')->where('paciente_id', $user->id);
-                });
-        })->get();
+        if (empty($ids)) {
+            return back()->with('error', 'No hay expedientes para descargar con los filtros seleccionados.');
+        }
 
-        $consultorios = \App\Models\Consultorio::whereIn('id', function ($q) use ($user) {
-            $q->select('consultorio_id')
-                ->from('citas')
-                ->whereIn('id', function ($q2) use ($user) {
-                    $q2->select('cita_id')->from('consultas')->where('paciente_id', $user->id);
-                });
-        })->get();
-
-        return view('paciente.expedientes.index', compact('expedientes', 'clinicas', 'consultorios'));
+        return $this->generateZip($ids);
     }
 
     /**
@@ -270,16 +280,34 @@ class ExpedienteController extends Controller
 
     private function generateZip($ids)
     {
-        /** @var \App\Models\User $user */
         $user = Auth::user();
 
-        // Permission checks
-        $canDownloadConsultas = $user->can('descargar consultas');
-        $canDownloadEstudios = $user->can('descargar estudios');
-        $canDownloadImages = $user->can('descargar estudios con imagenes');
-        $canDownloadAll = $user->can('descargar expedientes'); // or 'descargar todo'?
+        $isPatient = $user->hasRole('paciente');
 
-        if (! $canDownloadConsultas && ! $canDownloadEstudios && ! $canDownloadAll) {
+        if ($isPatient) {
+            $ownIds = Consulta::whereIn('consultas.id', $ids)
+                ->where('paciente_id', $user->id)
+                ->pluck('consultas.id')
+                ->toArray();
+
+            if (empty($ownIds)) {
+                return back()->with('error', 'No hay expedientes para descargar.');
+            }
+
+            $ids = $ownIds;
+
+            $canDownloadConsultas = true;
+            $canDownloadEstudios = true;
+            $canDownloadImages = true;
+            $canDownloadAll = true;
+        } else {
+            $canDownloadConsultas = $user->can('descargar consultas');
+            $canDownloadEstudios = $user->can('descargar estudios');
+            $canDownloadImages = $user->can('descargar estudios con imagenes');
+            $canDownloadAll = $user->can('descargar expedientes');
+        }
+
+        if (! $isPatient && ! $canDownloadConsultas && ! $canDownloadEstudios && ! $canDownloadAll) {
             return back()->with('error', 'No tienes permisos para descargar expedientes.');
         }
 
@@ -316,6 +344,15 @@ class ExpedienteController extends Controller
                 // 2. Add Estudios
                 if (($canDownloadEstudios || $canDownloadAll) && $consulta->estudios->isNotEmpty()) {
                     foreach ($consulta->estudios as $estudio) {
+                        // 2.a PDF de la orden de estudio
+                        try {
+                            $estudioPdfContent = Pdf::loadView('admin.consultas.estudio_pdf', ['estudio' => $estudio])->output();
+                            $zip->addFromString($folderName.'/estudios/orden-estudio-'.$estudio->id.'.pdf', $estudioPdfContent);
+                        } catch (\Exception $e) {
+                            Log::error("Error generating PDF for estudio {$estudio->id}: ".$e->getMessage());
+                        }
+
+                        // 2.b Archivos adjuntos del estudio
                         if ($estudio->archivos->isNotEmpty()) {
                             foreach ($estudio->archivos as $archivo) {
                                 // Check if image

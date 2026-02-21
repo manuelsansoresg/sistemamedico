@@ -3,6 +3,44 @@
     <div class="py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-6">
 
+            @if(isset($requiresCedulaValidation) && $requiresCedulaValidation)
+                @if($cedulaStatus === 'pendiente')
+                        <div class="bg-yellow-50 border-l-4 border-yellow-400 p-4 shadow-sm rounded-md">
+                            <div class="flex">
+                                <div class="flex-shrink-0">
+                                    <i class="fas fa-hourglass-half text-yellow-400 text-xl"></i>
+                                </div>
+                                <div class="ml-3">
+                                    <p class="text-sm text-yellow-800 font-semibold">Validación de cédula en proceso.</p>
+                                </div>
+                            </div>
+                        </div>
+                    @elseif($cedulaStatus === 'rechazada')
+                        <div class="bg-red-50 border-l-4 border-red-500 p-4 shadow-sm rounded-md">
+                            <div class="flex">
+                                <div class="flex-shrink-0">
+                                    <i class="fas fa-times-circle text-red-500 text-xl"></i>
+                                </div>
+                                <div class="ml-3">
+                                    <p class="text-sm text-red-800 font-semibold">Validación de cédula rechazada. Revisa tu información.</p>
+                                </div>
+                            </div>
+                        </div>
+                    @elseif($cedulaStatus !== 'validada')
+                        <div class="bg-red-50 border-l-4 border-red-500 p-4 shadow-sm rounded-md">
+                            <div class="flex">
+                                <div class="flex-shrink-0">
+                                    <i class="fas fa-id-card text-red-500 text-xl"></i>
+                                </div>
+                                <div class="ml-3">
+                                    <p class="text-sm text-red-800 font-semibold">Se requiere validación de cédula para tu plan. Actualiza tu información.</p>
+                                </div>
+                            </div>
+                        </div>
+                    @endif
+                @endif
+            @endif
+
             <!-- Subscription Alerts -->
             @if(isset($notifications) && $notifications->count() > 0)
                 <div class="space-y-4">

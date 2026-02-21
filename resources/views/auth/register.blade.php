@@ -1,7 +1,7 @@
 <x-guest-layout>
     <x-slot name="maxWidth">sm:max-w-5xl</x-slot>
     <x-slot name="header">
-        <div class="bg-gradient-to-r from-[#002F53] to-[#004E8B] p-8 text-center">
+        <div class="bg-[#0061F5] p-8 text-center">
             <div class="flex justify-center mb-4">
                 <i class="fas fa-user-md text-white text-4xl"></i>
             </div>
@@ -18,7 +18,7 @@
                 <div class="absolute left-0 top-1/2 transform -translate-y-1/2 w-full h-1 bg-gray-200 -z-10"></div>
                 <template x-for="i in 6">
                     <div class="relative z-10 flex flex-col items-center">
-                        <div :class="{'bg-[#003E6F] text-white': step >= i, 'bg-gray-200 text-gray-500': step < i}" 
+                        <div :class="{'bg-[#0061F5] text-white': step >= i, 'bg-gray-200 text-gray-500': step < i}"
                              class="w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm transition-colors duration-300">
                             <span x-text="i"></span>
                         </div>
@@ -62,9 +62,9 @@
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <!-- Doctor -->
                     <div @click="tipo_registro = 'doctor'" 
-                         :class="{'border-[#004E8B] bg-[#F2F8FD] ring-2 ring-[#004E8B]': tipo_registro === 'doctor', 'border-gray-200 hover:border-[#004E8B]/50': tipo_registro !== 'doctor'}"
+                         :class="{'border-[#0061F5] bg-[#F2F8FD] ring-2 ring-[#0061F5]': tipo_registro === 'doctor', 'border-gray-200 hover:border-[#0061F5]/50': tipo_registro !== 'doctor'}"
                          class="cursor-pointer border rounded-xl p-6 flex flex-col items-center text-center transition-all duration-200">
-                        <div class="w-16 h-16 bg-[#E1EFF9] rounded-full flex items-center justify-center mb-4 text-[#004E8B]">
+                        <div class="w-16 h-16 bg-[#E1EFF9] rounded-full flex items-center justify-center mb-4 text-[#0061F5]">
                             <i class="fas fa-user-md text-3xl"></i>
                         </div>
                         <h3 class="text-lg font-bold mb-2">Doctor</h3>
@@ -73,9 +73,9 @@
 
                     <!-- Otro Profesional -->
                     <div @click="tipo_registro = 'otro'" 
-                         :class="{'border-[#004E8B] bg-[#F2F8FD] ring-2 ring-[#004E8B]': tipo_registro === 'otro', 'border-gray-200 hover:border-[#004E8B]/50': tipo_registro !== 'otro'}"
+                         :class="{'border-[#0061F5] bg-[#F2F8FD] ring-2 ring-[#0061F5]': tipo_registro === 'otro', 'border-gray-200 hover:border-[#0061F5]/50': tipo_registro !== 'otro'}"
                          class="cursor-pointer border rounded-xl p-6 flex flex-col items-center text-center transition-all duration-200">
-                        <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mb-4 text-green-600">
+                        <div class="w-16 h-16 bg-[#27ADFA]/10 rounded-full flex items-center justify-center mb-4 text-[#27ADFA]">
                             <i class="fas fa-user-nurse text-3xl"></i>
                         </div>
                         <h3 class="text-lg font-bold mb-2">Otro Profesional</h3>
@@ -90,7 +90,7 @@
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <!-- Clinica -->
                     <div @click="tipo_establecimiento = 'clinica'" 
-                         :class="{'border-[#004E8B] bg-[#F2F8FD] ring-2 ring-[#004E8B]': tipo_establecimiento === 'clinica', 'border-gray-200 hover:border-[#004E8B]/50': tipo_establecimiento !== 'clinica'}"
+                         :class="{'border-[#0061F5] bg-[#F2F8FD] ring-2 ring-[#0061F5]': tipo_establecimiento === 'clinica', 'border-gray-200 hover:border-[#0061F5]/50': tipo_establecimiento !== 'clinica'}"
                          class="cursor-pointer border rounded-xl p-6 flex flex-col items-center text-center transition-all duration-200">
                         <div class="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mb-4 text-purple-600">
                             <i class="fas fa-hospital text-3xl"></i>
@@ -101,7 +101,7 @@
 
                     <!-- Consultorio -->
                     <div @click="tipo_establecimiento = 'consultorio'" 
-                         :class="{'border-[#004E8B] bg-[#F2F8FD] ring-2 ring-[#004E8B]': tipo_establecimiento === 'consultorio', 'border-gray-200 hover:border-[#004E8B]/50': tipo_establecimiento !== 'consultorio'}"
+                         :class="{'border-[#0061F5] bg-[#F2F8FD] ring-2 ring-[#0061F5]': tipo_establecimiento === 'consultorio', 'border-gray-200 hover:border-[#0061F5]/50': tipo_establecimiento !== 'consultorio'}"
                          class="cursor-pointer border rounded-xl p-6 flex flex-col items-center text-center transition-all duration-200">
                         <div class="w-16 h-16 bg-orange-100 rounded-full flex items-center justify-center mb-4 text-orange-600">
                             <i class="fas fa-clinic-medical text-3xl"></i>
@@ -118,21 +118,21 @@
                 
                 <div x-show="filteredPaquetes.length === 0" class="text-center py-10 text-gray-500">
                     <p>No hay paquetes disponibles para la combinación seleccionada.</p>
-                    <button type="button" @click="step = 1" class="text-[#004E8B] hover:underline mt-2">Volver al inicio</button>
+                    <button type="button" @click="step = 1" class="text-[#0061F5] hover:underline mt-2">Volver al inicio</button>
                 </div>
 
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                     <template x-for="paquete in filteredPaquetes" :key="paquete.id">
                         <div @click="selectPaquete(paquete)" 
-                             :class="{'border-[#004E8B] bg-[#F2F8FD] ring-2 ring-[#004E8B] shadow-lg': paquete_id === paquete.id, 'border-gray-200 hover:border-[#004E8B]/50 shadow-sm': paquete_id !== paquete.id}"
+                             :class="{'border-[#0061F5] bg-[#F2F8FD] ring-2 ring-[#0061F5] shadow-lg': paquete_id === paquete.id, 'border-gray-200 hover:border-[#0061F5]/50 shadow-sm': paquete_id !== paquete.id}"
                              class="cursor-pointer border rounded-xl p-6 flex flex-col relative transition-all duration-200 bg-white">
                             
-                            <div x-show="paquete_id === paquete.id" class="absolute top-0 right-0 -mt-2 -mr-2 bg-[#004E8B] text-white rounded-full p-1 shadow">
+                            <div x-show="paquete_id === paquete.id" class="absolute top-0 right-0 -mt-2 -mr-2 bg-[#0061F5] text-white rounded-full p-1 shadow">
                                 <i class="fas fa-check"></i>
                             </div>
 
                             <h3 class="text-xl font-bold mb-2 text-gray-900" x-text="paquete.nombre"></h3>
-                            <div class="text-3xl font-bold text-[#004E8B] mb-4">
+                            <div class="text-3xl font-bold text-[#0061F5] mb-4">
                                 $<span x-text="parseFloat(paquete.precio).toFixed(2)"></span>
                                 <span class="text-sm text-gray-500 font-normal">/anual</span>
                             </div>
@@ -142,11 +142,11 @@
                             <ul class="text-sm text-gray-600 space-y-2 mb-6 flex-grow">
                                 <!-- Assuming description can be split or just shown as text -->
                                 <li class="flex items-start">
-                                    <i class="fas fa-check text-green-500 mt-1 mr-2"></i>
+                                    <i class="fas fa-check text-[#27ADFA] mt-1 mr-2"></i>
                                     <span x-text="paquete.tipo === 'clinica' ? 'Funciones para Clínica' : 'Funciones para Consultorio'"></span>
                                 </li>
                                 <li class="flex items-start">
-                                    <i class="fas fa-check text-green-500 mt-1 mr-2"></i>
+                                    <i class="fas fa-check text-[#27ADFA] mt-1 mr-2"></i>
                                     <span x-text="paquete.validar_cedula ? 'Requiere Cédula Profesional' : 'No requiere Cédula'"></span>
                                 </li>
                             </ul>
@@ -166,12 +166,12 @@
                 <!-- Resumen Paquete Selection -->
                 <div class="bg-[#F2F8FD] border border-[#E1EFF9] rounded-lg p-4 mb-6 flex justify-between items-center" x-show="selected_paquete">
                     <div>
-                        <p class="text-sm text-[#002F53] font-medium">Paquete Seleccionado:</p>
-                        <p class="font-bold text-[#001F37]" x-text="selected_paquete ? selected_paquete.nombre : ''"></p>
+                    <p class="text-sm text-[#0061F5] font-medium">Paquete Seleccionado:</p>
+                    <p class="font-bold text-[#1E293B]" x-text="selected_paquete ? selected_paquete.nombre : ''"></p>
                     </div>
                     <div class="text-right">
-                        <p class="text-sm text-[#002F53] font-medium">Costo:</p>
-                        <p class="font-bold text-[#001F37]">$<span x-text="selected_paquete ? parseFloat(selected_paquete.precio).toFixed(2) : '0.00'"></span></p>
+                        <p class="text-sm text-[#0061F5] font-medium">Costo:</p>
+                        <p class="font-bold text-[#1E293B]">$<span x-text="selected_paquete ? parseFloat(selected_paquete.precio).toFixed(2) : '0.00'"></span></p>
                     </div>
                 </div>
 
@@ -232,7 +232,7 @@
                         <x-input-label for="especialidad_id">
                             {{ __('Especialidad') }} <span class="text-red-500">*</span>
                         </x-input-label>
-                        <select id="especialidad_id" name="especialidad_id" class="block mt-1 w-full border-gray-300 focus:border-[#004E8B] focus:ring-[#004E8B] rounded-md shadow-sm">
+                        <select id="especialidad_id" name="especialidad_id" class="block mt-1 w-full border-gray-300 focus:border-[#0061F5] focus:ring-[#0061F5] rounded-md shadow-sm">
                             <option value="">Seleccione una especialidad</option>
                             @foreach($especialidades as $especialidad)
                                 <option value="{{ $especialidad->id }}" {{ old('especialidad_id') == $especialidad->id ? 'selected' : '' }}>{{ $especialidad->nombre }}</option>
@@ -286,7 +286,7 @@
 
                 <div class="flex items-center justify-center">
                     <label class="inline-flex items-center cursor-pointer">
-                        <input type="checkbox" name="terms_accepted" x-model="terms_accepted" class="rounded border-gray-300 text-[#004E8B] shadow-sm focus:ring-[#004E8B] h-5 w-5">
+                        <input type="checkbox" name="terms_accepted" x-model="terms_accepted" class="rounded border-gray-300 text-[#0061F5] shadow-sm focus:ring-[#0061F5] h-5 w-5">
                         <span class="ml-3 text-gray-700 font-medium">He leído y acepto los términos y condiciones <span class="text-red-500">*</span></span>
                     </label>
                 </div>
@@ -316,7 +316,7 @@
                             </div>
                             <div class="sm:col-span-2 border-t border-gray-100 pt-4 mt-2">
                                 <dt class="text-base font-medium text-gray-900">Total a Pagar</dt>
-                                <dd class="mt-1 text-3xl font-bold text-[#004E8B]">
+                                <dd class="mt-1 text-3xl font-bold text-[#0061F5]">
                                     $<span x-text="selected_paquete ? parseFloat(selected_paquete.precio).toFixed(2) : '0.00'"></span>
                                     <span class="text-sm text-gray-500 font-normal">/anual</span>
                                 </dd>
@@ -330,9 +330,9 @@
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
                     <!-- Tarjeta (CLIP) -->
                     <div @click="payment_method = 'tarjeta'" 
-                         :class="{'border-[#004E8B] bg-[#F2F8FD] ring-2 ring-[#004E8B]': payment_method === 'tarjeta', 'border-gray-200 hover:border-[#004E8B]/50': payment_method !== 'tarjeta'}"
+                         :class="{'border-[#0061F5] bg-[#F2F8FD] ring-2 ring-[#0061F5]': payment_method === 'tarjeta', 'border-gray-200 hover:border-[#0061F5]/50': payment_method !== 'tarjeta'}"
                          class="cursor-pointer border rounded-xl p-6 flex flex-col items-center text-center transition-all duration-200">
-                        <div class="text-[#004E8B] mb-3">
+                        <div class="text-[#0061F5] mb-3">
                             <i class="fas fa-credit-card text-4xl"></i>
                         </div>
                         <h3 class="text-lg font-bold">Pago con Tarjeta</h3>
@@ -341,9 +341,9 @@
 
                     <!-- Transferencia -->
                     <div @click="payment_method = 'transferencia'" 
-                         :class="{'border-[#004E8B] bg-[#F2F8FD] ring-2 ring-[#004E8B]': payment_method === 'transferencia', 'border-gray-200 hover:border-[#004E8B]/50': payment_method !== 'transferencia'}"
+                         :class="{'border-[#0061F5] bg-[#F2F8FD] ring-2 ring-[#0061F5]': payment_method === 'transferencia', 'border-gray-200 hover:border-[#0061F5]/50': payment_method !== 'transferencia'}"
                          class="cursor-pointer border rounded-xl p-6 flex flex-col items-center text-center transition-all duration-200">
-                        <div class="text-green-600 mb-3">
+                        <div class="text-[#27ADFA] mb-3">
                             <i class="fas fa-university text-4xl"></i>
                         </div>
                         <h3 class="text-lg font-bold">Transferencia Bancaria</h3>
@@ -382,7 +382,7 @@
                 <button type="button" 
                         x-show="step > 1" 
                         @click="prevStep()" 
-                        class="px-6 py-2 border border-gray-300 rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#004E8B]">
+                        class="px-6 py-2 border border-gray-300 rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#0061F5]">
                     Atrás
                 </button>
                 <div x-show="step === 1" class="flex-grow"></div> <!-- Spacer for first step -->
@@ -390,7 +390,7 @@
                 <button type="button" 
                         x-show="step < 6" 
                         @click="nextStep()" 
-                        class="px-6 py-2 border border-transparent rounded-md shadow-sm text-white bg-[#004E8B] hover:bg-[#003E6F] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#004E8B]">
+                        class="px-6 py-2 border border-transparent rounded-md shadow-sm text-white bg-[#0061F5] hover:bg-[#0051CC] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#0061F5]">
                     Siguiente
                 </button>
 
@@ -398,7 +398,7 @@
                         x-show="step === 6" 
                         :disabled="!payment_method"
                         :class="{'opacity-50 cursor-not-allowed': !payment_method}"
-                        class="px-6 py-2 border border-transparent rounded-md shadow-sm text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500">
+                        class="px-6 py-2 border border-transparent rounded-md shadow-sm text-white bg-[#27ADFA] hover:bg-[#0061F5] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#0061F5]">
                     Finalizar Registro
                 </button>
             </div>
