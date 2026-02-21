@@ -196,7 +196,7 @@
                 editable: true,
                 droppable: false,
                 height: 'auto',
-                slotMinTime: '07:00:00',
+                slotMinTime: '06:00:00',
                 slotMaxTime: '22:00:00',
                 events: function (info, successCallback, failureCallback) {
                     const params = new URLSearchParams();

@@ -88,8 +88,8 @@ class RecursoReservaController extends Controller
             return [
                 'id' => $reserva->id,
                 'title' => $reserva->titulo ?: $reserva->recurso->nombre,
-                'start' => $reserva->inicio->toIso8601String(),
-                'end' => $reserva->fin->toIso8601String(),
+                'start' => $reserva->inicio->format('Y-m-d\TH:i:s'),
+                'end' => $reserva->fin->format('Y-m-d\TH:i:s'),
                 'extendedProps' => [
                     'recurso_id' => $reserva->recurso_id,
                     'user_id' => $reserva->user_id,
