@@ -142,10 +142,12 @@
                             <div class="text-sm text-gray-600 mb-2 font-bold text-[#1E293B]">Límites incluidos</div>
                             <ul class="text-sm text-gray-600 space-y-2 mb-6 flex-grow">
                                 <template x-for="cat in (paquete.catalogos || [])" :key="cat.id">
-                                    <li class="flex items-start">
-                                        <i class="fas fa-check text-[#27ADFA] mt-1 mr-2"></i>
-                                        <span x-text="`Hasta ${(cat.pivot && cat.pivot.cantidad_maxima) ? cat.pivot.cantidad_maxima : 0} ${cat.nombre}`"></span>
-                                    </li>
+                                    <template x-if="cat.pivot && cat.pivot.cantidad_maxima > 0">
+                                        <li class="flex items-start">
+                                            <i class="fas fa-check text-[#27ADFA] mt-1 mr-2"></i>
+                                            <span x-text="'Hasta ' + cat.pivot.cantidad_maxima + ' ' + cat.nombre"></span>
+                                        </li>
+                                    </template>
                                 </template>
                                 <li class="flex items-start">
                                     <i class="fas fa-info-circle text-[#0061F5] mt-1 mr-2"></i>

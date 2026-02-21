@@ -175,7 +175,7 @@ class RegisteredUserController extends Controller
                     $response = Http::withHeaders([
                         'Accept' => 'application/json',
                         'Content-Type' => 'application/json',
-                        'Authorization' => 'Bearer '.$apiKey,
+                        'Authorization' => $apiKey,
                         'x-api-key' => $apiKey,
                     ])->post($baseUrl.'/paymentrequest', [
                         'amount' => (float) $paquete->precio,
