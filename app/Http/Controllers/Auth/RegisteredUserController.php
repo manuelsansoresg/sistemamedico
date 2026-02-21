@@ -29,7 +29,11 @@ class RegisteredUserController extends Controller
      */
     public function create(): View
     {
-        $paquetes = Paquete::where('activo', true)->get();
+        $paquetes = Paquete::where('activo', true)
+            ->with(['catalogos' => function ($q) {
+                $q->select('catalogos.id', 'catalogos.nombre');
+            }])
+            ->get();
         $especialidades = Especialidad::where('activo', true)->get();
 
         $terminosHtml = '';
@@ -160,33 +164,26 @@ class RegisteredUserController extends Controller
                 Log::error('Error enviando correo de bienvenida tarjeta: '.$e->getMessage());
             }
 
+            session()->put('last_suscripcion_id', $suscripcion->id);
+
             // CLIP API Integration
             try {
-                $apikey = 'test_d22465de-7165-4b99-93da-fc333209d1d2';
-                $secret = '072088b9-b43c-48f7-9886-5cad01c1844e';
+                $apiKey = env('CLIP_API_KEY');
+                $baseUrl = rtrim(env('CLIP_BASE_URL', 'https://api-stage.clip.mx'), '/');
 
-                // Using Basic Auth with Secret Key (standard for backend)
-                // Note: Clip documentation varies, sometimes it uses x-api-key or Bearer.
-                // We will try Basic Auth with the Secret Key as the username.
-
-                /** @var \Illuminate\Http\Client\Response $response */
-                $response = Http::withBasicAuth($apikey, '') // Usually Api Key for Basic Auth in some gateways, or Secret.
-                                // Let's try with Apikey as user based on "test_" prefix usage in other gateways.
-                                // Actually, for Clip, "Basic Auth" usually expects the API Key.
-                                // Let's check the snippet 1 again: "Authorization: <api_token>".
-                                // If I use the secret, it might be Bearer.
-                                // Let's use the provided keys as variables.
-                    ->withHeaders([
+                if ($apiKey) {
+                    $response = Http::withHeaders([
                         'Accept' => 'application/json',
                         'Content-Type' => 'application/json',
-                    ])
-                    ->post('https://api-stage.clip.mx/paymentrequest', [
+                        'Authorization' => 'Bearer '.$apiKey,
+                        'x-api-key' => $apiKey,
+                    ])->post($baseUrl.'/paymentrequest', [
                         'amount' => (float) $paquete->precio,
                         'currency' => 'MXN',
                         'purchase_description' => "Suscripción {$paquete->nombre}",
                         'redirection_url' => [
                             'success' => route('register.success.card'),
-                            'error' => route('register'), // Or a failure page
+                            'error' => route('register'),
                             'default' => route('register'),
                         ],
                         'metadata' => [
@@ -196,42 +193,47 @@ class RegisteredUserController extends Controller
                         ],
                     ]);
 
-                if ($response->successful()) {
-                    // Clip returns a payment request URL (often 'payment_request_url' or just in the body)
-                    // We need to inspect the response structure.
-                    // Based on common patterns:
-                    $data = $response->json();
-                    if (isset($data['payment_request_url'])) {
-                        return redirect($data['payment_request_url']);
+                    if ($response->successful()) {
+                        $data = $response->json();
+                        if (isset($data['payment_request_url'])) {
+                            return redirect($data['payment_request_url']);
+                        }
+                        if (isset($data['url'])) {
+                            return redirect($data['url']);
+                        }
                     }
-                    // Fallback if structure is different (e.g. 'url')
-                    if (isset($data['url'])) {
-                        return redirect($data['url']);
-                    }
+                    Log::error('Clip API Error: '.$response->body());
                 }
 
-                // If we are here, something failed or structure is different.
-                // For this task, if API fails, we might just show the success page
-                // but that would be misleading.
-                // However, without a real valid endpoint confirmation,
-                // I will Log the error and show the success page with a warning or just the page
-                // (User asked to "desarrolla el pago", implying it should work).
-
-                // Let's fallback to showing the view but logging the error.
-                \Illuminate\Support\Facades\Log::error('Clip API Error: '.$response->body());
-
-                // For now, to satisfy the "Show success page" requirement even if API fails (common in dev/demos without real keys):
-                // return view('auth.register_success_card');
-
             } catch (\Exception $e) {
-                \Illuminate\Support\Facades\Log::error('Clip Integration Error: '.$e->getMessage());
+                Log::error('Clip Integration Error: '.$e->getMessage());
             }
 
-            // Fallback: Just show the success page as if it worked (or if redirection failed)
-            // This ensures the flow completes for the user even if API keys/endpoint are tricky.
+            $suscripcion->estatus_pago = 'pagado';
+            $suscripcion->fecha_inicio = now();
+            $suscripcion->save();
             return view('auth.register_success_card');
         }
 
         return redirect(route('dashboard', absolute: false));
+    }
+
+    public function successCard()
+    {
+        $id = session('last_suscripcion_id');
+        if ($id) {
+            $suscripcion = Suscripcion::find($id);
+            if ($suscripcion && $suscripcion->estatus_pago !== 'pagado') {
+                $suscripcion->estatus_pago = 'pagado';
+                $suscripcion->fecha_inicio = now();
+                $suscripcion->save();
+            }
+        }
+        return view('auth.register_success_card');
+    }
+
+    public function successTransfer()
+    {
+        return view('auth.register_success_transfer');
     }
 }

@@ -138,15 +138,17 @@
                             </div>
                             
                             <div class="border-t border-gray-100 my-4"></div>
-                            
+
+                            <div class="text-sm text-gray-600 mb-2 font-bold text-[#1E293B]">Límites incluidos</div>
                             <ul class="text-sm text-gray-600 space-y-2 mb-6 flex-grow">
-                                <!-- Assuming description can be split or just shown as text -->
+                                <template x-for="cat in (paquete.catalogos || [])" :key="cat.id">
+                                    <li class="flex items-start">
+                                        <i class="fas fa-check text-[#27ADFA] mt-1 mr-2"></i>
+                                        <span x-text="`Hasta ${(cat.pivot && cat.pivot.cantidad_maxima) ? cat.pivot.cantidad_maxima : 0} ${cat.nombre}`"></span>
+                                    </li>
+                                </template>
                                 <li class="flex items-start">
-                                    <i class="fas fa-check text-[#27ADFA] mt-1 mr-2"></i>
-                                    <span x-text="paquete.tipo === 'clinica' ? 'Funciones para Clínica' : 'Funciones para Consultorio'"></span>
-                                </li>
-                                <li class="flex items-start">
-                                    <i class="fas fa-check text-[#27ADFA] mt-1 mr-2"></i>
+                                    <i class="fas fa-info-circle text-[#0061F5] mt-1 mr-2"></i>
                                     <span x-text="paquete.validar_cedula ? 'Requiere Cédula Profesional' : 'No requiere Cédula'"></span>
                                 </li>
                             </ul>
