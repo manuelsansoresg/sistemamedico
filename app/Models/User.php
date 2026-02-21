@@ -95,6 +95,16 @@ class User extends Authenticatable
         return $this->belongsToMany(User::class, 'doctor_patient', 'patient_id', 'doctor_id')->withTimestamps();
     }
 
+    public function recursos()
+    {
+        return $this->hasMany(\App\Models\Recurso::class);
+    }
+
+    public function reservasRecursos()
+    {
+        return $this->hasMany(\App\Models\RecursoReserva::class);
+    }
+
     public function creator()
     {
         return $this->belongsTo(User::class, 'created_by');

@@ -102,6 +102,21 @@ Route::middleware(['auth', 'role:root|doctor|asistente|secretaria', 'check.docto
 
     // Notifications
     Route::get('admin/notifications/{id}/read', [\App\Http\Controllers\DashboardController::class, 'markNotificationRead'])->name('admin.notifications.read');
+
+    // Recursos compartidos
+    Route::get('admin/recursos', [\App\Http\Controllers\RecursoController::class, 'index'])->name('recursos.index');
+    Route::post('admin/recursos', [\App\Http\Controllers\RecursoController::class, 'store'])->name('recursos.store');
+    Route::put('admin/recursos/{recurso}', [\App\Http\Controllers\RecursoController::class, 'update'])->name('recursos.update');
+    Route::delete('admin/recursos/{recurso}', [\App\Http\Controllers\RecursoController::class, 'destroy'])->name('recursos.destroy');
+
+    Route::get('admin/recursos/permisos', [\App\Http\Controllers\RecursoController::class, 'permisos'])->name('recursos.permisos');
+    Route::post('admin/recursos/permisos', [\App\Http\Controllers\RecursoController::class, 'actualizarPermisos'])->name('recursos.permisos.actualizar');
+
+    Route::get('admin/recursos/agenda', [\App\Http\Controllers\RecursoReservaController::class, 'calendario'])->name('recursos.agenda');
+    Route::get('admin/recursos/eventos', [\App\Http\Controllers\RecursoReservaController::class, 'eventos'])->name('recursos.eventos');
+    Route::post('admin/recursos/eventos', [\App\Http\Controllers\RecursoReservaController::class, 'store'])->name('recursos.eventos.store');
+    Route::put('admin/recursos/eventos/{reserva}', [\App\Http\Controllers\RecursoReservaController::class, 'update'])->name('recursos.eventos.update');
+    Route::delete('admin/recursos/eventos/{reserva}', [\App\Http\Controllers\RecursoReservaController::class, 'destroy'])->name('recursos.eventos.destroy');
 });
 
 Route::middleware(['auth', 'role:doctor'])->group(function () {
