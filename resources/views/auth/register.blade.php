@@ -10,7 +10,7 @@
         </div>
     </x-slot>
 
-    <div x-data="registerWizard()" x-init="init()" class="p-4">
+    <div x-data="registerWizard()" x-init="init()" class="p-4 doctor-register">
         
         <!-- Progress Indicator -->
         <div class="mb-8">
@@ -55,6 +55,7 @@
             <input type="hidden" name="tipo_establecimiento" :value="tipo_establecimiento">
             <input type="hidden" name="paquete_id" :value="paquete_id">
             <input type="hidden" name="payment_method" :value="payment_method">
+            <input type="hidden" name="card_token_id" x-ref="cardTokenInput">
 
             <!-- Step 1: Tipo de Registro -->
             <div x-show="step === 1" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 transform translate-x-4" x-transition:enter-end="opacity-100 transform translate-x-0">
@@ -92,7 +93,7 @@
                     <div @click="tipo_establecimiento = 'clinica'" 
                          :class="{'border-[#0061F5] bg-[#F2F8FD] ring-2 ring-[#0061F5]': tipo_establecimiento === 'clinica', 'border-gray-200 hover:border-[#0061F5]/50': tipo_establecimiento !== 'clinica'}"
                          class="cursor-pointer border rounded-xl p-6 flex flex-col items-center text-center transition-all duration-200">
-                        <div class="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mb-4 text-purple-600">
+                        <div class="w-16 h-16 rounded-full flex items-center justify-center mb-4 bg-[#E1EFF9] text-[#0061F5]">
                             <i class="fas fa-hospital text-3xl"></i>
                         </div>
                         <h3 class="text-lg font-bold mb-2">Clínica</h3>
@@ -103,7 +104,7 @@
                     <div @click="tipo_establecimiento = 'consultorio'" 
                          :class="{'border-[#0061F5] bg-[#F2F8FD] ring-2 ring-[#0061F5]': tipo_establecimiento === 'consultorio', 'border-gray-200 hover:border-[#0061F5]/50': tipo_establecimiento !== 'consultorio'}"
                          class="cursor-pointer border rounded-xl p-6 flex flex-col items-center text-center transition-all duration-200">
-                        <div class="w-16 h-16 bg-orange-100 rounded-full flex items-center justify-center mb-4 text-orange-600">
+                        <div class="w-16 h-16 rounded-full flex items-center justify-center mb-4 bg-[#E1EFF9] text-[#0061F5]">
                             <i class="fas fa-clinic-medical text-3xl"></i>
                         </div>
                         <h3 class="text-lg font-bold mb-2">Consultorio</h3>
@@ -145,7 +146,7 @@
                                     <template x-if="cat.pivot && cat.pivot.cantidad_maxima > 0">
                                         <li class="flex items-start">
                                             <i class="fas fa-check text-[#27ADFA] mt-1 mr-2"></i>
-                                            <span x-text="'Hasta ' + cat.pivot.cantidad_maxima + ' ' + cat.nombre"></span>
+                                            <span x-text="cat.nombre + ' (máximo ' + cat.pivot.cantidad_maxima + ')'"></span>
                                         </li>
                                     </template>
                                 </template>
@@ -179,56 +180,82 @@
                     </div>
                 </div>
 
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <!-- Name -->
-                    <div>
-                        <x-input-label for="name">
-                            {{ __('Nombre') }} <span class="text-red-500">*</span>
-                        </x-input-label>
-                        <x-text-input id="name" class="block mt-1 w-full" type="text" name="name" :value="old('name')" required />
-                        <x-input-error :messages="$errors->get('name')" class="mt-2" />
-                    </div>
-
-                    <!-- Apellido Paterno -->
-                    <div>
-                        <x-input-label for="apellido_paterno">
-                            {{ __('Apellido Paterno') }} <span class="text-red-500">*</span>
-                        </x-input-label>
-                        <x-text-input id="apellido_paterno" class="block mt-1 w-full" type="text" name="apellido_paterno" :value="old('apellido_paterno')" required />
-                        <x-input-error :messages="$errors->get('apellido_paterno')" class="mt-2" />
-                    </div>
-
-                    <!-- Apellido Materno -->
-                    <div>
-                        <x-input-label for="apellido_materno" :value="__('Apellido Materno')" />
-                        <x-text-input id="apellido_materno" class="block mt-1 w-full" type="text" name="apellido_materno" :value="old('apellido_materno')" />
-                        <x-input-error :messages="$errors->get('apellido_materno')" class="mt-2" />
-                    </div>
-
-                    <!-- Email -->
-                    <div>
-                        <x-input-label for="email">
-                            {{ __('Email') }} <span class="text-red-500">*</span>
-                        </x-input-label>
-                        <x-text-input id="email" class="block mt-1 w-full" type="email" name="email" :value="old('email')" required />
-                        <x-input-error :messages="$errors->get('email')" class="mt-2" />
-                    </div>
-
-                    <!-- Telefono -->
-                    <div>
-                        <x-input-label for="telefono" :value="__('Teléfono')" />
-                        <x-text-input id="telefono" class="block mt-1 w-full" type="text" name="telefono" :value="old('telefono')" />
-                        <x-input-error :messages="$errors->get('telefono')" class="mt-2" />
+                <div class="mb-8">
+                    <h3 class="text-lg font-medium leading-6 text-gray-900 border-b pb-2 mb-4">Información Personal</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <div>
+                            <label for="name" class="block text-sm font-bold text-gray-700">Nombre</label>
+                            <input
+                                type="text"
+                                name="name"
+                                id="name"
+                                value="{{ old('name') }}"
+                                class="mt-1 block w-full rounded-md border border-gray-300 bg-white px-3 py-2.5 text-sm text-gray-900 shadow-sm focus:border-[#0061F5] focus:ring-[#0061F5]"
+                                required
+                            >
+                            <x-input-error :messages="$errors->get('name')" class="mt-2" />
+                        </div>
+                        <div>
+                            <label for="apellido_paterno" class="block text-sm font-bold text-gray-700">Apellido Paterno</label>
+                            <input
+                                type="text"
+                                name="apellido_paterno"
+                                id="apellido_paterno"
+                                value="{{ old('apellido_paterno') }}"
+                                class="mt-1 block w-full rounded-md border border-gray-300 bg-white px-3 py-2.5 text-sm text-gray-900 shadow-sm focus:border-[#0061F5] focus:ring-[#0061F5]"
+                                required
+                            >
+                            <x-input-error :messages="$errors->get('apellido_paterno')" class="mt-2" />
+                        </div>
+                        <div>
+                            <label for="apellido_materno" class="block text-sm font-bold text-gray-700">Apellido Materno</label>
+                            <input
+                                type="text"
+                                name="apellido_materno"
+                                id="apellido_materno"
+                                value="{{ old('apellido_materno') }}"
+                                class="mt-1 block w-full rounded-md border border-gray-300 bg-white px-3 py-2.5 text-sm text-gray-900 shadow-sm focus:border-[#0061F5] focus:ring-[#0061F5]"
+                            >
+                            <x-input-error :messages="$errors->get('apellido_materno')" class="mt-2" />
+                        </div>
+                        <div>
+                            <label for="telefono" class="block text-sm font-bold text-gray-700">Teléfono</label>
+                            <input
+                                type="text"
+                                name="telefono"
+                                id="telefono"
+                                value="{{ old('telefono') }}"
+                                class="mt-1 block w-full rounded-md border border-gray-300 bg-white px-3 py-2.5 text-sm text-gray-900 shadow-sm focus:border-[#0061F5] focus:ring-[#0061F5]"
+                            >
+                            <x-input-error :messages="$errors->get('telefono')" class="mt-2" />
+                        </div>
+                        <div>
+                            <label for="email" class="block text-sm font-bold text-gray-700">Correo Electrónico</label>
+                            <input
+                                type="email"
+                                name="email"
+                                id="email"
+                                value="{{ old('email') }}"
+                                class="mt-1 block w-full rounded-md border border-gray-300 bg-white px-3 py-2.5 text-sm text-gray-900 shadow-sm focus:border-[#0061F5] focus:ring-[#0061F5]"
+                                required
+                            >
+                            <x-input-error :messages="$errors->get('email')" class="mt-2" />
+                        </div>
                     </div>
                 </div>
                 
                 <!-- Doctor Specific Fields -->
-                <div x-show="tipo_registro === 'doctor'" class="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4 border-t border-gray-200 pt-4">
+                <div x-show="tipo_registro === 'doctor'" class="mt-6 grid grid-cols-1 md:grid-cols-2 gap-6 border-t border-gray-200 pt-6">
                     <div>
                         <x-input-label for="cedula_profesional">
                              {{ __('Cédula Profesional') }} <span class="text-red-500">*</span>
                         </x-input-label>
-                        <x-text-input id="cedula_profesional" class="block mt-1 w-full" type="text" name="cedula_profesional" :value="old('cedula_profesional')" />
+                        <x-text-input
+                            id="cedula_profesional"
+                            type="text"
+                            name="cedula_profesional"
+                            :value="old('cedula_profesional')"
+                        />
                         <x-input-error :messages="$errors->get('cedula_profesional')" class="mt-2" />
                     </div>
 
@@ -236,7 +263,11 @@
                         <x-input-label for="especialidad_id">
                             {{ __('Especialidad') }} <span class="text-red-500">*</span>
                         </x-input-label>
-                        <select id="especialidad_id" name="especialidad_id" class="block mt-1 w-full border-gray-300 focus:border-[#0061F5] focus:ring-[#0061F5] rounded-md shadow-sm">
+                        <select
+                            id="especialidad_id"
+                            name="especialidad_id"
+                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-[#0061F5] focus:ring-[#0061F5]"
+                        >
                             <option value="">Seleccione una especialidad</option>
                             @foreach($especialidades as $especialidad)
                                 <option value="{{ $especialidad->id }}" {{ old('especialidad_id') == $especialidad->id ? 'selected' : '' }}>{{ $especialidad->nombre }}</option>
@@ -246,13 +277,19 @@
                     </div>
                 </div>
 
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4 border-t border-gray-200 pt-4">
+                <div class="grid grid-cols-1 gap-6 mt-6 border-t border-gray-200 pt-6">
                     <!-- Password -->
                     <div>
                         <x-input-label for="password">
                             {{ __('Contraseña') }} <span class="text-red-500">*</span>
                         </x-input-label>
-                        <x-text-input id="password" class="block mt-1 w-full" type="password" name="password" required autocomplete="new-password" />
+                        <x-text-input
+                            id="password"
+                            type="password"
+                            name="password"
+                            required
+                            autocomplete="new-password"
+                        />
                         <x-input-error :messages="$errors->get('password')" class="mt-2" />
                     </div>
 
@@ -261,7 +298,13 @@
                         <x-input-label for="password_confirmation">
                             {{ __('Confirmar Contraseña') }} <span class="text-red-500">*</span>
                         </x-input-label>
-                        <x-text-input id="password_confirmation" class="block mt-1 w-full" type="password" name="password_confirmation" required autocomplete="new-password" />
+                        <x-text-input
+                            id="password_confirmation"
+                            type="password"
+                            name="password_confirmation"
+                            required
+                            autocomplete="new-password"
+                        />
                         <x-input-error :messages="$errors->get('password_confirmation')" class="mt-2" />
                     </div>
                 </div>
@@ -331,7 +374,7 @@
 
                 <!-- Método de Pago -->
                 <h3 class="text-lg font-medium text-gray-900 mb-4">Seleccione Método de Pago <span class="text-red-500">*</span></h3>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
                     <!-- Tarjeta (CLIP) -->
                     <div @click="payment_method = 'tarjeta'" 
                          :class="{'border-[#0061F5] bg-[#F2F8FD] ring-2 ring-[#0061F5]': payment_method === 'tarjeta', 'border-gray-200 hover:border-[#0061F5]/50': payment_method !== 'tarjeta'}"
@@ -353,6 +396,14 @@
                         <h3 class="text-lg font-bold">Transferencia Bancaria</h3>
                         <p class="text-xs text-gray-500 mt-1">SPEI / Depósito Bancario</p>
                     </div>
+                </div>
+
+                <!-- Formulario de Tarjeta (Clip) -->
+                <div x-show="payment_method === 'tarjeta'" x-transition class="bg-white border border-gray-200 rounded-lg p-6 mb-6">
+                    <h4 class="text-lg font-medium text-gray-900 mb-3">Datos de la tarjeta</h4>
+                    <p class="text-sm text-gray-500 mb-4">Procesado de forma segura por Clip. No almacenamos sus datos.</p>
+                    <div id="clip-checkout" class="border rounded-md p-4"></div>
+                    <p class="text-xs text-gray-400 mt-2">Aceptamos tarjetas de crédito y débito.</p>
                 </div>
 
                 <!-- Detalles Transferencia -->
@@ -383,31 +434,37 @@
 
             <!-- Navigation Buttons -->
             <div class="mt-8 flex justify-between items-center border-t border-gray-100 pt-6">
-                <button type="button" 
-                        x-show="step > 1" 
-                        @click="prevStep()" 
-                        class="px-6 py-2 border border-gray-300 rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#0061F5]">
-                    Atrás
-                </button>
-                <div x-show="step === 1" class="flex-grow"></div> <!-- Spacer for first step -->
+                <div class="flex items-center space-x-3">
+                    <a href="#"
+                       x-show="step > 1"
+                       @click.prevent="prevStep()"
+                       class="inline-flex items-center px-7 py-3.5 bg-white text-[#0061F5] font-bold rounded-lg border border-[#0061F5] hover:bg-gray-50 transition-colors">
+                        Atrás
+                    </a>
+                </div>
 
-                <button type="button" 
-                        x-show="step < 6" 
-                        @click="nextStep()" 
-                        class="px-6 py-2 border border-transparent rounded-md shadow-sm text-white bg-[#0061F5] hover:bg-[#0051CC] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#0061F5]">
-                    Siguiente
-                </button>
+                <div class="flex items-center space-x-3 ml-auto">
+                    <a href="#"
+                       x-show="step < 6"
+                       @click.prevent="nextStep()"
+                       class="inline-flex items-center px-7 py-3.5 bg-[#0061F5] text-white font-bold rounded-lg hover:bg-[#0051CC] transition-colors">
+                        Siguiente
+                    </a>
 
-                <button type="submit" 
-                        x-show="step === 6" 
-                        :disabled="!payment_method"
-                        :class="{'opacity-50 cursor-not-allowed': !payment_method}"
-                        class="px-6 py-2 border border-transparent rounded-md shadow-sm text-white bg-[#27ADFA] hover:bg-[#0061F5] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#0061F5]">
-                    Finalizar Registro
-                </button>
+                    <a href="#"
+                       x-show="step === 6"
+                       :class="{'opacity-50 cursor-not-allowed': !payment_method}"
+                       @click.prevent="if (payment_method) { finishRegistration() }"
+                       class="inline-flex items-center px-7 py-3.5 bg-[#27ADFA] text-white font-bold rounded-lg hover:bg-[#0061F5] transition-colors">
+                        Finalizar Registro
+                    </a>
+                </div>
             </div>
         </form>
     </div>
+
+    <!-- SDK de Clip -->
+    <script src="https://sdk.clip.mx/js/clip-sdk.js"></script>
 
     <script>
         function registerWizard() {
@@ -433,10 +490,17 @@
                 terms_accepted: {{ old('terms_accepted') ? 'true' : 'false' }},
                 payment_method: '{{ old('payment_method', '') }}',
                 paquetes: @json($paquetes),
+                clipApiKey: @json($clipApiKey ?? null),
+                clipCard: null,
+                clipInitialized: false,
                 
                 init() {
                     if (this.paquete_id) {
                         this.selected_paquete = this.paquetes.find(p => p.id == this.paquete_id);
+                    }
+                    // Si ya está en paso 6 y tarjeta, inicializa Clip
+                    if (this.step === 6 && this.payment_method === 'tarjeta') {
+                        this.initClip();
                     }
                 },
                 
@@ -524,6 +588,10 @@
                     
                     this.step++;
                     window.scrollTo(0, 0);
+                    // Al entrar al paso 6 con tarjeta, inicializa Clip
+                    if (this.step === 6 && this.payment_method === 'tarjeta') {
+                        this.initClip();
+                    }
                 },
                 
                 prevStep() {
@@ -536,6 +604,50 @@
                 selectPaquete(paquete) {
                     this.paquete_id = paquete.id;
                     this.selected_paquete = paquete;
+                },
+
+                initClip() {
+                    if (this.clipInitialized) return;
+                    if (!this.clipApiKey || typeof ClipSDK === 'undefined') {
+                        console.warn('Clip SDK o API Key no disponible');
+                        return;
+                    }
+                    try {
+                        const clip = new ClipSDK(this.clipApiKey);
+                        this.clipCard = clip.element.create("Card", {
+                            locale: "es",
+                            theme: "light",
+                        });
+                        this.clipCard.mount("clip-checkout");
+                        this.clipInitialized = true;
+                    } catch (e) {
+                        console.error('Error inicializando Clip SDK', e);
+                    }
+                },
+
+                async finishRegistration() {
+                    if (this.payment_method === 'tarjeta') {
+                        if (!this.clipInitialized || !this.clipCard) {
+                            this.initClip();
+                        }
+                        if (!this.clipCard) {
+                            alert('No fue posible inicializar el formulario de tarjeta. Intente de nuevo.');
+                            return;
+                        }
+                        try {
+                            const cardToken = await this.clipCard.cardToken();
+                            if (!cardToken || !cardToken.id) {
+                                alert('No se pudo tokenizar la tarjeta. Intente nuevamente.');
+                                return;
+                            }
+                            this.$refs.cardTokenInput.value = cardToken.id;
+                        } catch (error) {
+                            // Manejo básico de errores del SDK
+                            alert(error && error.message ? error.message : 'Error al tokenizar la tarjeta');
+                            return;
+                        }
+                    }
+                    this.$refs.registerForm.submit();
                 }
             }
         }

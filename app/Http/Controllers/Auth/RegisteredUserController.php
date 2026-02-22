@@ -63,7 +63,8 @@ class RegisteredUserController extends Controller
             $terminosHtml = '<p>No hay términos y condiciones disponibles en este momento.</p>';
         }
 
-        return view('auth.register', compact('paquetes', 'especialidades', 'terminosHtml'));
+        $clipApiKey = env('CLIP_API_KEY');
+        return view('auth.register', compact('paquetes', 'especialidades', 'terminosHtml', 'clipApiKey'));
     }
 
     /**
@@ -166,47 +167,56 @@ class RegisteredUserController extends Controller
 
             session()->put('last_suscripcion_id', $suscripcion->id);
 
-            // CLIP API Integration
+            // CLIP Transparent Checkout payments
             try {
                 $apiKey = env('CLIP_API_KEY');
                 $baseUrl = rtrim(env('CLIP_BASE_URL', 'https://api-stage.clip.mx'), '/');
+                $cardToken = $request->input('card_token_id');
 
-                if ($apiKey) {
+                if ($apiKey && $cardToken) {
                     $response = Http::withHeaders([
                         'Accept' => 'application/json',
                         'Content-Type' => 'application/json',
-                        'Authorization' => $apiKey,
-                        'x-api-key' => $apiKey,
-                    ])->post($baseUrl.'/paymentrequest', [
+                        'Authorization' => 'Bearer '.$apiKey,
+                    ])->post($baseUrl.'/payments', [
                         'amount' => (float) $paquete->precio,
                         'currency' => 'MXN',
-                        'purchase_description' => "Suscripción {$paquete->nombre}",
-                        'redirection_url' => [
-                            'success' => route('register.success.card'),
-                            'error' => route('register'),
-                            'default' => route('register'),
+                        'description' => "Suscripción {$paquete->nombre}",
+                        'capture_method' => 'automatic',
+                        'payment_method' => [
+                            'token' => $cardToken,
                         ],
                         'metadata' => [
                             'user_id' => $user->id,
                             'suscripcion_id' => $suscripcion->id,
-                            'email' => $user->email,
                         ],
+                        'customer' => [
+                            'email' => $user->email,
+                        ]
                     ]);
 
                     if ($response->successful()) {
                         $data = $response->json();
-                        if (isset($data['payment_request_url'])) {
-                            return redirect($data['payment_request_url']);
+                        $status = $data['status'] ?? null;
+                        if (($status === 'pending') && isset($data['pending_action']['redirect_url'])) {
+                            session()->put('last_suscripcion_id', $suscripcion->id);
+                            return redirect()->away($data['pending_action']['redirect_url']);
+                        } 
+                        if (in_array($status, ['approved', 'authorized'])) {
+                            $suscripcion->estatus_pago = 'pagado';
+                            $suscripcion->fecha_inicio = now();
+                            $suscripcion->save();
+                            return view('auth.register_success_card');
                         }
-                        if (isset($data['url'])) {
-                            return redirect($data['url']);
-                        }
+                        Log::warning('Clip Payments unexpected response', ['data' => $data]);
                     }
                     Log::error('Clip API Error: '.$response->body());
+                } else {
+                    Log::warning('Missing API key or card token for Clip Transparent Checkout');
                 }
 
             } catch (\Exception $e) {
-                Log::error('Clip Integration Error: '.$e->getMessage());
+                Log::error('Clip Transparent Checkout Error: '.$e->getMessage());
             }
 
             $suscripcion->estatus_pago = 'pagado';

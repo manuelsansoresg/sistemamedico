@@ -1,3 +1,18 @@
 @import "tailwindcss";
 @source "../views/**/*.blade.php";
 @plugin "@tailwindcss/forms";
+
+.doctor-register input[type="text"],
+.doctor-register input[type="email"],
+.doctor-register input[type="password"],
+.doctor-register select {
+    border-width: 1px !important;
+    border-style: solid !important;
+    border-color: #D1D5DB !important; /* gris similar al login */
+    background-color: #ffffff !important;
+    padding: 0.75rem 0.875rem !important; /* más altos y cómodos */
+    min-height: 2.75rem !important;
+    font-size: 0.875rem !important;
+    line-height: 1.25rem !important;
+    box-shadow: 0 1px 2px 0 rgba(15, 23, 42, 0.06) !important;
+}
