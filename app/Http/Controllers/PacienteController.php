@@ -6,6 +6,7 @@ use App\Models\User;
 use App\Services\SubscriptionService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rules;
 
@@ -305,6 +306,25 @@ class PacienteController extends Controller
 
             $doctor = User::role('doctor')->findOrFail($request->doctor_id);
 
+            $suscripcion = \App\Models\Suscripcion::where('user_id', $doctor->id)
+                ->where('tipo', 'individual')
+                ->where('estatus_pago', 'pagado')
+                ->where(function ($q) {
+                    $q->whereNull('fecha_fin')->orWhere('fecha_fin', '>=', now());
+                })
+                ->whereHas('catalogo', function ($q) {
+                    $q->whereRaw("LOWER(nombre) like '%paciente%'");
+                })
+                ->get()
+                ->first(function ($sub) {
+                    $usados = DB::table('doctor_patient')->where('suscripcion_id', $sub->id)->count();
+                    return $usados < ($sub->cantidad ?? 0);
+                });
+
+            if (! $suscripcion) {
+                return back()->with('error', 'No hay suscripciones de Paciente disponibles para asignar.');
+            }
+
             $paciente->perfil_compartido = true;
 
             if (! $paciente->created_by) {
@@ -314,7 +334,9 @@ class PacienteController extends Controller
             $paciente->save();
 
             if (! $paciente->doctors()->where('users.id', $doctor->id)->exists()) {
-                $paciente->doctors()->attach($doctor->id);
+                $paciente->doctors()->attach($doctor->id, ['suscripcion_id' => $suscripcion->id]);
+            } else {
+                $paciente->doctors()->updateExistingPivot($doctor->id, ['suscripcion_id' => $suscripcion->id]);
             }
 
             return back()->with('success', 'Perfil compartido correctamente.');
@@ -328,6 +350,25 @@ class PacienteController extends Controller
                 return back()->with('error', 'Necesita una suscripción de Paciente activa para compartir perfiles.');
             }
 
+            $suscripcion = \App\Models\Suscripcion::where('user_id', $owner->id)
+                ->where('tipo', 'individual')
+                ->where('estatus_pago', 'pagado')
+                ->where(function ($q) {
+                    $q->whereNull('fecha_fin')->orWhere('fecha_fin', '>=', now());
+                })
+                ->whereHas('catalogo', function ($q) {
+                    $q->whereRaw("LOWER(nombre) like '%paciente%'");
+                })
+                ->get()
+                ->first(function ($sub) {
+                    $usados = DB::table('doctor_patient')->where('suscripcion_id', $sub->id)->count();
+                    return $usados < ($sub->cantidad ?? 0);
+                });
+
+            if (! $suscripcion) {
+                return back()->with('error', 'No hay suscripciones de Paciente disponibles para asignar.');
+            }
+
             $paciente->perfil_compartido = true;
 
             if (! $paciente->created_by) {
@@ -337,7 +378,9 @@ class PacienteController extends Controller
             $paciente->save();
 
             if (! $paciente->doctors()->where('users.id', $owner->id)->exists()) {
-                $paciente->doctors()->attach($owner->id);
+                $paciente->doctors()->attach($owner->id, ['suscripcion_id' => $suscripcion->id]);
+            } else {
+                $paciente->doctors()->updateExistingPivot($owner->id, ['suscripcion_id' => $suscripcion->id]);
             }
 
             return back()->with('success', 'Perfil compartido correctamente.');
@@ -381,6 +424,11 @@ class PacienteController extends Controller
             $paciente->perfil_compartido = false;
             $paciente->save();
 
+            $doctor = $paciente->doctors()->first();
+            if ($doctor) {
+                $paciente->doctors()->updateExistingPivot($doctor->id, ['suscripcion_id' => null]);
+            }
+
             return back()->with('success', 'Perfil compartido eliminado correctamente.');
         }
 
@@ -390,6 +438,25 @@ class PacienteController extends Controller
 
         $doctor = User::role('doctor')->findOrFail($request->doctor_id);
 
+        $suscripcion = \App\Models\Suscripcion::where('user_id', $doctor->id)
+            ->where('tipo', 'individual')
+            ->where('estatus_pago', 'pagado')
+            ->where(function ($q) {
+                $q->whereNull('fecha_fin')->orWhere('fecha_fin', '>=', now());
+            })
+            ->whereHas('catalogo', function ($q) {
+                $q->whereRaw("LOWER(nombre) like '%paciente%'");
+            })
+            ->get()
+            ->first(function ($sub) {
+                $usados = DB::table('doctor_patient')->where('suscripcion_id', $sub->id)->count();
+                return $usados < ($sub->cantidad ?? 0);
+            });
+
+        if (! $suscripcion) {
+            return back()->with('error', 'No hay suscripciones de Paciente disponibles para asignar.');
+        }
+
         $paciente->perfil_compartido = true;
         if (! $paciente->created_by) {
             $paciente->created_by = $doctor->id;
@@ -397,7 +464,9 @@ class PacienteController extends Controller
         $paciente->save();
 
         if (! $paciente->doctors()->where('users.id', $doctor->id)->exists()) {
-            $paciente->doctors()->attach($doctor->id);
+            $paciente->doctors()->attach($doctor->id, ['suscripcion_id' => $suscripcion->id]);
+        } else {
+            $paciente->doctors()->updateExistingPivot($doctor->id, ['suscripcion_id' => $suscripcion->id]);
         }
 
         return back()->with('success', 'Perfil compartido correctamente.');

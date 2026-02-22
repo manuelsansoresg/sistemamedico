@@ -113,13 +113,13 @@ class RegisteredUserController extends Controller
 
             try {
                 $apiKey = env('CLIP_API_KEY');
-                $baseUrl = rtrim(env('CLIP_BASE_URL', 'https://api-stage.clip.mx'), '/');
+                $baseUrl = rtrim(env('CLIP_BASE_URL', 'https://api.payclip.com'), '/');
 
                 if ($apiKey && $cardToken) {
                     $response = Http::withHeaders([
                         'Accept' => 'application/json',
                         'Content-Type' => 'application/json',
-                        'Authorization' => 'Bearer '.$apiKey,
+                        'Authorization' => 'Basic '.base64_encode($apiKey.':'),
                     ])->post($baseUrl.'/payments', [
                         'amount' => (float) $paquete->precio,
                         'currency' => 'MXN',
@@ -130,6 +130,7 @@ class RegisteredUserController extends Controller
                         ],
                         'customer' => [
                             'email' => $request->email,
+                            'phone' => $request->telefono,
                         ],
                     ]);
 

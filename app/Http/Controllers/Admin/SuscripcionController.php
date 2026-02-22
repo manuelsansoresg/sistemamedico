@@ -216,7 +216,7 @@ class SuscripcionController extends Controller
             if ($request->estatus_pago === 'pagado' && ! $suscripcion->fecha_inicio) {
                 $suscripcion->update([
                     'fecha_inicio' => now(),
-                    'fecha_fin' => $suscripcion->tipo === 'paquete' ? now()->addMonth() : null,
+                    'fecha_fin' => $suscripcion->tipo === 'paquete' ? now()->addMonth() : now()->addYear(),
                 ]);
             }
 

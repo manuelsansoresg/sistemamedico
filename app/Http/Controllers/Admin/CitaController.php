@@ -10,12 +10,19 @@ use App\Models\DiaSinCita;
 use App\Models\Horario;
 use App\Models\Suscripcion;
 use App\Models\User;
+use App\Services\SubscriptionService;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
 class CitaController extends Controller
 {
+    protected SubscriptionService $subscriptionService;
+
+    public function __construct(SubscriptionService $subscriptionService)
+    {
+        $this->subscriptionService = $subscriptionService;
+    }
     /**
      * Display a listing of the resource.
      */
@@ -48,6 +55,9 @@ class CitaController extends Controller
                     ->with('error', 'No puedes crear citas porque la cédula profesional del médico aún no ha sido validada.');
             }
 
+            $owner = User::findOrFail($ownerId);
+            $limits = $this->subscriptionService->calculateLimits($owner);
+
             $doctors = User::where('id', $ownerId)->get();
             $pacientes = User::role('paciente')
                 ->where(function ($q) use ($ownerId) {
@@ -57,8 +67,37 @@ class CitaController extends Controller
                         ->orWhere('created_by', $ownerId);
                 })->get();
 
-            $clinicas = Clinica::where('created_by', $ownerId)->where('activo', true)->get();
-            $consultorios = Consultorio::where('created_by', $ownerId)->where('activo', true)->get();
+            $clinicasLimit = $limits['clinicas'] ?? 0;
+            $consultoriosLimit = $limits['consultorios'] ?? 0;
+
+            $clinicasQuery = Clinica::where('created_by', $ownerId)
+                ->where('activo', true)
+                ->where(function ($q) {
+                    $q->whereNull('origen_suscripcion_id')
+                        ->orWhereHas('origenSuscripcion', function ($q2) {
+                            $q2->where('estatus_pago', 'pagado')
+                                ->where(function ($q3) {
+                                    $q3->whereNull('fecha_fin')
+                                        ->orWhere('fecha_fin', '>=', now());
+                                });
+                        });
+                });
+
+            $consultoriosQuery = Consultorio::where('created_by', $ownerId)
+                ->where('activo', true)
+                ->where(function ($q) {
+                    $q->whereNull('origen_suscripcion_id')
+                        ->orWhereHas('origenSuscripcion', function ($q2) {
+                            $q2->where('estatus_pago', 'pagado')
+                                ->where(function ($q3) {
+                                    $q3->whereNull('fecha_fin')
+                                        ->orWhere('fecha_fin', '>=', now());
+                                });
+                        });
+                });
+
+            $clinicas = $clinicasLimit > 0 ? $clinicasQuery->get() : collect();
+            $consultorios = $consultoriosLimit > 0 ? $consultoriosQuery->get() : collect();
         } else {
             $doctors = User::role('doctor')->get();
             $pacientes = User::role('paciente')->get();
@@ -94,6 +133,38 @@ class CitaController extends Controller
             if ($validated['doctor_id'] != $user->created_by) {
                 abort(403, 'No puedes crear citas para otro doctor.');
             }
+        }
+
+        $consultorio = Consultorio::where('id', $validated['consultorio_id'])
+            ->where(function ($q) {
+                $q->whereNull('origen_suscripcion_id')
+                    ->orWhereHas('origenSuscripcion', function ($q2) {
+                        $q2->where('estatus_pago', 'pagado')
+                            ->where(function ($q3) {
+                                $q3->whereNull('fecha_fin')
+                                    ->orWhere('fecha_fin', '>=', now());
+                            });
+                    });
+            })
+            ->first();
+
+        $clinica = Clinica::where('id', $validated['clinica_id'])
+            ->where(function ($q) {
+                $q->whereNull('origen_suscripcion_id')
+                    ->orWhereHas('origenSuscripcion', function ($q2) {
+                        $q2->where('estatus_pago', 'pagado')
+                            ->where(function ($q3) {
+                                $q3->whereNull('fecha_fin')
+                                    ->orWhere('fecha_fin', '>=', now());
+                            });
+                    });
+            })
+            ->first();
+
+        if (! $consultorio || ! $clinica) {
+            return back()
+                ->withInput()
+                ->withErrors(['consultorio_id' => 'El consultorio o la clínica seleccionados no están disponibles por suscripción.']);
         }
 
         // Get schedule to determine duration
@@ -190,6 +261,9 @@ class CitaController extends Controller
                 abort(403);
             }
 
+            $owner = User::findOrFail($ownerId);
+            $limits = $this->subscriptionService->calculateLimits($owner);
+
             $doctors = User::where('id', $ownerId)->get();
             $pacientes = User::role('paciente')
                 ->where(function ($q) use ($ownerId) {
@@ -199,8 +273,37 @@ class CitaController extends Controller
                         ->orWhere('created_by', $ownerId);
                 })->get();
 
-            $clinicas = Clinica::where('created_by', $ownerId)->where('activo', true)->get();
-            $consultorios = Consultorio::where('created_by', $ownerId)->where('activo', true)->get();
+            $clinicasLimit = $limits['clinicas'] ?? 0;
+            $consultoriosLimit = $limits['consultorios'] ?? 0;
+
+            $clinicasQuery = Clinica::where('created_by', $ownerId)
+                ->where('activo', true)
+                ->where(function ($q) {
+                    $q->whereNull('origen_suscripcion_id')
+                        ->orWhereHas('origenSuscripcion', function ($q2) {
+                            $q2->where('estatus_pago', 'pagado')
+                                ->where(function ($q3) {
+                                    $q3->whereNull('fecha_fin')
+                                        ->orWhere('fecha_fin', '>=', now());
+                                });
+                        });
+                });
+
+            $consultoriosQuery = Consultorio::where('created_by', $ownerId)
+                ->where('activo', true)
+                ->where(function ($q) {
+                    $q->whereNull('origen_suscripcion_id')
+                        ->orWhereHas('origenSuscripcion', function ($q2) {
+                            $q2->where('estatus_pago', 'pagado')
+                                ->where(function ($q3) {
+                                    $q3->whereNull('fecha_fin')
+                                        ->orWhere('fecha_fin', '>=', now());
+                                });
+                        });
+                });
+
+            $clinicas = $clinicasLimit > 0 ? $clinicasQuery->get() : collect();
+            $consultorios = $consultoriosLimit > 0 ? $consultoriosQuery->get() : collect();
         } else {
             $doctors = User::role('doctor')->get();
             $pacientes = User::role('paciente')->get();
@@ -238,6 +341,38 @@ class CitaController extends Controller
             if ($validated['doctor_id'] != $user->created_by) {
                 abort(403, 'No puedes asignar citas a otro doctor.');
             }
+        }
+
+        $consultorio = Consultorio::where('id', $validated['consultorio_id'])
+            ->where(function ($q) {
+                $q->whereNull('origen_suscripcion_id')
+                    ->orWhereHas('origenSuscripcion', function ($q2) {
+                        $q2->where('estatus_pago', 'pagado')
+                            ->where(function ($q3) {
+                                $q3->whereNull('fecha_fin')
+                                    ->orWhere('fecha_fin', '>=', now());
+                            });
+                    });
+            })
+            ->first();
+
+        $clinica = Clinica::where('id', $validated['clinica_id'])
+            ->where(function ($q) {
+                $q->whereNull('origen_suscripcion_id')
+                    ->orWhereHas('origenSuscripcion', function ($q2) {
+                        $q2->where('estatus_pago', 'pagado')
+                            ->where(function ($q3) {
+                                $q3->whereNull('fecha_fin')
+                                    ->orWhere('fecha_fin', '>=', now());
+                            });
+                    });
+            })
+            ->first();
+
+        if (! $consultorio || ! $clinica) {
+            return back()
+                ->withInput()
+                ->withErrors(['consultorio_id' => 'El consultorio o la clínica seleccionados no están disponibles por suscripción.']);
         }
 
         // If time/date/doctor changed, we need to validate availability again
@@ -364,22 +499,109 @@ class CitaController extends Controller
     {
         $doctor = User::findOrFail($doctorId);
 
-        // If Auth user is doctor, only return created by Auth user (strictly ownership)
+        $limits = $this->subscriptionService->calculateLimits($doctor);
+        $clinicasLimit = $limits['clinicas'] ?? 0;
+        $consultoriosLimit = $limits['consultorios'] ?? 0;
+
         /** @var \App\Models\User $user */
         $user = Auth::user();
 
         if ($user->hasRole('doctor')) {
-            $allConsultorios = Consultorio::where('created_by', $user->id)->where('activo', true)->get();
-            $allClinicas = Clinica::where('created_by', $user->id)->where('activo', true)->get();
+            $allConsultorios = Consultorio::where('created_by', $user->id)
+                ->where('activo', true)
+                ->where(function ($q) {
+                    $q->whereNull('origen_suscripcion_id')
+                        ->orWhereHas('origenSuscripcion', function ($q2) {
+                            $q2->where('estatus_pago', 'pagado')
+                                ->where(function ($q3) {
+                                    $q3->whereNull('fecha_fin')
+                                        ->orWhere('fecha_fin', '>=', now());
+                                });
+                        });
+                })
+                ->get();
+
+            $allClinicas = Clinica::where('created_by', $user->id)
+                ->where('activo', true)
+                ->where(function ($q) {
+                    $q->whereNull('origen_suscripcion_id')
+                        ->orWhereHas('origenSuscripcion', function ($q2) {
+                            $q2->where('estatus_pago', 'pagado')
+                                ->where(function ($q3) {
+                                    $q3->whereNull('fecha_fin')
+                                        ->orWhere('fecha_fin', '>=', now());
+                                });
+                        });
+                })
+                ->get();
         } else {
-            // Root sees everything related to the doctor
-            $assignedConsultorios = $doctor->consultorios()->where('activo', true)->get();
-            $createdConsultorios = Consultorio::where('created_by', $doctorId)->where('activo', true)->get();
+            $assignedConsultorios = $doctor->consultorios()
+                ->where('activo', true)
+                ->where(function ($q) {
+                    $q->whereNull('origen_suscripcion_id')
+                        ->orWhereHas('origenSuscripcion', function ($q2) {
+                            $q2->where('estatus_pago', 'pagado')
+                                ->where(function ($q3) {
+                                    $q3->whereNull('fecha_fin')
+                                        ->orWhere('fecha_fin', '>=', now());
+                                });
+                        });
+                })
+                ->get();
+
+            $createdConsultorios = Consultorio::where('created_by', $doctorId)
+                ->where('activo', true)
+                ->where(function ($q) {
+                    $q->whereNull('origen_suscripcion_id')
+                        ->orWhereHas('origenSuscripcion', function ($q2) {
+                            $q2->where('estatus_pago', 'pagado')
+                                ->where(function ($q3) {
+                                    $q3->whereNull('fecha_fin')
+                                        ->orWhere('fecha_fin', '>=', now());
+                                });
+                        });
+                })
+                ->get();
+
             $allConsultorios = $assignedConsultorios->merge($createdConsultorios)->unique('id')->values();
 
-            $assignedClinicas = $doctor->clinicas()->where('activo', true)->get();
-            $createdClinicas = Clinica::where('created_by', $doctorId)->where('activo', true)->get();
+            $assignedClinicas = $doctor->clinicas()
+                ->where('activo', true)
+                ->where(function ($q) {
+                    $q->whereNull('origen_suscripcion_id')
+                        ->orWhereHas('origenSuscripcion', function ($q2) {
+                            $q2->where('estatus_pago', 'pagado')
+                                ->where(function ($q3) {
+                                    $q3->whereNull('fecha_fin')
+                                        ->orWhere('fecha_fin', '>=', now());
+                                });
+                        });
+                })
+                ->get();
+
+            $createdClinicas = Clinica::where('created_by', $doctorId)
+                ->where('activo', true)
+                ->where(function ($q) {
+                    $q->whereNull('origen_suscripcion_id')
+                        ->orWhereHas('origenSuscripcion', function ($q2) {
+                            $q2->where('estatus_pago', 'pagado')
+                                ->where(function ($q3) {
+                                    $q3->whereNull('fecha_fin')
+                                        ->orWhere('fecha_fin', '>=', now());
+                                });
+                        });
+                })
+                ->get();
+
             $allClinicas = $assignedClinicas->merge($createdClinicas)->unique('id')->values();
+        }
+
+        if ($clinicasLimit <= 0) {
+            $allClinicas = collect();
+        }
+
+        if ($consultoriosLimit <= 0) {
+            $allConsultorios = collect();
         }
 
         return response()->json([

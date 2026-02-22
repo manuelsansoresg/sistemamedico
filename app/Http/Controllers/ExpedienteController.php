@@ -9,6 +9,7 @@ use App\Models\User;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
@@ -109,6 +110,10 @@ class ExpedienteController extends Controller
             abort(403);
         }
 
+        if (! $this->patientHasActiveSubscription($user)) {
+            return back()->with('error', 'Tu suscripción de paciente ha vencido. Solicita a tu médico la renovación para descargar tu expediente.');
+        }
+
         $request->validate([
             'selected' => 'required|array',
             'selected.*' => 'integer',
@@ -122,6 +127,10 @@ class ExpedienteController extends Controller
         $user = Auth::user();
         if (! $user->hasRole('paciente')) {
             abort(403);
+        }
+
+        if (! $this->patientHasActiveSubscription($user)) {
+            return back()->with('error', 'Tu suscripción de paciente ha vencido. Solicita a tu médico la renovación para descargar tu expediente.');
         }
 
         $query = \App\Models\Consulta::join('citas', 'consultas.cita_id', '=', 'citas.id')
@@ -285,6 +294,10 @@ class ExpedienteController extends Controller
         $isPatient = $user->hasRole('paciente');
 
         if ($isPatient) {
+            if (! $this->patientHasActiveSubscription($user)) {
+                return back()->with('error', 'Tu suscripción de paciente ha vencido. Solicita a tu médico la renovación para descargar tu expediente.');
+            }
+
             $ownIds = Consulta::whereIn('consultas.id', $ids)
                 ->where('paciente_id', $user->id)
                 ->pluck('consultas.id')
@@ -385,5 +398,17 @@ class ExpedienteController extends Controller
         }
 
         return response()->download($zipPath)->deleteFileAfterSend(true);
+    }
+
+    private function patientHasActiveSubscription(User $patient): bool
+    {
+        return DB::table('doctor_patient as dp')
+            ->join('suscripciones as s', 's.id', '=', 'dp.suscripcion_id')
+            ->where('dp.patient_id', $patient->id)
+            ->where('s.estatus_pago', 'pagado')
+            ->where(function ($q) {
+                $q->whereNull('s.fecha_fin')->orWhere('s.fecha_fin', '>=', now());
+            })
+            ->exists();
     }
 }

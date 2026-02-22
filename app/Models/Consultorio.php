@@ -14,6 +14,8 @@ class Consultorio extends Model
         'telefono',
         'activo',
         'created_by',
+        'origen_suscripcion_id',
+        'origen_tipo',
     ];
 
     public function creator()
@@ -29,5 +31,10 @@ class Consultorio extends Model
     public function users()
     {
         return $this->belongsToMany(User::class, 'consultorio_user');
+    }
+
+    public function origenSuscripcion()
+    {
+        return $this->belongsTo(Suscripcion::class, 'origen_suscripcion_id');
     }
 }

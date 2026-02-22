@@ -104,11 +104,32 @@
                                             </td>
                                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
                                                 @if($sub->tipo == 'individual')
-                                                    @if($sub->cantidad > 1)
-                                                        Cantidad: {{ $sub->cantidad }}
-                                                    @else
-                                                        1 unidad
-                                                    @endif
+                                                    @php
+                                                        $isPaciente = optional($sub->catalogo) && str_contains(strtolower($sub->catalogo->nombre), 'paciente');
+                                                        $asignados = $isPaciente ? $sub->pacientes()->select('users.id','users.name','users.apellido_paterno','users.apellido_materno')->get() : collect();
+                                                        $usados = $asignados->count();
+                                                        $capacidad = $sub->cantidad ?? 0;
+                                                        $restantes = max(0, $capacidad - $usados);
+                                                    @endphp
+                                                    <div class="space-y-1">
+                                                        <div>
+                                                            Cantidad adquirida: {{ $sub->cantidad ?? 0 }}
+                                                        </div>
+                                                        @if($isPaciente)
+                                                            <div class="text-xs text-gray-600">
+                                                                Asignados: {{ $usados }} / {{ $capacidad }} @if($restantes>0)<span class="ml-1 text-green-600">(Restantes: {{ $restantes }})</span>@endif
+                                                            </div>
+                                                            @if($asignados->isNotEmpty())
+                                                                <div class="mt-1 text-xs text-gray-700">
+                                                                    @foreach($asignados as $p)
+                                                                        <span class="inline-flex items-center px-2 py-0.5 rounded bg-gray-100 mr-1 mb-1">
+                                                                            {{ $p->name }} {{ $p->apellido_paterno }} {{ $p->apellido_materno }}
+                                                                        </span>
+                                                                    @endforeach
+                                                                </div>
+                                                            @endif
+                                                        @endif
+                                                    </div>
                                                 @elseif($sub->tipo == 'paquete' && $sub->paquete)
                                                     <div class="space-y-1">
                                                         @foreach($sub->paquete->catalogos as $cat)

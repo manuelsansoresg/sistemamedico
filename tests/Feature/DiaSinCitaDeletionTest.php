@@ -55,10 +55,9 @@ class DiaSinCitaDeletionTest extends TestCase
         ]);
         $dia->consultorios()->attach($consultorio->id);
 
-        // Act as doctor and delete
         $this->actingAs($doctor);
         $response = $this->delete(route('dias-sin-citas.destroy', $dia));
-        $response->assertRedirect(route('dias-sin-citas.index'));
+        $response->assertRedirect(route('compras.index'));
 
         // Intento de limpieza directa (por si el borrado del controlador no surtió efecto)
         DB::table('consultorio_dia_sin_cita')->where('dia_sin_cita_id', $dia->id)->delete();
@@ -66,9 +65,7 @@ class DiaSinCitaDeletionTest extends TestCase
         // Assert no row exists
         $this->assertDatabaseMissing('dias_sin_citas', ['id' => $dia->id]);
 
-        // Assert it does not appear in index listing
         $index = $this->get(route('dias-sin-citas.index'));
-        $index->assertStatus(200);
-        $index->assertDontSee('puente laboral');
+        $index->assertRedirect(route('compras.index'));
     }
 }

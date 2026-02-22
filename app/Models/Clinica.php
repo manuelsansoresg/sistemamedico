@@ -16,6 +16,8 @@ class Clinica extends Model
         'ubicacion',
         'activo',
         'created_by',
+        'origen_suscripcion_id',
+        'origen_tipo',
     ];
 
     public function creator()
@@ -26,5 +28,10 @@ class Clinica extends Model
     public function users()
     {
         return $this->belongsToMany(User::class, 'clinica_user');
+    }
+
+    public function origenSuscripcion()
+    {
+        return $this->belongsTo(Suscripcion::class, 'origen_suscripcion_id');
     }
 }

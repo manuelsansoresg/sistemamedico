@@ -76,6 +76,8 @@ class ClinicaController extends Controller
             $logotipoPath = 'clinicas/'.$filename;
         }
 
+        $origen = $this->subscriptionService->pickOriginSubscription($owner, 'clinica');
+
         $clinica = Clinica::create([
             'nombre' => $request->nombre,
             'direccion' => $request->direccion,
@@ -86,6 +88,8 @@ class ClinicaController extends Controller
             'lng' => $request->lng,
             'activo' => $request->has('activo'),
             'created_by' => $owner->id,
+            'origen_suscripcion_id' => $origen ? $origen->id : null,
+            'origen_tipo' => $origen ? $origen->tipo : null,
         ]);
 
         if ($owner && $owner->hasRole('doctor')) {

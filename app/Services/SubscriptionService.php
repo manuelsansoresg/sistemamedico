@@ -113,6 +113,71 @@ class SubscriptionService
         return ($limites[$key] ?? 0) > 0;
     }
 
+    /**
+     * Verificar si el usuario tiene un paquete activo.
+     */
+    public function hasActivePackage(User $user): bool
+    {
+        return Suscripcion::where('user_id', $user->id)
+            ->where('tipo', 'paquete')
+            ->where('estatus_pago', 'pagado')
+            ->where(function ($q) {
+                $q->whereNull('fecha_fin')
+                    ->orWhere('fecha_fin', '>=', now());
+            })
+            ->exists();
+    }
+
+    public function pickOriginSubscription(User $user, string $type): ?Suscripcion
+    {
+        $key = $this->mapCatalogoToKey($type);
+
+        if (! $key) {
+            return null;
+        }
+
+        $suscripciones = Suscripcion::where('user_id', $user->id)
+            ->where('estatus_pago', 'pagado')
+            ->where(function ($q) {
+                $q->whereNull('fecha_fin')
+                    ->orWhere('fecha_fin', '>=', now());
+            })
+            ->with(['paquete.catalogos', 'catalogo'])
+            ->get();
+
+        $extras = [];
+        $paquetes = [];
+
+        foreach ($suscripciones as $sub) {
+            if ($sub->tipo === 'individual' && $sub->catalogo) {
+                $subKey = $this->mapCatalogoToKey($sub->catalogo->nombre);
+
+                if ($subKey === $key) {
+                    $extras[] = $sub;
+                }
+            } elseif ($sub->tipo === 'paquete' && $sub->paquete) {
+                foreach ($sub->paquete->catalogos as $cat) {
+                    $subKey = $this->mapCatalogoToKey($cat->nombre);
+
+                    if ($subKey === $key && ($cat->pivot->cantidad_maxima ?? 0) > 0) {
+                        $paquetes[] = $sub;
+                        break;
+                    }
+                }
+            }
+        }
+
+        if (count($extras) > 0) {
+            return $extras[0];
+        }
+
+        if (count($paquetes) > 0) {
+            return $paquetes[0];
+        }
+
+        return null;
+    }
+
     private function mapCatalogoToKey($nombre)
     {
         $nombre = strtolower($nombre);

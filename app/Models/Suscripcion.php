@@ -52,4 +52,9 @@ class Suscripcion extends Model
     {
         return $this->hasOne(Ganancia::class);
     }
+
+    public function pacientes()
+    {
+        return $this->belongsToMany(User::class, 'doctor_patient', 'suscripcion_id', 'patient_id');
+    }
 }

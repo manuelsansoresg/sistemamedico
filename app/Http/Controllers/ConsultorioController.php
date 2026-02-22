@@ -66,6 +66,8 @@ class ConsultorioController extends Controller
             'activo' => 'boolean',
         ]);
 
+        $origen = $this->subscriptionService->pickOriginSubscription($owner, 'consultorio');
+
         $consultorio = Consultorio::create([
             'nombre' => $request->nombre,
             'telefono' => $request->telefono,
@@ -74,6 +76,8 @@ class ConsultorioController extends Controller
             'lng' => $request->lng,
             'activo' => $request->has('activo'),
             'created_by' => $owner->id,
+            'origen_suscripcion_id' => $origen ? $origen->id : null,
+            'origen_tipo' => $origen ? $origen->tipo : null,
         ]);
 
         if ($owner && $owner->hasRole('doctor')) {

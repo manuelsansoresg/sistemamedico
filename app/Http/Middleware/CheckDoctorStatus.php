@@ -2,12 +2,20 @@
 
 namespace App\Http\Middleware;
 
+use App\Services\SubscriptionService;
 use Closure;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 
 class CheckDoctorStatus
 {
+    protected SubscriptionService $subscriptionService;
+
+    public function __construct(SubscriptionService $subscriptionService)
+    {
+        $this->subscriptionService = $subscriptionService;
+    }
+
     /**
      * Handle an incoming request.
      *
@@ -18,10 +26,7 @@ class CheckDoctorStatus
         $user = $request->user();
 
         if ($user && $user->hasRole('doctor')) {
-            // Si el estatus es pendiente o rechazada, bloquear acceso
             if (in_array($user->estatus_cedula, ['pendiente', 'rechazada'])) {
-
-                // Permitir acceso a la ruta de logout y a la página de aviso
                 if ($request->routeIs('logout') || $request->routeIs('doctor.verification.notice')) {
                     return $next($request);
                 }
@@ -31,6 +36,18 @@ class CheckDoctorStatus
                 }
 
                 return redirect()->route('doctor.verification.notice');
+            }
+
+            if (! $this->subscriptionService->hasActivePackage($user)) {
+                if ($request->routeIs('logout') || $request->routeIs('doctor.verification.notice') || $request->routeIs('compras.*') || $request->routeIs('suscripciones.*')) {
+                    return $next($request);
+                }
+
+                if ($request->expectsJson()) {
+                    return response()->json(['message' => 'Tu paquete ha vencido. Debes renovarlo para continuar usando el sistema.'], 403);
+                }
+
+                return redirect()->route('compras.index')->with('error', 'Tu paquete ha vencido. Debes renovarlo para continuar usando el sistema.');
             }
         }
 

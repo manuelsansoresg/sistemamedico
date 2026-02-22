@@ -54,7 +54,7 @@ class CompraController extends Controller
             'estatus_pago' => $estatusPago,
             'comprobante_pago' => null, // Se subirá después si es transferencia
             'fecha_inicio' => $fechaInicio,
-            'fecha_fin' => null,
+            'fecha_fin' => $estatusPago === 'pagado' ? now()->addYear() : null,
         ]);
 
         // Si se paga con tarjeta, registrar ganancia inmediatamente
