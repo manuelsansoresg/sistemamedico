@@ -3,6 +3,19 @@
     <div class="py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-6">
 
+            @if (session('payment_error'))
+                <div class="bg-red-50 border-l-4 border-red-500 p-4 shadow-sm rounded-md mb-4">
+                    <div class="flex">
+                        <div class="flex-shrink-0">
+                            <i class="fas fa-exclamation-circle text-red-500 text-xl"></i>
+                        </div>
+                        <div class="ml-3">
+                            <p class="text-sm text-red-800 font-semibold">{{ session('payment_error') }}</p>
+                        </div>
+                    </div>
+                </div>
+            @endif
+
             @if(isset($requiresCedulaValidation) && $requiresCedulaValidation)
                 @if($cedulaStatus === 'pendiente')
                         <div class="bg-yellow-50 border-l-4 border-yellow-400 p-4 shadow-sm rounded-md">

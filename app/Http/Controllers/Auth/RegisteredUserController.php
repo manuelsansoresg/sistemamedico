@@ -90,88 +90,30 @@ class RegisteredUserController extends Controller
             'payment_method' => ['required', 'in:tarjeta,transferencia'],
         ]);
 
-        $user = User::create([
-            'name' => $request->name,
-            'apellido_paterno' => $request->apellido_paterno,
-            'apellido_materno' => $request->apellido_materno,
-            'email' => $request->email,
-            'password' => Hash::make($request->password),
-            'telefono' => $request->telefono,
-            'cedula_profesional' => $request->cedula_profesional,
-            'especialidad_id' => $request->especialidad_id,
-            // 'paquete_id' => $request->paquete_id, // Assuming we track this or just use it for logic
-        ]);
-
-        // Assign Role
-        if ($request->tipo_registro === 'doctor') {
-            $user->assignRole('doctor');
-        } else {
-            // Assign 'otro' role or similar if exists, or just default user
-            // For now, let's assume 'doctor' or no role (or 'user')
-        }
-
-        // Create Subscription
         $paquete = Paquete::find($request->paquete_id);
 
-        $token = Str::random(64); // Generar token único para subida de comprobante
+        if ($request->payment_method === 'tarjeta') {
+            $cardToken = $request->input('card_token_id');
 
-        $suscripcion = Suscripcion::create([
-            'user_id' => $user->id,
-            'paquete_id' => $paquete->id,
-            'precio' => $paquete->precio,
-            'metodo_pago' => $request->payment_method,
-            'estatus_pago' => 'pendiente',
-            'fecha_inicio' => now(),
-            // Assuming monthly subscription for now
-            'fecha_fin' => now()->addMonth(),
-            'token_pago' => $token,
-        ]);
+            if (! $cardToken) {
+                if ($request->expectsJson()) {
+                    return response()->json([
+                        'status' => 'error',
+                        'message' => 'No se pudo leer la tarjeta. Intenta nuevamente.',
+                        'errors' => [
+                            'payment' => ['No se pudo leer la tarjeta. Intenta nuevamente.'],
+                        ],
+                    ], 422);
+                }
 
-        // Update user status based on logic
-        if ($request->tipo_registro === 'doctor') {
-            // Check if package name contains 'validar' or 'cedula' (case insensitive)
-            if (Str::contains(Str::lower($paquete->nombre), ['validar', 'cédula', 'cedula'])) {
-                $user->estatus_cedula = 'pendiente';
-            } else {
-                $user->estatus_cedula = 'na';
-            }
-            $user->save();
-        }
-
-        event(new Registered($user));
-
-        Auth::login($user);
-
-        // Handle Payment Redirection/Response
-        if ($request->payment_method === 'transferencia') {
-            // Generar URL firmada o con token para subir comprobante
-            // Usamos una ruta con el token que acabamos de guardar
-            $urlSubirComprobante = route('suscripciones.subir_comprobante', ['token' => $token]);
-
-            // Enviar correo
-            try {
-                Mail::to($user)->send(new InstruccionesTransferenciaMail($suscripcion, $user, $urlSubirComprobante));
-            } catch (\Exception $e) {
-                Log::error('Error enviando correo de transferencia: '.$e->getMessage());
+                return back()
+                    ->withErrors(['payment' => 'No se pudo leer la tarjeta. Intenta nuevamente.'])
+                    ->withInput();
             }
 
-            return view('auth.register_success_transfer', ['paquete' => $paquete]);
-        } elseif ($request->payment_method === 'tarjeta') {
-
-            // Enviar correo de bienvenida
-            try {
-                Mail::to($user)->send(new BienvenidaTarjetaMail($suscripcion, $user));
-            } catch (\Exception $e) {
-                Log::error('Error enviando correo de bienvenida tarjeta: '.$e->getMessage());
-            }
-
-            session()->put('last_suscripcion_id', $suscripcion->id);
-
-            // CLIP Transparent Checkout payments
             try {
                 $apiKey = env('CLIP_API_KEY');
                 $baseUrl = rtrim(env('CLIP_BASE_URL', 'https://api-stage.clip.mx'), '/');
-                $cardToken = $request->input('card_token_id');
 
                 if ($apiKey && $cardToken) {
                     $response = Http::withHeaders([
@@ -186,46 +128,197 @@ class RegisteredUserController extends Controller
                         'payment_method' => [
                             'token' => $cardToken,
                         ],
-                        'metadata' => [
-                            'user_id' => $user->id,
-                            'suscripcion_id' => $suscripcion->id,
-                        ],
                         'customer' => [
-                            'email' => $user->email,
-                        ]
+                            'email' => $request->email,
+                        ],
                     ]);
 
                     if ($response->successful()) {
                         $data = $response->json();
-                        $status = $data['status'] ?? null;
-                        if (($status === 'pending') && isset($data['pending_action']['redirect_url'])) {
-                            session()->put('last_suscripcion_id', $suscripcion->id);
-                            return redirect()->away($data['pending_action']['redirect_url']);
-                        } 
-                        if (in_array($status, ['approved', 'authorized'])) {
-                            $suscripcion->estatus_pago = 'pagado';
-                            $suscripcion->fecha_inicio = now();
-                            $suscripcion->save();
-                            return view('auth.register_success_card');
+                        $rawStatus = $data['status'] ?? null;
+                        $status = is_string($rawStatus) ? strtolower($rawStatus) : $rawStatus;
+
+                        $declinedStatuses = ['failed', 'declined', 'rejected', 'canceled', 'cancelled'];
+
+                        if (! $status || ! in_array($status, $declinedStatuses, true)) {
+                            $user = User::create([
+                                'name' => $request->name,
+                                'apellido_paterno' => $request->apellido_paterno,
+                                'apellido_materno' => $request->apellido_materno,
+                                'email' => $request->email,
+                                'password' => Hash::make($request->password),
+                                'telefono' => $request->telefono,
+                                'cedula_profesional' => $request->cedula_profesional,
+                                'especialidad_id' => $request->especialidad_id,
+                            ]);
+
+                            if ($request->tipo_registro === 'doctor') {
+                                $user->assignRole('doctor');
+                            }
+
+                            $token = Str::random(64);
+
+                            $suscripcion = Suscripcion::create([
+                                'user_id' => $user->id,
+                                'paquete_id' => $paquete->id,
+                                'precio' => $paquete->precio,
+                                'metodo_pago' => 'tarjeta',
+                                'estatus_pago' => 'pagado',
+                                'fecha_inicio' => now(),
+                                'fecha_fin' => now()->addMonth(),
+                                'token_pago' => $token,
+                            ]);
+
+                            if ($request->tipo_registro === 'doctor') {
+                                if (Str::contains(Str::lower($paquete->nombre), ['validar', 'cédula', 'cedula'])) {
+                                    $user->estatus_cedula = 'pendiente';
+                                } else {
+                                    $user->estatus_cedula = 'na';
+                                }
+                                $user->save();
+                            }
+
+                            event(new Registered($user));
+
+                            Auth::login($user);
+
+                            try {
+                                Mail::to($user)->send(new BienvenidaTarjetaMail($suscripcion, $user));
+                            } catch (\Exception $e) {
+                                Log::error('Error enviando correo de bienvenida tarjeta: '.$e->getMessage());
+                            }
+
+                            if ($request->expectsJson()) {
+                                return response()->json([
+                                    'status' => 'success',
+                                    'message' => 'Tu registro y pago con tarjeta se realizaron correctamente.',
+                                    'redirect' => route('dashboard'),
+                                ]);
+                            }
+
+                            return redirect()
+                                ->route('dashboard')
+                                ->with('payment_success', 'Tu registro y pago con tarjeta se realizaron correctamente.');
                         }
-                        Log::warning('Clip Payments unexpected response', ['data' => $data]);
+
+                        Log::warning('Clip Payments unexpected status', ['data' => $data]);
+
+                        if ($request->expectsJson()) {
+                            return response()->json([
+                                'status' => 'error',
+                                'message' => 'El pago fue rechazado o no autorizado. Intenta con otra tarjeta.',
+                                'errors' => [
+                                    'payment' => ['El pago fue rechazado o no autorizado. Intenta con otra tarjeta.'],
+                                ],
+                            ], 422);
+                        }
+
+                        return back()
+                            ->withErrors(['payment' => 'El pago fue rechazado o no autorizado. Intenta con otra tarjeta.'])
+                            ->withInput();
                     }
+
                     Log::error('Clip API Error: '.$response->body());
-                } else {
-                    Log::warning('Missing API key or card token for Clip Transparent Checkout');
+
+                    if ($request->expectsJson()) {
+                        return response()->json([
+                            'status' => 'error',
+                            'message' => 'Ocurrió un error al procesar el pago con tarjeta. Intenta nuevamente.',
+                            'errors' => [
+                                'payment' => ['Ocurrió un error al procesar el pago con tarjeta. Intenta nuevamente.'],
+                            ],
+                        ], 422);
+                    }
+
+                    return back()
+                        ->withErrors(['payment' => 'Ocurrió un error al procesar el pago con tarjeta. Intenta nuevamente.'])
+                        ->withInput();
                 }
 
+                Log::warning('Missing API key or card token for Clip Transparent Checkout');
+
+                if ($request->expectsJson()) {
+                    return response()->json([
+                        'status' => 'error',
+                        'message' => 'Configuración de pagos no disponible. Intenta más tarde o usa transferencia.',
+                        'errors' => [
+                            'payment' => ['Configuración de pagos no disponible. Intenta más tarde o usa transferencia.'],
+                        ],
+                    ], 422);
+                }
+
+                return back()
+                    ->withErrors(['payment' => 'Configuración de pagos no disponible. Intenta más tarde o usa transferencia.'])
+                    ->withInput();
             } catch (\Exception $e) {
                 Log::error('Clip Transparent Checkout Error: '.$e->getMessage());
-            }
 
-            $suscripcion->estatus_pago = 'pagado';
-            $suscripcion->fecha_inicio = now();
-            $suscripcion->save();
-            return view('auth.register_success_card');
+                if ($request->expectsJson()) {
+                    return response()->json([
+                        'status' => 'error',
+                        'message' => 'Ocurrió un error al procesar el pago con tarjeta. Intenta nuevamente.',
+                        'errors' => [
+                            'payment' => ['Ocurrió un error al procesar el pago con tarjeta. Intenta nuevamente.'],
+                        ],
+                    ], 422);
+                }
+
+                return back()
+                    ->withErrors(['payment' => 'Ocurrió un error al procesar el pago con tarjeta. Intenta nuevamente.'])
+                    ->withInput();
+            }
         }
 
-        return redirect(route('dashboard', absolute: false));
+        $user = User::create([
+            'name' => $request->name,
+            'apellido_paterno' => $request->apellido_paterno,
+            'apellido_materno' => $request->apellido_materno,
+            'email' => $request->email,
+            'password' => Hash::make($request->password),
+            'telefono' => $request->telefono,
+            'cedula_profesional' => $request->cedula_profesional,
+            'especialidad_id' => $request->especialidad_id,
+        ]);
+
+        if ($request->tipo_registro === 'doctor') {
+            $user->assignRole('doctor');
+        }
+
+        $token = Str::random(64);
+
+        $suscripcion = Suscripcion::create([
+            'user_id' => $user->id,
+            'paquete_id' => $paquete->id,
+            'precio' => $paquete->precio,
+            'metodo_pago' => $request->payment_method,
+            'estatus_pago' => 'pendiente',
+            'fecha_inicio' => now(),
+            'fecha_fin' => now()->addMonth(),
+            'token_pago' => $token,
+        ]);
+
+        if ($request->tipo_registro === 'doctor') {
+            if (Str::contains(Str::lower($paquete->nombre), ['validar', 'cédula', 'cedula'])) {
+                $user->estatus_cedula = 'pendiente';
+            } else {
+                $user->estatus_cedula = 'na';
+            }
+            $user->save();
+        }
+
+        event(new Registered($user));
+
+        Auth::login($user);
+
+        $urlSubirComprobante = route('suscripciones.subir_comprobante', ['token' => $token]);
+
+        try {
+            Mail::to($user)->send(new InstruccionesTransferenciaMail($suscripcion, $user, $urlSubirComprobante));
+        } catch (\Exception $e) {
+            Log::error('Error enviando correo de transferencia: '.$e->getMessage());
+        }
+
+        return view('auth.register_success_transfer', ['paquete' => $paquete]);
     }
 
     public function successCard()

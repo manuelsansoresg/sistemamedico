@@ -376,7 +376,7 @@
                 <h3 class="text-lg font-medium text-gray-900 mb-4">Seleccione Método de Pago <span class="text-red-500">*</span></h3>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
                     <!-- Tarjeta (CLIP) -->
-                    <div @click="payment_method = 'tarjeta'" 
+                    <div @click="payment_method = 'tarjeta'; if (step === 6) { initClip(); }" 
                          :class="{'border-[#0061F5] bg-[#F2F8FD] ring-2 ring-[#0061F5]': payment_method === 'tarjeta', 'border-gray-200 hover:border-[#0061F5]/50': payment_method !== 'tarjeta'}"
                          class="cursor-pointer border rounded-xl p-6 flex flex-col items-center text-center transition-all duration-200">
                         <div class="text-[#0061F5] mb-3">
@@ -453,14 +453,60 @@
 
                     <a href="#"
                        x-show="step === 6"
-                       :class="{'opacity-50 cursor-not-allowed': !payment_method}"
-                       @click.prevent="if (payment_method) { finishRegistration() }"
+                       :class="{'opacity-50 cursor-not-allowed': !payment_method || isSubmitting}"
+                       @click.prevent="if (payment_method && !isSubmitting) { finishRegistration() }"
                        class="inline-flex items-center px-7 py-3.5 bg-[#27ADFA] text-white font-bold rounded-lg hover:bg-[#0061F5] transition-colors">
-                        Finalizar Registro
+                        <span x-show="!isSubmitting">Finalizar Registro</span>
+                        <span x-show="isSubmitting" class="flex items-center space-x-2">
+                            <svg class="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
+                            </svg>
+                            <span>Procesando...</span>
+                        </span>
                     </a>
                 </div>
             </div>
         </form>
+
+        <div x-cloak x-show="modalOpen" class="fixed inset-0 z-50 flex items-center justify-center">
+            <div class="fixed inset-0 bg-gray-900/50"></div>
+            <div class="relative bg-white rounded-lg shadow-xl max-w-md w-full p-6">
+                <div class="flex items-center mb-3">
+                    <div class="flex-shrink-0 mr-3">
+                        <i class="fas fa-check-circle text-green-500 text-2xl" x-show="modalType === 'success'"></i>
+                        <i class="fas fa-exclamation-circle text-red-500 text-2xl" x-show="modalType === 'error'"></i>
+                    </div>
+                    <h2 class="text-lg font-bold text-gray-900" x-text="modalTitle"></h2>
+                </div>
+                <p class="text-sm text-gray-700 mb-5" x-text="modalMessage"></p>
+                <div class="flex justify-end space-x-2">
+                    <button type="button"
+                            class="px-4 py-2 rounded-md border border-gray-300 text-sm text-gray-700"
+                            x-show="modalType === 'error'"
+                            @click="modalOpen = false">
+                        Cerrar
+                    </button>
+                    <button type="button"
+                            class="px-4 py-2 rounded-md bg-[#0061F5] text-sm text-white font-semibold"
+                            x-show="modalType === 'success'"
+                            @click="if (modalRedirect) { window.location = modalRedirect }">
+                        Ir al panel
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div x-cloak x-show="isSubmitting" class="fixed inset-0 z-40 flex items-center justify-center">
+            <div class="fixed inset-0 bg-white/60"></div>
+            <div class="relative bg-white rounded-lg shadow-md px-6 py-4 flex items-center space-x-3">
+                <svg class="animate-spin h-5 w-5 text-[#0061F5]" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
+                </svg>
+                <span class="text-sm font-medium text-gray-700">Procesando pago, por favor espere...</span>
+            </div>
+        </div>
     </div>
 
     <!-- SDK de Clip -->
@@ -476,7 +522,7 @@
                         elseif ($errors->has('tipo_establecimiento')) $initialStep = 2;
                         elseif ($errors->has('paquete_id')) $initialStep = 3;
                         elseif ($errors->has('terms_accepted')) $initialStep = 5;
-                        elseif ($errors->has('payment_method')) $initialStep = 6;
+                        elseif ($errors->has('payment_method') || $errors->has('payment')) $initialStep = 6;
                         else $initialStep = 4; // Default for personal info errors (name, email, password, etc.)
                     } elseif (old('current_step')) {
                         $initialStep = old('current_step');
@@ -493,6 +539,12 @@
                 clipApiKey: @json($clipApiKey ?? null),
                 clipCard: null,
                 clipInitialized: false,
+                isSubmitting: false,
+                modalOpen: false,
+                modalTitle: '',
+                modalMessage: '',
+                modalType: 'success',
+                modalRedirect: null,
                 
                 init() {
                     if (this.paquete_id) {
@@ -626,28 +678,98 @@
                 },
 
                 async finishRegistration() {
+                    if (this.payment_method === 'transferencia') {
+                        this.$refs.registerForm.submit();
+                        return;
+                    }
+
                     if (this.payment_method === 'tarjeta') {
+                        this.isSubmitting = true;
                         if (!this.clipInitialized || !this.clipCard) {
                             this.initClip();
                         }
                         if (!this.clipCard) {
-                            alert('No fue posible inicializar el formulario de tarjeta. Intente de nuevo.');
+                            this.isSubmitting = false;
+                            this.modalTitle = 'Error';
+                            this.modalMessage = 'No fue posible inicializar el formulario de tarjeta. Intente de nuevo.';
+                            this.modalType = 'error';
+                            this.modalRedirect = null;
+                            this.modalOpen = true;
                             return;
                         }
                         try {
                             const cardToken = await this.clipCard.cardToken();
                             if (!cardToken || !cardToken.id) {
-                                alert('No se pudo tokenizar la tarjeta. Intente nuevamente.');
+                                this.isSubmitting = false;
+                                this.modalTitle = 'Pago rechazado';
+                                this.modalMessage = 'No se pudo tokenizar la tarjeta. Intente nuevamente.';
+                                this.modalType = 'error';
+                                this.modalRedirect = null;
+                                this.modalOpen = true;
                                 return;
                             }
                             this.$refs.cardTokenInput.value = cardToken.id;
                         } catch (error) {
-                            // Manejo básico de errores del SDK
-                            alert(error && error.message ? error.message : 'Error al tokenizar la tarjeta');
+                            this.isSubmitting = false;
+                            this.modalTitle = 'Error';
+                            this.modalMessage = error && error.message ? error.message : 'Error al tokenizar la tarjeta';
+                            this.modalType = 'error';
+                            this.modalRedirect = null;
+                            this.modalOpen = true;
                             return;
                         }
                     }
-                    this.$refs.registerForm.submit();
+
+                    const form = this.$refs.registerForm;
+                    const formData = new FormData(form);
+                    const csrf = form.querySelector('input[name=_token]').value;
+
+                    try {
+                        const response = await fetch(form.action, {
+                            method: 'POST',
+                            headers: {
+                                'X-CSRF-TOKEN': csrf,
+                                'Accept': 'application/json',
+                            },
+                            body: formData,
+                        });
+
+                        let data = null;
+                        try {
+                            data = await response.json();
+                        } catch (e) {}
+
+                        this.isSubmitting = false;
+
+                        if (response.ok && data && data.status === 'success') {
+                            this.modalTitle = 'Registro exitoso';
+                            this.modalMessage = data.message || 'Tu registro y pago se realizaron correctamente.';
+                            this.modalType = 'success';
+                            this.modalRedirect = data.redirect || '{{ route('dashboard') }}';
+                            this.modalOpen = true;
+                        } else {
+                            let message = 'Ocurrió un error al procesar el pago con tarjeta. Intenta nuevamente.';
+                            if (data) {
+                                if (data.message) {
+                                    message = data.message;
+                                } else if (data.errors && data.errors.payment && data.errors.payment[0]) {
+                                    message = data.errors.payment[0];
+                                }
+                            }
+                            this.modalTitle = 'Pago rechazado';
+                            this.modalMessage = message;
+                            this.modalType = 'error';
+                            this.modalRedirect = null;
+                            this.modalOpen = true;
+                        }
+                    } catch (e) {
+                        this.isSubmitting = false;
+                        this.modalTitle = 'Error';
+                        this.modalMessage = 'No se pudo conectar con el servidor. Intenta de nuevo.';
+                        this.modalType = 'error';
+                        this.modalRedirect = null;
+                        this.modalOpen = true;
+                    }
                 }
             }
         }

@@ -194,7 +194,7 @@ class SuscripcionController extends Controller
     public function update(Request $request, Suscripcion $suscripcion)
     {
         $request->validate([
-            'estatus_pago' => 'nullable|in:pendiente,pagado,fallido,vencido',
+            'estatus_pago' => 'nullable|in:pendiente,pagado,rechazado,cancelado',
             'user_activo' => 'nullable|boolean',
             'user_id' => 'nullable|exists:users,id',
         ]);

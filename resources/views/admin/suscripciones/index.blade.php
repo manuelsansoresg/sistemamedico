@@ -140,7 +140,8 @@
                                                 $color = match($suscripcion->estatus_pago) {
                                                     'pagado' => 'green',
                                                     'pendiente' => 'yellow',
-                                                    'fallido' => 'red',
+                                                    'rechazado' => 'red',
+                                                    'cancelado' => 'gray',
                                                     default => 'gray',
                                                 };
                                             @endphp

@@ -101,8 +101,8 @@
                                     <select id="estatus_pago" name="estatus_pago" class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
                                         <option value="pendiente" {{ $suscripcion->estatus_pago == 'pendiente' ? 'selected' : '' }}>Pendiente</option>
                                         <option value="pagado" {{ $suscripcion->estatus_pago == 'pagado' ? 'selected' : '' }}>Pagado</option>
-                                        <option value="fallido" {{ $suscripcion->estatus_pago == 'fallido' ? 'selected' : '' }}>Fallido</option>
-                                        <option value="vencido" {{ $suscripcion->estatus_pago == 'vencido' ? 'selected' : '' }}>Vencido</option>
+                                        <option value="rechazado" {{ $suscripcion->estatus_pago == 'rechazado' ? 'selected' : '' }}>Rechazado</option>
+                                        <option value="cancelado" {{ $suscripcion->estatus_pago == 'cancelado' ? 'selected' : '' }}>Cancelado</option>
                                     </select>
                                 </div>
                                 <button type="submit" class="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white hover:bg-[#0051CC] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#0061F5] bg-[#0061F5]">
