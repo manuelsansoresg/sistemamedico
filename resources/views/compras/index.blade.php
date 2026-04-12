@@ -1,19 +1,22 @@
 <x-admin-layout>
-    <script>
-        window.catalogItems = {!! json_encode($catalogos->map(function($item) {
+    <script type="application/json" id="catalog-items-json">
+        {!! json_encode($catalogos->map(function($item) {
             return [
                 'id' => $item->id,
                 'nombre' => $item->nombre,
                 'precio' => $item->precio
             ];
-        })->values(), JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP) !!};
+        })->values(), JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP) !!}
     </script>
     <div class="py-10" x-data="{ 
         purchaseModalOpen: false, 
         uploadModalOpen: false,
+        renewModalOpen: false,
         selectedItem: null,
         selectedSubscriptionId: null,
+        selectedRenewSubscriptionId: null,
         metodoPago: 'tarjeta',
+        metodoPagoRenovar: 'tarjeta',
         cantidad: 1,
         openModal(id) {
             this.selectedItem = window.catalogItems.find(i => i.id == id);
@@ -23,6 +26,11 @@
         openUploadModal(subscriptionId) {
             this.selectedSubscriptionId = subscriptionId;
             this.uploadModalOpen = true;
+        },
+        openRenewModal(subscriptionId) {
+            this.selectedRenewSubscriptionId = subscriptionId;
+            this.metodoPagoRenovar = 'tarjeta';
+            this.renewModalOpen = true;
         }
     }">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
@@ -87,6 +95,12 @@
                                 @endphp
                                 <tbody class="bg-white divide-y divide-gray-200">
                                     @foreach($suscripciones as $sub)
+                                        @php
+                                            $paqueteVencido = $sub->tipo === 'paquete'
+                                                && $sub->estatus_pago === 'pagado'
+                                                && $sub->fecha_fin
+                                                && \Carbon\Carbon::parse($sub->fecha_fin)->lt(\Carbon\Carbon::now());
+                                        @endphp
                                         <tr>
                                             <td class="px-6 py-4 whitespace-nowrap">
                                                 <div class="text-sm font-medium text-gray-900">
@@ -168,7 +182,7 @@
                                             </td>
                                             <td class="px-6 py-4 whitespace-nowrap">
                                                 @php
-                                                    $color = match($sub->estatus_pago) {
+                                                    $color = $paqueteVencido ? 'red' : match($sub->estatus_pago) {
                                                         'pagado' => 'green',
                                                         'pendiente' => 'yellow',
                                                         'fallido' => 'red',
@@ -176,18 +190,27 @@
                                                     };
                                                 @endphp
                                                 <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-{{ $color }}-100 text-{{ $color }}-800">
-                                                    {{ ucfirst($sub->estatus_pago) }}
+                                                    {{ $paqueteVencido ? 'Vencido' : ucfirst($sub->estatus_pago) }}
                                                 </span>
                                             </td>
                                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                                 @if($sub->fecha_fin)
-                                                    {{ \Carbon\Carbon::parse($sub->fecha_fin)->format('d/m/Y') }}
+                                                    <span class="{{ $paqueteVencido ? 'text-red-600 font-semibold' : '' }}">
+                                                        {{ \Carbon\Carbon::parse($sub->fecha_fin)->format('d/m/Y') }}
+                                                    </span>
+                                                    @if($paqueteVencido)
+                                                        <i class="fas fa-exclamation-triangle text-red-600 ml-2" title="Paquete vencido"></i>
+                                                    @endif
                                                 @else
                                                     Indefinido
                                                 @endif
                                             </td>
                                             <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                                @if($sub->estatus_pago === 'pendiente' && $sub->metodo_pago === 'transferencia' && !$sub->comprobante_pago)
+                                                @if($paqueteVencido)
+                                                    <button type="button" @click="openRenewModal({{ $sub->id }})" class="inline-flex items-center px-3 py-1.5 rounded-md border border-[#0061F5] text-[#0061F5] hover:bg-[#0061F5] hover:text-white text-xs font-bold">
+                                                        <i class="fas fa-sync-alt mr-2"></i> Renovar
+                                                    </button>
+                                                @elseif($sub->estatus_pago === 'pendiente' && $sub->metodo_pago === 'transferencia' && !$sub->comprobante_pago)
                                                     <button @click="openUploadModal({{ $sub->id }})" class="text-[#0061F5] hover:text-[#0051CC] font-bold inline-flex items-center">
                                                         <i class="fas fa-upload mr-1"></i> Subir Comprobante
                                                     </button>
@@ -218,6 +241,27 @@
                 </div>
             @else
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    @if(!empty($suscripcionPaqueteVencida) && $suscripcionPaqueteVencida->paquete)
+                        <div class="bg-red-50 rounded-xl shadow-md overflow-hidden border border-red-200 flex flex-col h-full ring-2 ring-red-300">
+                            <div class="p-6 flex-grow">
+                                <div class="flex justify-between items-start mb-4">
+                                    <h3 class="text-xl font-bold text-red-800 leading-tight">
+                                        Renovar Paquete: {{ $suscripcionPaqueteVencida->paquete->nombre }}
+                                    </h3>
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                                        Vencido
+                                    </span>
+                                </div>
+                                <p class="text-3xl font-bold text-red-700 mb-4">${{ number_format($suscripcionPaqueteVencida->paquete->precio, 2) }}</p>
+                                <p class="text-gray-700 text-sm leading-relaxed mb-4">Tu paquete venció. Renueva para continuar usando el sistema.</p>
+                            </div>
+                            <div class="p-6 bg-white border-t border-red-200 mt-auto">
+                                <button type="button" @click.stop="openRenewModal({{ $suscripcionPaqueteVencida->id }})" class="w-full bg-red-600 text-white font-bold py-3 px-4 rounded-lg hover:bg-red-700 transition-colors flex items-center justify-center shadow-sm">
+                                    <i class="fas fa-sync-alt mr-2"></i> Renovar
+                                </button>
+                            </div>
+                        </div>
+                    @endif
                     @foreach($catalogos as $item)
                         <div class="bg-white rounded-xl shadow-md overflow-hidden border border-gray-200 flex flex-col h-full hover:shadow-lg transition-shadow duration-300">
                             <div class="p-6 flex-grow">
@@ -398,6 +442,86 @@
                                     Subir y Enviar
                                 </button>
                                 <button type="button" class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm" @click="uploadModalOpen = false">
+                                    Cancelar
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Renew Package Modal -->
+        <div x-show="renewModalOpen" class="relative z-50" aria-labelledby="modal-title" role="dialog" aria-modal="true" style="display: none;">
+            <div x-show="renewModalOpen"
+                 x-transition:enter="ease-out duration-300"
+                 x-transition:enter-start="opacity-0"
+                 x-transition:enter-end="opacity-100"
+                 x-transition:leave="ease-in duration-200"
+                 x-transition:leave-start="opacity-100"
+                 x-transition:leave-end="opacity-0"
+                 class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity"></div>
+
+            <div class="fixed inset-0 z-10 overflow-y-auto">
+                <div class="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0">
+                    <div x-show="renewModalOpen"
+                         x-transition:enter="ease-out duration-300"
+                         x-transition:enter-start="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
+                         x-transition:enter-end="opacity-100 translate-y-0 sm:scale-100"
+                         x-transition:leave="ease-in duration-200"
+                         x-transition:leave-start="opacity-100 translate-y-0 sm:scale-100"
+                         x-transition:leave-end="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
+                         @click.away="renewModalOpen = false"
+                         class="relative transform overflow-hidden rounded-lg bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-lg">
+
+                        <form action="{{ route('compras.renovar_paquete') }}" method="POST">
+                            @csrf
+                            <input type="hidden" name="suscripcion_anterior_id" x-bind:value="selectedRenewSubscriptionId">
+                            <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+                                <div class="sm:flex sm:items-start">
+                                    <div class="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-red-100 sm:mx-0 sm:h-10 sm:w-10">
+                                        <i class="fas fa-sync-alt text-red-600"></i>
+                                    </div>
+                                    <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left w-full">
+                                        <h3 class="text-lg leading-6 font-medium text-gray-900" id="modal-title">
+                                            Renovar Paquete
+                                        </h3>
+                                        <div class="mt-4">
+                                            <label class="block text-sm font-bold text-gray-700 mb-2">Método de Pago</label>
+                                            <div class="space-y-2">
+                                                <label class="inline-flex items-center w-full p-2 border rounded-md cursor-pointer hover:bg-gray-50" :class="{'border-[#0061F5] bg-blue-50': metodoPagoRenovar === 'tarjeta'}">
+                                                    <input type="radio" x-model="metodoPagoRenovar" name="metodo_pago" value="tarjeta" class="form-radio text-[#0061F5] focus:ring-[#0061F5]">
+                                                    <span class="ml-2 flex-grow">Tarjeta (Clip) - Activación Inmediata</span>
+                                                    <i class="fas fa-credit-card text-gray-400"></i>
+                                                </label>
+                                                <label class="inline-flex items-center w-full p-2 border rounded-md cursor-pointer hover:bg-gray-50" :class="{'border-[#0061F5] bg-blue-50': metodoPagoRenovar === 'transferencia'}">
+                                                    <input type="radio" x-model="metodoPagoRenovar" name="metodo_pago" value="transferencia" class="form-radio text-[#0061F5] focus:ring-[#0061F5]">
+                                                    <span class="ml-2 flex-grow">Transferencia Bancaria (Requiere Validación)</span>
+                                                    <i class="fas fa-university text-gray-400"></i>
+                                                </label>
+                                            </div>
+                                        </div>
+
+                                        <div class="mt-4 p-4 bg-yellow-50 rounded-md border border-yellow-200" x-show="metodoPagoRenovar === 'transferencia'" x-transition>
+                                            <h4 class="text-sm font-bold text-yellow-800 mb-2">Instrucciones para Transferencia:</h4>
+                                            <p class="text-xs text-yellow-700 mb-2">Realiza la transferencia a la siguiente cuenta:</p>
+                                            <ul class="text-xs text-yellow-700 list-disc list-inside mb-3">
+                                                <li><strong>Banco:</strong> BBVA</li>
+                                                <li><strong>CLABE:</strong> 012345678901234567</li>
+                                                <li><strong>Concepto:</strong> RENOVACION-PAQUETE</li>
+                                            </ul>
+                                            <p class="text-xs text-yellow-800 font-semibold">
+                                                <i class="fas fa-info-circle mr-1"></i> Al confirmar, se generará una orden pendiente. Deberás subir tu comprobante desde la lista de "Mis Suscripciones".
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+                                <button type="submit" class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-red-600 text-base font-medium text-white hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-600 sm:ml-3 sm:w-auto sm:text-sm">
+                                    Renovar
+                                </button>
+                                <button type="button" class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm" @click="renewModalOpen = false">
                                     Cancelar
                                 </button>
                             </div>

@@ -76,6 +76,7 @@ class ExpedienteController extends Controller
                     ->orderBy('apellido_paterno')
                     ->get();
             }
+            
         } else {
             $clinicas = Clinica::where('activo', true)->get();
             $consultorios = Consultorio::where('activo', true)->get();

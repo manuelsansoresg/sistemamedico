@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Catalogo;
 use App\Models\Ganancia;
+use App\Models\Paquete;
 use App\Models\Suscripcion;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -18,7 +19,16 @@ class CompraController extends Controller
             ->latest()
             ->get();
 
-        return view('compras.index', compact('catalogos', 'suscripciones'));
+        $suscripcionPaqueteVencida = Suscripcion::where('user_id', Auth::id())
+            ->where('tipo', 'paquete')
+            ->where('estatus_pago', 'pagado')
+            ->whereNotNull('fecha_fin')
+            ->where('fecha_fin', '<', now())
+            ->with('paquete')
+            ->orderByDesc('fecha_fin')
+            ->first();
+
+        return view('compras.index', compact('catalogos', 'suscripciones', 'suscripcionPaqueteVencida'));
     }
 
     public function store(Request $request)
@@ -82,6 +92,50 @@ class CompraController extends Controller
         $mensaje = ($estatusPago === 'pagado')
             ? 'Compra realizada exitosamente.'
             : 'Solicitud generada. Por favor sube tu comprobante de pago para activar el servicio.';
+
+        return redirect()->route('compras.index')->with('success', $mensaje);
+    }
+
+    public function renewPackage(Request $request)
+    {
+        $request->validate([
+            'suscripcion_anterior_id' => ['required', 'integer', 'exists:suscripciones,id'],
+            'metodo_pago' => ['required', 'in:tarjeta,transferencia'],
+        ]);
+
+        $previous = Suscripcion::with('paquete')->findOrFail($request->suscripcion_anterior_id);
+
+        if ($previous->user_id !== Auth::id() || $previous->tipo !== 'paquete' || ! $previous->paquete_id) {
+            abort(403);
+        }
+
+        $paquete = $previous->paquete ?: Paquete::findOrFail($previous->paquete_id);
+
+        $estatusPago = 'pendiente';
+        $fechaInicio = null;
+
+        if ($request->metodo_pago === 'tarjeta') {
+            $estatusPago = 'pagado';
+            $fechaInicio = now();
+        }
+
+        Suscripcion::create([
+            'user_id' => Auth::id(),
+            'paquete_id' => $paquete->id,
+            'catalogo_id' => null,
+            'cantidad' => 1,
+            'tipo' => 'paquete',
+            'precio' => $paquete->precio,
+            'metodo_pago' => $request->metodo_pago,
+            'estatus_pago' => $estatusPago,
+            'comprobante_pago' => null,
+            'fecha_inicio' => $fechaInicio,
+            'fecha_fin' => ($estatusPago === 'pagado') ? now()->addMonth() : null,
+        ]);
+
+        $mensaje = ($estatusPago === 'pagado')
+            ? 'Renovación realizada exitosamente.'
+            : 'Solicitud de renovación generada. Por favor sube tu comprobante de pago para activar el paquete.';
 
         return redirect()->route('compras.index')->with('success', $mensaje);
     }

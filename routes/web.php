@@ -126,6 +126,7 @@ Route::middleware(['auth', 'role:doctor'])->group(function () {
     // Compras / Catálogo (Doctor only)
     Route::get('compras', [\App\Http\Controllers\CompraController::class, 'index'])->name('compras.index');
     Route::post('compras', [\App\Http\Controllers\CompraController::class, 'store'])->name('compras.store');
+    Route::post('compras/renovar-paquete', [\App\Http\Controllers\CompraController::class, 'renewPackage'])->name('compras.renovar_paquete');
     Route::post('compras/{suscripcion}/comprobante', [\App\Http\Controllers\CompraController::class, 'uploadComprobante'])->name('compras.upload_comprobante');
 });
 

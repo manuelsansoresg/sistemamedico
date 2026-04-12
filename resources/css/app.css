@@ -2,6 +2,10 @@
 @source "../views/**/*.blade.php";
 @plugin "@tailwindcss/forms";
 
+[x-cloak] {
+    display: none !important;
+}
+
 .doctor-register input[type="text"],
 .doctor-register input[type="email"],
 .doctor-register input[type="password"],
