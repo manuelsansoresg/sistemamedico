@@ -18,12 +18,17 @@ class HorarioController extends Controller
         // If user is doctor or assistant/secretary, only show their owner's profile/consultorios
         if ($user->hasRole(['doctor', 'asistente', 'secretaria'])) {
             $ownerId = $user->hasRole('doctor') ? $user->id : $user->created_by;
-            $query = User::where('id', $ownerId)->with('consultorios');
+            $query = User::where('id', $ownerId)->with([
+                'especialidad',
+                'consultorios' => function ($q) use ($ownerId) {
+                    $q->where('created_by', $ownerId)->orderBy('nombre');
+                },
+            ]);
         } else {
             // Show selection form for Root
             // We need users who have 'doctor' role (or any user assigned to consultorios)
             // And consultorios.
-            $query = User::whereHas('consultorios')->with('consultorios');
+            $query = User::whereHas('consultorios')->with(['especialidad', 'consultorios']);
 
             if ($request->has('search') && $request->search != '') {
                 $search = $request->search;
@@ -53,6 +58,7 @@ class HorarioController extends Controller
 
         /** @var \App\Models\User $currentUser */
         $currentUser = Auth::user();
+        $ownerId = null;
 
         // Security check for doctors and assistants
         if ($currentUser->hasRole(['doctor', 'asistente', 'secretaria'])) {
@@ -66,6 +72,10 @@ class HorarioController extends Controller
 
         $user = User::findOrFail($request->user_id);
         $consultorio = Consultorio::findOrFail($request->consultorio_id);
+
+        if ($ownerId && (int) $consultorio->created_by !== (int) $ownerId) {
+            abort(403, 'No tiene permiso para gestionar horarios en este consultorio.');
+        }
 
         // Check if user is assigned to this consultorio
         if (! $user->consultorios->contains($consultorio->id)) {
@@ -98,6 +108,7 @@ class HorarioController extends Controller
 
         /** @var \App\Models\User $currentUser */
         $currentUser = Auth::user();
+        $ownerId = null;
 
         // Security check for doctors and assistants
         if ($currentUser->hasRole(['doctor', 'asistente', 'secretaria'])) {
@@ -112,6 +123,13 @@ class HorarioController extends Controller
         $userId = $request->user_id;
         $consultorioId = $request->consultorio_id;
         $duracion = $request->duracion_consulta;
+
+        if ($ownerId) {
+            $consultorio = Consultorio::findOrFail($consultorioId);
+            if ((int) $consultorio->created_by !== (int) $ownerId) {
+                abort(403, 'No tiene permiso para gestionar horarios en este consultorio.');
+            }
+        }
 
         Horario::where('user_id', $userId)
             ->where('consultorio_id', $consultorioId)

@@ -38,7 +38,7 @@
                             </div>
                         </template>
 
-                        <form action="{{ route('citas.store') }}" method="POST" @submit.prevent="submitForm">
+                        <form action="{{ route('citas.store') }}" method="POST" @submit.prevent="submitForm" autocomplete="off">
                             @csrf
                             
                             <!-- 1. Seleccionar Doctor -->
@@ -60,6 +60,13 @@
                                     <input type="text" 
                                            x-model="searchDoctor" 
                                            @input.debounce.300ms="findDoctors()"
+                                           name="doctor_search"
+                                           autocomplete="new-password"
+                                           autocorrect="off"
+                                           autocapitalize="none"
+                                           spellcheck="false"
+                                           readonly
+                                           @focus="$el.removeAttribute('readonly')"
                                            placeholder="Buscar doctor por nombre..." 
                                            class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:border-[#0061F5] focus:ring-[#0061F5] focus:outline-none"
                                            :class="{'border-green-500': selectedDoctor}"
@@ -122,6 +129,13 @@
                                     <input type="text" 
                                            x-model="searchPatient" 
                                            @input.debounce.300ms="findPatients()"
+                                           name="patient_search"
+                                           autocomplete="new-password"
+                                           autocorrect="off"
+                                           autocapitalize="none"
+                                           spellcheck="false"
+                                           readonly
+                                           @focus="$el.removeAttribute('readonly')"
                                            placeholder="Buscar paciente por nombre..." 
                                            class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:border-[#0061F5] focus:ring-[#0061F5] focus:outline-none"
                                            :class="{'border-green-500': selectedPatient}"
@@ -254,6 +268,14 @@
         </div>
     </div>
 
+    <script type="application/json" id="fixed-doctor-json">
+        {!! json_encode((isset($doctor) && $doctor) ? [
+            'id' => $doctor->id,
+            'name' => $doctor->name,
+            'apellido_paterno' => $doctor->apellido_paterno,
+        ] : null, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP) !!}
+    </script>
+
     <script>
         function appointmentForm() {
             return {
@@ -284,26 +306,27 @@
                 errorMessage: '',
 
                 init() {
-                    @if(isset($doctor) && $doctor)
-                        this.selectedDoctorId = {{ $doctor->id }};
-                        this.searchDoctor = "{{ $doctor->name }} {{ $doctor->apellido_paterno }}";
-                        this.selectedDoctor = {
-                            id: {{ $doctor->id }},
-                            name: "{{ $doctor->name }}",
-                            apellido_paterno: "{{ $doctor->apellido_paterno }}"
-                        };
-                        this.consultorios = @json($doctor->consultorios);
-                        this.clinicas = @json($doctor->clinicas);
-                        this.isDoctorFixed = true;
+                    const fixedDoctorEl = document.getElementById('fixed-doctor-json');
+                    if (!fixedDoctorEl || !fixedDoctorEl.textContent) {
+                        return;
+                    }
 
-                        // Auto-select if single option
-                        if (this.consultorios.length === 1) {
-                            this.selectedConsultorioId = this.consultorios[0].id;
-                        }
-                        if (this.clinicas.length === 1) {
-                            this.selectedClinicaId = this.clinicas[0].id;
-                        }
-                    @endif
+                    let fixedDoctor = null;
+                    try {
+                        fixedDoctor = JSON.parse(fixedDoctorEl.textContent);
+                    } catch (e) {
+                        fixedDoctor = null;
+                    }
+
+                    if (!fixedDoctor) {
+                        return;
+                    }
+
+                    this.selectedDoctorId = fixedDoctor.id;
+                    this.searchDoctor = `${fixedDoctor.name} ${fixedDoctor.apellido_paterno}`;
+                    this.selectedDoctor = fixedDoctor;
+                    this.isDoctorFixed = true;
+                    this.loadDoctorData(fixedDoctor.id);
                 },
 
                 get isValid() {
@@ -334,16 +357,17 @@
                     this.searchDoctor = ''; // Clear search but keep selection
                     this.doctors = [];
                     
-                    // Fetch doctor data
+                    this.loadDoctorData(doctor.id);
+                },
+
+                async loadDoctorData(doctorId) {
                     try {
-                        // Use Laravel route generation for robust URL handling
-                        const url = "{{ route('api.doctors.data', ['id' => 'PLACEHOLDER_ID']) }}".replace('PLACEHOLDER_ID', doctor.id);
+                        const url = "{{ route('api.doctors.data', ['id' => 'PLACEHOLDER_ID']) }}".replace('PLACEHOLDER_ID', doctorId);
                         const response = await fetch(url);
                         const data = await response.json();
-                        this.consultorios = data.consultorios;
-                        this.clinicas = data.clinicas;
+                        this.consultorios = data.consultorios || [];
+                        this.clinicas = data.clinicas || [];
 
-                        // Auto-select if only one option
                         if (this.consultorios.length === 1) {
                             this.selectedConsultorioId = this.consultorios[0].id;
                         }
@@ -351,9 +375,7 @@
                             this.selectedClinicaId = this.clinicas[0].id;
                         }
 
-                        // Try to fetch slots immediately if we have everything
                         this.fetchSlotsIfReady();
-
                     } catch (error) {
                         console.error('Error fetching doctor data:', error);
                     }

@@ -59,8 +59,12 @@ class ExpedienteController extends Controller
             $ownerId = $user->hasRole('doctor') ? $user->id : $user->created_by;
             $owner = $user->hasRole('doctor') ? $user : \App\Models\User::find($ownerId);
 
-            $clinicas = $owner->clinicas;
-            $consultorios = $owner->consultorios;
+            $clinicas = $owner
+                ? $owner->clinicas()->select('clinicas.*')->where('clinicas.created_by', $ownerId)->distinct()->get()
+                : collect();
+            $consultorios = $owner
+                ? $owner->consultorios()->select('consultorios.*')->where('consultorios.created_by', $ownerId)->distinct()->get()
+                : collect();
 
             if ($owner) {
                 $pacientesQuery = User::role('paciente')
@@ -107,6 +111,9 @@ class ExpedienteController extends Controller
     public function patientDownloadBulk(Request $request)
     {
         $user = Auth::user();
+        if (! $user instanceof \App\Models\User) {
+            abort(403);
+        }
         if (! $user->hasRole('paciente')) {
             abort(403);
         }
@@ -126,6 +133,9 @@ class ExpedienteController extends Controller
     public function patientDownloadAll(Request $request)
     {
         $user = Auth::user();
+        if (! $user instanceof \App\Models\User) {
+            abort(403);
+        }
         if (! $user->hasRole('paciente')) {
             abort(403);
         }
@@ -291,6 +301,9 @@ class ExpedienteController extends Controller
     private function generateZip($ids)
     {
         $user = Auth::user();
+        if (! $user instanceof \App\Models\User) {
+            abort(403);
+        }
 
         $isPatient = $user->hasRole('paciente');
 

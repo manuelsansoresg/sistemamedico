@@ -44,11 +44,11 @@
                                     </select>
                                 </form>
                             @endif
-                            <a href="{{ route('recursos.index', ['doctor_id' => $doctorId]) }}" class="inline-flex items-center px-4 py-2 bg-gray-100 text-gray-700 text-sm font-bold rounded-md hover:bg-gray-200 transition-colors shadow-sm">
+                            <a href="{{ route('recursos.index', ['doctor_id' => $doctorId]) }}" class="inline-flex items-center px-4 py-2 bg-white text-[#0061F5] text-sm font-bold rounded-md border border-[#0061F5] hover:bg-[#F8FAFC] transition-colors shadow-sm">
                                 <i class="fas fa-list mr-2"></i>
                                 Catálogo de recursos
                             </a>
-                            <a href="{{ route('recursos.permisos', ['doctor_id' => $doctorId]) }}" class="inline-flex items-center px-4 py-2 bg-gray-100 text-gray-700 text-sm font-bold rounded-md hover:bg-gray-200 transition-colors shadow-sm">
+                            <a href="{{ route('recursos.permisos', ['doctor_id' => $doctorId]) }}" class="inline-flex items-center px-4 py-2 bg-white text-[#0061F5] text-sm font-bold rounded-md border border-[#0061F5] hover:bg-[#F8FAFC] transition-colors shadow-sm">
                                 <i class="fas fa-user-shield mr-2"></i>
                                 Permisos
                             </a>
@@ -67,14 +67,28 @@
                         </div>
                         <div class="flex items-center gap-2 text-xs text-gray-500">
                             <span class="font-semibold">Vista:</span>
-                            <button type="button" data-view="dayGridMonth" class="px-3 py-1 rounded-md border border-gray-300 text-gray-700 hover:bg-gray-100 text-xs">Mes</button>
-                            <button type="button" data-view="timeGridWeek" class="px-3 py-1 rounded-md border border-gray-300 text-gray-700 hover:bg-gray-100 text-xs">Semana</button>
-                            <button type="button" data-view="timeGridDay" class="px-3 py-1 rounded-md border border-gray-300 text-gray-700 hover:bg-gray-100 text-xs">Día</button>
-                            <button type="button" data-view="listYear" class="px-3 py-1 rounded-md border border-gray-300 text-gray-700 hover:bg-gray-100 text-xs">Año</button>
+                            <button type="button" data-view="dayGridMonth" class="agenda-view-btn px-3 py-1 rounded-md border border-gray-300 bg-white text-gray-700 hover:bg-[#F8FAFC] text-xs transition-colors">Mes</button>
+                            <button type="button" data-view="timeGridWeek" class="agenda-view-btn px-3 py-1 rounded-md border border-gray-300 bg-white text-gray-700 hover:bg-[#F8FAFC] text-xs transition-colors">Semana</button>
+                            <button type="button" data-view="timeGridDay" class="agenda-view-btn px-3 py-1 rounded-md border border-gray-300 bg-white text-gray-700 hover:bg-[#F8FAFC] text-xs transition-colors">Día</button>
+                            <button type="button" data-view="listYear" class="agenda-view-btn px-3 py-1 rounded-md border border-gray-300 bg-white text-gray-700 hover:bg-[#F8FAFC] text-xs transition-colors">Año</button>
                         </div>
                     </div>
 
-                    <div id="recursos-calendar"></div>
+                    @php
+                        $defaultRecursoId = $recursos->first()?->id;
+                        $defaultUserId = isset($usuarios) && $usuarios->count() > 0 ? $usuarios->first()->id : null;
+                    @endphp
+
+                    <div
+                        id="recursos-calendar"
+                        data-doctor-id="{{ (int) $doctorId }}"
+                        data-default-recurso-id="{{ $defaultRecursoId ? (int) $defaultRecursoId : '' }}"
+                        data-default-user-id="{{ $defaultUserId ? (int) $defaultUserId : '' }}"
+                        data-csrf-token="{{ csrf_token() }}"
+                        data-eventos-url="{{ route('recursos.eventos') }}"
+                        data-eventos-store-url="{{ route('recursos.eventos.store') }}"
+                        data-eventos-base-url="{{ url('admin/recursos/eventos') }}"
+                    ></div>
 
                     <div id="reserva-modal" class="fixed inset-0 z-50 hidden">
                         <div class="absolute inset-0 bg-black bg-opacity-30"></div>
@@ -154,18 +168,90 @@
 
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/index.global.min.css">
     <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/index.global.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/locales-all.global.min.js"></script>
 
-    @php
-        $defaultRecursoId = $recursos->first()?->id;
-        $defaultUserId = isset($usuarios) && $usuarios->count() > 0 ? $usuarios->first()->id : null;
-    @endphp
+    <style>
+        #recursos-calendar {
+            background: #F8FAFC;
+            border: 1px solid #E2E8F0;
+            border-radius: 12px;
+            padding: 12px;
+        }
+
+        #recursos-calendar .fc {
+            color: #1E293B;
+        }
+
+        #recursos-calendar .fc .fc-toolbar-title {
+            color: #1E293B;
+            font-weight: 800;
+        }
+
+        #recursos-calendar .fc .fc-button-primary {
+            background: #0061F5;
+            border-color: #0061F5;
+            font-weight: 700;
+            border-radius: 8px;
+        }
+
+        #recursos-calendar .fc .fc-button-primary:hover {
+            background: #0051CC;
+            border-color: #0051CC;
+        }
+
+        #recursos-calendar .fc .fc-button-primary:disabled {
+            background: #94A3B8;
+            border-color: #94A3B8;
+        }
+
+        #recursos-calendar .fc .fc-button-primary.fc-button-active {
+            background: #27ADFA;
+            border-color: #27ADFA;
+        }
+
+        #recursos-calendar .fc .fc-button-primary.fc-button-active:hover {
+            background: #1D9EEA;
+            border-color: #1D9EEA;
+        }
+
+        #recursos-calendar .fc .fc-day-today {
+            background: rgba(39, 173, 250, 0.08);
+        }
+
+        #recursos-calendar .fc .fc-timegrid-col.fc-day-today {
+            background: rgba(39, 173, 250, 0.06);
+        }
+
+        #recursos-calendar .fc .fc-highlight {
+            background: rgba(39, 173, 250, 0.15);
+        }
+
+        #recursos-calendar .fc a {
+            color: #0061F5;
+        }
+
+        #recursos-calendar .fc .fc-event {
+            background: #0061F5;
+            border-color: #0061F5;
+            color: #FFFFFF;
+        }
+
+        #recursos-calendar .fc .fc-event:hover {
+            filter: brightness(0.98);
+        }
+
+        #recursos-calendar .fc .fc-now-indicator-line,
+        #recursos-calendar .fc .fc-now-indicator-arrow {
+            border-color: #FA7427;
+        }
+    </style>
 
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             const calendarEl = document.getElementById('recursos-calendar');
-            const doctorId = {{ (int) $doctorId }};
+            const doctorId = parseInt(calendarEl.dataset.doctorId || '0', 10);
             const recursoFilter = document.getElementById('recursoFilter');
-            const defaultRecursoId = {{ $defaultRecursoId ? (int) $defaultRecursoId : 'null' }};
+            const defaultRecursoId = calendarEl.dataset.defaultRecursoId ? parseInt(calendarEl.dataset.defaultRecursoId, 10) : null;
             const modalEl = document.getElementById('reserva-modal');
             const closeBtn = document.getElementById('reserva-close');
             const cancelBtn = document.getElementById('reserva-cancel');
@@ -179,14 +265,41 @@
             const comentarioInput = document.getElementById('reserva-comentario');
             const deleteBtn = document.getElementById('reserva-delete');
             const errorBox = document.getElementById('reserva-error');
-            const defaultUserId = {{ $defaultUserId ? (int) $defaultUserId : 'null' }};
+            const defaultUserId = calendarEl.dataset.defaultUserId ? parseInt(calendarEl.dataset.defaultUserId, 10) : null;
+            const csrfToken = calendarEl.dataset.csrfToken || '';
+            const eventosUrl = calendarEl.dataset.eventosUrl || '';
+            const eventosStoreUrl = calendarEl.dataset.eventosStoreUrl || '';
+            const eventosBaseUrl = calendarEl.dataset.eventosBaseUrl || '';
             let selectedDate = null;
 
             let editingEventId = null;
+            const viewButtons = Array.from(document.querySelectorAll('.agenda-view-btn'));
+
+            function setActiveViewButton(viewType) {
+                viewButtons.forEach(btn => {
+                    const isActive = btn.getAttribute('data-view') === viewType;
+                    btn.classList.toggle('bg-[#0061F5]', isActive);
+                    btn.classList.toggle('text-white', isActive);
+                    btn.classList.toggle('border-[#0061F5]', isActive);
+                    btn.classList.toggle('bg-white', !isActive);
+                    btn.classList.toggle('text-gray-700', !isActive);
+                    btn.classList.toggle('border-gray-300', !isActive);
+                });
+            }
 
             const calendar = new FullCalendar.Calendar(calendarEl, {
                 locale: 'es',
                 initialView: 'dayGridMonth',
+                buttonText: {
+                    today: 'Hoy',
+                    month: 'Mes',
+                    week: 'Semana',
+                    day: 'Día',
+                    year: 'Año',
+                    list: 'Lista'
+                },
+                allDayText: 'Todo el día',
+                noEventsText: 'No hay reservas para mostrar',
                 headerToolbar: {
                     left: 'prev,next today',
                     center: 'title',
@@ -212,6 +325,9 @@
                 },
                 nowIndicator: true,
                 scrollTime: '07:00:00',
+                datesSet: function (info) {
+                    setActiveViewButton(info.view.type);
+                },
                 events: function (info, successCallback, failureCallback) {
                     const params = new URLSearchParams();
                     params.append('doctor_id', doctorId);
@@ -221,7 +337,7 @@
                         params.append('recurso_id', recursoFilter.value);
                     }
 
-                    fetch('{{ route('recursos.eventos') }}?' + params.toString(), {
+                    fetch(eventosUrl + '?' + params.toString(), {
                         headers: {
                             'Accept': 'application/json'
                         }
@@ -251,6 +367,7 @@
             });
 
             calendar.render();
+            setActiveViewButton(calendar.view.type);
 
             recursoFilter.addEventListener('change', function () {
                 calendar.refetchEvents();
@@ -435,17 +552,17 @@
                 formData.append('inicio', inicio);
                 formData.append('fin', fin);
                 formData.append('duracion', String(duracion));
-                formData.append('_token', '{{ csrf_token() }}');
+                formData.append('_token', csrfToken);
 
                 if (editingEventId === null) {
                     formData.append('recurso_id', recursoId);
                     formData.append('user_id', userId);
 
-                    fetch('{{ route('recursos.eventos.store') }}', {
+                    fetch(eventosStoreUrl, {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/x-www-form-urlencoded',
-                            'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                            'X-CSRF-TOKEN': csrfToken,
                             'Accept': 'application/json'
                         },
                         body: formData.toString()
@@ -472,11 +589,11 @@
                             showError(error.message || 'No se pudo crear la reserva.');
                         });
                 } else {
-                    fetch('{{ url("admin/recursos/eventos") }}/' + editingEventId, {
+                    fetch(eventosBaseUrl + '/' + editingEventId, {
                         method: 'PUT',
                         headers: {
                             'Content-Type': 'application/x-www-form-urlencoded',
-                            'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                            'X-CSRF-TOKEN': csrfToken,
                             'Accept': 'application/json'
                         },
                         body: formData.toString()
@@ -519,13 +636,13 @@
 
                 const formData = new URLSearchParams();
                 formData.append('doctor_id', doctorId);
-                formData.append('_token', '{{ csrf_token() }}');
+                formData.append('_token', csrfToken);
 
-                fetch('{{ url("admin/recursos/eventos") }}/' + editingEventId, {
+                fetch(eventosBaseUrl + '/' + editingEventId, {
                     method: 'DELETE',
                     headers: {
                         'Content-Type': 'application/x-www-form-urlencoded',
-                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                        'X-CSRF-TOKEN': csrfToken,
                         'Accept': 'application/json'
                     },
                     body: formData.toString()
@@ -550,16 +667,16 @@
 
                 const formData = new URLSearchParams();
                 formData.append('doctor_id', doctorId);
-                formData.append('_token', '{{ csrf_token() }}');
+                formData.append('_token', csrfToken);
                 formData.append('inicio', inicio);
                 formData.append('fin', fin);
-                formData.append('_token', '{{ csrf_token() }}');
+                formData.append('_token', csrfToken);
 
-                fetch('{{ url("admin/recursos/eventos") }}/' + event.id, {
+                fetch(eventosBaseUrl + '/' + event.id, {
                     method: 'PUT',
                     headers: {
                         'Content-Type': 'application/x-www-form-urlencoded',
-                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                        'X-CSRF-TOKEN': csrfToken,
                         'Accept': 'application/json'
                     },
                     body: formData.toString()
