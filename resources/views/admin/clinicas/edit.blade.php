@@ -76,17 +76,6 @@
                                 <textarea name="ubicacion" id="ubicacion" rows="3" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-[#0061F5] focus:ring-[#0061F5]">{{ old('ubicacion', $clinica->ubicacion) }}</textarea>
                             </div>
 
-                            <!-- Logotipo -->
-                            <div>
-                                <label for="logotipo" class="block text-sm font-bold text-gray-700">Logotipo</label>
-                                @if($clinica->logotipo)
-                                    <div class="mb-2">
-                                        <img src="{{ asset($clinica->logotipo) }}" alt="Logotipo actual" class="h-20 w-20 rounded-full object-cover">
-                                    </div>
-                                @endif
-                                <input type="file" name="logotipo" id="logotipo" class="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-[#E6F0FF] file:text-[#0061F5] hover:file:bg-[#CCE0FF]">
-                            </div>
-
                             <!-- Activo -->
                             <div class="flex items-center">
                                 <input type="checkbox" name="activo" id="activo" value="1" class="rounded border-gray-300 text-[#0061F5] shadow-sm focus:border-[#0061F5] focus:ring-[#0061F5]" {{ old('activo', $clinica->activo) ? 'checked' : '' }}>

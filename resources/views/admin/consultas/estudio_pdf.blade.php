@@ -18,8 +18,34 @@
 </head>
 <body>
     <div class="header">
-        <h1>Dr. {{ $estudio->consulta->doctor->name }} {{ $estudio->consulta->doctor->apellido_paterno }}</h1>
-        <p>Orden de Estudios de Laboratorio / Gabinete</p>
+        @php
+            $logoPath = null;
+            $doctor = $estudio->consulta?->doctor;
+            if ($doctor && $doctor->branding_logo_path && file_exists(public_path('storage/'.$doctor->branding_logo_path))) {
+                $logoPath = public_path('storage/'.$doctor->branding_logo_path);
+            }
+            $clinica = $estudio->consulta?->cita?->consultorio?->clinica;
+            $clinicaNombre = $clinica?->nombre ?? '';
+        @endphp
+
+        <table style="width: 100%; border-collapse: collapse;">
+            <tr>
+                <td style="width: 90px; vertical-align: top;">
+                    @if($logoPath)
+                        <img src="{{ $logoPath }}" style="height: 70px; width: 70px; object-fit: contain;">
+                    @endif
+                </td>
+                <td style="vertical-align: top;">
+                    @if(!$logoPath && $clinicaNombre)
+                        <h1 style="margin: 0 0 2px 0;">{{ $clinicaNombre }}</h1>
+                    @endif
+                    <p style="margin: 0; font-weight: 700; color: #2c3e50;">
+                        Dr. {{ $estudio->consulta->doctor->name }} {{ $estudio->consulta->doctor->apellido_paterno }} {{ $estudio->consulta->doctor->apellido_materno }}
+                    </p>
+                    <p style="margin: 2px 0;">Orden de Estudios de Laboratorio / Gabinete</p>
+                </td>
+            </tr>
+        </table>
     </div>
 
     <div class="info-section">

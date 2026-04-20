@@ -41,7 +41,6 @@
                                     <th class="px-6 py-3 text-left text-xs font-bold text-[#0061F5] uppercase tracking-wider">NOMBRE</th>
                                     <th class="px-6 py-3 text-left text-xs font-bold text-[#0061F5] uppercase tracking-wider">DIRECCIÓN</th>
                                     <th class="px-6 py-3 text-left text-xs font-bold text-[#0061F5] uppercase tracking-wider">TELÉFONO</th>
-                                    <th class="px-6 py-3 text-left text-xs font-bold text-[#0061F5] uppercase tracking-wider">LOGOTIPO</th>
                                     <th class="px-6 py-3 text-left text-xs font-bold text-[#0061F5] uppercase tracking-wider">ESTADO</th>
                                     <th class="px-6 py-3 text-left text-xs font-bold text-[#0061F5] uppercase tracking-wider">CREADO POR</th>
                                     <th class="px-6 py-3 text-right text-xs font-bold text-[#0061F5] uppercase tracking-wider">ACCIONES</th>
@@ -53,13 +52,6 @@
                                         <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-cyan-500">{{ $clinica->nombre }}</td>
                                         <td class="px-6 py-4 whitespace-nowrap text-sm text-cyan-500">{{ $clinica->direccion }}</td>
                                         <td class="px-6 py-4 whitespace-nowrap text-sm text-cyan-500">{{ $clinica->telefono }}</td>
-                                        <td class="px-6 py-4 whitespace-nowrap">
-                                            @if($clinica->logotipo)
-                                                <img src="{{ asset($clinica->logotipo) }}" alt="Logotipo" class="h-10 w-10 rounded-full object-cover">
-                                            @else
-                                                <span class="text-sm text-gray-400">N/A</span>
-                                            @endif
-                                        </td>
                                         <td class="px-6 py-4 whitespace-nowrap text-sm text-cyan-500">
                                             {{ $clinica->activo ? 'Activo' : 'Inactivo' }}
                                         </td>
@@ -83,7 +75,7 @@
                                     </tr>
                                 @empty
                                     <tr>
-                                        <td colspan="7" class="px-6 py-4 whitespace-nowrap text-center text-gray-500">
+                                        <td colspan="6" class="px-6 py-4 whitespace-nowrap text-center text-gray-500">
                                             No hay clínicas registradas.
                                         </td>
                                     </tr>

@@ -64,16 +64,7 @@ class WizardController extends Controller
             'lng' => 'nullable|numeric',
             'telefono' => 'required|string|max:20',
             'ubicacion' => 'nullable|string',
-            'logotipo' => 'nullable|image|max:2048', // 2MB Max
         ]);
-
-        $logotipoPath = null;
-        if ($request->hasFile('logotipo')) {
-            $file = $request->file('logotipo');
-            $filename = time().'_'.$file->getClientOriginalName();
-            $file->move(public_path('clinicas'), $filename);
-            $logotipoPath = 'clinicas/'.$filename;
-        }
 
         /** @var \App\Models\User $user */
         $user = Auth::user();
@@ -86,7 +77,6 @@ class WizardController extends Controller
             'lng' => $request->lng,
             'telefono' => $request->telefono,
             'ubicacion' => $request->ubicacion,
-            'logotipo' => $logotipoPath,
             'created_by' => Auth::id(),
             'activo' => $activo,
         ]);

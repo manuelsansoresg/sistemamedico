@@ -6,7 +6,7 @@ use App\Models\Clinica;
 use App\Services\SubscriptionService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Storage;
 
 class ClinicaController extends Controller
 {
@@ -51,6 +51,9 @@ class ClinicaController extends Controller
     public function store(Request $request)
     {
         $user = Auth::user();
+        if (! $user instanceof \App\Models\User) {
+            abort(403);
+        }
         $owner = $user->hasRole('doctor') ? $user : \App\Models\User::find($user->created_by);
 
         if (! $this->subscriptionService->canCreate($owner, 'clinica')) {
@@ -61,19 +64,16 @@ class ClinicaController extends Controller
             'nombre' => 'required|string|max:255',
             'direccion' => 'required|string|max:255',
             'telefono' => 'required|string|max:20',
-            'logotipo' => 'nullable|image|max:2048', // 2MB Max
+            'logo' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
             'ubicacion' => 'nullable|string',
             'lat' => 'nullable|numeric',
             'lng' => 'nullable|numeric',
             'activo' => 'boolean',
         ]);
 
-        $logotipoPath = null;
-        if ($request->hasFile('logotipo')) {
-            $file = $request->file('logotipo');
-            $filename = time().'_'.$file->getClientOriginalName();
-            $file->move(public_path('clinicas'), $filename);
-            $logotipoPath = 'clinicas/'.$filename;
+        $logoPath = null;
+        if ($request->hasFile('logo')) {
+            $logoPath = $request->file('logo')->store('clinic-logos', 'public');
         }
 
         $origen = $this->subscriptionService->pickOriginSubscription($owner, 'clinica');
@@ -82,7 +82,7 @@ class ClinicaController extends Controller
             'nombre' => $request->nombre,
             'direccion' => $request->direccion,
             'telefono' => $request->telefono,
-            'logotipo' => $logotipoPath,
+            'logo' => $logoPath,
             'ubicacion' => $request->ubicacion,
             'lat' => $request->lat,
             'lng' => $request->lng,
@@ -116,30 +116,27 @@ class ClinicaController extends Controller
             'nombre' => 'required|string|max:255',
             'direccion' => 'required|string|max:255',
             'telefono' => 'required|string|max:20',
-            'logotipo' => 'nullable|image|max:2048', // 2MB Max
+            'logo' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
             'ubicacion' => 'nullable|string',
             'lat' => 'nullable|numeric',
             'lng' => 'nullable|numeric',
             'activo' => 'boolean',
         ]);
 
-        $logotipoPath = $clinica->logotipo;
-        if ($request->hasFile('logotipo')) {
-            // Delete old image if exists
-            if ($logotipoPath && File::exists(public_path($logotipoPath))) {
-                File::delete(public_path($logotipoPath));
+        $logoPath = $clinica->logo;
+        if ($request->hasFile('logo')) {
+            if ($logoPath) {
+                Storage::disk('public')->delete($logoPath);
             }
-            $file = $request->file('logotipo');
-            $filename = time().'_'.$file->getClientOriginalName();
-            $file->move(public_path('clinicas'), $filename);
-            $logotipoPath = 'clinicas/'.$filename;
+
+            $logoPath = $request->file('logo')->store('clinic-logos', 'public');
         }
 
         $clinica->update([
             'nombre' => $request->nombre,
             'direccion' => $request->direccion,
             'telefono' => $request->telefono,
-            'logotipo' => $logotipoPath,
+            'logo' => $logoPath,
             'ubicacion' => $request->ubicacion,
             'lat' => $request->lat,
             'lng' => $request->lng,
@@ -154,8 +151,8 @@ class ClinicaController extends Controller
      */
     public function destroy(Clinica $clinica)
     {
-        if ($clinica->logotipo && File::exists(public_path($clinica->logotipo))) {
-            File::delete(public_path($clinica->logotipo));
+        if ($clinica->logo) {
+            Storage::disk('public')->delete($clinica->logo);
         }
         $clinica->delete();
 

@@ -77,8 +77,8 @@
 
                             <!-- Logotipo -->
                             <div>
-                                <label for="logotipo" class="block text-sm font-bold text-gray-700">Logotipo</label>
-                                <input type="file" name="logotipo" id="logotipo" class="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-[#E6F0FF] file:text-[#0061F5] hover:file:bg-[#CCE0FF]">
+                                <label for="logo" class="block text-sm font-bold text-gray-700">Logo</label>
+                                <input type="file" name="logo" id="logo" class="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-[#E6F0FF] file:text-[#0061F5] hover:file:bg-[#CCE0FF]">
                             </div>
 
                             <!-- Activo -->

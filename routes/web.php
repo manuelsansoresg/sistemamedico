@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Admin\AuditController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Public\ComprobantePagoController;
@@ -30,6 +31,7 @@ Route::middleware(['auth', 'role:doctor', 'check.doctor.status'])->group(functio
 
 Route::middleware(['auth', 'role:root'])->group(function () {
     Route::get('/admin/dashboard', [AdminController::class, 'index'])->name('admin.dashboard');
+    Route::get('/admin/audit', [AuditController::class, 'index'])->name('admin.audit.index');
     Route::resource('admin/catalogos', \App\Http\Controllers\CatalogoController::class);
     Route::resource('admin/paquetes', \App\Http\Controllers\PaqueteController::class);
     Route::resource('admin/configuraciones', \App\Http\Controllers\ConfiguracionController::class);
@@ -95,6 +97,13 @@ Route::middleware(['auth', 'role:root|doctor|asistente|secretaria', 'check.docto
     Route::delete('estudios/{estudio}', [\App\Http\Controllers\ConsultaController::class, 'destroyEstudio'])->name('consultas.estudios.destroy');
     Route::get('estudios-archivos/{archivo}/delete', [\App\Http\Controllers\ConsultaController::class, 'destroyEstudioArchivo'])->name('consultas.estudios.archivos.delete');
 
+    Route::middleware(['role:doctor'])->group(function () {
+        Route::get('admin/pacientes/{paciente}/empatia', [\App\Http\Controllers\PatientEmpathyController::class, 'index'])->name('pacientes.empatia.index');
+        Route::post('admin/pacientes/{paciente}/empatia', [\App\Http\Controllers\PatientEmpathyController::class, 'store'])->name('pacientes.empatia.store');
+        Route::put('admin/pacientes/empatia/{note}', [\App\Http\Controllers\PatientEmpathyController::class, 'update'])->name('pacientes.empatia.update');
+        Route::delete('admin/pacientes/empatia/{note}', [\App\Http\Controllers\PatientEmpathyController::class, 'destroy'])->name('pacientes.empatia.destroy');
+    });
+
     // Ganancias Routes (Restricted to Root and Doctor)
     Route::get('ganancias', [\App\Http\Controllers\GananciaController::class, 'index'])
         ->middleware('role:root|doctor')
@@ -116,10 +125,15 @@ Route::middleware(['auth', 'role:root|doctor|asistente|secretaria', 'check.docto
     Route::post('admin/recursos/permisos', [\App\Http\Controllers\RecursoController::class, 'actualizarPermisos'])->name('recursos.permisos.actualizar');
 
     Route::get('admin/recursos/agenda', [\App\Http\Controllers\RecursoReservaController::class, 'calendario'])->name('recursos.agenda');
+    Route::get('recursos-compartidos/agenda/exportar-pdf', [\App\Http\Controllers\RecursoReservaController::class, 'exportPdf'])->name('recursos.agenda.export_pdf');
     Route::get('admin/recursos/eventos', [\App\Http\Controllers\RecursoReservaController::class, 'eventos'])->name('recursos.eventos');
     Route::post('admin/recursos/eventos', [\App\Http\Controllers\RecursoReservaController::class, 'store'])->name('recursos.eventos.store');
     Route::put('admin/recursos/eventos/{reserva}', [\App\Http\Controllers\RecursoReservaController::class, 'update'])->name('recursos.eventos.update');
     Route::delete('admin/recursos/eventos/{reserva}', [\App\Http\Controllers\RecursoReservaController::class, 'destroy'])->name('recursos.eventos.destroy');
+
+    // Branding
+    Route::get('admin/branding', [App\Http\Controllers\BrandingController::class, 'edit'])->name('branding.edit');
+    Route::post('admin/branding/logo', [App\Http\Controllers\BrandingController::class, 'updateLogo'])->name('branding.update_logo');
 });
 
 Route::middleware(['auth', 'role:doctor'])->group(function () {

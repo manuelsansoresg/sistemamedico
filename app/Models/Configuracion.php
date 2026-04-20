@@ -2,10 +2,13 @@
 
 namespace App\Models;
 
+use App\Traits\Auditable;
 use Illuminate\Database\Eloquent\Model;
 
 class Configuracion extends Model
 {
+    use Auditable;
+
     protected $fillable = [
         'user_id',
         'created_by',
@@ -15,7 +18,16 @@ class Configuracion extends Model
         'cuenta',
         'clabe',
         'aceptar_pagos_con_tarjeta',
+        'branding_logo_path',
     ];
+
+    public function auditExcludedAttributes(): array
+    {
+        return [
+            'cuenta',
+            'clabe',
+        ];
+    }
 
     public function user()
     {

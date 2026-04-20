@@ -52,6 +52,15 @@
                                 <i class="fas fa-user-shield mr-2"></i>
                                 Permisos
                             </a>
+                            <a
+                                id="exportPdfBtn"
+                                data-export-base-url="{{ route('recursos.agenda.export_pdf') }}"
+                                href="{{ route('recursos.agenda.export_pdf', ['doctor_id' => $doctorId]) }}"
+                                class="inline-flex items-center px-4 py-2 bg-white text-[#0061F5] text-sm font-bold rounded-md border border-[#0061F5] hover:bg-blue-50 transition-colors shadow-sm"
+                            >
+                                <i class="fas fa-file-pdf mr-2"></i>
+                                Exportar PDF
+                            </a>
                         </div>
                     </div>
 
@@ -251,6 +260,7 @@
             const calendarEl = document.getElementById('recursos-calendar');
             const doctorId = parseInt(calendarEl.dataset.doctorId || '0', 10);
             const recursoFilter = document.getElementById('recursoFilter');
+            const exportPdfBtn = document.getElementById('exportPdfBtn');
             const defaultRecursoId = calendarEl.dataset.defaultRecursoId ? parseInt(calendarEl.dataset.defaultRecursoId, 10) : null;
             const modalEl = document.getElementById('reserva-modal');
             const closeBtn = document.getElementById('reserva-close');
@@ -285,6 +295,40 @@
                     btn.classList.toggle('text-gray-700', !isActive);
                     btn.classList.toggle('border-gray-300', !isActive);
                 });
+            }
+
+            function updateExportPdfHref() {
+                if (!exportPdfBtn) {
+                    return;
+                }
+                const baseUrl = exportPdfBtn.dataset.exportBaseUrl || '';
+                if (!baseUrl) {
+                    return;
+                }
+                const params = new URLSearchParams();
+                params.append('doctor_id', doctorId);
+
+                const view = calendar.view;
+                const startDate = view && view.activeStart ? view.activeStart : null;
+                const endDate = view && view.activeEnd ? new Date(view.activeEnd.getTime() - 1) : null;
+
+                if (startDate) {
+                    params.append('start', startDate.toISOString().slice(0, 10));
+                }
+                if (endDate) {
+                    params.append('end', endDate.toISOString().slice(0, 10));
+                }
+                if (recursoFilter && recursoFilter.value) {
+                    params.append('recurso_id', recursoFilter.value);
+                }
+
+                const currentDate = calendar.getDate ? calendar.getDate() : null;
+                if (currentDate) {
+                    params.append('mes', String(currentDate.getMonth() + 1));
+                    params.append('anio', String(currentDate.getFullYear()));
+                }
+
+                exportPdfBtn.href = baseUrl + '?' + params.toString();
             }
 
             const calendar = new FullCalendar.Calendar(calendarEl, {
@@ -327,6 +371,7 @@
                 scrollTime: '07:00:00',
                 datesSet: function (info) {
                     setActiveViewButton(info.view.type);
+                    updateExportPdfHref();
                 },
                 events: function (info, successCallback, failureCallback) {
                     const params = new URLSearchParams();
@@ -368,9 +413,11 @@
 
             calendar.render();
             setActiveViewButton(calendar.view.type);
+            updateExportPdfHref();
 
             recursoFilter.addEventListener('change', function () {
                 calendar.refetchEvents();
+                updateExportPdfHref();
             });
 
             document.querySelectorAll('[data-view]').forEach(button => {

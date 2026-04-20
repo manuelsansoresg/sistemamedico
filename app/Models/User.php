@@ -3,6 +3,7 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
+use App\Traits\Auditable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -11,7 +12,7 @@ use Spatie\Permission\Traits\HasRoles;
 class User extends Authenticatable
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
-    use HasFactory, HasRoles, Notifiable;
+    use Auditable, HasFactory, HasRoles, Notifiable;
 
     /**
      * The attributes that are mass assignable.
@@ -120,6 +121,11 @@ class User extends Authenticatable
         return $this->hasMany(Suscripcion::class);
     }
 
+    public function configuracion()
+    {
+        return $this->hasOne(Configuracion::class);
+    }
+
     public function getActivePackageTypeAttribute()
     {
         $subscription = $this->suscripciones()
@@ -134,5 +140,44 @@ class User extends Authenticatable
             ->first();
 
         return $subscription ? $subscription->paquete->tipo : null;
+    }
+
+    public function auditSection(): string
+    {
+        return 'usuarios';
+    }
+
+    public function getProfilePhotoUrlAttribute()
+    {
+        return $this->profile_photo_path
+            ? asset('storage/'.$this->profile_photo_path)
+            : 'https://ui-avatars.com/api/?name='.urlencode($this->name).'&color=7F9CF5&background=EBF4FF';
+    }
+
+    public function getClinicLogoUrlAttribute()
+    {
+        $clinica = $this->clinicas->first();
+
+        if ($clinica && $clinica->logo) {
+            return asset('storage/'.$clinica->logo);
+        }
+
+        if ($clinica && $clinica->logotipo) {
+            return asset($clinica->logotipo);
+        }
+
+        return null;
+    }
+
+    public function getBrandingLogoPathAttribute()
+    {
+        return $this->configuracion?->branding_logo_path;
+    }
+
+    public function getBrandingLogoUrlAttribute()
+    {
+        return $this->branding_logo_path
+            ? asset('storage/'.$this->branding_logo_path)
+            : null;
     }
 }

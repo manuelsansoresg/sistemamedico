@@ -2,12 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\AuditLog;
 use App\Models\Catalogo;
 use App\Models\Ganancia;
 use App\Models\Paquete;
 use App\Models\Suscripcion;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Throwable;
 
 class CompraController extends Controller
 {
@@ -67,6 +69,29 @@ class CompraController extends Controller
             'fecha_fin' => $estatusPago === 'pagado' ? now()->addYear() : null,
         ]);
 
+        try {
+            AuditLog::create([
+                'user_id' => Auth::id(),
+                'action' => 'compra_catalogo',
+                'section' => 'compras',
+                'model_type' => get_class($suscripcion),
+                'model_id' => $suscripcion->id,
+                'payload' => [
+                    'catalogo_id' => $item->id,
+                    'cantidad' => $cantidad,
+                    'precio_unitario' => (float) $item->precio,
+                    'precio_total' => (float) $precioTotal,
+                    'metodo_pago' => $request->metodo_pago,
+                    'estatus_pago' => $estatusPago,
+                ],
+                'ip_address' => $request->ip(),
+                'user_agent' => $request->userAgent(),
+                'created_at' => now(),
+            ]);
+        } catch (Throwable $e) {
+            report($e);
+        }
+
         // Si se paga con tarjeta, registrar ganancia inmediatamente
         if ($estatusPago === 'pagado') {
             $montoGanancia = 0;
@@ -119,7 +144,7 @@ class CompraController extends Controller
             $fechaInicio = now();
         }
 
-        Suscripcion::create([
+        $newSuscripcion = Suscripcion::create([
             'user_id' => Auth::id(),
             'paquete_id' => $paquete->id,
             'catalogo_id' => null,
@@ -132,6 +157,28 @@ class CompraController extends Controller
             'fecha_inicio' => $fechaInicio,
             'fecha_fin' => ($estatusPago === 'pagado') ? now()->addMonth() : null,
         ]);
+
+        try {
+            AuditLog::create([
+                'user_id' => Auth::id(),
+                'action' => 'renovar_paquete',
+                'section' => 'compras',
+                'model_type' => get_class($newSuscripcion),
+                'model_id' => $newSuscripcion->id,
+                'payload' => [
+                    'suscripcion_anterior_id' => $previous->id,
+                    'paquete_id' => $paquete->id,
+                    'precio' => (float) $paquete->precio,
+                    'metodo_pago' => $request->metodo_pago,
+                    'estatus_pago' => $estatusPago,
+                ],
+                'ip_address' => $request->ip(),
+                'user_agent' => $request->userAgent(),
+                'created_at' => now(),
+            ]);
+        } catch (Throwable $e) {
+            report($e);
+        }
 
         $mensaje = ($estatusPago === 'pagado')
             ? 'Renovación realizada exitosamente.'
@@ -159,6 +206,24 @@ class CompraController extends Controller
                 'comprobante_pago' => 'comprobantes/'.$filename,
                 // Mantenemos estatus 'pendiente' hasta que admin valide
             ]);
+
+            try {
+                AuditLog::create([
+                    'user_id' => Auth::id(),
+                    'action' => 'subir_comprobante',
+                    'section' => 'suscripciones',
+                    'model_type' => get_class($suscripcion),
+                    'model_id' => $suscripcion->id,
+                    'payload' => [
+                        'archivo' => 'comprobantes/'.$filename,
+                    ],
+                    'ip_address' => $request->ip(),
+                    'user_agent' => $request->userAgent(),
+                    'created_at' => now(),
+                ]);
+            } catch (Throwable $e) {
+                report($e);
+            }
         }
 
         return back()->with('success', 'Comprobante subido correctamente. Esperando validación del administrador.');

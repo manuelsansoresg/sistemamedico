@@ -3,11 +3,11 @@
 namespace App\Http\Controllers;
 
 use App\Models\Cita;
-use App\Models\Suscripcion;
 use App\Models\Clinica;
 use App\Models\Consultorio;
 use App\Models\DiaSinCita;
 use App\Models\Pendiente;
+use App\Models\Suscripcion;
 use App\Services\SubscriptionService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;

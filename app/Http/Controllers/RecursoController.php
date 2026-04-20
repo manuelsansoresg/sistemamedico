@@ -2,12 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\AuditLog;
 use App\Models\Recurso;
 use App\Models\User;
 use App\Services\SubscriptionService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Spatie\Permission\Models\Permission;
+use Throwable;
 
 class RecursoController extends Controller
 {
@@ -23,6 +25,9 @@ class RecursoController extends Controller
     public function index(Request $request)
     {
         $user = Auth::user();
+        if (! $user instanceof User) {
+            abort(403);
+        }
         $this->ensureModuleEnabled($user);
 
         $doctorId = $this->resolveDoctorId($user, $request->input('doctor_id'));
@@ -50,6 +55,9 @@ class RecursoController extends Controller
     public function store(Request $request)
     {
         $user = Auth::user();
+        if (! $user instanceof User) {
+            abort(403);
+        }
         $this->ensureModuleEnabled($user);
 
         $doctorId = $this->resolveDoctorId($user, $request->input('doctor_id'));
@@ -79,6 +87,9 @@ class RecursoController extends Controller
     public function update(Request $request, Recurso $recurso)
     {
         $user = Auth::user();
+        if (! $user instanceof User) {
+            abort(403);
+        }
         $this->ensureCanManageRecurso($user, $recurso);
 
         $request->validate([
@@ -103,6 +114,9 @@ class RecursoController extends Controller
     public function destroy(Recurso $recurso)
     {
         $user = Auth::user();
+        if (! $user instanceof User) {
+            abort(403);
+        }
         $this->ensureCanManageRecurso($user, $recurso);
 
         $recurso->delete();
@@ -113,6 +127,9 @@ class RecursoController extends Controller
     public function permisos(Request $request)
     {
         $user = Auth::user();
+        if (! $user instanceof User) {
+            abort(403);
+        }
         if (! $user->hasRole(['root', 'doctor'])) {
             abort(403);
         }
@@ -149,6 +166,9 @@ class RecursoController extends Controller
     public function actualizarPermisos(Request $request)
     {
         $user = Auth::user();
+        if (! $user instanceof User) {
+            abort(403);
+        }
         if (! $user->hasRole(['root', 'doctor'])) {
             abort(403);
         }
@@ -168,6 +188,11 @@ class RecursoController extends Controller
             $q->whereIn('name', ['doctor', 'asistente', 'secretaria']);
         });
         $usuarios = $query->get();
+        $beforeIds = $usuarios
+            ->filter(fn (User $u) => $u->hasPermissionTo(self::RECURSOS_PERMISSION))
+            ->pluck('id')
+            ->values()
+            ->all();
 
         foreach ($usuarios as $usuario) {
             if ($usuario->hasPermissionTo(self::RECURSOS_PERMISSION)) {
@@ -188,6 +213,31 @@ class RecursoController extends Controller
 
         if (! $doctor->hasPermissionTo(self::RECURSOS_PERMISSION)) {
             $doctor->givePermissionTo(self::RECURSOS_PERMISSION);
+        }
+
+        $afterIds = $query->get()
+            ->filter(fn (User $u) => $u->hasPermissionTo(self::RECURSOS_PERMISSION))
+            ->pluck('id')
+            ->values()
+            ->all();
+
+        try {
+            AuditLog::create([
+                'user_id' => $user->id,
+                'action' => 'cambio_permisos_recurso',
+                'section' => 'recursos',
+                'model_type' => get_class($doctor),
+                'model_id' => $doctor->id,
+                'payload' => [
+                    'old' => ['usuarios' => $beforeIds],
+                    'new' => ['usuarios' => $afterIds],
+                ],
+                'ip_address' => $request->ip(),
+                'user_agent' => $request->userAgent(),
+                'created_at' => now(),
+            ]);
+        } catch (Throwable $e) {
+            report($e);
         }
 
         return redirect()->route('recursos.permisos', ['doctor_id' => $doctorId])->with('success', 'Permisos actualizados correctamente.');

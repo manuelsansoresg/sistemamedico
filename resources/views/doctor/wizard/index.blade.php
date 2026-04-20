@@ -297,11 +297,6 @@
                                     <textarea x-model="formData.clinica.ubicacion" rows="2" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-[#0061F5] focus:ring-[#0061F5] sm:text-sm"></textarea>
                                 </div>
 
-                                <div>
-                                    <label class="block text-sm font-medium text-gray-700">Logotipo</label>
-                                    <input type="file" x-ref="clinicaLogo" class="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-[#E6F0FF] file:text-[#0061F5] hover:file:bg-[#CCE0FF]">
-                                </div>
-
                                 @role('root')
                                 <div class="flex items-center">
                                     <input type="checkbox" x-model="formData.clinica.activo" class="rounded border-gray-300 text-[#0061F5] shadow-sm focus:border-[#0061F5] focus:ring-[#0061F5]">
@@ -414,7 +409,7 @@
                     if (type === 'clinica') {
                         this.formData.clinica = { nombre: '', direccion: '', lat: null, lng: null, telefono: '', ubicacion: '', activo: true };
                         // Reset file input if exists
-                        if(this.$refs.clinicaLogo) this.$refs.clinicaLogo.value = '';
+                        
                     } else if (type === 'consultorio') {
                         this.formData.consultorio = { nombre: '', direccion: '', lat: null, lng: null, telefono: '', activo: true };
                     }
@@ -535,10 +530,6 @@
                     }
 
                     // Handle file upload for clinica
-                    if (type === 'clinica' && this.$refs.clinicaLogo && this.$refs.clinicaLogo.files.length > 0) {
-                        formData.append('logotipo', this.$refs.clinicaLogo.files[0]);
-                    }
-
                     try {
                         const response = await fetch(url, {
                             method: 'POST',
@@ -566,7 +557,7 @@
                             // Reset form
                             if (type === 'clinica') {
                                 this.formData.clinica = { nombre: '', direccion: '', lat: null, lng: null, telefono: '', ubicacion: '', activo: true };
-                                if(this.$refs.clinicaLogo) this.$refs.clinicaLogo.value = '';
+                                
                             } else {
                                 this.formData.consultorio = { nombre: '', direccion: '', lat: null, lng: null, telefono: '', activo: true };
                             }

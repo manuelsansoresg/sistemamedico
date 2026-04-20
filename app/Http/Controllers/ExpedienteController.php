@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\AuditLog;
 use App\Models\Clinica;
 use App\Models\Consulta;
 use App\Models\Consultorio;
@@ -13,6 +14,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
+use Throwable;
 use ZipArchive;
 
 class ExpedienteController extends Controller
@@ -80,7 +82,7 @@ class ExpedienteController extends Controller
                     ->orderBy('apellido_paterno')
                     ->get();
             }
-            
+
         } else {
             $clinicas = Clinica::where('activo', true)->get();
             $consultorios = Consultorio::where('activo', true)->get();
@@ -409,6 +411,38 @@ class ExpedienteController extends Controller
             $zip->close();
         } else {
             return back()->with('error', 'No se pudo crear el archivo ZIP.');
+        }
+
+        try {
+            $idsForPayload = array_values($ids);
+            $maxIds = 50;
+            $idsPreview = array_slice($idsForPayload, 0, $maxIds);
+
+            AuditLog::create([
+                'user_id' => $user->id,
+                'action' => 'descargar_expedientes_zip',
+                'section' => 'expedientes',
+                'payload' => [
+                    'consulta_ids_count' => count($idsForPayload),
+                    'consulta_ids' => count($idsForPayload) <= $maxIds ? $idsForPayload : $idsPreview,
+                    'consulta_ids_truncated' => count($idsForPayload) > $maxIds,
+                    'is_paciente' => $isPatient,
+                    'incluye' => [
+                        'consultas' => (bool) ($canDownloadConsultas || $canDownloadAll),
+                        'estudios' => (bool) ($canDownloadEstudios || $canDownloadAll),
+                        'imagenes' => (bool) ($canDownloadImages || $canDownloadAll),
+                        'todo' => (bool) $canDownloadAll,
+                    ],
+                    'zip' => [
+                        'filename' => $zipFileName,
+                    ],
+                ],
+                'ip_address' => request()->ip(),
+                'user_agent' => request()->userAgent(),
+                'created_at' => now(),
+            ]);
+        } catch (Throwable $e) {
+            report($e);
         }
 
         return response()->download($zipPath)->deleteFileAfterSend(true);

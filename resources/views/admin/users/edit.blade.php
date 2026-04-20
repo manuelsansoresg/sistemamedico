@@ -41,14 +41,60 @@
                         </div>
                     @endif
 
-                    <form action="{{ route('users.update', $user) }}" method="POST">
+                    <form action="{{ route('users.update', $user) }}" method="POST" enctype="multipart/form-data">
                         @csrf
                         @method('PUT')
                         
                         <!-- Sección: Información Personal -->
-                        <div class="mb-8">
+                        <div class="mb-8" id="foto">
                             <h3 class="text-lg font-medium leading-6 text-gray-900 border-b pb-2 mb-4">Información Personal</h3>
                             <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                                <div class="md:col-span-3" x-data="{
+                                    previewUrl: '{{ $user->profile_photo_url }}',
+                                    fileName: '',
+                                    dragging: false,
+                                    setFile(file) {
+                                        if (!file) return;
+                                        this.fileName = file.name;
+                                        this.previewUrl = URL.createObjectURL(file);
+                                        const dt = new DataTransfer();
+                                        dt.items.add(file);
+                                        this.$refs.photoInput.files = dt.files;
+                                    },
+                                    onSelect(e) {
+                                        const file = e && e.target && e.target.files ? e.target.files[0] : null;
+                                        this.setFile(file);
+                                    },
+                                    onDrop(e) {
+                                        this.dragging = false;
+                                        const file = e && e.dataTransfer && e.dataTransfer.files ? e.dataTransfer.files[0] : null;
+                                        this.setFile(file);
+                                    },
+                                }">
+                                    <label class="block text-sm font-bold text-gray-700">Foto de perfil</label>
+                                    <div class="mt-2 flex items-start gap-6">
+                                        <img :src="previewUrl" alt="Foto de perfil" class="h-16 w-16 rounded-full object-cover border border-gray-200">
+                                        <div class="flex-1">
+                                            <div class="rounded-lg border-2 border-dashed p-4 transition-colors"
+                                                :class="dragging ? 'border-[#0061F5] bg-[#E6F0FF]' : 'border-gray-300 bg-white'"
+                                                @dragover.prevent="dragging = true"
+                                                @dragleave.prevent="dragging = false"
+                                                @drop.prevent="onDrop($event)">
+                                                <div class="flex flex-col gap-2">
+                                                    <p class="text-sm font-semibold text-gray-800">Arrastra y suelta la imagen aquí</p>
+                                                    <p class="text-xs text-gray-500">JPG, PNG o WEBP (máx. 2MB)</p>
+                                                    <div>
+                                                        <button type="button" class="px-4 py-2 bg-[#0061F5] text-white font-bold rounded-md hover:bg-[#0051CC] transition-colors" @click="$refs.photoInput.click()">
+                                                            Seleccionar archivo
+                                                        </button>
+                                                        <input type="file" x-ref="photoInput" name="profile_photo" accept="image/jpeg,image/png,image/webp" class="hidden" @change="onSelect($event)">
+                                                    </div>
+                                                    <p class="text-xs text-gray-600" x-show="fileName" x-text="fileName"></p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
                                 <div>
                                     <label for="name" class="block text-sm font-bold text-gray-700">Nombre</label>
                                     <input type="text" name="name" id="name" value="{{ old('name', $user->name) }}" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-[#0061F5] focus:ring-[#0061F5]" required>

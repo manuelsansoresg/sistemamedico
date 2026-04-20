@@ -23,6 +23,7 @@ class CitaController extends Controller
     {
         $this->subscriptionService = $subscriptionService;
     }
+
     /**
      * Display a listing of the resource.
      */

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\AuditLog;
 use App\Models\User;
 use App\Services\SubscriptionService;
 use Illuminate\Http\Request;
@@ -9,6 +10,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rules;
+use Throwable;
 
 class PacienteController extends Controller
 {
@@ -318,6 +320,7 @@ class PacienteController extends Controller
                 ->get()
                 ->first(function ($sub) {
                     $usados = DB::table('doctor_patient')->where('suscripcion_id', $sub->id)->count();
+
                     return $usados < ($sub->cantidad ?? 0);
                 });
 
@@ -337,6 +340,25 @@ class PacienteController extends Controller
                 $paciente->doctors()->attach($doctor->id, ['suscripcion_id' => $suscripcion->id]);
             } else {
                 $paciente->doctors()->updateExistingPivot($doctor->id, ['suscripcion_id' => $suscripcion->id]);
+            }
+
+            try {
+                AuditLog::create([
+                    'user_id' => $currentUser->id,
+                    'action' => 'compartir_paciente',
+                    'section' => 'pacientes',
+                    'model_type' => get_class($paciente),
+                    'model_id' => $paciente->id,
+                    'payload' => [
+                        'doctor_id' => $doctor->id,
+                        'suscripcion_id' => $suscripcion->id,
+                    ],
+                    'ip_address' => $request->ip(),
+                    'user_agent' => $request->userAgent(),
+                    'created_at' => now(),
+                ]);
+            } catch (Throwable $e) {
+                report($e);
             }
 
             return back()->with('success', 'Perfil compartido correctamente.');
@@ -362,6 +384,7 @@ class PacienteController extends Controller
                 ->get()
                 ->first(function ($sub) {
                     $usados = DB::table('doctor_patient')->where('suscripcion_id', $sub->id)->count();
+
                     return $usados < ($sub->cantidad ?? 0);
                 });
 
@@ -383,6 +406,25 @@ class PacienteController extends Controller
                 $paciente->doctors()->updateExistingPivot($owner->id, ['suscripcion_id' => $suscripcion->id]);
             }
 
+            try {
+                AuditLog::create([
+                    'user_id' => $currentUser->id,
+                    'action' => 'compartir_paciente',
+                    'section' => 'pacientes',
+                    'model_type' => get_class($paciente),
+                    'model_id' => $paciente->id,
+                    'payload' => [
+                        'doctor_id' => $owner->id,
+                        'suscripcion_id' => $suscripcion->id,
+                    ],
+                    'ip_address' => $request->ip(),
+                    'user_agent' => $request->userAgent(),
+                    'created_at' => now(),
+                ]);
+            } catch (Throwable $e) {
+                report($e);
+            }
+
             return back()->with('success', 'Perfil compartido correctamente.');
         }
 
@@ -401,8 +443,27 @@ class PacienteController extends Controller
             return back()->with('error', 'Solo el rol Root puede quitar el perfil compartido.');
         }
 
+        $doctorId = $paciente->doctors()->pluck('users.id')->first();
         $paciente->perfil_compartido = false;
         $paciente->save();
+
+        try {
+            AuditLog::create([
+                'user_id' => $currentUser->id,
+                'action' => 'dejar_compartir_paciente',
+                'section' => 'pacientes',
+                'model_type' => get_class($paciente),
+                'model_id' => $paciente->id,
+                'payload' => [
+                    'doctor_id' => $doctorId,
+                ],
+                'ip_address' => request()->ip(),
+                'user_agent' => request()->userAgent(),
+                'created_at' => now(),
+            ]);
+        } catch (Throwable $e) {
+            report($e);
+        }
 
         return back()->with('success', 'Perfil compartido eliminado correctamente.');
     }
@@ -421,12 +482,31 @@ class PacienteController extends Controller
         }
 
         if ($paciente->perfil_compartido) {
+            $doctorId = $paciente->doctors()->pluck('users.id')->first();
             $paciente->perfil_compartido = false;
             $paciente->save();
 
             $doctor = $paciente->doctors()->first();
             if ($doctor) {
                 $paciente->doctors()->updateExistingPivot($doctor->id, ['suscripcion_id' => null]);
+            }
+
+            try {
+                AuditLog::create([
+                    'user_id' => $currentUser->id,
+                    'action' => 'dejar_compartir_paciente',
+                    'section' => 'pacientes',
+                    'model_type' => get_class($paciente),
+                    'model_id' => $paciente->id,
+                    'payload' => [
+                        'doctor_id' => $doctorId,
+                    ],
+                    'ip_address' => $request->ip(),
+                    'user_agent' => $request->userAgent(),
+                    'created_at' => now(),
+                ]);
+            } catch (Throwable $e) {
+                report($e);
             }
 
             return back()->with('success', 'Perfil compartido eliminado correctamente.');
@@ -450,6 +530,7 @@ class PacienteController extends Controller
             ->get()
             ->first(function ($sub) {
                 $usados = DB::table('doctor_patient')->where('suscripcion_id', $sub->id)->count();
+
                 return $usados < ($sub->cantidad ?? 0);
             });
 
@@ -467,6 +548,25 @@ class PacienteController extends Controller
             $paciente->doctors()->attach($doctor->id, ['suscripcion_id' => $suscripcion->id]);
         } else {
             $paciente->doctors()->updateExistingPivot($doctor->id, ['suscripcion_id' => $suscripcion->id]);
+        }
+
+        try {
+            AuditLog::create([
+                'user_id' => $currentUser->id,
+                'action' => 'compartir_paciente',
+                'section' => 'pacientes',
+                'model_type' => get_class($paciente),
+                'model_id' => $paciente->id,
+                'payload' => [
+                    'doctor_id' => $doctor->id,
+                    'suscripcion_id' => $suscripcion->id,
+                ],
+                'ip_address' => $request->ip(),
+                'user_agent' => $request->userAgent(),
+                'created_at' => now(),
+            ]);
+        } catch (Throwable $e) {
+            report($e);
         }
 
         return back()->with('success', 'Perfil compartido correctamente.');

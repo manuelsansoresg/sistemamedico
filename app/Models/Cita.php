@@ -2,12 +2,13 @@
 
 namespace App\Models;
 
+use App\Traits\Auditable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class Cita extends Model
 {
-    use HasFactory;
+    use Auditable, HasFactory;
 
     protected $fillable = [
         'doctor_id',
@@ -45,5 +46,10 @@ class Cita extends Model
     public function clinica()
     {
         return $this->belongsTo(Clinica::class);
+    }
+
+    public function auditSection(): string
+    {
+        return 'citas';
     }
 }

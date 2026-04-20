@@ -30,22 +30,158 @@
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6 border-l-4 border-[#0061F5]">
                 <div class="flex justify-between items-start">
                     <div>
-                        <h2 class="text-2xl font-bold text-gray-800">
-                            {{ $paciente->name }} {{ $paciente->apellido_paterno }} {{ $paciente->apellido_materno }}
-                        </h2>
-                        <div class="mt-2 flex flex-wrap gap-4 text-sm text-gray-600">
-                            <span class="flex items-center"><i class="fas fa-birthday-cake mr-2 text-[#0061F5]"></i> {{ $paciente->fecha_nacimiento ? $paciente->fecha_nacimiento->format('d/m/Y') : 'N/A' }}</span>
-                            <span class="flex items-center"><i class="fas fa-user-clock mr-2 text-[#0061F5]"></i> {{ $paciente->fecha_nacimiento ? $paciente->fecha_nacimiento->age . ' años' : 'N/A' }}</span>
-                            <span class="flex items-center"><i class="fas fa-venus-mars mr-2 text-[#0061F5]"></i> {{ $paciente->sexo == 'M' ? 'Masculino' : 'Femenino' }}</span>
-                            <span class="flex items-center"><i class="fas fa-clinic-medical mr-2 text-[#0061F5]"></i> <span class="text-gray-500 mr-1">Consultorio:</span> {{ $cita->consultorio->nombre }}</span>
+                        <div class="flex items-start gap-4">
+                            <img src="{{ $paciente->profile_photo_url }}" alt="Foto del paciente" class="h-14 w-14 rounded-full object-cover border border-gray-200">
+                            <div class="min-w-0">
+                                <h2 class="text-2xl font-bold text-gray-800">
+                                    {{ $paciente->name }} {{ $paciente->apellido_paterno }} {{ $paciente->apellido_materno }}
+                                </h2>
+                                <div class="mt-2 flex flex-wrap gap-4 text-sm text-gray-600">
+                                    <span class="flex items-center"><i class="fas fa-birthday-cake mr-2 text-[#0061F5]"></i> {{ $paciente->fecha_nacimiento ? $paciente->fecha_nacimiento->format('d/m/Y') : 'N/A' }}</span>
+                                    <span class="flex items-center"><i class="fas fa-user-clock mr-2 text-[#0061F5]"></i> {{ $paciente->fecha_nacimiento ? $paciente->fecha_nacimiento->age . ' años' : 'N/A' }}</span>
+                                    <span class="flex items-center"><i class="fas fa-venus-mars mr-2 text-[#0061F5]"></i> {{ $paciente->sexo == 'M' ? 'Masculino' : 'Femenino' }}</span>
+                                    <span class="flex items-center"><i class="fas fa-clinic-medical mr-2 text-[#0061F5]"></i> <span class="text-gray-500 mr-1">Consultorio:</span> {{ $cita->consultorio->nombre }}</span>
+                                </div>
+                            </div>
                         </div>
                     </div>
-                    <div class="text-right">
-                        <span class="px-3 py-1 bg-green-100 text-green-800 rounded-full text-xs font-bold">EN CONSULTA</span>
-                        <p class="text-xs text-gray-500 mt-1">{{ now()->format('d M Y, h:i A') }}</p>
+                    <div class="text-right flex flex-col items-end gap-2">
+                        <div class="flex items-center gap-2">
+                            <span class="px-3 py-1 bg-green-100 text-green-800 rounded-full text-xs font-bold">EN CONSULTA</span>
+                            @if(auth()->user()->hasRole('doctor'))
+                                <button type="button" @click="toggleEmpatia()" class="inline-flex items-center px-3 py-1 bg-white text-[#0061F5] text-xs font-bold rounded-full border border-[#0061F5] hover:bg-blue-50 transition-colors shadow-sm">
+                                    <i class="fas fa-hand-holding-heart mr-1"></i>
+                                    Empatía
+                                </button>
+                            @endif
+                        </div>
+                        <p class="text-xs text-gray-500">{{ now()->format('d M Y, h:i A') }}</p>
                     </div>
                 </div>
             </div>
+
+            @if(auth()->user()->hasRole('doctor'))
+                <div x-show="empathyOpen" style="display: none;" class="fixed inset-0 z-50" aria-labelledby="empathy-title" role="dialog" aria-modal="true">
+                    <div x-show="empathyOpen"
+                         x-transition:enter="ease-out duration-200"
+                         x-transition:enter-start="opacity-0"
+                         x-transition:enter-end="opacity-100"
+                         x-transition:leave="ease-in duration-150"
+                         x-transition:leave-start="opacity-100"
+                         x-transition:leave-end="opacity-0"
+                         class="absolute inset-0 bg-gray-500 bg-opacity-40"></div>
+
+                    <div class="absolute top-6 right-6 w-full max-w-md">
+                        <div x-show="empathyOpen"
+                             x-transition:enter="ease-out duration-200"
+                             x-transition:enter-start="opacity-0 translate-y-2"
+                             x-transition:enter-end="opacity-100 translate-y-0"
+                             x-transition:leave="ease-in duration-150"
+                             x-transition:leave-start="opacity-100 translate-y-0"
+                             x-transition:leave-end="opacity-0 translate-y-2"
+                             @click.away="closeEmpatia()"
+                             class="bg-white rounded-xl shadow-lg border border-gray-100 overflow-hidden">
+                            <div class="px-5 py-4 border-b border-gray-100 flex items-center justify-between">
+                                <div>
+                                    <h3 id="empathy-title" class="text-sm font-extrabold text-gray-800 tracking-wide uppercase">Empatía</h3>
+                                    <p class="text-xs text-gray-500 mt-0.5">Notas personales para mejorar el vínculo.</p>
+                                </div>
+                                <button type="button" @click="closeEmpatia()" class="text-gray-400 hover:text-gray-700">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                            </div>
+
+                            <div class="p-5 space-y-4">
+                                <div class="bg-white rounded-xl border border-gray-100 shadow-sm p-4 sticky top-0 z-10">
+                                    <label class="block text-xs font-semibold text-gray-500 mb-2">Nueva nota</label>
+                                    <textarea x-model="empathyNewContent" rows="2" class="shadow-sm focus:ring-[#0061F5] focus:border-[#0061F5] block w-full sm:text-sm border-gray-300 rounded-md resize-none" placeholder="Ej. Le gusta el béisbol, viaja a España pronto..."></textarea>
+                                    <div class="flex items-center justify-between mt-3">
+                                        <p class="text-xs text-red-600" x-text="empathyError" x-show="empathyError"></p>
+                                        <button type="button" @click="saveEmpathyNote()" class="inline-flex items-center px-4 py-1.5 bg-[#0061F5] text-white text-xs font-bold rounded-md hover:bg-[#0051CC] transition-colors shadow-sm">
+                                            <i class="fas fa-save mr-2"></i>
+                                            Guardar nota
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <div class="bg-white rounded-xl border border-gray-100 shadow-sm flex flex-col max-h-[400px]">
+                                    <div class="px-4 py-3 border-b border-gray-100 flex items-center justify-between sticky top-0 bg-white rounded-t-xl z-10">
+                                        <h4 class="text-xs font-extrabold text-gray-700 tracking-wide uppercase flex items-center gap-2">
+                                            Histórico
+                                            <span x-show="empathyLoading" class="text-gray-400"><i class="fas fa-spinner fa-spin"></i></span>
+                                        </h4>
+                                        <div class="flex items-center gap-2">
+                                            <div class="relative">
+                                                <input type="text" x-model="empathySearch" @input.debounce.500ms="fetchEmpathyNotes(true)" placeholder="Buscar..." class="w-32 sm:w-40 text-xs border-gray-300 rounded-md focus:ring-[#0061F5] focus:border-[#0061F5] pl-7 py-1">
+                                                <i class="fas fa-search absolute left-2.5 top-1.5 text-gray-400 text-xs"></i>
+                                            </div>
+                                            <button type="button" @click="fetchEmpathyNotes(true)" class="text-xs font-semibold text-[#0061F5] hover:text-[#004499]">
+                                                <i class="fas fa-sync-alt"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                    <div class="p-4 overflow-y-auto flex-1">
+                                        <div x-show="!empathyLoading && empathyNotes.length === 0" class="text-sm text-gray-500 italic text-center py-4">
+                                            Aún no hay notas de empatía o no hay coincidencias.
+                                        </div>
+
+                                        <div class="space-y-4" x-show="empathyNotes.length > 0">
+                                            <template x-for="(note, index) in empathyNotes" :key="note.id">
+                                                <div>
+                                                    <template x-if="index === 0 || note.month_year !== empathyNotes[index - 1].month_year">
+                                                        <div class="flex items-center my-3">
+                                                            <div class="flex-grow border-t border-gray-200"></div>
+                                                            <span class="mx-3 text-[10px] font-bold text-gray-400 uppercase tracking-wider" x-text="note.month_year"></span>
+                                                            <div class="flex-grow border-t border-gray-200"></div>
+                                                        </div>
+                                                    </template>
+
+                                                    <div class="border border-gray-100 rounded-lg p-2.5 bg-gray-50/50 hover:bg-white transition-colors group">
+                                                        <div class="flex items-start justify-between gap-2">
+                                                            <div class="text-[11px] text-gray-400 font-medium flex items-center gap-1" x-text="note.created_at"></div>
+                                                            <div class="flex items-center gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity">
+                                                                <button type="button" class="text-gray-400 hover:text-[#0061F5] p-1" @click="startEdit(note)" title="Editar">
+                                                                    <i class="fas fa-pen text-[10px]"></i>
+                                                                </button>
+                                                                <button type="button" class="text-gray-400 hover:text-red-600 p-1" @click="deleteEmpathyNote(note.id)" title="Borrar">
+                                                                    <i class="fas fa-trash text-[10px]"></i>
+                                                                </button>
+                                                            </div>
+                                                        </div>
+
+                                                        <div class="mt-1" x-show="empathyEditingId !== note.id">
+                                                            <p class="text-sm text-gray-700 whitespace-pre-wrap leading-relaxed" x-text="note.content"></p>
+                                                        </div>
+
+                                                        <div class="mt-2" x-show="empathyEditingId === note.id" style="display: none;">
+                                                            <textarea x-model="empathyEditContent" rows="2" class="shadow-sm focus:ring-[#0061F5] focus:border-[#0061F5] block w-full text-sm border-gray-300 rounded-md"></textarea>
+                                                            <div class="mt-2 flex items-center justify-end gap-2">
+                                                                <button type="button" class="px-2.5 py-1.5 text-xs font-medium text-gray-600 bg-gray-100 rounded hover:bg-gray-200" @click="cancelEdit()">
+                                                                    Cancelar
+                                                                </button>
+                                                                <button type="button" class="px-2.5 py-1.5 text-xs font-bold text-white bg-[#0061F5] rounded hover:bg-[#0051CC]" @click="updateEmpathyNote(note.id)">
+                                                                    Guardar
+                                                                </button>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </template>
+                                            
+                                            <div class="pt-2 pb-1 text-center" x-show="empathyHasMore">
+                                                <button type="button" @click="loadMoreEmpathyNotes()" class="text-xs font-semibold text-[#0061F5] hover:text-[#004499] bg-blue-50 hover:bg-blue-100 px-4 py-1.5 rounded-full transition-colors">
+                                                    <i class="fas fa-chevron-down mr-1"></i> Ver notas anteriores
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            @endif
 
             <!-- Health Metrics (Editable) -->
             <div class="bg-[#E6F0FF] overflow-hidden shadow-sm sm:rounded-lg p-6 border border-[#CCE0FF]">
@@ -472,8 +608,8 @@
         </div>
     </div>
 
-    <script>
-        window.estudiosArchivos = {!! json_encode(
+    <script type="application/json" id="estudiosArchivosData">
+        {!! json_encode(
             $historialEstudios->mapWithKeys(function ($estudio) {
                 return [
                     $estudio->id => $estudio->archivos->map(function ($archivo) {
@@ -485,7 +621,12 @@
                 ];
             }),
             JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_AMP | JSON_HEX_QUOT
-        ) !!};
+        ) !!}
+    </script>
+
+    <script>
+        const estudiosArchivosEl = document.getElementById('estudiosArchivosData');
+        window.estudiosArchivos = estudiosArchivosEl ? JSON.parse(estudiosArchivosEl.textContent || '{}') : {};
 
         function consultaHandler() {
             return {
@@ -498,6 +639,19 @@
                 showHistory: false,
                 filesModalOpen: false,
                 filesModalItems: [],
+                empathyOpen: false,
+                empathyLoading: false,
+                empathyNotes: [],
+                empathyNewContent: '',
+                empathyEditingId: null,
+                empathyEditContent: '',
+                empathyError: '',
+                empathySearch: '',
+                empathyPage: 1,
+                empathyHasMore: false,
+                empathyIndexUrl: "{{ route('pacientes.empatia.index', ['paciente' => $paciente->id]) }}",
+                empathyStoreUrl: "{{ route('pacientes.empatia.store', ['paciente' => $paciente->id]) }}",
+                empathyNoteBaseUrl: "{{ url('admin/pacientes/empatia') }}",
                 
                 // File Upload Logic
                 isDragging: false,
@@ -564,6 +718,204 @@
                     } catch (error) {
                         console.error('Error loading fields:', error);
                         this.campos = [];
+                    }
+                },
+
+                toggleEmpatia() {
+                    if (this.empathyOpen) {
+                        this.closeEmpatia();
+                        return;
+                    }
+                    this.openEmpatia();
+                },
+
+                openEmpatia() {
+                    this.empathyOpen = true;
+                    this.fetchEmpathyNotes(true);
+                },
+
+                closeEmpatia() {
+                    this.empathyOpen = false;
+                    this.empathyError = '';
+                    this.empathyEditingId = null;
+                    this.empathyEditContent = '';
+                },
+
+                getCsrfToken() {
+                    const el = document.querySelector('meta[name="csrf-token"]');
+                    return el ? el.getAttribute('content') : '';
+                },
+
+                async fetchEmpathyNotes(reset = false) {
+                    if (reset) {
+                        this.empathyPage = 1;
+                        this.empathyNotes = [];
+                    }
+                    this.empathyLoading = true;
+                    this.empathyError = '';
+                    try {
+                        const url = new URL(this.empathyIndexUrl);
+                        url.searchParams.append('page', this.empathyPage);
+                        if (this.empathySearch) {
+                            url.searchParams.append('search', this.empathySearch);
+                        }
+
+                        const response = await fetch(url.toString(), {
+                            headers: {
+                                'Accept': 'application/json',
+                            },
+                        });
+                        if (!response.ok) {
+                            throw new Error('No se pudo cargar las notas.');
+                        }
+                        const data = await response.json();
+                        
+                        if (reset) {
+                            this.empathyNotes = data.data || [];
+                        } else {
+                            this.empathyNotes = [...this.empathyNotes, ...(data.data || [])];
+                        }
+                        this.empathyHasMore = data.has_more || false;
+                    } catch (error) {
+                        if (reset) {
+                            this.empathyNotes = [];
+                        }
+                        this.empathyError = error && error.message ? error.message : 'No se pudo cargar las notas.';
+                    } finally {
+                        this.empathyLoading = false;
+                    }
+                },
+
+                async loadMoreEmpathyNotes() {
+                    if (!this.empathyLoading && this.empathyHasMore) {
+                        this.empathyPage++;
+                        await this.fetchEmpathyNotes(false);
+                    }
+                },
+
+                async saveEmpathyNote() {
+                    const content = (this.empathyNewContent || '').trim();
+                    if (!content) {
+                        this.empathyError = 'Escribe una nota.';
+                        return;
+                    }
+
+                    this.empathyError = '';
+                    try {
+                        const response = await fetch(this.empathyStoreUrl, {
+                            method: 'POST',
+                            headers: {
+                                'Accept': 'application/json',
+                                'Content-Type': 'application/json',
+                                'X-CSRF-TOKEN': this.getCsrfToken(),
+                            },
+                            body: JSON.stringify({ content }),
+                        });
+
+                        if (!response.ok) {
+                            let message = 'No se pudo guardar la nota.';
+                            try {
+                                const data = await response.json();
+                                if (data && data.message) {
+                                    message = data.message;
+                                }
+                                if (data && data.errors && data.errors.content && data.errors.content[0]) {
+                                    message = data.errors.content[0];
+                                }
+                            } catch (e) {
+                            }
+                            throw new Error(message);
+                        }
+
+                        this.empathyNewContent = '';
+                        await this.fetchEmpathyNotes(true);
+                    } catch (error) {
+                        this.empathyError = error && error.message ? error.message : 'No se pudo guardar la nota.';
+                    }
+                },
+
+                startEdit(note) {
+                    this.empathyError = '';
+                    this.empathyEditingId = note.id;
+                    this.empathyEditContent = note.content || '';
+                },
+
+                cancelEdit() {
+                    this.empathyEditingId = null;
+                    this.empathyEditContent = '';
+                },
+
+                async updateEmpathyNote(noteId) {
+                    const content = (this.empathyEditContent || '').trim();
+                    if (!content) {
+                        this.empathyError = 'Escribe una nota.';
+                        return;
+                    }
+
+                    this.empathyError = '';
+                    try {
+                        const response = await fetch(`${this.empathyNoteBaseUrl}/${noteId}`, {
+                            method: 'PUT',
+                            headers: {
+                                'Accept': 'application/json',
+                                'Content-Type': 'application/json',
+                                'X-CSRF-TOKEN': this.getCsrfToken(),
+                            },
+                            body: JSON.stringify({ content }),
+                        });
+
+                        if (!response.ok) {
+                            let message = 'No se pudo actualizar la nota.';
+                            try {
+                                const data = await response.json();
+                                if (data && data.message) {
+                                    message = data.message;
+                                }
+                                if (data && data.errors && data.errors.content && data.errors.content[0]) {
+                                    message = data.errors.content[0];
+                                }
+                            } catch (e) {
+                            }
+                            throw new Error(message);
+                        }
+
+                        this.cancelEdit();
+                        await this.fetchEmpathyNotes(true);
+                    } catch (error) {
+                        this.empathyError = error && error.message ? error.message : 'No se pudo actualizar la nota.';
+                    }
+                },
+
+                async deleteEmpathyNote(noteId) {
+                    this.empathyError = '';
+                    if (!confirm('¿Eliminar esta nota de empatía?')) {
+                        return;
+                    }
+
+                    try {
+                        const response = await fetch(`${this.empathyNoteBaseUrl}/${noteId}`, {
+                            method: 'DELETE',
+                            headers: {
+                                'Accept': 'application/json',
+                                'X-CSRF-TOKEN': this.getCsrfToken(),
+                            },
+                        });
+
+                        if (!response.ok) {
+                            let message = 'No se pudo eliminar la nota.';
+                            try {
+                                const data = await response.json();
+                                if (data && data.message) {
+                                    message = data.message;
+                                }
+                            } catch (e) {
+                            }
+                            throw new Error(message);
+                        }
+
+                        await this.fetchEmpathyNotes(true);
+                    } catch (error) {
+                        this.empathyError = error && error.message ? error.message : 'No se pudo eliminar la nota.';
                     }
                 }
             }

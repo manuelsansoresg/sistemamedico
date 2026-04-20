@@ -2,15 +2,19 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\AuditLog;
 use App\Models\Recurso;
 use App\Models\RecursoReserva;
 use App\Models\User;
 use App\Services\SubscriptionService;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Str;
 use Spatie\Permission\Models\Permission;
+use Throwable;
 
 class RecursoReservaController extends Controller
 {
@@ -26,6 +30,9 @@ class RecursoReservaController extends Controller
     public function calendario(Request $request)
     {
         $user = Auth::user();
+        if (! $user instanceof User) {
+            abort(403);
+        }
 
         $this->ensureModuleEnabled($user);
 
@@ -64,6 +71,9 @@ class RecursoReservaController extends Controller
     public function eventos(Request $request)
     {
         $user = Auth::user();
+        if (! $user instanceof User) {
+            abort(403);
+        }
 
         $this->ensureModuleEnabled($user);
 
@@ -106,9 +116,105 @@ class RecursoReservaController extends Controller
         return response()->json($eventos);
     }
 
+    public function exportPdf(Request $request)
+    {
+        $user = Auth::user();
+        if (! $user instanceof User) {
+            abort(403);
+        }
+
+        $this->ensureModuleEnabled($user);
+
+        $doctorId = $this->resolveDoctorId($user, $request->integer('doctor_id') ?: null);
+
+        $start = $request->input('start');
+        $end = $request->input('end');
+
+        if (! $start || ! $end) {
+            $anio = (int) ($request->input('anio') ?: now()->year);
+            $mes = (int) ($request->input('mes') ?: now()->month);
+            $rangeStart = Carbon::create($anio, $mes, 1)->startOfDay();
+            $rangeEnd = (clone $rangeStart)->endOfMonth()->endOfDay();
+        } else {
+            $rangeStart = Carbon::parse($start)->startOfDay();
+            $rangeEnd = Carbon::parse($end)->endOfDay();
+        }
+
+        $recursoId = $request->filled('recurso_id') ? (int) $request->input('recurso_id') : null;
+        if ($recursoId) {
+            Recurso::where('id', $recursoId)
+                ->where('user_id', $doctorId)
+                ->firstOrFail();
+        }
+
+        $query = RecursoReserva::with(['recurso', 'user'])
+            ->whereHas('recurso', function ($q) use ($doctorId) {
+                $q->where('user_id', $doctorId);
+            })
+            ->where('fin', '>=', $rangeStart->toDateTimeString())
+            ->where('inicio', '<=', $rangeEnd->toDateTimeString());
+
+        if ($recursoId) {
+            $query->where('recurso_id', $recursoId);
+        }
+
+        $reservas = $query->orderBy('inicio')->get();
+
+        $doctor = User::with('configuracion')->find($doctorId);
+        $clinicaNombre = $doctor
+            ? trim('Dr. '.($doctor->name ?? '').' '.($doctor->apellido_paterno ?? '').' '.($doctor->apellido_materno ?? ''))
+            : 'Reporte';
+        $clinicaLogoPath = null;
+        if ($doctor && $doctor->branding_logo_path && file_exists(public_path('storage/'.$doctor->branding_logo_path))) {
+            $clinicaLogoPath = public_path('storage/'.$doctor->branding_logo_path);
+        }
+
+        $periodoTitulo = $rangeStart->format('d/m/Y').' - '.$rangeEnd->format('d/m/Y');
+
+        $mesNombre = mb_strtolower($rangeStart->locale('es')->translatedFormat('F'));
+        $anioNombre = $rangeStart->format('Y');
+        $filename = Str::slug('reporte-reservas-'.$mesNombre.'-'.$anioNombre).'.pdf';
+
+        try {
+            AuditLog::create([
+                'user_id' => $user?->id,
+                'action' => 'descargar_reporte_recursos',
+                'section' => 'recursos',
+                'model_type' => null,
+                'model_id' => null,
+                'payload' => [
+                    'doctor_id' => $doctorId,
+                    'recurso_id' => $recursoId,
+                    'start' => $rangeStart->toDateString(),
+                    'end' => $rangeEnd->toDateString(),
+                    'total' => $reservas->count(),
+                ],
+                'ip_address' => request()->ip(),
+                'user_agent' => request()->userAgent(),
+                'created_at' => now(),
+            ]);
+        } catch (Throwable $e) {
+            Log::error('No se pudo registrar auditoría de exportación PDF de recursos', [
+                'error' => $e->getMessage(),
+            ]);
+        }
+
+        $pdf = Pdf::loadView('admin.recursos.reservas-pdf', [
+            'clinicaNombre' => $clinicaNombre,
+            'clinicaLogoPath' => $clinicaLogoPath,
+            'periodoTitulo' => $periodoTitulo,
+            'reservas' => $reservas,
+        ])->setPaper('a4', 'landscape');
+
+        return $pdf->download($filename);
+    }
+
     public function store(Request $request)
     {
         $user = Auth::user();
+        if (! $user instanceof User) {
+            abort(403);
+        }
 
         $this->ensureModuleEnabled($user);
 
@@ -196,6 +302,9 @@ class RecursoReservaController extends Controller
     public function update(Request $request, RecursoReserva $reserva)
     {
         $user = Auth::user();
+        if (! $user instanceof User) {
+            abort(403);
+        }
 
         $this->ensureModuleEnabled($user);
 
@@ -253,6 +362,9 @@ class RecursoReservaController extends Controller
     public function destroy(Request $request, RecursoReserva $reserva)
     {
         $user = Auth::user();
+        if (! $user instanceof User) {
+            abort(403);
+        }
 
         $this->ensureModuleEnabled($user);
 

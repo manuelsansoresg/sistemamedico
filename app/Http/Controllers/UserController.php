@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\AuditLog;
 use App\Models\Clinica;
 use App\Models\Consultorio;
 use App\Models\Especialidad;
@@ -10,9 +11,12 @@ use App\Services\SubscriptionService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rules;
 use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
+use Throwable;
 
 class UserController extends Controller
 {
@@ -89,6 +93,7 @@ class UserController extends Controller
             'telefono' => ['nullable', 'string', 'max:20'],
             'cedula_profesional' => ['nullable', 'string', 'max:50'],
             'especialidad_id' => ['nullable', 'exists:especialidades,id'],
+            'profile_photo' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048'],
             'role' => ['required', 'exists:roles,name', function ($attribute, $value, $fail) {
                 /** @var \App\Models\User $currentUser */
                 $currentUser = Auth::user();
@@ -126,6 +131,10 @@ class UserController extends Controller
             'created_by' => $owner->id,
         ]);
 
+        if ($request->hasFile('profile_photo')) {
+            $this->storeProfilePhotoFromRequest($request, $user, $currentUser);
+        }
+
         $user->assignRole($request->role);
 
         if ($request->has('clinicas')) {
@@ -138,6 +147,27 @@ class UserController extends Controller
 
         if (in_array($request->role, ['asistente', 'secretaria']) && $request->has('permissions')) {
             $user->syncPermissions($request->permissions);
+        }
+
+        try {
+            AuditLog::create([
+                'user_id' => $currentUser->id,
+                'action' => 'asignar_roles_permisos',
+                'section' => 'usuarios',
+                'model_type' => get_class($user),
+                'model_id' => $user->id,
+                'payload' => [
+                    'new' => [
+                        'roles' => method_exists($user, 'getRoleNames') ? $user->getRoleNames()->values()->all() : $user->roles()->pluck('name')->toArray(),
+                        'permissions' => method_exists($user, 'getPermissionNames') ? $user->getPermissionNames()->values()->all() : $user->permissions()->pluck('name')->toArray(),
+                    ],
+                ],
+                'ip_address' => $request->ip(),
+                'user_agent' => $request->userAgent(),
+                'created_at' => now(),
+            ]);
+        } catch (Throwable $e) {
+            report($e);
         }
 
         return redirect()->route('users.index')->with('success', 'Usuario creado exitosamente.');
@@ -195,6 +225,9 @@ class UserController extends Controller
         /** @var \App\Models\User $currentUser */
         $currentUser = Auth::user();
 
+        $rolesAntes = method_exists($user, 'getRoleNames') ? $user->getRoleNames()->values()->all() : $user->roles()->pluck('name')->toArray();
+        $permisosAntes = method_exists($user, 'getPermissionNames') ? $user->getPermissionNames()->values()->all() : $user->permissions()->pluck('name')->toArray();
+
         if ($currentUser->hasRole(['asistente', 'secretaria']) && $user->hasRole('doctor')) {
             abort(403, 'No tienes permiso para editar al doctor.');
         }
@@ -208,6 +241,7 @@ class UserController extends Controller
             'telefono' => ['nullable', 'string', 'max:20'],
             'cedula_profesional' => ['nullable', 'string', 'max:50'],
             'especialidad_id' => ['nullable', 'exists:especialidades,id'],
+            'profile_photo' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048'],
             'clinicas' => ['nullable', 'array'],
             'clinicas.*' => ['exists:clinicas,id'],
             'consultorios' => ['nullable', 'array'],
@@ -245,6 +279,10 @@ class UserController extends Controller
 
         $user->update($userData);
 
+        if ($request->hasFile('profile_photo')) {
+            $this->storeProfilePhotoFromRequest($request, $user, $currentUser);
+        }
+
         if (! $isDoctorSelfEdit) {
             $user->syncRoles([$request->role]);
         }
@@ -275,7 +313,149 @@ class UserController extends Controller
             $user->syncPermissions([]);
         }
 
+        $rolesDespues = method_exists($user, 'getRoleNames') ? $user->getRoleNames()->values()->all() : $user->roles()->pluck('name')->toArray();
+        $permisosDespues = method_exists($user, 'getPermissionNames') ? $user->getPermissionNames()->values()->all() : $user->permissions()->pluck('name')->toArray();
+
+        if ($rolesAntes !== $rolesDespues || $permisosAntes !== $permisosDespues) {
+            try {
+                AuditLog::create([
+                    'user_id' => $currentUser->id,
+                    'action' => 'cambio_roles_permisos',
+                    'section' => 'usuarios',
+                    'model_type' => get_class($user),
+                    'model_id' => $user->id,
+                    'payload' => [
+                        'old' => [
+                            'roles' => $rolesAntes,
+                            'permissions' => $permisosAntes,
+                        ],
+                        'new' => [
+                            'roles' => $rolesDespues,
+                            'permissions' => $permisosDespues,
+                        ],
+                    ],
+                    'ip_address' => $request->ip(),
+                    'user_agent' => $request->userAgent(),
+                    'created_at' => now(),
+                ]);
+            } catch (Throwable $e) {
+                report($e);
+            }
+        }
+
         return redirect()->route('users.index')->with('success', 'Usuario actualizado exitosamente.');
+    }
+
+    private function storeProfilePhotoFromRequest(Request $request, User $user, User $currentUser): void
+    {
+        $file = $request->file('profile_photo');
+        if (! $file) {
+            return;
+        }
+
+        $oldPath = $user->profile_photo_path;
+        $path = $file->store('profile-photos', 'public');
+
+        try {
+            $absolutePath = Storage::disk('public')->path($path);
+            $this->resizeProfilePhotoIfPossible($absolutePath);
+        } catch (Throwable $e) {
+            Log::warning('No se pudo procesar la foto de perfil', [
+                'error' => $e->getMessage(),
+            ]);
+        }
+
+        $user->profile_photo_path = $path;
+        $user->save();
+
+        if ($oldPath) {
+            Storage::disk('public')->delete($oldPath);
+        }
+
+        try {
+            AuditLog::create([
+                'user_id' => $currentUser->id,
+                'action' => 'actualizar_foto_perfil',
+                'section' => 'usuarios',
+                'model_type' => User::class,
+                'model_id' => $user->id,
+                'payload' => [
+                    'photo_path' => $path,
+                ],
+                'ip_address' => $request->ip(),
+                'user_agent' => $request->userAgent(),
+                'created_at' => now(),
+            ]);
+        } catch (Throwable $e) {
+            report($e);
+        }
+    }
+
+    private function resizeProfilePhotoIfPossible(string $absolutePath): void
+    {
+        if (! extension_loaded('gd')) {
+            return;
+        }
+
+        if (! is_file($absolutePath)) {
+            return;
+        }
+
+        $info = @getimagesize($absolutePath);
+        if (! $info || empty($info['mime'])) {
+            return;
+        }
+
+        $mime = $info['mime'];
+
+        $src = match ($mime) {
+            'image/jpeg' => @imagecreatefromjpeg($absolutePath),
+            'image/png' => @imagecreatefrompng($absolutePath),
+            'image/webp' => function_exists('imagecreatefromwebp') ? @imagecreatefromwebp($absolutePath) : null,
+            default => null,
+        };
+
+        if (! $src) {
+            return;
+        }
+
+        $srcW = imagesx($src);
+        $srcH = imagesy($src);
+
+        if ($srcW <= 0 || $srcH <= 0) {
+            imagedestroy($src);
+
+            return;
+        }
+
+        $side = min($srcW, $srcH);
+        $srcX = (int) floor(($srcW - $side) / 2);
+        $srcY = (int) floor(($srcH - $side) / 2);
+
+        $dstSize = 400;
+        $dst = imagecreatetruecolor($dstSize, $dstSize);
+        if (! $dst) {
+            imagedestroy($src);
+
+            return;
+        }
+
+        imagealphablending($dst, false);
+        imagesavealpha($dst, true);
+        $transparent = imagecolorallocatealpha($dst, 0, 0, 0, 127);
+        imagefilledrectangle($dst, 0, 0, $dstSize, $dstSize, $transparent);
+
+        imagecopyresampled($dst, $src, 0, 0, $srcX, $srcY, $dstSize, $dstSize, $side, $side);
+
+        match ($mime) {
+            'image/jpeg' => imagejpeg($dst, $absolutePath, 85),
+            'image/png' => imagepng($dst, $absolutePath, 6),
+            'image/webp' => function_exists('imagewebp') ? imagewebp($dst, $absolutePath, 85) : null,
+            default => null,
+        };
+
+        imagedestroy($dst);
+        imagedestroy($src);
     }
 
     /**

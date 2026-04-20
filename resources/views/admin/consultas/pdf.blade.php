@@ -21,10 +21,37 @@
 </head>
 <body>
     <div class="header">
-        <h1>Dr. {{ $consulta->doctor->name }} {{ $consulta->doctor->apellido_paterno }} {{ $consulta->doctor->apellido_materno }}</h1>
-        <p>{{ $consulta->doctor->especialidad->nombre ?? 'Médico General' }}</p>
-        <p>Ced. Prof: {{ $consulta->doctor->cedula_profesional }}</p>
-        <p>{{ $consulta->cita->consultorio->clinica->nombre ?? '' }} - {{ $consulta->cita->consultorio->nombre ?? '' }}</p>
+        @php
+            $logoPath = null;
+            $doctor = $consulta->doctor;
+            if ($doctor && $doctor->branding_logo_path && file_exists(public_path('storage/'.$doctor->branding_logo_path))) {
+                $logoPath = public_path('storage/'.$doctor->branding_logo_path);
+            }
+            $clinica = $consulta->cita?->consultorio?->clinica;
+            $clinicaNombre = $clinica?->nombre ?? '';
+            $consultorioNombre = $consulta->cita?->consultorio?->nombre ?? '';
+        @endphp
+
+        <table style="width: 100%; border-collapse: collapse;">
+            <tr>
+                <td style="width: 90px; vertical-align: top;">
+                    @if($logoPath)
+                        <img src="{{ $logoPath }}" style="height: 70px; width: 70px; object-fit: contain;">
+                    @endif
+                </td>
+                <td style="vertical-align: top;">
+                    @if(!$logoPath && $clinicaNombre)
+                        <h1 style="margin: 0 0 2px 0;">{{ $clinicaNombre }}</h1>
+                    @endif
+                    <p style="margin: 0; font-weight: 700; color: #2c3e50;">
+                        Dr. {{ $consulta->doctor->name }} {{ $consulta->doctor->apellido_paterno }} {{ $consulta->doctor->apellido_materno }}
+                    </p>
+                    <p style="margin: 2px 0;">{{ $consulta->doctor->especialidad->nombre ?? 'Médico General' }}</p>
+                    <p style="margin: 2px 0;">Ced. Prof: {{ $consulta->doctor->cedula_profesional }}</p>
+                    <p style="margin: 2px 0;">{{ $clinicaNombre }}{{ $consultorioNombre ? ' - '.$consultorioNombre : '' }}</p>
+                </td>
+            </tr>
+        </table>
     </div>
 
     <div class="info-section">

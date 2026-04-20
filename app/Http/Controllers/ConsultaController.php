@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\AuditLog;
 use App\Models\Cita;
 use App\Models\Consulta;
 use App\Models\ConsultaValor;
@@ -11,8 +12,10 @@ use App\Models\Plantilla;
 use App\Models\User;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
+use Throwable;
 
 class ConsultaController extends Controller
 {
@@ -23,15 +26,20 @@ class ConsultaController extends Controller
     {
         $cita = Cita::with(['paciente', 'doctor', 'consultorio'])->findOrFail($cita_id);
 
+        $user = Auth::user();
+        if (! $user instanceof User) {
+            abort(403);
+        }
+
         // Security check: only doctor of the appointment or root can start it
-        if (auth()->user()->hasRole('doctor') && $cita->doctor_id !== auth()->id()) {
+        if ($user->hasRole('doctor') && $cita->doctor_id !== $user->id) {
             abort(403, 'No tiene permiso para iniciar esta consulta.');
         }
 
         // Get Plantillas (Templates)
         // Doctor can see own plantillas or global ones (if any logic for shared templates exists)
         // For now, let's show doctor's own plantillas.
-        $plantillas = Plantilla::where('user_id', auth()->id())->get();
+        $plantillas = Plantilla::where('user_id', $user->id)->get();
 
         // If no templates, maybe show a warning or a default one?
         // Assuming there is at least one or the user can create one.
@@ -67,7 +75,12 @@ class ConsultaController extends Controller
             'estudios.archivos',
         ]);
 
-        if (auth()->user()->hasRole('doctor') && $consulta->doctor_id !== auth()->id()) {
+        $user = Auth::user();
+        if (! $user instanceof User) {
+            abort(403);
+        }
+
+        if ($user->hasRole('doctor') && $consulta->doctor_id !== $user->id) {
             abort(403);
         }
 
@@ -76,27 +89,37 @@ class ConsultaController extends Controller
 
     public function edit(Consulta $consulta)
     {
-        // Security Check: assistants/secretaries cannot edit
-        if (auth()->user()->hasRole(['asistente', 'secretaria'])) {
+        $user = Auth::user();
+        if (! $user instanceof User) {
             abort(403);
         }
-        if (auth()->user()->hasRole('doctor') && $consulta->doctor_id !== auth()->id()) {
+
+        // Security Check: assistants/secretaries cannot edit
+        if ($user->hasRole(['asistente', 'secretaria'])) {
+            abort(403);
+        }
+        if ($user->hasRole('doctor') && $consulta->doctor_id !== $user->id) {
             abort(403);
         }
 
         $consulta->load(['paciente', 'doctor', 'cita.consultorio', 'valores', 'plantilla']);
-        $plantillas = Plantilla::where('user_id', auth()->id())->get();
+        $plantillas = Plantilla::where('user_id', $user->id)->get();
 
         return view('admin.consultas.edit', compact('consulta', 'plantillas'));
     }
 
     public function update(Request $request, Consulta $consulta)
     {
-        // Security Check
-        if (auth()->user()->hasRole(['asistente', 'secretaria'])) {
+        $user = Auth::user();
+        if (! $user instanceof User) {
             abort(403);
         }
-        if (auth()->user()->hasRole('doctor') && $consulta->doctor_id !== auth()->id()) {
+
+        // Security Check
+        if ($user->hasRole(['asistente', 'secretaria'])) {
+            abort(403);
+        }
+        if ($user->hasRole('doctor') && $consulta->doctor_id !== $user->id) {
             abort(403);
         }
 
@@ -160,8 +183,13 @@ class ConsultaController extends Controller
 
     public function editEstudio(Estudio $estudio)
     {
+        $user = Auth::user();
+        if (! $user instanceof User) {
+            abort(403);
+        }
+
         // Security Check
-        if (auth()->user()->hasRole('doctor') && $estudio->consulta->doctor_id !== auth()->id()) {
+        if ($user->hasRole('doctor') && $estudio->consulta->doctor_id !== $user->id) {
             abort(403);
         }
 
@@ -172,8 +200,13 @@ class ConsultaController extends Controller
 
     public function updateEstudio(Request $request, Estudio $estudio)
     {
+        $user = Auth::user();
+        if (! $user instanceof User) {
+            abort(403);
+        }
+
         // Security Check
-        if (auth()->user()->hasRole('doctor') && $estudio->consulta->doctor_id !== auth()->id()) {
+        if ($user->hasRole('doctor') && $estudio->consulta->doctor_id !== $user->id) {
             abort(403);
         }
 
@@ -224,8 +257,13 @@ class ConsultaController extends Controller
 
     public function destroyEstudio(Estudio $estudio)
     {
+        $user = Auth::user();
+        if (! $user instanceof User) {
+            abort(403);
+        }
+
         // Security Check
-        if (auth()->user()->hasRole('doctor') && $estudio->consulta->doctor_id !== auth()->id()) {
+        if ($user->hasRole('doctor') && $estudio->consulta->doctor_id !== $user->id) {
             abort(403);
         }
 
@@ -282,7 +320,12 @@ class ConsultaController extends Controller
     {
         $estudio = $archivo->estudio;
 
-        if (auth()->user()->hasRole('doctor') && $estudio->consulta->doctor_id !== auth()->id()) {
+        $user = Auth::user();
+        if (! $user instanceof User) {
+            abort(403);
+        }
+
+        if ($user->hasRole('doctor') && $estudio->consulta->doctor_id !== $user->id) {
             abort(403);
         }
 
@@ -295,8 +338,6 @@ class ConsultaController extends Controller
             return back()->with('error', 'Error al eliminar el archivo de estudio.');
         }
     }
-
-
 
     /**
      * Store a newly created resource in storage.
@@ -321,7 +362,7 @@ class ConsultaController extends Controller
             // 1. Create Consulta
             $consulta = Consulta::create([
                 'cita_id' => $cita->id,
-                'doctor_id' => auth()->id(), // Assuming logged in user is the doctor
+                'doctor_id' => Auth::id(), // Assuming logged in user is the doctor
                 'paciente_id' => $paciente->id,
                 'plantilla_id' => $request->plantilla_id,
                 'peso' => $request->peso,
@@ -435,8 +476,29 @@ class ConsultaController extends Controller
         $consulta->load(['doctor', 'paciente', 'plantilla', 'valores.campo']);
 
         // Security Check
-        if (auth()->user()->hasRole('doctor') && $consulta->doctor_id !== auth()->id()) {
+        $user = Auth::user();
+        if (! $user instanceof User) {
             abort(403);
+        }
+
+        if ($user->hasRole('doctor') && $consulta->doctor_id !== $user->id) {
+            abort(403);
+        }
+
+        try {
+            AuditLog::create([
+                'user_id' => $user->id,
+                'action' => 'descargar_consulta_pdf',
+                'section' => 'consultas',
+                'model_type' => get_class($consulta),
+                'model_id' => $consulta->id,
+                'payload' => null,
+                'ip_address' => request()->ip(),
+                'user_agent' => request()->userAgent(),
+                'created_at' => now(),
+            ]);
+        } catch (Throwable $e) {
+            report($e);
         }
 
         $pdf = Pdf::loadView('admin.consultas.pdf', compact('consulta'));
@@ -450,8 +512,31 @@ class ConsultaController extends Controller
         $estudio->load(['consulta.doctor', 'consulta.paciente']);
 
         // Security Check
-        if (auth()->user()->hasRole('doctor') && $estudio->consulta->doctor_id !== auth()->id()) {
+        $user = Auth::user();
+        if (! $user instanceof User) {
             abort(403);
+        }
+
+        if ($user->hasRole('doctor') && $estudio->consulta->doctor_id !== $user->id) {
+            abort(403);
+        }
+
+        try {
+            AuditLog::create([
+                'user_id' => $user->id,
+                'action' => 'descargar_orden_estudio_pdf',
+                'section' => 'consultas',
+                'model_type' => get_class($estudio),
+                'model_id' => $estudio->id,
+                'payload' => [
+                    'consulta_id' => $estudio->consulta_id,
+                ],
+                'ip_address' => request()->ip(),
+                'user_agent' => request()->userAgent(),
+                'created_at' => now(),
+            ]);
+        } catch (Throwable $e) {
+            report($e);
         }
 
         $pdf = Pdf::loadView('admin.consultas.estudio_pdf', compact('estudio'));
@@ -461,11 +546,16 @@ class ConsultaController extends Controller
 
     public function destroy(Consulta $consulta)
     {
-        // Security Check
-        if (auth()->user()->hasRole(['asistente', 'secretaria'])) {
+        $user = Auth::user();
+        if (! $user instanceof User) {
             abort(403);
         }
-        if (auth()->user()->hasRole('doctor') && $consulta->doctor_id !== auth()->id()) {
+
+        // Security Check
+        if ($user->hasRole(['asistente', 'secretaria'])) {
+            abort(403);
+        }
+        if ($user->hasRole('doctor') && $consulta->doctor_id !== $user->id) {
             abort(403);
         }
 

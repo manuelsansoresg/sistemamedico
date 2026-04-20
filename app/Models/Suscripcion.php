@@ -2,12 +2,13 @@
 
 namespace App\Models;
 
+use App\Traits\Auditable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class Suscripcion extends Model
 {
-    use HasFactory;
+    use Auditable, HasFactory;
 
     protected $table = 'suscripciones';
 
@@ -56,5 +57,10 @@ class Suscripcion extends Model
     public function pacientes()
     {
         return $this->belongsToMany(User::class, 'doctor_patient', 'suscripcion_id', 'patient_id');
+    }
+
+    public function auditSection(): string
+    {
+        return 'suscripciones';
     }
 }

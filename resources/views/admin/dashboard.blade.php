@@ -54,6 +54,14 @@
                     <span class="font-bold text-gray-800 text-sm tracking-wide">CONSULTORIOS</span>
                 </a>
 
+                <!-- Branding -->
+                <a href="{{ route('branding.edit') }}" class="flex flex-col items-center justify-center p-8 bg-white border border-gray-100 rounded-2xl shadow-[0_2px_15px_-3px_rgba(0,0,0,0.07),0_10px_20px_-2px_rgba(0,0,0,0.04)] hover:shadow-lg transition-all duration-300 group h-48">
+                    <div class="w-20 h-20 bg-[#E6F0FF] rounded-full flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300">
+                        <i class="fas fa-palette text-3xl text-[#0061F5]"></i>
+                    </div>
+                    <span class="font-bold text-gray-800 text-sm tracking-wide">BRANDING</span>
+                </a>
+
                 <!-- Horarios -->
                 <a href="{{ route('horarios.index') }}" class="flex flex-col items-center justify-center p-8 bg-white border border-gray-100 rounded-2xl shadow-[0_2px_15px_-3px_rgba(0,0,0,0.07),0_10px_20px_-2px_rgba(0,0,0,0.04)] hover:shadow-lg transition-all duration-300 group h-48">
                     <div class="w-20 h-20 bg-[#E6F0FF] rounded-full flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300">
@@ -133,6 +141,15 @@
                     </div>
                     <span class="font-bold text-gray-800 text-sm tracking-wide">CONFIGURACIÓN</span>
                 </a>
+
+                @role('root')
+                    <a href="{{ route('admin.audit.index') }}" class="flex flex-col items-center justify-center p-8 bg-white border border-gray-100 rounded-3xl shadow-sm hover:shadow-md transition-all duration-300 group h-48">
+                        <div class="w-20 h-20 bg-[#E6F0FF] rounded-full flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300">
+                            <i class="fas fa-shield-alt text-3xl text-[#0061F5]"></i>
+                        </div>
+                        <span class="font-bold text-gray-800 text-sm tracking-widest uppercase">AUDITORÍA</span>
+                    </a>
+                @endrole
             </div>
         </div>
     </div>

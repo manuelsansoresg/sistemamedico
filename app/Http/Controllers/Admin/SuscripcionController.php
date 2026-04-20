@@ -3,11 +3,14 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\AuditLog;
 use App\Models\Ganancia;
 use App\Models\Suscripcion;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
+use Throwable;
 
 class SuscripcionController extends Controller
 {
@@ -122,6 +125,34 @@ class SuscripcionController extends Controller
             'fecha_fin' => $tipo === 'paquete' ? now()->addMonth() : null,
         ]);
 
+        $admin = Auth::user();
+        if ($admin instanceof User) {
+            try {
+                AuditLog::create([
+                    'user_id' => $admin->id,
+                    'action' => 'crear_suscripcion_admin',
+                    'section' => 'suscripciones',
+                    'model_type' => get_class($suscripcion),
+                    'model_id' => $suscripcion->id,
+                    'payload' => [
+                        'tipo' => $tipo,
+                        'paquete_id' => $paqueteId,
+                        'catalogo_id' => $catalogoId,
+                        'cantidad' => (int) $cantidad,
+                        'precio' => (float) $price,
+                        'metodo_pago' => $request->metodo_pago,
+                        'estatus_pago' => $suscripcion->estatus_pago,
+                        'comprobante_pago' => $comprobantePath,
+                    ],
+                    'ip_address' => $request->ip(),
+                    'user_agent' => $request->userAgent(),
+                    'created_at' => now(),
+                ]);
+            } catch (Throwable $e) {
+                report($e);
+            }
+        }
+
         // Registrar ganancia si el pago es exitoso
         if ($suscripcion->estatus_pago === 'pagado') {
             $item = null;
@@ -198,6 +229,14 @@ class SuscripcionController extends Controller
             'user_activo' => 'nullable|boolean',
             'user_id' => 'nullable|exists:users,id',
         ]);
+
+        $admin = Auth::user();
+        $before = [
+            'user_id' => $suscripcion->user_id,
+            'estatus_pago' => $suscripcion->estatus_pago,
+            'fecha_inicio' => optional($suscripcion->fecha_inicio)->toISOString(),
+            'fecha_fin' => optional($suscripcion->fecha_fin)->toISOString(),
+        ];
 
         // Actualizar usuario asignado si se envía
         if ($request->filled('user_id')) {
@@ -280,6 +319,48 @@ class SuscripcionController extends Controller
             ]);
         }
 
+        if ($admin instanceof User) {
+            $after = [
+                'user_id' => $suscripcion->fresh()->user_id,
+                'estatus_pago' => $suscripcion->fresh()->estatus_pago,
+                'fecha_inicio' => optional($suscripcion->fresh()->fecha_inicio)->toISOString(),
+                'fecha_fin' => optional($suscripcion->fresh()->fecha_fin)->toISOString(),
+                'user_activo' => $request->has('user_activo') ? (bool) $request->user_activo : null,
+            ];
+
+            $action = 'actualizar_suscripcion';
+            if ($before['estatus_pago'] !== $after['estatus_pago']) {
+                if ($after['estatus_pago'] === 'pagado') {
+                    $action = 'aprobar_pago';
+                } elseif ($after['estatus_pago'] === 'rechazado') {
+                    $action = 'rechazar_pago';
+                } elseif ($after['estatus_pago'] === 'cancelado') {
+                    $action = 'cancelar_suscripcion';
+                } elseif ($after['estatus_pago'] === 'pendiente') {
+                    $action = 'marcar_pendiente';
+                }
+            }
+
+            try {
+                AuditLog::create([
+                    'user_id' => $admin->id,
+                    'action' => $action,
+                    'section' => 'suscripciones',
+                    'model_type' => get_class($suscripcion),
+                    'model_id' => $suscripcion->id,
+                    'payload' => [
+                        'old' => $before,
+                        'new' => $after,
+                    ],
+                    'ip_address' => $request->ip(),
+                    'user_agent' => $request->userAgent(),
+                    'created_at' => now(),
+                ]);
+            } catch (Throwable $e) {
+                report($e);
+            }
+        }
+
         return redirect()->back()->with('success', 'Suscripción actualizada correctamente.');
     }
 
@@ -309,6 +390,25 @@ class SuscripcionController extends Controller
             $mensaje = 'Cédula rechazada.';
         }
 
+        $admin = Auth::user();
+        if ($admin instanceof User) {
+            try {
+                AuditLog::create([
+                    'user_id' => $admin->id,
+                    'action' => $request->accion === 'validar' ? 'validar_cedula' : 'rechazar_cedula',
+                    'section' => 'seguridad',
+                    'model_type' => get_class($user),
+                    'model_id' => $user->id,
+                    'payload' => null,
+                    'ip_address' => $request->ip(),
+                    'user_agent' => $request->userAgent(),
+                    'created_at' => now(),
+                ]);
+            } catch (Throwable $e) {
+                report($e);
+            }
+        }
+
         return back()->with('success', $mensaje);
     }
 
@@ -323,16 +423,42 @@ class SuscripcionController extends Controller
 
         // La ruta guardada es relativa a public (ej: "comprobantes/archivo.jpg")
         $path = public_path($suscripcion->comprobante_pago);
+        $downloadPath = null;
 
-        if (! file_exists($path)) {
+        if (file_exists($path)) {
+            $downloadPath = $path;
+        } else {
             // Intentar con storage path por si acaso (compatibilidad anterior)
             if (Storage::disk('public')->exists($suscripcion->comprobante_pago)) {
-                return Storage::disk('public')->download($suscripcion->comprobante_pago);
+                $downloadPath = Storage::disk('public')->path($suscripcion->comprobante_pago);
             }
 
-            return back()->with('error', 'El archivo no existe.');
+            if (! $downloadPath) {
+                return back()->with('error', 'El archivo no existe.');
+            }
         }
 
-        return response()->download($path);
+        $admin = Auth::user();
+        if ($admin instanceof User) {
+            try {
+                AuditLog::create([
+                    'user_id' => $admin->id,
+                    'action' => 'descargar_comprobante',
+                    'section' => 'suscripciones',
+                    'model_type' => get_class($suscripcion),
+                    'model_id' => $suscripcion->id,
+                    'payload' => [
+                        'archivo' => $suscripcion->comprobante_pago,
+                    ],
+                    'ip_address' => request()->ip(),
+                    'user_agent' => request()->userAgent(),
+                    'created_at' => now(),
+                ]);
+            } catch (Throwable $e) {
+                report($e);
+            }
+        }
+
+        return response()->download($downloadPath);
     }
 }

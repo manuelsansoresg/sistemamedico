@@ -2,16 +2,20 @@
 
 namespace App\Models;
 
+use App\Traits\Auditable;
 use Illuminate\Database\Eloquent\Model;
 
 class Clinica extends Model
 {
+    use Auditable;
+
     protected $fillable = [
         'nombre',
         'direccion',
         'lat',
         'lng',
         'telefono',
+        'logo',
         'logotipo',
         'ubicacion',
         'activo',

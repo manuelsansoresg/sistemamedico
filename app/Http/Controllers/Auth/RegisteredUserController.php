@@ -17,7 +17,6 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
-use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rules;
 use Illuminate\View\View;
@@ -64,6 +63,7 @@ class RegisteredUserController extends Controller
         }
 
         $clipApiKey = env('CLIP_API_KEY');
+
         return view('auth.register', compact('paquetes', 'especialidades', 'terminosHtml', 'clipApiKey'));
     }
 
@@ -333,6 +333,7 @@ class RegisteredUserController extends Controller
                 $suscripcion->save();
             }
         }
+
         return view('auth.register_success_card');
     }
 

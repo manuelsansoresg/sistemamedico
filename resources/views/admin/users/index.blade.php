@@ -57,9 +57,7 @@
                                         <td class="px-6 py-4 whitespace-nowrap">
                                             <div class="flex items-center">
                                                 <div class="flex-shrink-0 h-10 w-10">
-                                                    <div class="h-10 w-10 rounded-full bg-[#E6F0FF] flex items-center justify-center text-[#0061F5] font-bold">
-                                                        {{ strtoupper(substr($user->name, 0, 1)) }}
-                                                    </div>
+                                                    <img src="{{ $user->profile_photo_url }}" alt="Foto de perfil" class="h-10 w-10 rounded-full object-cover border border-gray-200">
                                                 </div>
                                                 <div class="ml-4">
                                                     <div class="text-sm font-medium text-cyan-500">{{ $user->name }}</div>
