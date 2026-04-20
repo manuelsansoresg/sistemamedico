@@ -99,7 +99,7 @@ trait Auditable
             AuditLog::create([
                 'user_id' => Auth::id(),
                 'action' => $action,
-                'section' => $resolvedSection,
+                'section' => AuditLog::normalizeSection($resolvedSection),
                 'model_type' => $model ? get_class($model) : null,
                 'model_id' => $model ? $model->getKey() : null,
                 'payload' => $payload,

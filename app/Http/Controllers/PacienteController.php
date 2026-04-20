@@ -9,6 +9,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rules;
 use Throwable;
 
@@ -179,6 +181,7 @@ class PacienteController extends Controller
             'direccion' => ['nullable', 'string', 'max:255'],
             'numero_imss' => ['nullable', 'string', 'max:20'],
             'activo' => ['boolean'],
+            'profile_photo' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048'],
         ];
 
         /** @var \App\Models\User $authUser */
@@ -205,6 +208,10 @@ class PacienteController extends Controller
             'perfil_compartido' => false,
             'created_by' => $ownerForLimits->id,
         ]);
+
+        if ($request->hasFile('profile_photo')) {
+            $this->storeProfilePhotoFromRequest($request, $newUser, $user);
+        }
 
         $newUser->assignRole('paciente');
 
@@ -257,6 +264,7 @@ class PacienteController extends Controller
             'direccion' => ['nullable', 'string', 'max:255'],
             'numero_imss' => ['nullable', 'string', 'max:20'],
             'activo' => ['boolean'],
+            'profile_photo' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048'],
         ]);
 
         $data = [
@@ -284,7 +292,123 @@ class PacienteController extends Controller
 
         $paciente->update($data);
 
+        if ($request->hasFile('profile_photo') && $currentUser instanceof User) {
+            $this->storeProfilePhotoFromRequest($request, $paciente, $currentUser);
+        }
+
         return redirect()->route('pacientes.index')->with('success', 'Paciente actualizado exitosamente.');
+    }
+
+    private function storeProfilePhotoFromRequest(Request $request, User $user, User $currentUser): void
+    {
+        $file = $request->file('profile_photo');
+        if (! $file) {
+            return;
+        }
+
+        $oldPath = $user->profile_photo_path;
+        $path = $file->store('profile-photos', 'public');
+
+        try {
+            $absolutePath = Storage::disk('public')->path($path);
+            $this->resizeProfilePhotoIfPossible($absolutePath);
+        } catch (Throwable $e) {
+            Log::warning('No se pudo procesar la foto de perfil', [
+                'error' => $e->getMessage(),
+            ]);
+        }
+
+        $user->profile_photo_path = $path;
+        $user->save();
+
+        if ($oldPath) {
+            Storage::disk('public')->delete($oldPath);
+        }
+
+        try {
+            AuditLog::create([
+                'user_id' => $currentUser->id,
+                'action' => 'actualizar_foto_perfil',
+                'section' => 'pacientes',
+                'model_type' => User::class,
+                'model_id' => $user->id,
+                'payload' => [
+                    'photo_path' => $path,
+                ],
+                'ip_address' => $request->ip(),
+                'user_agent' => $request->userAgent(),
+                'created_at' => now(),
+            ]);
+        } catch (Throwable $e) {
+            report($e);
+        }
+    }
+
+    private function resizeProfilePhotoIfPossible(string $absolutePath): void
+    {
+        if (! extension_loaded('gd')) {
+            return;
+        }
+
+        if (! is_file($absolutePath)) {
+            return;
+        }
+
+        $info = @getimagesize($absolutePath);
+        if (! $info || empty($info['mime'])) {
+            return;
+        }
+
+        $mime = $info['mime'];
+
+        $src = match ($mime) {
+            'image/jpeg' => @imagecreatefromjpeg($absolutePath),
+            'image/png' => @imagecreatefrompng($absolutePath),
+            'image/webp' => function_exists('imagecreatefromwebp') ? @imagecreatefromwebp($absolutePath) : null,
+            default => null,
+        };
+
+        if (! $src) {
+            return;
+        }
+
+        $srcW = imagesx($src);
+        $srcH = imagesy($src);
+
+        if ($srcW <= 0 || $srcH <= 0) {
+            imagedestroy($src);
+
+            return;
+        }
+
+        $side = min($srcW, $srcH);
+        $srcX = (int) floor(($srcW - $side) / 2);
+        $srcY = (int) floor(($srcH - $side) / 2);
+
+        $dstSize = 400;
+        $dst = imagecreatetruecolor($dstSize, $dstSize);
+        if (! $dst) {
+            imagedestroy($src);
+
+            return;
+        }
+
+        imagealphablending($dst, false);
+        imagesavealpha($dst, true);
+        $transparent = imagecolorallocatealpha($dst, 0, 0, 0, 127);
+        imagefilledrectangle($dst, 0, 0, $dstSize, $dstSize, $transparent);
+
+        imagecopyresampled($dst, $src, 0, 0, $srcX, $srcY, $dstSize, $dstSize, $side, $side);
+
+        match ($mime) {
+            'image/jpeg' => imagejpeg($dst, $absolutePath, 85),
+            'image/png' => imagepng($dst, $absolutePath, 6),
+            'image/webp' => function_exists('imagewebp') ? imagewebp($dst, $absolutePath, 85) : null,
+            default => null,
+        };
+
+        imagedestroy($dst);
+        imagedestroy($src);
     }
 
     /**

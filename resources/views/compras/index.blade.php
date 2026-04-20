@@ -54,12 +54,6 @@
 
             <h1 class="text-2xl font-bold text-gray-800 mb-6">Gestión de Suscripciones</h1>
 
-            @if(session('success'))
-                <div class="mb-6 p-4 bg-green-100 text-green-700 rounded-lg shadow-sm border border-green-200">
-                    <i class="fas fa-check-circle mr-2"></i> {{ session('success') }}
-                </div>
-            @endif
-
             <!-- Mis Suscripciones -->
             <div class="mb-10">
                 <h2 class="text-xl font-bold text-gray-800 mb-4 flex items-center">

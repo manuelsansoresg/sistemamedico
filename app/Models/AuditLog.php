@@ -28,6 +28,45 @@ class AuditLog extends Model
         'created_at' => 'datetime',
     ];
 
+    public static function sectionLabels(): array
+    {
+        return [
+            'configuracions' => 'configuraciones',
+            'configuracion' => 'configuraciones',
+            'users' => 'usuarios',
+            'user' => 'usuarios',
+            'patients' => 'pacientes',
+            'patient' => 'pacientes',
+            'resources' => 'recursos',
+            'resource' => 'recursos',
+            'security' => 'seguridad',
+            'auth' => 'seguridad',
+        ];
+    }
+
+    public static function normalizeSection(?string $section): ?string
+    {
+        if ($section === null) {
+            return null;
+        }
+
+        $normalized = Str::of($section)->trim()->lower()->toString();
+
+        return self::sectionLabels()[$normalized] ?? $normalized;
+    }
+
+    public static function sectionLabel(?string $section): string
+    {
+        $normalized = self::normalizeSection($section);
+
+        return $normalized ?: '-';
+    }
+
+    public function getSectionLabelAttribute(): string
+    {
+        return self::sectionLabel($this->section);
+    }
+
     public function setIpAddressAttribute($value): void
     {
         if ($value) {

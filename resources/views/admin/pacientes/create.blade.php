@@ -34,13 +34,61 @@
                         </a>
                     </div>
 
-                    <form action="{{ route('pacientes.store') }}" method="POST">
+                    <form action="{{ route('pacientes.store') }}" method="POST" enctype="multipart/form-data">
                         @csrf
                         
                         <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
                             <!-- Datos Personales -->
                             <div class="col-span-full">
                                 <h3 class="text-lg font-semibold border-b pb-2 mb-4 text-gray-700">Datos Personales</h3>
+                            </div>
+
+                            <div class="md:col-span-3" x-data="{
+                                previewUrl: 'https://ui-avatars.com/api/?name={{ urlencode(old('name', 'Paciente')) }}&color=7F9CF5&background=EBF4FF',
+                                fileName: '',
+                                dragging: false,
+                                setFile(file) {
+                                    if (!file) return;
+                                    this.fileName = file.name;
+                                    this.previewUrl = URL.createObjectURL(file);
+                                    const dt = new DataTransfer();
+                                    dt.items.add(file);
+                                    this.$refs.photoInput.files = dt.files;
+                                },
+                                onSelect(e) {
+                                    const file = e && e.target && e.target.files ? e.target.files[0] : null;
+                                    this.setFile(file);
+                                },
+                                onDrop(e) {
+                                    this.dragging = false;
+                                    const file = e && e.dataTransfer && e.dataTransfer.files ? e.dataTransfer.files[0] : null;
+                                    this.setFile(file);
+                                },
+                            }">
+                                <label class="block text-sm font-bold text-gray-700">Foto de perfil</label>
+                                <div class="mt-2 flex items-start gap-6">
+                                    <img :src="previewUrl" alt="Foto de perfil" class="h-16 w-16 rounded-full object-cover border border-gray-200">
+                                    <div class="flex-1">
+                                        <div class="rounded-lg border-2 border-dashed p-4 transition-colors"
+                                            :class="dragging ? 'border-[#0061F5] bg-[#E6F0FF]' : 'border-gray-300 bg-white'"
+                                            @dragover.prevent="dragging = true"
+                                            @dragleave.prevent="dragging = false"
+                                            @drop.prevent="onDrop($event)">
+                                            <div class="flex flex-col gap-2">
+                                                <p class="text-sm font-semibold text-gray-800">Arrastra y suelta la imagen aquí</p>
+                                                <p class="text-xs text-gray-500">JPG, PNG o WEBP (máx. 2MB)</p>
+                                                <div>
+                                                    <button type="button" class="px-4 py-2 bg-[#0061F5] text-white font-bold rounded-md hover:bg-[#0051CC] transition-colors" @click="$refs.photoInput.click()">
+                                                        Seleccionar archivo
+                                                    </button>
+                                                    <input type="file" x-ref="photoInput" name="profile_photo" accept="image/jpeg,image/png,image/webp" class="hidden" @change="onSelect($event)">
+                                                </div>
+                                                <p class="text-xs text-gray-600" x-show="fileName" x-text="fileName"></p>
+                                            </div>
+                                        </div>
+                                        <x-input-error :messages="$errors->get('profile_photo')" class="mt-2" />
+                                    </div>
+                                </div>
                             </div>
 
                             <div>

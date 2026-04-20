@@ -10,22 +10,6 @@
                         </div>
                     </div>
 
-                    @if (session('success'))
-                        <div class="mt-4 p-4 bg-green-100 text-green-700 rounded-lg">
-                            {{ session('success') }}
-                        </div>
-                    @endif
-
-                    @if ($errors->any())
-                        <div class="mt-4 p-4 bg-red-100 text-red-700 rounded-lg">
-                            <ul class="list-disc pl-5 space-y-1">
-                                @foreach ($errors->all() as $error)
-                                    <li>{{ $error }}</li>
-                                @endforeach
-                            </ul>
-                        </div>
-                    @endif
-
                     <form action="{{ route('branding.update_logo') }}" method="POST" enctype="multipart/form-data" class="mt-6"
                         x-data="{
                             previewUrl: '{{ $configuracion->branding_logo_path ? asset('storage/'.$configuracion->branding_logo_path) : '' }}',

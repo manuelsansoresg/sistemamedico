@@ -45,18 +45,6 @@
                         </div>
                     </div>
 
-                    @if(session('success'))
-                        <div class="mb-4 p-4 bg-green-100 text-green-700 rounded-lg">
-                            {{ session('success') }}
-                        </div>
-                    @endif
-
-                    @if(session('error'))
-                        <div class="mb-4 p-4 bg-red-100 text-red-700 rounded-lg">
-                            {{ session('error') }}
-                        </div>
-                    @endif
-
                     <div class="mb-6">
                         <form action="{{ route('pacientes.shared.index') }}" method="GET" class="grid grid-cols-1 md:grid-cols-5 gap-4">
                             <div class="md:col-span-2">

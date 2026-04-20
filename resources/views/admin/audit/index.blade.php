@@ -36,7 +36,7 @@
                                 <option value="">Todas</option>
                                 @foreach($sections as $section)
                                     <option value="{{ $section }}" @selected(request('section') === $section)>
-                                        {{ $section }}
+                                        {{ \App\Models\AuditLog::sectionLabel($section) }}
                                     </option>
                                 @endforeach
                             </select>
@@ -104,7 +104,7 @@
                                             </span>
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
-                                            {{ $log->section ?? '-' }}
+                                            {{ $log->section_label }}
                                         </td>
                                         <td class="px-6 py-4 text-sm text-gray-700">
                                             @if(!empty($log->payload))
@@ -136,4 +136,3 @@
         </div>
     </div>
 </x-admin-layout>
-

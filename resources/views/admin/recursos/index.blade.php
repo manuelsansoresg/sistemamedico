@@ -39,12 +39,6 @@
                         </div>
                     </div>
 
-                    @if(session('success'))
-                        <div class="mb-4 p-4 bg-green-100 text-green-700 rounded-lg">
-                            {{ session('success') }}
-                        </div>
-                    @endif
-
                     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
                         <div class="lg:col-span-1">
                             <div class="mb-4 flex items-center justify-between">
@@ -126,7 +120,7 @@
                                             <tr>
                                                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                                                     <div class="flex items-center gap-2">
-                                                        <span class="inline-block w-3 h-3 rounded-full" style="background-color: {{ $recurso->color }}"></span>
+                                                        <span class="inline-block w-3 h-3 rounded-full" @style(['background-color: '.$recurso->color])></span>
                                                         {{ $recurso->nombre }}
                                                     </div>
                                                     @if($recurso->descripcion)

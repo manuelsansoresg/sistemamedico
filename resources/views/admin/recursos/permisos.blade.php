@@ -51,12 +51,6 @@
                         </div>
                     </div>
 
-                    @if(session('success'))
-                        <div class="mb-4 p-4 bg-green-100 text-green-700 rounded-lg">
-                            {{ session('success') }}
-                        </div>
-                    @endif
-
                     <form action="{{ route('recursos.permisos.actualizar') }}" method="POST">
                         @csrf
                         <input type="hidden" name="doctor_id" value="{{ $doctorId }}">

@@ -28,17 +28,6 @@
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                 <div class="p-6 bg-white border-b border-gray-200">
                     
-                    @if ($errors->any())
-                        <div class="mb-4 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
-                            <strong class="font-bold">¡Ups! Algo salió mal.</strong>
-                            <ul class="mt-2 list-disc list-inside text-sm">
-                                @foreach ($errors->all() as $error)
-                                    <li>{{ $error }}</li>
-                                @endforeach
-                            </ul>
-                        </div>
-                    @endif
-
                     <form action="{{ route('configuraciones.store') }}" method="POST">
                         @csrf
                         <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
@@ -124,12 +113,16 @@
             </div>
         </div>
     </div>
+
+    <div id="configTransferInit" data-transfer="{{ old('aceptar_transferencia_bancaria') ? '1' : '0' }}" class="hidden"></div>
+
     <script>
         document.addEventListener('alpine:init', () => {
-            // Inicializar estado basado en old input si existe
-            @if(old('aceptar_transferencia_bancaria'))
+            const el = document.getElementById('configTransferInit');
+            const shouldTransfer = el && el.dataset.transfer === '1';
+            if (shouldTransfer) {
                 Alpine.store('transfer', true);
-            @endif
+            }
         });
     </script>
 </x-admin-layout>

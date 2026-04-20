@@ -29,17 +29,6 @@
                 <div class="p-6 bg-white border-b border-gray-200">
                     <h2 class="text-lg font-bold text-cyan-500 mb-6">Los campos marcados con * son requeridos</h2>
 
-                    @if ($errors->any())
-                        <div class="mb-4 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
-                            <strong class="font-bold">¡Ups! Algo salió mal.</strong>
-                            <ul class="mt-2 list-disc list-inside text-sm">
-                                @foreach ($errors->all() as $error)
-                                    <li>{{ $error }}</li>
-                                @endforeach
-                            </ul>
-                        </div>
-                    @endif
-
                     <form action="{{ route('paquetes.store') }}" method="POST">
                         @csrf
                         <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
