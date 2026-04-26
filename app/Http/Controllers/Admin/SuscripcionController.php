@@ -122,7 +122,7 @@ class SuscripcionController extends Controller
             'estatus_pago' => $request->metodo_pago === 'transferencia' ? 'pendiente' : 'pagado',
             'comprobante_pago' => $comprobantePath,
             'fecha_inicio' => now(),
-            'fecha_fin' => $tipo === 'paquete' ? now()->addMonth() : null,
+            'fecha_fin' => $tipo === 'paquete' ? now()->addYear() : null,
         ]);
 
         $admin = Auth::user();
@@ -255,7 +255,7 @@ class SuscripcionController extends Controller
             if ($request->estatus_pago === 'pagado' && ! $suscripcion->fecha_inicio) {
                 $suscripcion->update([
                     'fecha_inicio' => now(),
-                    'fecha_fin' => $suscripcion->tipo === 'paquete' ? now()->addMonth() : now()->addYear(),
+                    'fecha_fin' => now()->addYear(),
                 ]);
             }
 

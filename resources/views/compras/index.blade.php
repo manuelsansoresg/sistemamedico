@@ -52,239 +52,330 @@
                 </ol>
             </nav>
 
-            <h1 class="text-2xl font-bold text-gray-800 mb-6">Gestión de Suscripciones</h1>
+            <h1 class="text-2xl font-bold text-[#1E293B] mb-8">Gestión de Suscripciones</h1>
 
-            <!-- Mis Suscripciones -->
-            <div class="mb-10">
-                <h2 class="text-xl font-bold text-gray-800 mb-4 flex items-center">
-                    <i class="fas fa-check-circle text-green-500 mr-2"></i> Mis Suscripciones Activas
-                </h2>
-                
+            @php
+                $limitesGlobales = app(\App\Services\SubscriptionService::class)->calculateLimits(auth()->user());
+                $currentCounts = [
+                    'clinicas' => \App\Models\Clinica::where('created_by', auth()->id())->count(),
+                    'consultorios' => \App\Models\Consultorio::where('created_by', auth()->id())->count(),
+                    'usuarios' => \App\Models\User::where('created_by', auth()->id())->whereHas('roles', function ($q) { $q->whereIn('name', ['asistente','secretaria']); })->count(),
+                    'pacientes' => \App\Models\User::role('paciente')->where('created_by', auth()->id())->count(),
+                ];
+            @endphp
+
+            <!-- SECCIÓN 1: Mis Planes Activos -->
+            <div class="mb-12">
+                @php
+                    $suscripcionesActivasCount = $suscripciones->getCollection()->filter(function ($sub) {
+                        if ($sub->estatus_pago !== 'pagado') {
+                            return false;
+                        }
+
+                        if (! $sub->fecha_fin) {
+                            return true;
+                        }
+
+                        return \Carbon\Carbon::parse($sub->fecha_fin)->gte(\Carbon\Carbon::now());
+                    })->count();
+                @endphp
+
+                <div class="flex items-center justify-between mb-4">
+                    <h2 class="text-xl font-bold text-[#1E293B] flex items-center">
+                        <i class="fas fa-layer-group text-[#0061F5] mr-2"></i> Mis Planes Activos
+                    </h2>
+                    <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold bg-[#27ADFA]/15 text-[#0061F5]">
+                        {{ $suscripcionesActivasCount }} activos
+                    </span>
+                </div>
+
                 @if($suscripciones->isEmpty())
-                    <div class="bg-white rounded-lg shadow-sm p-6 border border-gray-200 text-center">
-                        <p class="text-gray-500">No tienes suscripciones activas.</p>
+                    <div class="bg-white rounded-xl shadow-sm p-8 text-center border border-gray-200">
+                        <div class="text-gray-400 mb-3">
+                            <i class="fas fa-box-open text-5xl"></i>
+                        </div>
+                        <p class="text-gray-500 text-lg">No tienes suscripciones activas.</p>
+                        <p class="text-gray-400 text-sm mt-1">Adquiere un servicio en la sección de abajo.</p>
                     </div>
                 @else
-                    <div class="bg-white shadow-sm overflow-hidden sm:rounded-lg border border-gray-200">
-                        <div class="overflow-x-auto">
-                            <table class="min-w-full divide-y divide-gray-200">
-                                <thead class="bg-gray-50">
-                                    <tr class="hover:bg-gray-50 transition-colors">
-                                        <th scope="col" class="px-6 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">SERVICIO / PAQUETE</th>
-                                        <th scope="col" class="px-6 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">TIPO</th>
-                                        <th scope="col" class="px-6 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">DETALLE</th>
-                                        <th scope="col" class="px-6 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">ESTADO PAGO</th>
-                                        <th scope="col" class="px-6 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">VIGENCIA</th>
-                                        <th scope="col" class="px-6 py-3 text-right text-xs font-bold text-gray-700 uppercase tracking-wider">ACCIONES</th>
-                                    </tr>
-                                </thead>
-                                @php
-                                    $limitesGlobales = app(\App\Services\SubscriptionService::class)->calculateLimits(auth()->user());
-                                    $currentCounts = [
-                                        'clinicas' => \App\Models\Clinica::where('created_by', auth()->id())->count(),
-                                        'consultorios' => \App\Models\Consultorio::where('created_by', auth()->id())->count(),
-                                        'usuarios' => \App\Models\User::where('created_by', auth()->id())->whereHas('roles', function ($q) { $q->whereIn('name', ['asistente','secretaria']); })->count(),
-                                        'pacientes' => \App\Models\User::role('paciente')->where('created_by', auth()->id())->count(),
-                                    ];
-                                @endphp
-                                <tbody class="bg-white divide-y divide-gray-200">
-                                    @foreach($suscripciones as $sub)
-                                        @php
-                                            $paqueteVencido = $sub->tipo === 'paquete'
-                                                && $sub->estatus_pago === 'pagado'
-                                                && $sub->fecha_fin
-                                                && \Carbon\Carbon::parse($sub->fecha_fin)->lt(\Carbon\Carbon::now());
-                                        @endphp
-                                        <tr class="hover:bg-gray-50 transition-colors">
-                                            <td class="px-6 py-4 whitespace-nowrap">
-                                                <div class="text-sm font-medium text-gray-700">
-                                                    @if($sub->tipo == 'paquete')
-                                                        {{ optional($sub->paquete)->nombre ?? 'Paquete' }}
-                                                    @else
-                                                        {{ optional($sub->catalogo)->nombre ?? 'Servicio' }}
-                                                    @endif
-                                                </div>
-                                            </td>
-                                            <td class="px-6 py-4 whitespace-nowrap">
-                                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full {{ $sub->tipo == 'paquete' ? 'bg-purple-100 text-purple-800' : 'bg-blue-100 text-blue-800' }}">
-                                                    {{ ucfirst($sub->tipo) }}
-                                                </span>
-                                            </td>
-                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                                @if($sub->tipo == 'individual')
-                                                    @php
-                                                        $isPaciente = optional($sub->catalogo) && str_contains(strtolower($sub->catalogo->nombre), 'paciente');
-                                                        $asignados = $isPaciente ? $sub->pacientes()->select('users.id','users.name','users.apellido_paterno','users.apellido_materno')->get() : collect();
-                                                        $usados = $asignados->count();
-                                                        $capacidad = $sub->cantidad ?? 0;
-                                                        $restantes = max(0, $capacidad - $usados);
-                                                    @endphp
-                                                    <div class="space-y-1">
-                                                        <div>
-                                                            Cantidad adquirida: {{ $sub->cantidad ?? 0 }}
-                                                        </div>
-                                                        @if($isPaciente)
-                                                            <div class="text-xs text-gray-600">
-                                                                Asignados: {{ $usados }} / {{ $capacidad }} @if($restantes>0)<span class="ml-1 text-green-600">(Restantes: {{ $restantes }})</span>@endif
-                                                            </div>
-                                                            @if($asignados->isNotEmpty())
-                                                                <div class="mt-1 text-xs text-gray-700">
-                                                                    @foreach($asignados as $p)
-                                                                        <span class="inline-flex items-center px-2 py-0.5 rounded bg-gray-100 mr-1 mb-1">
-                                                                            {{ $p->name }} {{ $p->apellido_paterno }} {{ $p->apellido_materno }}
-                                                                        </span>
-                                                                    @endforeach
-                                                                </div>
-                                                            @endif
-                                                        @endif
-                                                    </div>
-                                                @elseif($sub->tipo == 'paquete' && $sub->paquete)
-                                                    <div class="space-y-1">
-                                                        @foreach($sub->paquete->catalogos as $cat)
-                                                            @php
-                                                                $nombre = strtolower($cat->nombre ?? '');
-                                                                $key = null;
-                                                                if (str_contains($nombre, 'clínica') || str_contains($nombre, 'clinica')) $key = 'clinicas';
-                                                                elseif (str_contains($nombre, 'consultorio')) $key = 'consultorios';
-                                                                elseif (str_contains($nombre, 'usuario')) $key = 'usuarios';
-                                                                elseif (str_contains($nombre, 'paciente')) $key = 'pacientes';
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        @foreach($suscripciones as $sub)
+                            @php
+                                $paqueteVencido = $sub->tipo === 'paquete'
+                                    && $sub->estatus_pago === 'pagado'
+                                    && $sub->fecha_fin
+                                    && \Carbon\Carbon::parse($sub->fecha_fin)->lt(\Carbon\Carbon::now());
 
-                                                                $limitePaquete = $cat->pivot->cantidad_maxima ?? 0;
-                                                                $limiteGlobal = $key ? ($limitesGlobales[$key] ?? 0) : 0;
-                                                                $usados = $key ? ($currentCounts[$key] ?? 0) : 0;
-                                                                $restante = max(0, $limiteGlobal - $usados);
-                                                            @endphp
-                                                            <div class="text-xs text-gray-600">
-                                                                <span class="font-semibold capitalize">{{ $cat->nombre }}:</span>
-                                                                <span class="inline-flex items-center px-2 py-0.5 rounded-full bg-blue-50 text-blue-700 font-semibold ml-1">
-                                                                    Límite paquete: {{ $limitePaquete }}
-                                                                </span>
-                                                                @if($key)
-                                                                    <span class="inline-flex items-center px-2 py-0.5 rounded-full bg-gray-100 text-gray-700 ml-1">
-                                                                        Usados: {{ $usados }}/{{ $limiteGlobal }}
-                                                                    </span>
-                                                                    <span class="inline-flex items-center px-2 py-0.5 rounded-full bg-green-50 text-green-700 ml-1">
-                                                                        Faltan: {{ $restante }}
-                                                                    </span>
-                                                                @endif
-                                                            </div>
-                                                        @endforeach
-                                                    </div>
-                                                @else
-                                                    -
-                                                @endif
-                                            </td>
-                                            <td class="px-6 py-4 whitespace-nowrap">
-                                                @php
-                                                    $color = $paqueteVencido ? 'red' : match($sub->estatus_pago) {
-                                                        'pagado' => 'green',
-                                                        'pendiente' => 'yellow',
-                                                        'fallido' => 'red',
-                                                        default => 'gray',
-                                                    };
-                                                @endphp
-                                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-{{ $color }}-100 text-{{ $color }}-800">
-                                                    {{ $paqueteVencido ? 'Vencido' : ucfirst($sub->estatus_pago) }}
-                                                </span>
-                                            </td>
-                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                                @if($sub->fecha_fin)
-                                                    <span class="{{ $paqueteVencido ? 'text-red-600 font-semibold' : '' }}">
-                                                        {{ \Carbon\Carbon::parse($sub->fecha_fin)->format('d/m/Y') }}
-                                                    </span>
-                                                    @if($paqueteVencido)
-                                                        <i class="fas fa-exclamation-triangle text-red-600 ml-2" title="Paquete vencido"></i>
-                                                    @endif
-                                                @else
-                                                    Indefinido
-                                                @endif
-                                            </td>
-                                            <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                                @if($paqueteVencido)
-                                                    <button type="button" @click="openRenewModal({{ $sub->id }})" class="inline-flex items-center px-3 py-1.5 rounded-md border border-[#0061F5] text-[#0061F5] hover:bg-[#0061F5] hover:text-white text-xs font-bold">
-                                                        <i class="fas fa-sync-alt mr-2"></i> Renovar
-                                                    </button>
-                                                @elseif($sub->estatus_pago === 'pendiente' && $sub->metodo_pago === 'transferencia' && !$sub->comprobante_pago)
-                                                    <button @click="openUploadModal({{ $sub->id }})" class="text-[#0061F5] hover:text-[#0051CC] font-bold inline-flex items-center">
-                                                        <i class="fas fa-upload mr-1"></i> Subir Comprobante
-                                                    </button>
-                                                @elseif($sub->estatus_pago === 'pendiente' && $sub->comprobante_pago)
-                                                    <span class="text-yellow-600 italic text-xs">Validando...</span>
-                                                @endif
-                                            </td>
-                                        </tr>
-                                    @endforeach
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                @endif
-            </div>
+                                $estadoLabel = $paqueteVencido ? 'VENCIDO' : strtoupper($sub->estatus_pago ?? '—');
+                                $estadoClasses = $paqueteVencido
+                                    ? 'bg-red-100 text-red-800'
+                                    : match($sub->estatus_pago) {
+                                        'pagado' => 'bg-green-100 text-green-800',
+                                        'pendiente' => 'bg-yellow-100 text-yellow-800',
+                                        'fallido' => 'bg-red-100 text-red-800',
+                                        default => 'bg-gray-100 text-[#1E293B]',
+                                    };
 
-            <h2 class="text-xl font-bold text-gray-800 mb-4 flex items-center">
-                <i class="fas fa-shopping-cart text-[#0061F5] mr-2"></i> Adquirir Nuevos Servicios
-            </h2>
+                                $serviceName = $sub->tipo === 'paquete'
+                                    ? (optional($sub->paquete)->nombre ?? 'Paquete Eliminado')
+                                    : (optional($sub->catalogo)->nombre ?? 'Servicio Eliminado');
 
-            @if($catalogos->isEmpty())
-                <div class="bg-white rounded-lg shadow-sm p-8 text-center border border-gray-200">
-                    <div class="text-gray-400 mb-4">
-                        <i class="fas fa-box-open text-6xl"></i>
-                    </div>
-                    <h3 class="text-lg font-medium text-gray-900">No hay productos disponibles</h3>
-                    <p class="text-gray-500 mt-2">En este momento no hay items en el catálogo.</p>
-                </div>
-            @else
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    @if(!empty($suscripcionPaqueteVencida) && $suscripcionPaqueteVencida->paquete)
-                        <div class="bg-red-50 rounded-xl shadow-md overflow-hidden border border-red-200 flex flex-col h-full ring-2 ring-red-300">
-                            <div class="p-6 flex-grow">
-                                <div class="flex justify-between items-start mb-4">
-                                    <h3 class="text-xl font-bold text-red-800 leading-tight">
-                                        Renovar Paquete: {{ $suscripcionPaqueteVencida->paquete->nombre }}
-                                    </h3>
-                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
-                                        Vencido
+                                $iconClass = 'fas fa-box';
+                                $lowerName = strtolower($serviceName);
+                                if ($sub->tipo === 'paquete') {
+                                    $iconClass = 'fas fa-cube';
+                                } elseif (str_contains($lowerName, 'paciente')) {
+                                    $iconClass = 'fas fa-user';
+                                } elseif (str_contains($lowerName, 'consultorio')) {
+                                    $iconClass = 'fas fa-hospital';
+                                } elseif (str_contains($lowerName, 'clínica') || str_contains($lowerName, 'clinica')) {
+                                    $iconClass = 'fas fa-clinic-medical';
+                                } elseif (str_contains($lowerName, 'usuario')) {
+                                    $iconClass = 'fas fa-users';
+                                }
+
+                                $metricas = [];
+
+                                if ($sub->tipo === 'paquete' && $sub->paquete) {
+                                    foreach ($sub->paquete->catalogos as $cat) {
+                                        $total = (int) ($cat->pivot->cantidad_maxima ?? 0);
+                                        if ($total <= 0) {
+                                            continue;
+                                        }
+
+                                        $nombre = strtolower($cat->nombre);
+                                        $key = null;
+                                        $label = $cat->nombre;
+
+                                        if (str_contains($nombre, 'clínica') || str_contains($nombre, 'clinica')) {
+                                            $key = 'clinicas';
+                                            $label = 'Clínicas';
+                                        } elseif (str_contains($nombre, 'consultorio')) {
+                                            $key = 'consultorios';
+                                            $label = 'Consultorios';
+                                        } elseif (str_contains($nombre, 'usuario')) {
+                                            $key = 'usuarios';
+                                            $label = 'Usuarios';
+                                        } elseif (str_contains($nombre, 'paciente')) {
+                                            $key = 'pacientes';
+                                            $label = 'Pacientes';
+                                        }
+
+                                        $used = (int) ($key ? ($currentCounts[$key] ?? 0) : 0);
+                                        $percent = $total > 0 ? min(100, (int) round(($used / $total) * 100)) : 0;
+
+                                        $metricas[] = [
+                                            'label' => $label,
+                                            'used' => $used,
+                                            'total' => $total,
+                                            'percent' => $percent,
+                                        ];
+                                    }
+                                } elseif ($sub->tipo === 'individual' && $sub->catalogo) {
+                                    $total = (int) ($sub->cantidad ?? 1);
+                                    $nombre = strtolower($sub->catalogo->nombre);
+                                    $key = null;
+                                    $label = $sub->catalogo->nombre;
+                                    $used = 0;
+
+                                    if (str_contains($nombre, 'clínica') || str_contains($nombre, 'clinica')) {
+                                        $key = 'clinicas';
+                                        $label = 'Clínicas';
+                                        $used = (int) ($currentCounts['clinicas'] ?? 0);
+                                        $total = (int) ($limitesGlobales['clinicas'] ?? $total);
+                                    } elseif (str_contains($nombre, 'consultorio')) {
+                                        $key = 'consultorios';
+                                        $label = 'Consultorios';
+                                        $used = (int) ($currentCounts['consultorios'] ?? 0);
+                                        $total = (int) ($limitesGlobales['consultorios'] ?? $total);
+                                    } elseif (str_contains($nombre, 'usuario')) {
+                                        $key = 'usuarios';
+                                        $label = 'Usuarios';
+                                        $used = (int) ($currentCounts['usuarios'] ?? 0);
+                                        $total = (int) ($limitesGlobales['usuarios'] ?? $total);
+                                    } elseif (str_contains($nombre, 'paciente')) {
+                                        $key = 'pacientes';
+                                        $label = 'Pacientes';
+                                        $used = (int) ($sub->pacientes_count ?? 0);
+                                    }
+
+                                    if ($total > 0) {
+                                        $percent = min(100, (int) round(($used / $total) * 100));
+                                        $metricas[] = [
+                                            'label' => $label,
+                                            'used' => $used,
+                                            'total' => $total,
+                                            'percent' => $percent,
+                                        ];
+                                    }
+                                }
+                            @endphp
+
+                            <div class="bg-white rounded-xl border border-gray-200 p-6 hover:border-[#27ADFA]/60 transition-colors">
+                                <div class="flex items-start justify-between">
+                                    <div class="flex items-center gap-3">
+                                        <div class="h-10 w-10 rounded-lg bg-[#27ADFA]/15 flex items-center justify-center text-[#0061F5]">
+                                            <i class="{{ $iconClass }}"></i>
+                                        </div>
+                                        <div>
+                                            <h3 class="text-base font-bold text-[#1E293B]">{{ $serviceName }}</h3>
+                                            <div class="text-xs text-[#64748b]">Suscripción anual</div>
+                                        </div>
+                                    </div>
+                                    <span class="inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-bold {{ $estadoClasses }}">
+                                        {{ $estadoLabel }}
                                     </span>
                                 </div>
-                                <p class="text-3xl font-bold text-red-700 mb-4">${{ number_format($suscripcionPaqueteVencida->paquete->precio, 2) }}</p>
-                                <p class="text-gray-700 text-sm leading-relaxed mb-4">Tu paquete venció. Renueva para continuar usando el sistema.</p>
+
+                                @if(!empty($metricas))
+                                    <div class="mt-4 space-y-3">
+                                        @foreach($metricas as $m)
+                                            @php
+                                                $widthClass = match (true) {
+                                                    $m['percent'] <= 0 => 'w-0',
+                                                    $m['percent'] < 25 => 'w-1/4',
+                                                    $m['percent'] < 50 => 'w-1/2',
+                                                    $m['percent'] < 75 => 'w-3/4',
+                                                    default => 'w-full',
+                                                };
+                                            @endphp
+                                            <div>
+                                                <div class="flex items-center justify-between text-xs text-[#64748b]">
+                                                    <span>{{ $m['label'] }}</span>
+                                                    <span class="tabular-nums">{{ $m['used'] }}/{{ $m['total'] }}</span>
+                                                </div>
+                                                <div class="mt-1 h-2 w-full rounded-full bg-gray-100 overflow-hidden">
+                                                    <div class="h-2 rounded-full bg-[#27ADFA] {{ $widthClass }}"></div>
+                                                </div>
+                                            </div>
+                                        @endforeach
+                                    </div>
+                                @endif
+
+                                <div class="mt-4 pt-4 border-t border-gray-100 flex items-center justify-between gap-3">
+                                    <div class="text-xs text-[#64748b]">
+                                        @if($sub->fecha_fin)
+                                            Próxima renovación: {{ \Carbon\Carbon::parse($sub->fecha_fin)->format('d/m/Y') }}
+                                        @else
+                                            Vigencia: Indefinida
+                                        @endif
+                                    </div>
+
+                                    <div class="shrink-0">
+                                        @if($paqueteVencido)
+                                            <button type="button" @click="openRenewModal({{ $sub->id }})" class="inline-flex items-center px-3 py-1.5 rounded-md bg-[#0061F5] text-white hover:bg-[#0051CC] text-xs font-bold transition-colors">
+                                                Renovar
+                                            </button>
+                                        @elseif($sub->estatus_pago === 'pendiente' && $sub->metodo_pago === 'transferencia' && !$sub->comprobante_pago)
+                                            <button type="button" @click="openUploadModal({{ $sub->id }})" class="inline-flex items-center px-3 py-1.5 rounded-md bg-[#0061F5] text-white hover:bg-[#0051CC] text-xs font-bold transition-colors">
+                                                Subir comprobante
+                                            </button>
+                                        @elseif($sub->estatus_pago === 'pendiente' && $sub->comprobante_pago)
+                                            <span class="text-yellow-700 text-xs font-bold">Validando…</span>
+                                        @endif
+                                    </div>
+                                </div>
                             </div>
-                            <div class="p-6 bg-white border-t border-red-200 mt-auto">
-                                <button type="button" @click.stop="openRenewModal({{ $suscripcionPaqueteVencida->id }})" class="w-full bg-red-600 text-white font-bold py-3 px-4 rounded-lg hover:bg-red-700 transition-colors flex items-center justify-center shadow-sm">
-                                    <i class="fas fa-sync-alt mr-2"></i> Renovar
-                                </button>
+                        @endforeach
+                    </div>
+
+                    @if(method_exists($suscripciones, 'links'))
+                        <div class="mt-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                            <div class="text-sm text-gray-500">
+                                Mostrando {{ $suscripciones->firstItem() }} a {{ $suscripciones->lastItem() }} de {{ $suscripciones->total() }} registros
+                            </div>
+                            <div>
+                                {{ $suscripciones->links() }}
                             </div>
                         </div>
                     @endif
-                    @foreach($catalogos as $item)
-                        <div class="bg-white rounded-xl shadow-md overflow-hidden border border-gray-200 flex flex-col h-full hover:shadow-lg transition-shadow duration-300">
-                            <div class="p-6 flex-grow">
-                                <div class="flex justify-between items-start mb-4">
-                                    <h3 class="text-xl font-bold text-gray-900 leading-tight">{{ $item->nombre }}</h3>
-                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                                        {{ $item->tipo ?? 'Servicio' }}
+                @endif
+            </div>
+
+            <!-- SEPARADOR VISUAL OBLIGATORIO -->
+            <div class="mt-[48px] pt-[48px] border-t-2 border-[#e2e8f0]">
+                <div class="flex items-start justify-between gap-6 mb-6">
+                    <div>
+                        <h2 class="text-xl font-bold text-[#1E293B] flex items-center">
+                            <i class="fas fa-shopping-bag text-[#0061F5] mr-2"></i> Tienda de Servicios
+                        </h2>
+                        <p class="text-sm text-[#64748b] mt-1">Expande las capacidades de tu centro médico con nuevos módulos.</p>
+                    </div>
+                    <div class="shrink-0">
+                        <span class="inline-flex items-center px-3 py-1.5 rounded-lg text-xs font-bold bg-[#F8FAFC] border border-[#e2e8f0] text-[#1E293B]">
+                            Anual
+                        </span>
+                    </div>
+                </div>
+
+                @if($catalogos->isEmpty())
+                    <div class="bg-[#f8fafc] rounded-[16px] p-8 text-center border-2 border-dashed border-[#cbd5e1]">
+                        <div class="text-gray-400 mb-3">
+                            <i class="fas fa-box-open text-5xl"></i>
+                        </div>
+                        <h3 class="text-lg font-medium text-[#1E293B]">No hay productos disponibles</h3>
+                        <p class="text-[#64748b] mt-1">En este momento no hay items en el catálogo.</p>
+                    </div>
+                @else
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        @if(!empty($suscripcionPaqueteVencida) && $suscripcionPaqueteVencida->paquete)
+                            <div class="rounded-[16px] border-2 border-dashed border-red-300 bg-red-50 p-6 flex flex-col h-full hover:border-red-500 transition-colors shadow-sm">
+                                <div class="flex items-start justify-between mb-3">
+                                    <div class="h-10 w-10 rounded-lg bg-red-100 flex items-center justify-center text-red-600 shrink-0 mr-3">
+                                        <i class="fas fa-exclamation-triangle"></i>
+                                    </div>
+                                    <div class="flex-1">
+                                        <h3 class="text-lg font-bold text-[#1E293B]">{{ $suscripcionPaqueteVencida->paquete->nombre }}</h3>
+                                    </div>
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800 shrink-0 ml-2">
+                                        Vencido
                                     </span>
                                 </div>
-                                <p class="text-3xl font-bold text-[#0061F5] mb-4">${{ number_format($item->precio, 2) }}</p>
-                                <p class="text-gray-600 text-sm leading-relaxed mb-4">{{ $item->descripcion }}</p>
-                            </div>
-                            <div class="p-6 bg-gray-50 border-t border-gray-100 mt-auto">
-                                <button 
-                                    type="button"
-                                    @click.stop="openModal({{ $item->id }})"
-                                    class="w-full bg-[#0061F5] text-white font-bold py-3 px-4 rounded-lg hover:bg-[#0051CC] transition-colors flex items-center justify-center shadow-sm">
-                                    <i class="fas fa-shopping-cart mr-2"></i> Adquirir
+                                <p class="text-2xl font-bold text-[#1E293B] mb-1">${{ number_format($suscripcionPaqueteVencida->paquete->precio, 2) }}</p>
+                                <div class="text-xs text-[#64748b] mb-3">Suscripción anual</div>
+                                <p class="text-sm text-[#64748b] flex-grow">Tu paquete anterior venció. Renueva para continuar usando el sistema.</p>
+                                <button type="button" @click.stop="openRenewModal({{ $suscripcionPaqueteVencida->id }})" class="mt-4 w-full inline-flex items-center justify-center px-4 py-2.5 bg-red-600 text-white font-bold rounded-lg hover:bg-red-700 transition-colors text-sm">
+                                    Renovar &rarr;
                                 </button>
                             </div>
-                        </div>
-                    @endforeach
-                </div>
-            @endif
+                        @endif
+
+                        @foreach($catalogos as $item)
+                            @php
+                                $lowerName = strtolower($item->nombre);
+                                if (str_contains($lowerName, 'paciente')) $iconClass = 'fas fa-user-injured';
+                                elseif (str_contains($lowerName, 'consultorio')) $iconClass = 'fas fa-stethoscope';
+                                elseif (str_contains($lowerName, 'clinica') || str_contains($lowerName, 'clínica')) $iconClass = 'fas fa-hospital';
+                                elseif (str_contains($lowerName, 'usuario')) $iconClass = 'fas fa-user-cog';
+                                else $iconClass = 'fas fa-cube';
+                            @endphp
+                            <div class="rounded-[16px] border-2 border-dashed border-[#cbd5e1] bg-[#F8FAFC] p-6 flex flex-col h-full hover:border-[#0061F5] transition-colors shadow-sm">
+                                <div class="flex items-start mb-3">
+                                    <div class="h-10 w-10 rounded-lg bg-[#27ADFA]/15 flex items-center justify-center text-[#0061F5] shrink-0 mr-3">
+                                        <i class="{{ $iconClass }}"></i>
+                                    </div>
+                                    <div class="flex-1">
+                                        <h3 class="text-lg font-bold text-[#1E293B]">{{ $item->nombre }}</h3>
+                                        <div class="text-xs text-[#64748b] mt-1">Suscripción anual</div>
+                                    </div>
+                                </div>
+                                <div class="flex items-end gap-2 mb-3">
+                                    <p class="text-2xl font-bold text-[#1E293B]">${{ number_format($item->precio, 2) }}</p>
+                                    <span class="text-xs text-[#64748b] font-semibold mb-1">/anual</span>
+                                </div>
+                                <p class="text-sm text-[#64748b] flex-grow">{{ Str::words($item->descripcion ?: 'Adquiere este servicio para ampliar las capacidades de tu sistema.', 15) }}</p>
+                                <button type="button" @click.stop="openModal({{ $item->id }})" class="mt-4 w-full inline-flex items-center justify-center px-4 py-2.5 bg-[#0061F5] text-white font-bold rounded-lg hover:bg-[#0051CC] transition-colors text-sm">
+                                    Adquirir
+                                </button>
+                            </div>
+                        @endforeach
+                    </div>
+                @endif
+            </div>
         </div>
 
         <!-- Purchase Modal -->
         <div x-show="purchaseModalOpen" class="relative z-50" aria-labelledby="modal-title" role="dialog" aria-modal="true" style="display: none;">
-            <!-- Background backdrop, show/hide based on modal state. -->
             <div x-show="purchaseModalOpen" 
                  x-transition:enter="ease-out duration-300" 
                  x-transition:enter-start="opacity-0" 
@@ -319,21 +410,20 @@
                                     </h3>
                                     <div class="mt-2">
                                         <p class="text-sm text-gray-500">
-                                            Estás a punto de adquirir: <span class="font-bold text-gray-800" x-text="selectedItem ? selectedItem.nombre : ''"></span>
+                                            Estás a punto de adquirir: <span class="font-bold text-[#1E293B]" x-text="selectedItem ? selectedItem.nombre : ''"></span>
                                         </p>
                                         <input type="hidden" name="catalogo_id" x-bind:value="selectedItem ? selectedItem.id : ''">
                                         
-                                        <!-- Cantidad -->
                                         <div class="mt-4">
                                             <label for="cantidad" class="block text-sm font-bold text-gray-700">Cantidad</label>
                                             <input type="number" name="cantidad" x-model="cantidad" min="1" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-[#0061F5] focus:ring-[#0061F5]" required>
                                         </div>
 
                                         <p class="mt-2 text-lg font-bold text-[#0061F5]">
-                                            Total: $<span x-text="selectedItem ? (selectedItem.precio * cantidad).toFixed(2) : '0.00'"></span>
+                                            Total anual: $<span x-text="selectedItem ? (selectedItem.precio * cantidad).toFixed(2) : '0.00'"></span>
+                                            <span class="text-sm text-gray-500 font-normal">/anual</span>
                                         </p>
 
-                                        <!-- Método de Pago -->
                                         <div class="mt-4">
                                             <label class="block text-sm font-bold text-gray-700 mb-2">Método de Pago</label>
                                             <div class="space-y-2">
@@ -350,7 +440,6 @@
                                             </div>
                                         </div>
 
-                                        <!-- Subir Comprobante -->
                                         <div class="mt-4 p-4 bg-yellow-50 rounded-md border border-yellow-200" x-show="metodoPago === 'transferencia'" x-transition>
                                             <h4 class="text-sm font-bold text-yellow-800 mb-2">Instrucciones para Transferencia:</h4>
                                             <p class="text-xs text-yellow-700 mb-2">Realiza la transferencia a la siguiente cuenta:</p>
@@ -525,5 +614,4 @@
             </div>
         </div>
     </div>
-</div>
 </x-admin-layout>

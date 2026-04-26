@@ -17,9 +17,10 @@ class CompraController extends Controller
     {
         $catalogos = Catalogo::where('activo', true)->get();
         $suscripciones = Suscripcion::where('user_id', Auth::id())
-            ->with(['paquete', 'catalogo'])
+            ->with(['paquete.catalogos', 'catalogo'])
+            ->withCount('pacientes')
             ->latest()
-            ->get();
+            ->paginate(10);
 
         $suscripcionPaqueteVencida = Suscripcion::where('user_id', Auth::id())
             ->where('tipo', 'paquete')
@@ -155,7 +156,7 @@ class CompraController extends Controller
             'estatus_pago' => $estatusPago,
             'comprobante_pago' => null,
             'fecha_inicio' => $fechaInicio,
-            'fecha_fin' => ($estatusPago === 'pagado') ? now()->addMonth() : null,
+            'fecha_fin' => ($estatusPago === 'pagado') ? now()->addYear() : null,
         ]);
 
         try {

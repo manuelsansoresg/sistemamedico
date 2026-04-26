@@ -166,7 +166,7 @@ class RegisteredUserController extends Controller
                                 'metodo_pago' => 'tarjeta',
                                 'estatus_pago' => 'pagado',
                                 'fecha_inicio' => now(),
-                                'fecha_fin' => now()->addMonth(),
+                                'fecha_fin' => now()->addYear(),
                                 'token_pago' => $token,
                             ]);
 
@@ -294,7 +294,7 @@ class RegisteredUserController extends Controller
             'metodo_pago' => $request->payment_method,
             'estatus_pago' => 'pendiente',
             'fecha_inicio' => now(),
-            'fecha_fin' => now()->addMonth(),
+            'fecha_fin' => now()->addYear(),
             'token_pago' => $token,
         ]);
 
