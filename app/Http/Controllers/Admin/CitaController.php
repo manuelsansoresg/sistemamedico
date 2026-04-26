@@ -76,11 +76,7 @@ class CitaController extends Controller
                 ->where(function ($q) {
                     $q->whereNull('origen_suscripcion_id')
                         ->orWhereHas('origenSuscripcion', function ($q2) {
-                            $q2->where('estatus_pago', 'pagado')
-                                ->where(function ($q3) {
-                                    $q3->whereNull('fecha_fin')
-                                        ->orWhere('fecha_fin', '>=', now());
-                                });
+                            $q2->pagadaVigente();
                         });
                 });
 
@@ -89,11 +85,7 @@ class CitaController extends Controller
                 ->where(function ($q) {
                     $q->whereNull('origen_suscripcion_id')
                         ->orWhereHas('origenSuscripcion', function ($q2) {
-                            $q2->where('estatus_pago', 'pagado')
-                                ->where(function ($q3) {
-                                    $q3->whereNull('fecha_fin')
-                                        ->orWhere('fecha_fin', '>=', now());
-                                });
+                            $q2->pagadaVigente();
                         });
                 });
 
@@ -140,11 +132,7 @@ class CitaController extends Controller
             ->where(function ($q) {
                 $q->whereNull('origen_suscripcion_id')
                     ->orWhereHas('origenSuscripcion', function ($q2) {
-                        $q2->where('estatus_pago', 'pagado')
-                            ->where(function ($q3) {
-                                $q3->whereNull('fecha_fin')
-                                    ->orWhere('fecha_fin', '>=', now());
-                            });
+                        $q2->pagadaVigente();
                     });
             })
             ->first();
@@ -153,11 +141,7 @@ class CitaController extends Controller
             ->where(function ($q) {
                 $q->whereNull('origen_suscripcion_id')
                     ->orWhereHas('origenSuscripcion', function ($q2) {
-                        $q2->where('estatus_pago', 'pagado')
-                            ->where(function ($q3) {
-                                $q3->whereNull('fecha_fin')
-                                    ->orWhere('fecha_fin', '>=', now());
-                            });
+                        $q2->pagadaVigente();
                     });
             })
             ->first();
@@ -282,11 +266,7 @@ class CitaController extends Controller
                 ->where(function ($q) {
                     $q->whereNull('origen_suscripcion_id')
                         ->orWhereHas('origenSuscripcion', function ($q2) {
-                            $q2->where('estatus_pago', 'pagado')
-                                ->where(function ($q3) {
-                                    $q3->whereNull('fecha_fin')
-                                        ->orWhere('fecha_fin', '>=', now());
-                                });
+                            $q2->pagadaVigente();
                         });
                 });
 
@@ -295,11 +275,7 @@ class CitaController extends Controller
                 ->where(function ($q) {
                     $q->whereNull('origen_suscripcion_id')
                         ->orWhereHas('origenSuscripcion', function ($q2) {
-                            $q2->where('estatus_pago', 'pagado')
-                                ->where(function ($q3) {
-                                    $q3->whereNull('fecha_fin')
-                                        ->orWhere('fecha_fin', '>=', now());
-                                });
+                            $q2->pagadaVigente();
                         });
                 });
 
@@ -348,11 +324,7 @@ class CitaController extends Controller
             ->where(function ($q) {
                 $q->whereNull('origen_suscripcion_id')
                     ->orWhereHas('origenSuscripcion', function ($q2) {
-                        $q2->where('estatus_pago', 'pagado')
-                            ->where(function ($q3) {
-                                $q3->whereNull('fecha_fin')
-                                    ->orWhere('fecha_fin', '>=', now());
-                            });
+                        $q2->pagadaVigente();
                     });
             })
             ->first();
@@ -361,11 +333,7 @@ class CitaController extends Controller
             ->where(function ($q) {
                 $q->whereNull('origen_suscripcion_id')
                     ->orWhereHas('origenSuscripcion', function ($q2) {
-                        $q2->where('estatus_pago', 'pagado')
-                            ->where(function ($q3) {
-                                $q3->whereNull('fecha_fin')
-                                    ->orWhere('fecha_fin', '>=', now());
-                            });
+                        $q2->pagadaVigente();
                     });
             })
             ->first();
@@ -513,11 +481,7 @@ class CitaController extends Controller
                 ->where(function ($q) {
                     $q->whereNull('origen_suscripcion_id')
                         ->orWhereHas('origenSuscripcion', function ($q2) {
-                            $q2->where('estatus_pago', 'pagado')
-                                ->where(function ($q3) {
-                                    $q3->whereNull('fecha_fin')
-                                        ->orWhere('fecha_fin', '>=', now());
-                                });
+                            $q2->pagadaVigente();
                         });
                 })
                 ->get();
@@ -527,11 +491,7 @@ class CitaController extends Controller
                 ->where(function ($q) {
                     $q->whereNull('origen_suscripcion_id')
                         ->orWhereHas('origenSuscripcion', function ($q2) {
-                            $q2->where('estatus_pago', 'pagado')
-                                ->where(function ($q3) {
-                                    $q3->whereNull('fecha_fin')
-                                        ->orWhere('fecha_fin', '>=', now());
-                                });
+                            $q2->pagadaVigente();
                         });
                 })
                 ->get();
@@ -541,11 +501,7 @@ class CitaController extends Controller
                 ->where(function ($q) {
                     $q->whereNull('origen_suscripcion_id')
                         ->orWhereHas('origenSuscripcion', function ($q2) {
-                            $q2->where('estatus_pago', 'pagado')
-                                ->where(function ($q3) {
-                                    $q3->whereNull('fecha_fin')
-                                        ->orWhere('fecha_fin', '>=', now());
-                                });
+                            $q2->pagadaVigente();
                         });
                 })
                 ->get();
@@ -555,11 +511,7 @@ class CitaController extends Controller
                 ->where(function ($q) {
                     $q->whereNull('origen_suscripcion_id')
                         ->orWhereHas('origenSuscripcion', function ($q2) {
-                            $q2->where('estatus_pago', 'pagado')
-                                ->where(function ($q3) {
-                                    $q3->whereNull('fecha_fin')
-                                        ->orWhere('fecha_fin', '>=', now());
-                                });
+                            $q2->pagadaVigente();
                         });
                 })
                 ->get();
@@ -571,11 +523,7 @@ class CitaController extends Controller
                 ->where(function ($q) {
                     $q->whereNull('origen_suscripcion_id')
                         ->orWhereHas('origenSuscripcion', function ($q2) {
-                            $q2->where('estatus_pago', 'pagado')
-                                ->where(function ($q3) {
-                                    $q3->whereNull('fecha_fin')
-                                        ->orWhere('fecha_fin', '>=', now());
-                                });
+                            $q2->pagadaVigente();
                         });
                 })
                 ->get();
@@ -585,11 +533,7 @@ class CitaController extends Controller
                 ->where(function ($q) {
                     $q->whereNull('origen_suscripcion_id')
                         ->orWhereHas('origenSuscripcion', function ($q2) {
-                            $q2->where('estatus_pago', 'pagado')
-                                ->where(function ($q3) {
-                                    $q3->whereNull('fecha_fin')
-                                        ->orWhere('fecha_fin', '>=', now());
-                                });
+                            $q2->pagadaVigente();
                         });
                 })
                 ->get();
@@ -793,11 +737,7 @@ class CitaController extends Controller
 
         $requiresCedula = Suscripcion::where('user_id', $doctorId)
             ->where('tipo', 'paquete')
-            ->where('estatus_pago', 'pagado')
-            ->where(function ($q) {
-                $q->whereNull('fecha_fin')
-                    ->orWhere('fecha_fin', '>=', now());
-            })
+            ->pagadaVigente()
             ->with('paquete')
             ->get()
             ->contains(function ($s) {

@@ -66,10 +66,10 @@
                                     Selecciona una o varias consultas para descargar tu expediente en ZIP.
                                 </div>
                                 <div class="flex items-center space-x-2">
-                                    <button type="submit" class="inline-flex items-center px-4 py-2 bg-[#0061F5] text-white text-sm font-bold rounded-md hover:bg-[#0051CC] transition-colors shadow-sm">
+                                    <button type="submit" class="inline-flex items-center px-4 py-2 bg-white text-[#0061F5] text-sm font-bold rounded-md border border-[#0061F5] hover:bg-blue-50 transition-colors shadow-sm">
                                         <i class="fas fa-download mr-2"></i> Descargar seleccionados
                                     </button>
-                                    <a href="{{ route('paciente.expedientes.download.all', request()->query()) }}" class="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-semibold text-gray-700 rounded-md hover:bg-gray-50 transition-colors shadow-sm">
+                                    <a href="{{ route('paciente.expedientes.download.all', request()->query()) }}" class="inline-flex items-center px-4 py-2 bg-white text-[#0061F5] text-sm font-bold rounded-md border border-[#0061F5] hover:bg-blue-50 transition-colors shadow-sm">
                                         <i class="fas fa-file-archive mr-2"></i> Descargar todo
                                     </a>
                                 </div>

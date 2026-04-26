@@ -110,7 +110,8 @@ class CompraController extends Controller
                 'monto_total' => $precioTotal,
                 'monto_ganancia_doctor' => $montoGanancia,
                 'porcentaje_aplicado' => $porcentajeAplicado,
-                'concepto' => 'Ganancia por adquisición de: '.$item->nombre,
+                'concepto' => $item->nombre,
+                'tipo_ingreso' => 'compra',
                 'fecha' => now(),
             ]);
         }
@@ -179,6 +180,29 @@ class CompraController extends Controller
             ]);
         } catch (Throwable $e) {
             report($e);
+        }
+
+        // Si se paga con tarjeta, registrar ganancia inmediatamente
+        if ($estatusPago === 'pagado') {
+            $montoGananciaDoctor = 0;
+            $porcentajeAplicado = 0;
+
+            if ($paquete->porcentaje_ganancia > 0) {
+                $montoGananciaDoctor = $paquete->precio * ($paquete->porcentaje_ganancia / 100);
+                $porcentajeAplicado = $paquete->porcentaje_ganancia;
+            }
+
+            Ganancia::create([
+                'user_id' => Auth::id(),
+                'suscripcion_id' => $newSuscripcion->id,
+                'paquete_id' => $paquete->id,
+                'monto_total' => $paquete->precio,
+                'monto_ganancia_doctor' => $montoGananciaDoctor,
+                'porcentaje_aplicado' => $porcentajeAplicado,
+                'concepto' => $paquete->nombre,
+                'tipo_ingreso' => 'renovacion',
+                'fecha' => now(),
+            ]);
         }
 
         $mensaje = ($estatusPago === 'pagado')

@@ -434,10 +434,7 @@ class PacienteController extends Controller
 
             $suscripcion = \App\Models\Suscripcion::where('user_id', $doctor->id)
                 ->where('tipo', 'individual')
-                ->where('estatus_pago', 'pagado')
-                ->where(function ($q) {
-                    $q->whereNull('fecha_fin')->orWhere('fecha_fin', '>=', now());
-                })
+                ->pagadaVigente()
                 ->whereHas('catalogo', function ($q) {
                     $q->whereRaw("LOWER(nombre) like '%paciente%'");
                 })
@@ -498,10 +495,7 @@ class PacienteController extends Controller
 
             $suscripcion = \App\Models\Suscripcion::where('user_id', $owner->id)
                 ->where('tipo', 'individual')
-                ->where('estatus_pago', 'pagado')
-                ->where(function ($q) {
-                    $q->whereNull('fecha_fin')->orWhere('fecha_fin', '>=', now());
-                })
+                ->pagadaVigente()
                 ->whereHas('catalogo', function ($q) {
                     $q->whereRaw("LOWER(nombre) like '%paciente%'");
                 })
@@ -644,10 +638,7 @@ class PacienteController extends Controller
 
         $suscripcion = \App\Models\Suscripcion::where('user_id', $doctor->id)
             ->where('tipo', 'individual')
-            ->where('estatus_pago', 'pagado')
-            ->where(function ($q) {
-                $q->whereNull('fecha_fin')->orWhere('fecha_fin', '>=', now());
-            })
+            ->pagadaVigente()
             ->whereHas('catalogo', function ($q) {
                 $q->whereRaw("LOWER(nombre) like '%paciente%'");
             })

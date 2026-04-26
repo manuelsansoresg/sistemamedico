@@ -83,11 +83,7 @@ class SuscripcionController extends Controller
             // Verificar si el usuario ya tiene un paquete activo
             $activePackage = Suscripcion::where('user_id', $request->user_id)
                 ->where('tipo', 'paquete')
-                ->where('estatus_pago', 'pagado')
-                ->where(function ($q) {
-                    $q->whereNull('fecha_fin')
-                        ->orWhere('fecha_fin', '>', now());
-                })
+                ->pagadaVigente()
                 ->exists();
 
             if ($activePackage) {
@@ -111,6 +107,8 @@ class SuscripcionController extends Controller
             $comprobantePath = 'comprobantes/'.$filename;
         }
 
+        $estatusPago = $request->metodo_pago === 'transferencia' ? 'pendiente' : 'pagado';
+
         $suscripcion = Suscripcion::create([
             'user_id' => $request->user_id,
             'paquete_id' => $paqueteId,
@@ -119,10 +117,10 @@ class SuscripcionController extends Controller
             'tipo' => $tipo,
             'precio' => $price,
             'metodo_pago' => $request->metodo_pago,
-            'estatus_pago' => $request->metodo_pago === 'transferencia' ? 'pendiente' : 'pagado',
+            'estatus_pago' => $estatusPago,
             'comprobante_pago' => $comprobantePath,
-            'fecha_inicio' => now(),
-            'fecha_fin' => $tipo === 'paquete' ? now()->addYear() : null,
+            'fecha_inicio' => $estatusPago === 'pagado' ? now() : null,
+            'fecha_fin' => $estatusPago === 'pagado' ? now()->addYear() : null,
         ]);
 
         $admin = Auth::user();
@@ -199,7 +197,8 @@ class SuscripcionController extends Controller
                     'monto_total' => $suscripcion->precio,
                     'monto_ganancia_doctor' => $montoGananciaDoctor,
                     'porcentaje_aplicado' => $porcentajeAplicado,
-                    'concepto' => 'Ganancia por adquisición de: '.$item->nombre,
+                    'concepto' => $item->nombre,
+                    'tipo_ingreso' => 'compra',
                     'fecha' => now(),
                 ]);
             }
@@ -305,7 +304,8 @@ class SuscripcionController extends Controller
                         'monto_total' => $suscripcion->precio,
                         'monto_ganancia_doctor' => $montoGananciaDoctor,
                         'porcentaje_aplicado' => $porcentajeAplicado,
-                        'concepto' => 'Ganancia por adquisición de: '.$item->nombre,
+                        'concepto' => $item->nombre,
+                        'tipo_ingreso' => 'compra',
                         'fecha' => now(),
                     ]);
                 }

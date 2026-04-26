@@ -72,11 +72,13 @@
                             return false;
                         }
 
-                        if (! $sub->fecha_fin) {
-                            return true;
-                        }
+                        $fechaFin = $sub->fecha_fin
+                            ? \Carbon\Carbon::parse($sub->fecha_fin)
+                            : ($sub->fecha_inicio
+                                ? \Carbon\Carbon::parse($sub->fecha_inicio)->addYear()
+                                : ($sub->created_at ? \Carbon\Carbon::parse($sub->created_at)->addYear() : null));
 
-                        return \Carbon\Carbon::parse($sub->fecha_fin)->gte(\Carbon\Carbon::now());
+                        return $fechaFin ? $fechaFin->gte(\Carbon\Carbon::now()) : false;
                     })->count();
                 @endphp
 
@@ -101,10 +103,16 @@
                     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                         @foreach($suscripciones as $sub)
                             @php
+                                $fechaFinSub = $sub->fecha_fin
+                                    ? \Carbon\Carbon::parse($sub->fecha_fin)
+                                    : ($sub->fecha_inicio
+                                        ? \Carbon\Carbon::parse($sub->fecha_inicio)->addYear()
+                                        : ($sub->created_at ? \Carbon\Carbon::parse($sub->created_at)->addYear() : null));
+
                                 $paqueteVencido = $sub->tipo === 'paquete'
                                     && $sub->estatus_pago === 'pagado'
-                                    && $sub->fecha_fin
-                                    && \Carbon\Carbon::parse($sub->fecha_fin)->lt(\Carbon\Carbon::now());
+                                    && $fechaFinSub
+                                    && $fechaFinSub->lt(\Carbon\Carbon::now());
 
                                 $estadoLabel = $paqueteVencido ? 'VENCIDO' : strtoupper($sub->estatus_pago ?? '—');
                                 $estadoClasses = $paqueteVencido
@@ -254,10 +262,19 @@
 
                                 <div class="mt-4 pt-4 border-t border-gray-100 flex items-center justify-between gap-3">
                                     <div class="text-xs text-[#64748b]">
-                                        @if($sub->fecha_fin)
-                                            Próxima renovación: {{ \Carbon\Carbon::parse($sub->fecha_fin)->format('d/m/Y') }}
+                                        @php
+                                            $fechaFinDisplay = $sub->fecha_fin
+                                                ? \Carbon\Carbon::parse($sub->fecha_fin)
+                                                : ($sub->fecha_inicio
+                                                    ? \Carbon\Carbon::parse($sub->fecha_inicio)->addYear()
+                                                    : ($sub->created_at ? \Carbon\Carbon::parse($sub->created_at)->addYear() : null));
+                                        @endphp
+                                        @if($sub->estatus_pago !== 'pagado')
+                                            Pago pendiente
+                                        @elseif($fechaFinDisplay)
+                                            Próxima renovación: {{ $fechaFinDisplay->format('d/m/Y') }}
                                         @else
-                                            Vigencia: Indefinida
+                                            Próxima renovación: —
                                         @endif
                                     </div>
 

@@ -124,11 +124,7 @@ class DashboardController extends Controller
             // Cedula validation requirement based on active packages
             $requiresCedulaValidation = Suscripcion::where('user_id', $user->id)
                 ->where('tipo', 'paquete')
-                ->where('estatus_pago', 'pagado')
-                ->where(function ($q) {
-                    $q->whereNull('fecha_fin')
-                        ->orWhere('fecha_fin', '>=', now());
-                })
+                ->pagadaVigente()
                 ->with('paquete')
                 ->get()
                 ->contains(function ($s) {

@@ -86,7 +86,8 @@ class SyncGanancias extends Command
                 'monto_total' => $sub->precio,
                 'monto_ganancia_doctor' => $montoGananciaDoctor,
                 'porcentaje_aplicado' => $porcentajeAplicado,
-                'concepto' => 'Ganancia por adquisición de: '.$item->nombre,
+                'concepto' => $item->nombre,
+                'tipo_ingreso' => 'compra',
                 'fecha' => $sub->fecha_inicio ?? $sub->created_at,
             ]);
 

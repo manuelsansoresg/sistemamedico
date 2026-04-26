@@ -104,10 +104,13 @@ Route::middleware(['auth', 'role:root|doctor|asistente|secretaria', 'check.docto
         Route::delete('admin/pacientes/empatia/{note}', [\App\Http\Controllers\PatientEmpathyController::class, 'destroy'])->name('pacientes.empatia.destroy');
     });
 
-    // Ganancias Routes (Restricted to Root and Doctor)
+    // Ganancias Routes (Restricted to Root, Doctor, Asistente, Secretaria)
     Route::get('ganancias', [\App\Http\Controllers\GananciaController::class, 'index'])
-        ->middleware('role:root|doctor')
+        ->middleware('role:root|doctor|asistente|secretaria')
         ->name('ganancias.index');
+    Route::get('ganancias/exportar-pdf', [\App\Http\Controllers\GananciaController::class, 'exportPdf'])
+        ->middleware('role:root|doctor|asistente|secretaria')
+        ->name('ganancias.export_pdf');
 
     // Días Sin Citas
     Route::resource('dias-sin-citas', \App\Http\Controllers\DiaSinCitaController::class);

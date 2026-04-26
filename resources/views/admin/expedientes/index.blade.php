@@ -29,13 +29,13 @@
                                 <button 
                                     type="button" 
                                     @click="downloadSelected()"
-                                    class="px-4 py-2 bg-[#0061F5] text-white font-bold rounded-md hover:bg-[#0051CC] transition-colors shadow-sm flex items-center">
-                                    <i class="fas fa-download mr-2 text-xl"></i> DESCARGAR SELECCIONADOS
+                                    class="px-4 py-2 bg-white text-[#0061F5] text-sm font-bold rounded-md border border-[#0061F5] hover:bg-blue-50 transition-colors shadow-sm flex items-center">
+                                    <i class="fas fa-download mr-2"></i> DESCARGAR SELECCIONADOS
                                 </button>
 
                                 @if(auth()->user()->hasRole('root') || auth()->user()->hasRole('doctor') || auth()->user()->can('descargar expedientes') || auth()->user()->can('descargar consultas') || auth()->user()->can('descargar estudios'))
-                                <a href="{{ route('expedientes.download.all', request()->query()) }}" class="px-4 py-2 bg-[#0061F5] text-white font-bold rounded-md hover:bg-[#0051CC] transition-colors shadow-sm flex items-center ml-2">
-                                    <i class="fas fa-file-archive mr-2 text-xl"></i> DESCARGAR TODO
+                                <a href="{{ route('expedientes.download.all', request()->query()) }}" class="px-4 py-2 bg-white text-[#0061F5] text-sm font-bold rounded-md border border-[#0061F5] hover:bg-blue-50 transition-colors shadow-sm flex items-center ml-2">
+                                    <i class="fas fa-file-archive mr-2"></i> DESCARGAR TODO
                                 </a>
                                 @endif
                             </div>

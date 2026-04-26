@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Traits\Auditable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Carbon;
 
 class Suscripcion extends Model
 {
@@ -33,6 +34,50 @@ class Suscripcion extends Model
         'fecha_fin' => 'datetime',
         'precio' => 'decimal:2',
     ];
+
+    protected static function booted()
+    {
+        static::saving(function (self $suscripcion) {
+            if ($suscripcion->estatus_pago === 'pagado') {
+                $fechaInicio = $suscripcion->fecha_inicio
+                    ? Carbon::parse($suscripcion->fecha_inicio)
+                    : now();
+
+                $suscripcion->fecha_inicio = $fechaInicio;
+                $suscripcion->fecha_fin = $fechaInicio->copy()->addYear();
+            } else {
+                $suscripcion->fecha_fin = null;
+            }
+        });
+
+        static::retrieved(function (self $suscripcion) {
+            if ($suscripcion->estatus_pago === 'pagado' && ! $suscripcion->fecha_fin) {
+                $fechaInicio = $suscripcion->fecha_inicio
+                    ? Carbon::parse($suscripcion->fecha_inicio)
+                    : ($suscripcion->created_at ? Carbon::parse($suscripcion->created_at) : now());
+
+                $suscripcion->fecha_inicio = $fechaInicio;
+                $suscripcion->fecha_fin = $fechaInicio->copy()->addYear();
+                $suscripcion->saveQuietly();
+            }
+        });
+    }
+
+    public function scopePagadaVigente($query)
+    {
+        $oneYearAgo = now()->subYear();
+
+        return $query->where('estatus_pago', 'pagado')
+            ->where(function ($q) use ($oneYearAgo) {
+                $q->where(function ($q2) {
+                    $q2->whereNotNull('fecha_fin')
+                        ->where('fecha_fin', '>=', now());
+                })->orWhere(function ($q2) use ($oneYearAgo) {
+                    $q2->whereNull('fecha_fin')
+                        ->where('created_at', '>=', $oneYearAgo);
+                });
+            });
+    }
 
     public function user()
     {

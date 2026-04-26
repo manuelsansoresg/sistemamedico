@@ -130,11 +130,7 @@ class User extends Authenticatable
     {
         $subscription = $this->suscripciones()
             ->where('tipo', 'paquete')
-            ->where('estatus_pago', 'pagado')
-            ->where(function ($q) {
-                $q->whereNull('fecha_fin')
-                    ->orWhere('fecha_fin', '>', now());
-            })
+            ->pagadaVigente()
             ->with('paquete')
             ->latest()
             ->first();

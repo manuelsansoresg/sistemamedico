@@ -19,6 +19,7 @@ class Ganancia extends Model
         'monto_ganancia_doctor',
         'porcentaje_aplicado',
         'concepto',
+        'tipo_ingreso',
         'fecha',
     ];
 

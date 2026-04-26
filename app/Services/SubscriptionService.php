@@ -25,15 +25,15 @@ class SubscriptionService
 
         // Obtener suscripciones activas (Pagadas y Vigentes)
         $suscripciones = Suscripcion::where('user_id', $user->id)
-            ->where('estatus_pago', 'pagado')
-            ->where(function ($q) {
-                $q->whereNull('fecha_fin')
-                    ->orWhere('fecha_fin', '>=', now());
-            })
+            ->pagadaVigente()
             ->with(['paquete.catalogos', 'catalogo'])
             ->get();
 
         foreach ($suscripciones as $sub) {
+            if ($sub->fecha_fin && $sub->fecha_fin->lt(now())) {
+                continue;
+            }
+
             // Caso 1: Paquete
             if ($sub->tipo == 'paquete' && $sub->paquete) {
                 foreach ($sub->paquete->catalogos as $cat) {
@@ -120,11 +120,7 @@ class SubscriptionService
     {
         return Suscripcion::where('user_id', $user->id)
             ->where('tipo', 'paquete')
-            ->where('estatus_pago', 'pagado')
-            ->where(function ($q) {
-                $q->whereNull('fecha_fin')
-                    ->orWhere('fecha_fin', '>=', now());
-            })
+            ->pagadaVigente()
             ->exists();
     }
 
@@ -137,11 +133,7 @@ class SubscriptionService
         }
 
         $suscripciones = Suscripcion::where('user_id', $user->id)
-            ->where('estatus_pago', 'pagado')
-            ->where(function ($q) {
-                $q->whereNull('fecha_fin')
-                    ->orWhere('fecha_fin', '>=', now());
-            })
+            ->pagadaVigente()
             ->with(['paquete.catalogos', 'catalogo'])
             ->get();
 
@@ -149,6 +141,10 @@ class SubscriptionService
         $paquetes = [];
 
         foreach ($suscripciones as $sub) {
+            if ($sub->fecha_fin && $sub->fecha_fin->lt(now())) {
+                continue;
+            }
+
             if ($sub->tipo === 'individual' && $sub->catalogo) {
                 $subKey = $this->mapCatalogoToKey($sub->catalogo->nombre);
 

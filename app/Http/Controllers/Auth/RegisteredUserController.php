@@ -134,7 +134,7 @@ class RegisteredUserController extends Controller
                         ],
                     ]);
 
-                    if ($response->successful()) {
+                    if ($response instanceof \Illuminate\Http\Client\Response && $response->successful()) {
                         $data = $response->json();
                         $rawStatus = $data['status'] ?? null;
                         $status = is_string($rawStatus) ? strtolower($rawStatus) : $rawStatus;
@@ -219,7 +219,7 @@ class RegisteredUserController extends Controller
                             ->withInput();
                     }
 
-                    Log::error('Clip API Error: '.$response->body());
+                    Log::error('Clip API Error: '.($response instanceof \Illuminate\Http\Client\Response ? $response->body() : 'No response'));
 
                     if ($request->expectsJson()) {
                         return response()->json([
@@ -293,8 +293,6 @@ class RegisteredUserController extends Controller
             'precio' => $paquete->precio,
             'metodo_pago' => $request->payment_method,
             'estatus_pago' => 'pendiente',
-            'fecha_inicio' => now(),
-            'fecha_fin' => now()->addYear(),
             'token_pago' => $token,
         ]);
 
