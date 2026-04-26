@@ -26,7 +26,7 @@
     <p>Una vez realizado el pago, es necesario que subas tu comprobante (imagen o PDF) en el siguiente enlace seguro para que nuestro equipo pueda activar tu cuenta:</p>
 
     <div style="text-align: center;">
-        <a href="{{ $urlSubirComprobante }}" class="button">Subir Comprobante de Pago</a>
+        <a href="{{ $urlSubirComprobante }}" class="button">Subir Comprobante</a>
     </div>
 
     <p style="font-size: 14px; color: #6b7280; margin-top: 20px;">

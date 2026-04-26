@@ -106,7 +106,7 @@
                                     </select>
                                 </div>
                                 <button type="submit" class="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white hover:bg-[#0051CC] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#0061F5] bg-[#0061F5]">
-                                    Actualizar Pago
+                                    Actualizar
                                 </button>
                             </div>
                         </form>
@@ -201,7 +201,7 @@
                                 </a>
                                 @csrf
                                 <button type="submit" name="accion" value="validar" class="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500">
-                                    Validar Cédula
+                                    Validar
                                 </button>
                                 <button type="submit" name="accion" value="rechazar" class="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500">
                                     Rechazar

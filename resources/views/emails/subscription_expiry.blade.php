@@ -16,7 +16,7 @@
     <p>Recuerde que al vencer su suscripción extra, no podrá crear nuevos recursos asociados a este servicio.</p>
     @endif
 
-    <a href="{{ route('admin.suscripciones.index') }}" class="button">Renovar Suscripción</a>
+    <a href="{{ route('compras.index') }}" class="button">Renovar</a>
     
     <p>Gracias por confiar en nosotros.</p>
 @endsection

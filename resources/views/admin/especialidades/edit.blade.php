@@ -27,7 +27,7 @@
 
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                 <div class="p-6 text-gray-900">
-                    <h2 class="text-2xl font-bold mb-6">Editar Especialidad</h2>
+                    <h2 class="text-2xl font-bold mb-6">Editar</h2>
                     
                     <form action="{{ route('especialidades.update', $especialidad) }}" method="POST">
                         @csrf

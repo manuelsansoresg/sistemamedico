@@ -20,7 +20,7 @@
                     <li aria-current="page">
                         <div class="flex items-center">
                             <i class="fas fa-chevron-right text-gray-400 mx-1"></i>
-                            <span class="ml-1 text-sm font-medium text-gray-500 md:ml-2">Editar Estudio</span>
+                            <span class="ml-1 text-sm font-medium text-gray-500 md:ml-2">Editar</span>
                         </div>
                     </li>
                 </ol>
@@ -97,7 +97,7 @@
                                 <i class="fas fa-cloud-upload-alt text-4xl text-gray-400 mb-2" :class="{ 'text-[#0061F5]': isDragging }"></i>
                                 <div class="flex text-sm text-gray-600 justify-center">
                                     <label for="file-upload" class="relative cursor-pointer bg-white rounded-md font-medium text-[#0061F5] hover:text-[#0061F5] focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-[#0061F5]">
-                                        <span>Subir archivos</span>
+                                        <span>Subir</span>
                                         <input id="file-upload" name="archivos[]" type="file" class="sr-only" multiple accept="image/*,.pdf" x-ref="fileInput" @change="handleFiles($event)">
                                     </label>
                                     <p class="pl-1">o arrastrar y soltar</p>

@@ -23,7 +23,7 @@
                     <div class="flex justify-between items-center mb-6">
                         <h2 class="text-xl font-bold text-gray-800">Listado de Pendientes</h2>
                         <a href="{{ route('pendientes.create') }}" class="px-4 py-2 bg-[#0061F5] text-white font-bold rounded-md hover:bg-[#0051CC] transition-colors shadow-sm flex items-center">
-                            <i class="fas fa-plus mr-2"></i> NUEVO PENDIENTE
+                            <i class="fas fa-plus mr-2"></i> NUEVO
                         </a>
                     </div>
 

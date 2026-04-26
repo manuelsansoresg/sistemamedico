@@ -20,7 +20,7 @@
                     <li aria-current="page">
                         <div class="flex items-center">
                             <i class="fas fa-chevron-right text-gray-400 mx-1"></i>
-                            <span class="ml-1 text-sm font-medium text-gray-500 md:ml-2">Editar Consulta</span>
+                            <span class="ml-1 text-sm font-medium text-gray-500 md:ml-2">Editar</span>
                         </div>
                     </li>
                 </ol>

@@ -108,7 +108,7 @@
 
                         <!-- Comprobante (Solo si es transferencia) -->
                         <div class="mb-6" x-show="metodo_pago === 'transferencia'" x-transition>
-                            <label for="comprobante_pago" class="block text-sm font-bold text-gray-700">Subir Comprobante de Pago</label>
+                            <label for="comprobante_pago" class="block text-sm font-bold text-gray-700">Comprobante de Pago</label>
                             <input type="file" name="comprobante_pago" id="comprobante_pago" class="mt-1 block w-full text-sm text-gray-500
                                 file:mr-4 file:py-2 file:px-4
                                 file:rounded-md file:border-0
@@ -120,7 +120,7 @@
 
                         <div class="flex justify-end mt-6">
                             <a href="{{ route('admin.suscripciones.index') }}" class="px-4 py-2 bg-gray-500 text-white font-bold rounded-md hover:bg-gray-600 transition-colors mr-2">Cancelar</a>
-                            <button type="submit" class="px-4 py-2 bg-[#0061F5] text-white font-bold rounded-md hover:bg-[#0051CC] transition-colors">Crear Suscripción</button>
+                            <button type="submit" class="px-4 py-2 bg-[#0061F5] text-white font-bold rounded-md hover:bg-[#0051CC] transition-colors">Guardar</button>
                         </div>
                     </form>
                 </div>

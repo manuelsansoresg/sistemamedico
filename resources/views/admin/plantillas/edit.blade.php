@@ -28,7 +28,7 @@
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                 <div class="p-6 bg-white border-b border-gray-200">
                     <div class="flex justify-between items-center mb-6">
-                        <h2 class="text-xl font-bold text-gray-800">Editar Plantilla: {{ $plantilla->nombre }}</h2>
+                        <h2 class="text-xl font-bold text-gray-800">Editar</h2>
                         <a href="{{ route('plantillas.index') }}" class="text-gray-600 hover:text-[#0061F5] transition-colors">
                             <i class="fas fa-arrow-left mr-1"></i> Volver
                         </a>

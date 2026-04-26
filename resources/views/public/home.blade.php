@@ -16,7 +16,7 @@
                 @else
                     <a href="{{ route('login') }}" class="inline-flex items-center px-4 py-2 bg-white text-[#0061F5] font-bold rounded-md hover:bg-gray-100 transition-colors">Iniciar Sesión</a>
                     @if (Route::has('register'))
-                        <a href="{{ route('register') }}" class="inline-flex items-center px-4 py-2 bg-[#0061F5] text-white font-bold rounded-md hover:bg-[#0051CC] transition-colors">Crear Cuenta</a>
+                        <a href="{{ route('register') }}" class="inline-flex items-center px-4 py-2 bg-[#0061F5] text-white font-bold rounded-md hover:bg-[#0051CC] transition-colors">Registrarse</a>
                     @endif
                 @endauth
             </nav>

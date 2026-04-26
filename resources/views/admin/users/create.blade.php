@@ -27,7 +27,7 @@
 
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                 <div class="p-6 text-gray-900">
-                    <h2 class="text-2xl font-bold mb-6">Nuevo Usuario</h2>
+                    <h2 class="text-2xl font-bold mb-6">Nuevo</h2>
                     
                     <form action="{{ route('users.store') }}" method="POST" enctype="multipart/form-data">
                         @csrf
@@ -210,7 +210,7 @@
 
                         <div class="flex justify-end mt-6">
                             <a href="{{ route('users.index') }}" class="px-4 py-2 bg-gray-500 text-white font-bold rounded-md hover:bg-gray-600 transition-colors mr-2">Cancelar</a>
-                            <x-primary-button>Guardar Usuario</x-primary-button>
+                            <x-primary-button>Guardar</x-primary-button>
                         </div>
                     </form>
                 </div>

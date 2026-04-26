@@ -41,7 +41,7 @@
                             </form>
 
                             <a href="{{ route('pacientes.create') }}" class="px-4 py-2 bg-[#0061F5] text-white font-bold rounded-md hover:bg-[#0051CC] transition-colors shadow-sm flex items-center justify-center whitespace-nowrap">
-                                <i class="fas fa-plus mr-2"></i> NUEVO PACIENTE
+                                <i class="fas fa-plus mr-2"></i> NUEVO
                             </a>
                         </div>
                     </div>

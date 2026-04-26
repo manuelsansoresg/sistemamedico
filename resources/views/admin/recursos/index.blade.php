@@ -42,7 +42,7 @@
                     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
                         <div class="lg:col-span-1">
                             <div class="mb-4 flex items-center justify-between">
-                                <h3 class="text-sm font-bold text-gray-800">Nuevo recurso</h3>
+                                <h3 class="text-sm font-bold text-gray-800">Nuevo</h3>
                             </div>
                             <form action="{{ route('recursos.store') }}" method="POST" class="space-y-4">
                                 @csrf

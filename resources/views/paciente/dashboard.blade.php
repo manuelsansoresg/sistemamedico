@@ -23,7 +23,7 @@
                             <span class="inline-block w-6 h-6 text-[#0061F5] mr-2"><i class="fas fa-user"></i></span> Mi Perfil
                         </h3>
                         <a href="{{ route('profile.edit') }}" class="inline-flex items-center px-4 py-2 bg-[#0061F5] text-white font-bold rounded-md hover:bg-[#0051CC] transition-colors shadow-sm gap-2">
-                            <span>Editar Perfil</span><i class="fas fa-chevron-right"></i>
+                            <span>Editar</span><i class="fas fa-chevron-right"></i>
                         </a>
                     </div>
                     <p class="text-gray-600 text-sm">Actualiza tu información personal y de contacto.</p>

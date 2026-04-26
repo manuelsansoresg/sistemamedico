@@ -27,7 +27,7 @@
 
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                 <div class="p-6 text-gray-900">
-                    <h2 class="text-2xl font-bold mb-6">Editar Usuario: {{ $user->name }}</h2>
+                    <h2 class="text-2xl font-bold mb-6">Editar</h2>
                     
                     <form action="{{ route('users.update', $user) }}" method="POST" enctype="multipart/form-data">
                         @csrf
@@ -216,7 +216,7 @@
 
                         <div class="flex justify-end mt-6">
                             <a href="{{ route('users.index') }}" class="px-4 py-2 bg-gray-500 text-white font-bold rounded-md hover:bg-gray-600 transition-colors mr-2">Cancelar</a>
-                            <button type="submit" class="px-4 py-2 bg-[#0061F5] text-white font-bold rounded-md hover:bg-[#0051CC] transition-colors">Actualizar Usuario</button>
+                            <button type="submit" class="px-4 py-2 bg-[#0061F5] text-white font-bold rounded-md hover:bg-[#0051CC] transition-colors">Actualizar</button>
                         </div>
                     </form>
                 </div>
