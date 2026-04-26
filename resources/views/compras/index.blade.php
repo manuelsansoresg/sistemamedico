@@ -46,7 +46,7 @@
                     <li aria-current="page">
                         <div class="flex items-center">
                             <i class="fas fa-chevron-right text-gray-400 mx-1"></i>
-                            <span class="ml-1 text-sm font-medium text-gray-500 md:ml-2">Suscripciones</span>
+                            <span class="ml-1 text-sm font-medium text-gray-700 md:ml-2">Suscripciones</span>
                         </div>
                     </li>
                 </ol>
@@ -69,13 +69,13 @@
                         <div class="overflow-x-auto">
                             <table class="min-w-full divide-y divide-gray-200">
                                 <thead class="bg-gray-50">
-                                    <tr>
-                                        <th scope="col" class="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Servicio / Paquete</th>
-                                        <th scope="col" class="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Tipo</th>
-                                        <th scope="col" class="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Detalle</th>
-                                        <th scope="col" class="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Estado Pago</th>
-                                        <th scope="col" class="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Vigencia</th>
-                                        <th scope="col" class="px-6 py-3 text-right text-xs font-bold text-gray-500 uppercase tracking-wider">Acciones</th>
+                                    <tr class="hover:bg-gray-50 transition-colors">
+                                        <th scope="col" class="px-6 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">SERVICIO / PAQUETE</th>
+                                        <th scope="col" class="px-6 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">TIPO</th>
+                                        <th scope="col" class="px-6 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">DETALLE</th>
+                                        <th scope="col" class="px-6 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">ESTADO PAGO</th>
+                                        <th scope="col" class="px-6 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">VIGENCIA</th>
+                                        <th scope="col" class="px-6 py-3 text-right text-xs font-bold text-gray-700 uppercase tracking-wider">ACCIONES</th>
                                     </tr>
                                 </thead>
                                 @php
@@ -95,9 +95,9 @@
                                                 && $sub->fecha_fin
                                                 && \Carbon\Carbon::parse($sub->fecha_fin)->lt(\Carbon\Carbon::now());
                                         @endphp
-                                        <tr>
+                                        <tr class="hover:bg-gray-50 transition-colors">
                                             <td class="px-6 py-4 whitespace-nowrap">
-                                                <div class="text-sm font-medium text-gray-900">
+                                                <div class="text-sm font-medium text-gray-700">
                                                     @if($sub->tipo == 'paquete')
                                                         {{ optional($sub->paquete)->nombre ?? 'Paquete' }}
                                                     @else
@@ -110,7 +110,7 @@
                                                     {{ ucfirst($sub->tipo) }}
                                                 </span>
                                             </td>
-                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                                 @if($sub->tipo == 'individual')
                                                     @php
                                                         $isPaciente = optional($sub->catalogo) && str_contains(strtolower($sub->catalogo->nombre), 'paciente');

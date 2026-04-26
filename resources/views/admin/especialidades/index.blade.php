@@ -31,19 +31,19 @@
                     <div class="overflow-x-auto">
                         <table class="min-w-full divide-y divide-gray-200">
                             <thead class="bg-gray-50">
-                                <tr>
-                                    <th class="px-6 py-3 text-left text-xs font-bold text-[#0061F5] uppercase tracking-wider">NOMBRE</th>
-                                    <th class="px-6 py-3 text-left text-xs font-bold text-[#0061F5] uppercase tracking-wider">DESCRIPCIÓN</th>
-                                    <th class="px-6 py-3 text-left text-xs font-bold text-[#0061F5] uppercase tracking-wider">ESTADO</th>
-                                    <th class="px-6 py-3 text-right text-xs font-bold text-[#0061F5] uppercase tracking-wider"></th>
+                                <tr class="hover:bg-gray-50 transition-colors">
+                                    <th class="px-6 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">NOMBRE</th>
+                                    <th class="px-6 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">DESCRIPCIÓN</th>
+                                    <th class="px-6 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">ESTADO</th>
+                                    <th class="px-6 py-3 text-right text-xs font-bold text-gray-700 uppercase tracking-wider"></th>
                                 </tr>
                             </thead>
                             <tbody class="bg-white divide-y divide-gray-200">
                                 @forelse($especialidades as $especialidad)
-                                    <tr>
-                                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-cyan-500">{{ $especialidad->nombre }}</td>
-                                        <td class="px-6 py-4 text-sm text-cyan-500">{{ Str::limit($especialidad->descripcion, 50) }}</td>
-                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-cyan-500">
+                                    <tr class="hover:bg-gray-50 transition-colors">
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-700">{{ $especialidad->nombre }}</td>
+                                        <td class="px-6 py-4 text-sm text-gray-500">{{ Str::limit($especialidad->descripcion, 50) }}</td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                             {{ $especialidad->activo ? 'Activo' : 'Inactivo' }}
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
@@ -62,7 +62,7 @@
                                         </td>
                                     </tr>
                                 @empty
-                                    <tr>
+                                    <tr class="hover:bg-gray-50 transition-colors">
                                         <td colspan="4" class="px-6 py-4 whitespace-nowrap text-center text-gray-500">
                                             No hay especialidades registradas.
                                         </td>

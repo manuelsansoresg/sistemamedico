@@ -31,22 +31,22 @@
                     <div class="overflow-x-auto">
                         <table class="min-w-full divide-y divide-gray-200">
                             <thead class="bg-gray-50">
-                                <tr>
-                                    <th class="px-6 py-3 text-left text-xs font-bold text-[#0061F5] uppercase tracking-wider">NOMBRE</th>
-                                    <th class="px-6 py-3 text-left text-xs font-bold text-[#0061F5] uppercase tracking-wider">PRECIO</th>
-                                    <th class="px-6 py-3 text-left text-xs font-bold text-[#0061F5] uppercase tracking-wider">ACTIVO</th>
-                                    <th class="px-6 py-3 text-left text-xs font-bold text-[#0061F5] uppercase tracking-wider">ELEMENTOS</th>
-                                    <th class="px-6 py-3 text-left text-xs font-bold text-[#0061F5] uppercase tracking-wider">TIPO</th>
-                                    <th class="px-6 py-3 text-left text-xs font-bold text-[#0061F5] uppercase tracking-wider">VALIDAR CÉDULA</th>
-                                    <th class="px-6 py-3 text-right text-xs font-bold text-[#0061F5] uppercase tracking-wider"></th>
+                                <tr class="hover:bg-gray-50 transition-colors">
+                                    <th class="px-6 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">NOMBRE</th>
+                                    <th class="px-6 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">PRECIO</th>
+                                    <th class="px-6 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">ACTIVO</th>
+                                    <th class="px-6 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">ELEMENTOS</th>
+                                    <th class="px-6 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">TIPO</th>
+                                    <th class="px-6 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">VALIDAR CÉDULA</th>
+                                    <th class="px-6 py-3 text-right text-xs font-bold text-gray-700 uppercase tracking-wider"></th>
                                 </tr>
                             </thead>
                             <tbody class="bg-white divide-y divide-gray-200">
                                 @foreach($paquetes as $paquete)
-                                    <tr>
-                                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-cyan-500">{{ $paquete->nombre }}</td>
-                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-cyan-500">{{ number_format($paquete->precio, 2) }}</td>
-                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-cyan-500">
+                                    <tr class="hover:bg-gray-50 transition-colors">
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-700">{{ $paquete->nombre }}</td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ number_format($paquete->precio, 2) }}</td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                             {{ $paquete->activo ? 'SÍ' : 'NO' }}
                                         </td>
                                         <td class="px-6 py-4 text-sm text-gray-500">
@@ -58,8 +58,8 @@
                                                 @endforeach
                                             </div>
                                         </td>
-                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-cyan-500 uppercase">{{ $paquete->tipo }}</td>
-                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-cyan-500">
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 uppercase">{{ $paquete->tipo }}</td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                             {{ $paquete->validar_cedula ? 'SÍ' : 'NO' }}
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">

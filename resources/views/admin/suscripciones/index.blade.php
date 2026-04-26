@@ -13,7 +13,7 @@
                     <li aria-current="page">
                         <div class="flex items-center">
                             <i class="fas fa-chevron-right text-gray-400 mx-1"></i>
-                            <span class="ml-1 text-sm font-medium text-gray-500 md:ml-2">Suscripciones</span>
+                            <span class="ml-1 text-sm font-medium text-gray-700 md:ml-2">Suscripciones</span>
                         </div>
                     </li>
                 </ol>
@@ -64,26 +64,26 @@
                     <div class="overflow-x-auto">
                         <table class="min-w-full divide-y divide-gray-200">
                             <thead class="bg-gray-50">
-                                <tr>
-                                    <th scope="col" class="px-6 py-3 text-left text-xs font-bold text-[#0061F5] uppercase tracking-wider">
+                                <tr class="hover:bg-gray-50 transition-colors">
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
                                         Doctor/Usuario
                                     </th>
-                                    <th scope="col" class="px-6 py-3 text-left text-xs font-bold text-[#0061F5] uppercase tracking-wider">
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
                                         Item / Paquete
                                     </th>
-                                    <th scope="col" class="px-6 py-3 text-left text-xs font-bold text-[#0061F5] uppercase tracking-wider">
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
                                         Tipo
                                     </th>
-                                    <th scope="col" class="px-6 py-3 text-left text-xs font-bold text-[#0061F5] uppercase tracking-wider">
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
                                         Método de Pago
                                     </th>
-                                    <th scope="col" class="px-6 py-3 text-left text-xs font-bold text-[#0061F5] uppercase tracking-wider">
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
                                         Estatus Pago
                                     </th>
-                                    <th scope="col" class="px-6 py-3 text-left text-xs font-bold text-[#0061F5] uppercase tracking-wider">
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
                                         Estatus Cédula
                                     </th>
-                                    <th scope="col" class="px-6 py-3 text-left text-xs font-bold text-[#0061F5] uppercase tracking-wider">
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
                                         Fecha
                                     </th>
                                     <th scope="col" class="relative px-6 py-3">
@@ -93,7 +93,7 @@
                             </thead>
                             <tbody class="bg-white divide-y divide-gray-200">
                                 @foreach($suscripciones as $suscripcion)
-                                    <tr>
+                                    <tr class="hover:bg-gray-50 transition-colors">
                                         <td class="px-6 py-4 whitespace-nowrap">
                                             <div class="flex items-center">
                                                 <div class="flex-shrink-0 h-10 w-10">
@@ -102,10 +102,10 @@
                                                     </div>
                                                 </div>
                                                 <div class="ml-4">
-                                                    <div class="text-sm font-medium text-cyan-500">
+                                                    <div class="text-sm font-medium text-gray-700">
                                                         {{ $suscripcion->user->name }}
                                                     </div>
-                                                    <div class="text-sm text-cyan-500">
+                                                    <div class="text-sm text-gray-500">
                                                         {{ $suscripcion->user->email }}
                                                     </div>
                                                 </div>
@@ -113,9 +113,9 @@
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap">
                                             @if($suscripcion->tipo == 'paquete')
-                                                <div class="text-sm text-gray-900 font-bold">{{ optional($suscripcion->paquete)->nombre ?? 'Paquete Eliminado' }}</div>
+                                                <div class="text-sm text-gray-500 font-bold">{{ optional($suscripcion->paquete)->nombre ?? 'Paquete Eliminado' }}</div>
                                             @else
-                                                <div class="text-sm text-gray-900 font-bold">{{ optional($suscripcion->catalogo)->nombre ?? 'Item Eliminado' }}</div>
+                                                <div class="text-sm text-gray-500 font-bold">{{ optional($suscripcion->catalogo)->nombre ?? 'Item Eliminado' }}</div>
                                                 @if($suscripcion->cantidad > 1)
                                                     <div class="text-xs text-gray-500">Cantidad: {{ $suscripcion->cantidad }}</div>
                                                 @endif

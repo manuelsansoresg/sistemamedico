@@ -13,7 +13,7 @@
                     <li aria-current="page">
                         <div class="flex items-center">
                             <i class="fas fa-chevron-right text-gray-400 mx-1"></i>
-                            <span class="ml-1 text-sm font-medium text-gray-500 md:ml-2">Expedientes</span>
+                            <span class="ml-1 text-sm font-medium text-gray-700 md:ml-2">Expedientes</span>
                         </div>
                     </li>
                 </ol>
@@ -101,38 +101,38 @@
                     <div class="overflow-x-auto">
                         <table class="min-w-full divide-y divide-gray-200">
                             <thead class="bg-gray-50">
-                                <tr>
-                                    <th class="px-6 py-3 text-left text-xs font-bold text-[#0061F5] uppercase tracking-wider">
+                                <tr class="hover:bg-gray-50 transition-colors">
+                                    <th class="px-6 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
                                         <input type="checkbox" x-model="allSelected" @change="toggleAll" class="rounded border-gray-300 text-[#0061F5] shadow-sm focus:border-[#0061F5] focus:ring-[#0061F5]">
                                     </th>
-                                    <th class="px-6 py-3 text-left text-xs font-bold text-[#0061F5] uppercase tracking-wider">FECHA</th>
-                                    <th class="px-6 py-3 text-left text-xs font-bold text-[#0061F5] uppercase tracking-wider">PACIENTE</th>
-                                    <th class="px-6 py-3 text-left text-xs font-bold text-[#0061F5] uppercase tracking-wider">DOCTOR</th>
-                                    <th class="px-6 py-3 text-left text-xs font-bold text-[#0061F5] uppercase tracking-wider">CLÍNICA / CONSULTORIO</th>
-                                    <th class="px-6 py-3 text-left text-xs font-bold text-[#0061F5] uppercase tracking-wider">DETALLE</th>
-                                    <th class="px-6 py-3 text-right text-xs font-bold text-[#0061F5] uppercase tracking-wider">ACCIONES</th>
+                                    <th class="px-6 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">FECHA</th>
+                                    <th class="px-6 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">PACIENTE</th>
+                                    <th class="px-6 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">DOCTOR</th>
+                                    <th class="px-6 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">CLÍNICA / CONSULTORIO</th>
+                                    <th class="px-6 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">DETALLE</th>
+                                    <th class="px-6 py-3 text-right text-xs font-bold text-gray-700 uppercase tracking-wider">ACCIONES</th>
                                 </tr>
                             </thead>
                             <tbody class="bg-white divide-y divide-gray-200">
                                 @forelse($expedientes as $expediente)
-                                    <tr>
+                                    <tr class="hover:bg-gray-50 transition-colors">
                                         <td class="px-6 py-4 whitespace-nowrap">
                                             <input type="checkbox" value="{{ $expediente->id }}" x-model="selected" class="rounded border-gray-300 text-[#0061F5] shadow-sm focus:border-[#0061F5] focus:ring-[#0061F5]">
                                         </td>
-                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                             {{ $expediente->cita->fecha->format('d/m/Y') }}
                                         </td>
-                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-700">
                                             <a href="{{ route('expedientes.paciente', $expediente->paciente_id) }}" class="text-[#0061F5] hover:underline">
                                                 {{ $expediente->paciente->name }} {{ $expediente->paciente->apellido_paterno }}
                                             </a>
                                         </td>
-                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                             {{ $expediente->doctor->name }} {{ $expediente->doctor->apellido_paterno }}
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                             <div>{{ $expediente->cita->clinica->nombre }}</div>
-                                            <div class="text-xs">{{ $expediente->cita->consultorio->nombre }}</div>
+                                            <div class="text-xs text-gray-500">{{ $expediente->cita->consultorio->nombre }}</div>
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                             <div class="text-xs text-gray-500">
@@ -167,7 +167,7 @@
                                         </td>
                                     </tr>
                                 @empty
-                                    <tr>
+                                    <tr class="hover:bg-gray-50 transition-colors">
                                         <td colspan="6" class="px-6 py-4 whitespace-nowrap text-center text-sm text-gray-500">
                                             No se encontraron expedientes con los filtros seleccionados.
                                         </td>

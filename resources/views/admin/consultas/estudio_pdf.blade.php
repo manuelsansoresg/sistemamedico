@@ -29,7 +29,7 @@
         @endphp
 
         <table style="width: 100%; border-collapse: collapse;">
-            <tr>
+            <tr class="hover:bg-gray-50 transition-colors">
                 <td style="width: 90px; vertical-align: top;">
                     @if($logoPath)
                         <img src="{{ $logoPath }}" style="height: 70px; width: 70px; object-fit: contain;">
@@ -50,11 +50,11 @@
 
     <div class="info-section">
         <table class="info-table">
-            <tr>
+            <tr class="hover:bg-gray-50 transition-colors">
                 <td class="label">Paciente:</td>
                 <td>{{ $estudio->consulta->paciente->name }} {{ $estudio->consulta->paciente->apellido_paterno }} {{ $estudio->consulta->paciente->apellido_materno }}</td>
             </tr>
-            <tr>
+            <tr class="hover:bg-gray-50 transition-colors">
                 <td class="label">Fecha:</td>
                 <td>{{ $estudio->created_at->format('d/m/Y') }}</td>
             </tr>

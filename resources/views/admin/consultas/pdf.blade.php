@@ -33,7 +33,7 @@
         @endphp
 
         <table style="width: 100%; border-collapse: collapse;">
-            <tr>
+            <tr class="hover:bg-gray-50 transition-colors">
                 <td style="width: 90px; vertical-align: top;">
                     @if($logoPath)
                         <img src="{{ $logoPath }}" style="height: 70px; width: 70px; object-fit: contain;">
@@ -56,19 +56,19 @@
 
     <div class="info-section">
         <table class="info-table">
-            <tr>
+            <tr class="hover:bg-gray-50 transition-colors">
                 <td class="label">Paciente:</td>
                 <td>{{ $consulta->paciente->name }} {{ $consulta->paciente->apellido_paterno }} {{ $consulta->paciente->apellido_materno }}</td>
                 <td class="label">Fecha:</td>
                 <td>{{ $consulta->created_at->format('d/m/Y h:i A') }}</td>
             </tr>
-            <tr>
+            <tr class="hover:bg-gray-50 transition-colors">
                 <td class="label">Edad:</td>
                 <td>{{ $consulta->paciente->fecha_nacimiento ? $consulta->paciente->fecha_nacimiento->age . ' años' : 'N/A' }}</td>
                 <td class="label">Peso/Talla:</td>
                 <td>{{ $consulta->peso }} kg / {{ $consulta->estatura }} m</td>
             </tr>
-            <tr>
+            <tr class="hover:bg-gray-50 transition-colors">
                 <td class="label">Alergias:</td>
                 <td colspan="3">{{ $consulta->alergias ?? 'Negadas' }}</td>
             </tr>

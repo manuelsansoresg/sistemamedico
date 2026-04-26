@@ -108,17 +108,17 @@
                             <div class="overflow-x-auto">
                                 <table class="min-w-full divide-y divide-gray-200">
                                     <thead class="bg-gray-50">
-                                        <tr>
-                                            <th class="px-6 py-3 text-left text-xs font-bold text-[#0061F5] uppercase tracking-wider">Recurso</th>
-                                            <th class="px-6 py-3 text-left text-xs font-bold text-[#0061F5] uppercase tracking-wider">Tipo</th>
-                                            <th class="px-6 py-3 text-left text-xs font-bold text-[#0061F5] uppercase tracking-wider">Estado</th>
-                                            <th class="px-6 py-3 text-right text-xs font-bold text-[#0061F5] uppercase tracking-wider">Acciones</th>
+                                        <tr class="hover:bg-gray-50 transition-colors">
+                                            <th class="px-6 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">RECURSO</th>
+                                            <th class="px-6 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">TIPO</th>
+                                            <th class="px-6 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">ESTADO</th>
+                                            <th class="px-6 py-3 text-right text-xs font-bold text-gray-700 uppercase tracking-wider">ACCIONES</th>
                                         </tr>
                                     </thead>
                                     <tbody class="bg-white divide-y divide-gray-200">
                                         @forelse($recursos as $recurso)
-                                            <tr>
-                                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                                            <tr class="hover:bg-gray-50 transition-colors">
+                                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-700">
                                                     <div class="flex items-center gap-2">
                                                         <span class="inline-block w-3 h-3 rounded-full" @style(['background-color: '.$recurso->color])></span>
                                                         {{ $recurso->nombre }}
@@ -127,7 +127,7 @@
                                                         <div class="text-xs text-gray-500 mt-1 line-clamp-2">{{ $recurso->descripcion }}</div>
                                                     @endif
                                                 </td>
-                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                                     {{ $recurso->tipo ?: 'Sin especificar' }}
                                                 </td>
                                                 <td class="px-6 py-4 whitespace-nowrap text-sm">
@@ -162,7 +162,7 @@
                                                 </td>
                                             </tr>
                                         @empty
-                                            <tr>
+                                            <tr class="hover:bg-gray-50 transition-colors">
                                                 <td colspan="4" class="px-6 py-4 text-center text-sm text-gray-500">
                                                     No hay recursos registrados para este doctor.
                                                 </td>

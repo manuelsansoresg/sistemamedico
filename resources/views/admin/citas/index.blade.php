@@ -31,29 +31,29 @@
                     <div class="overflow-x-auto">
                         <table class="min-w-full divide-y divide-gray-200">
                             <thead class="bg-gray-50">
-                                <tr>
-                                    <th class="px-6 py-3 text-left text-xs font-bold text-[#0061F5] uppercase tracking-wider">FECHA/HORA</th>
-                                    <th class="px-6 py-3 text-left text-xs font-bold text-[#0061F5] uppercase tracking-wider">DOCTOR</th>
-                                    <th class="px-6 py-3 text-left text-xs font-bold text-[#0061F5] uppercase tracking-wider">PACIENTE</th>
-                                    <th class="px-6 py-3 text-left text-xs font-bold text-[#0061F5] uppercase tracking-wider">CONSULTORIO</th>
-                                    <th class="px-6 py-3 text-left text-xs font-bold text-[#0061F5] uppercase tracking-wider">ESTADO</th>
-                                    <th class="px-6 py-3 text-right text-xs font-bold text-[#0061F5] uppercase tracking-wider">ACCIONES</th>
+                                <tr class="hover:bg-gray-50 transition-colors">
+                                    <th class="px-6 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">FECHA/HORA</th>
+                                    <th class="px-6 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">DOCTOR</th>
+                                    <th class="px-6 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">PACIENTE</th>
+                                    <th class="px-6 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">CONSULTORIO</th>
+                                    <th class="px-6 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">ESTADO</th>
+                                    <th class="px-6 py-3 text-right text-xs font-bold text-gray-700 uppercase tracking-wider">ACCIONES</th>
                                 </tr>
                             </thead>
                             <tbody class="bg-white divide-y divide-gray-200">
                                 @forelse($citas as $cita)
-                                    <tr>
-                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-cyan-500">
+                                    <tr class="hover:bg-gray-50 transition-colors">
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                             {{ $cita->fecha->format('d/m/Y') }} <br>
                                             {{ $cita->hora_inicio->format('g:i A') }} - {{ $cita->hora_fin->format('g:i A') }}
                                         </td>
-                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-cyan-500">
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                             {{ $cita->doctor->name }} {{ $cita->doctor->apellido_paterno }}
                                         </td>
-                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-cyan-500">
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                             {{ $cita->paciente->name }} {{ $cita->paciente->apellido_paterno }}
                                         </td>
-                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-cyan-500">
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                             {{ $cita->consultorio->nombre ?? 'N/A' }}
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap">
@@ -87,7 +87,7 @@
                                         </td>
                                     </tr>
                                 @empty
-                                    <tr>
+                                    <tr class="hover:bg-gray-50 transition-colors">
                                         <td colspan="6" class="px-6 py-4 text-center text-gray-500">No hay citas registradas.</td>
                                     </tr>
                                 @endforelse

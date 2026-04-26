@@ -49,24 +49,24 @@
                     <div class="overflow-x-auto">
                         <table class="min-w-full divide-y divide-gray-200">
                             <thead class="bg-gray-50">
-                                <tr>
-                                    <th class="px-6 py-3 text-left text-xs font-bold text-[#0061F5] uppercase tracking-wider">NOMBRE</th>
-                                    <th class="px-6 py-3 text-left text-xs font-bold text-[#0061F5] uppercase tracking-wider">CORREO</th>
-                                    <th class="px-6 py-3 text-left text-xs font-bold text-[#0061F5] uppercase tracking-wider">PERFIL COMPARTIDO</th>
-                                    <th class="px-6 py-3 text-right text-xs font-bold text-[#0061F5] uppercase tracking-wider"></th>
+                                <tr class="hover:bg-gray-50 transition-colors">
+                                    <th class="px-6 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">NOMBRE</th>
+                                    <th class="px-6 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">CORREO</th>
+                                    <th class="px-6 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">PERFIL COMPARTIDO</th>
+                                    <th class="px-6 py-3 text-right text-xs font-bold text-gray-700 uppercase tracking-wider"></th>
                                 </tr>
                             </thead>
                             <tbody class="bg-white divide-y divide-gray-200">
                                 @forelse($pacientes as $paciente)
-                                    <tr>
-                                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-cyan-500">
+                                    <tr class="hover:bg-gray-50 transition-colors">
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-700">
                                             {{ $paciente->name }} {{ $paciente->apellido_paterno }} {{ $paciente->apellido_materno }}
                                             @if($paciente->curp)
                                                 <div class="text-xs text-gray-400 font-normal mt-1">{{ $paciente->curp }}</div>
                                             @endif
                                         </td>
-                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-cyan-500">{{ $paciente->email }}</td>
-                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-cyan-500">
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $paciente->email }}</td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                             {{ $paciente->perfil_compartido ? 'SÍ' : 'NO' }}
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
@@ -85,7 +85,7 @@
                                         </td>
                                     </tr>
                                 @empty
-                                    <tr>
+                                    <tr class="hover:bg-gray-50 transition-colors">
                                         <td colspan="4" class="px-6 py-4 text-center text-gray-500">
                                             No se encontraron pacientes.
                                         </td>

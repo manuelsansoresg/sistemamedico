@@ -251,16 +251,16 @@
                                     <div class="mt-4 overflow-x-auto max-h-[60vh]">
                                         <table class="min-w-full divide-y divide-gray-200">
                                             <thead class="bg-gray-50 sticky top-0">
-                                                <tr>
-                                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Fecha</th>
-                                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Peso</th>
-                                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Estatura</th>
+                                                <tr class="hover:bg-gray-50 transition-colors">
+                                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">Fecha</th>
+                                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">Peso</th>
+                                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">Estatura</th>
                                                 </tr>
                                             </thead>
                                             <tbody class="bg-white divide-y divide-gray-200">
                                                 @foreach($historialConsultas as $hConsulta)
                                                     @if($hConsulta->peso || $hConsulta->estatura)
-                                                    <tr>
+                                                    <tr class="hover:bg-gray-50 transition-colors">
                                                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $hConsulta->created_at->format('d/m/Y') }}</td>
                                                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ $hConsulta->peso ? $hConsulta->peso . ' kg' : '-' }}</td>
                                                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ $hConsulta->estatura ? $hConsulta->estatura . ' m' : '-' }}</td>
@@ -372,16 +372,16 @@
                         <div class="overflow-x-auto">
                             <table class="min-w-full divide-y divide-gray-200">
                                 <thead class="bg-gray-50">
-                                    <tr>
-                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Fecha</th>
-                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Doctor</th>
-                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Plantilla</th>
-                                        <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Acciones</th>
+                                    <tr class="hover:bg-gray-50 transition-colors">
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">Fecha</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">Doctor</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">Plantilla</th>
+                                        <th class="px-6 py-3 text-right text-xs font-medium text-gray-700 uppercase tracking-wider">Acciones</th>
                                     </tr>
                                 </thead>
                                 <tbody class="bg-white divide-y divide-gray-200">
                                     @forelse($historialConsultas as $historia)
-                                        <tr>
+                                        <tr class="hover:bg-gray-50 transition-colors">
                                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $historia->created_at->format('d/m/Y H:i') }}</td>
                                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ $historia->doctor->name }} {{ $historia->doctor->apellido_paterno }}</td>
                                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $historia->plantilla->nombre }}</td>
@@ -416,7 +416,7 @@
                                             </td>
                                         </tr>
                                     @empty
-                                        <tr>
+                                        <tr class="hover:bg-gray-50 transition-colors">
                                             <td colspan="4" class="px-6 py-4 text-center text-gray-500">No hay consultas previas.</td>
                                         </tr>
                                     @endforelse
@@ -500,16 +500,16 @@
                         <div class="overflow-x-auto">
                             <table class="min-w-full divide-y divide-gray-200">
                                 <thead class="bg-gray-50">
-                                    <tr>
-                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Fecha</th>
-                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Doctor</th>
-                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Estudios</th>
-                                        <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Acciones</th>
+                                    <tr class="hover:bg-gray-50 transition-colors">
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">Fecha</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">Doctor</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">Estudios</th>
+                                        <th class="px-6 py-3 text-right text-xs font-medium text-gray-700 uppercase tracking-wider">Acciones</th>
                                     </tr>
                                 </thead>
                                 <tbody class="bg-white divide-y divide-gray-200">
                                     @forelse($historialEstudios as $estudio)
-                                        <tr>
+                                        <tr class="hover:bg-gray-50 transition-colors">
                                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $estudio->created_at->format('d/m/Y H:i') }}</td>
                                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ $estudio->consulta->doctor->name }} {{ $estudio->consulta->doctor->apellido_paterno }}</td>
                                             <td class="px-6 py-4 text-sm text-gray-500 truncate max-w-xs">{{ Str::limit($estudio->orden, 50) }}</td>
@@ -544,7 +544,7 @@
                                             </td>
                                         </tr>
                                     @empty
-                                        <tr>
+                                        <tr class="hover:bg-gray-50 transition-colors">
                                             <td colspan="4" class="px-6 py-4 text-center text-gray-500">No hay órdenes de estudios previas.</td>
                                         </tr>
                                     @endforelse

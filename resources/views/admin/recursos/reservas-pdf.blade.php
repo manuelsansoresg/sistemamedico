@@ -56,7 +56,7 @@
 <body>
     <div class="header">
         <table style="width: 100%; border-collapse: collapse;">
-            <tr>
+            <tr class="hover:bg-gray-50 transition-colors">
                 <td style="width: 70px; vertical-align: top;">
                     @if(!empty($clinicaLogoPath))
                         <img src="{{ $clinicaLogoPath }}" style="height: 54px; width: 54px; object-fit: contain;">
@@ -73,7 +73,7 @@
 
     <table>
         <thead>
-            <tr>
+            <tr class="hover:bg-gray-50 transition-colors">
                 <th class="nowrap" style="width: 90px;">Fecha</th>
                 <th class="nowrap" style="width: 90px;">Hora</th>
                 <th style="width: 160px;">Recurso</th>
@@ -90,7 +90,7 @@
                         : 'Sistema';
                     $detalles = trim(($reserva->titulo ?? '')."\n".($reserva->comentario ?? ''));
                 @endphp
-                <tr>
+                <tr class="hover:bg-gray-50 transition-colors">
                     <td class="nowrap">{{ optional($reserva->inicio)->format('d/m/Y') }}</td>
                     <td class="nowrap">
                         {{ optional($reserva->inicio)->format('H:i') }}
@@ -102,7 +102,7 @@
                     <td class="notes">{{ $detalles }}</td>
                 </tr>
             @empty
-                <tr>
+                <tr class="hover:bg-gray-50 transition-colors">
                     <td colspan="5" class="muted">No hay reservas para el periodo seleccionado.</td>
                 </tr>
             @endforelse

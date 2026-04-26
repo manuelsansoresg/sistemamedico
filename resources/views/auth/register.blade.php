@@ -411,19 +411,19 @@
                     <h4 class="font-bold text-gray-900 mb-4">Datos para Transferencia Bancaria</h4>
                     <table class="min-w-full divide-y divide-gray-200">
                         <tbody class="bg-white divide-y divide-gray-200">
-                            <tr>
+                            <tr class="hover:bg-gray-50 transition-colors">
                                 <td class="px-4 py-3 text-sm font-medium text-gray-500">Banco</td>
                                 <td class="px-4 py-3 text-sm text-gray-900 font-bold">BBVA</td>
                             </tr>
-                            <tr>
+                            <tr class="hover:bg-gray-50 transition-colors">
                                 <td class="px-4 py-3 text-sm font-medium text-gray-500">Beneficiario</td>
                                 <td class="px-4 py-3 text-sm text-gray-900 font-bold">Sistema Médico S.A. de C.V.</td>
                             </tr>
-                            <tr>
+                            <tr class="hover:bg-gray-50 transition-colors">
                                 <td class="px-4 py-3 text-sm font-medium text-gray-500">CLABE</td>
                                 <td class="px-4 py-3 text-sm text-gray-900 font-bold font-mono">012 180 015544332211 5</td>
                             </tr>
-                            <tr>
+                            <tr class="hover:bg-gray-50 transition-colors">
                                 <td class="px-4 py-3 text-sm font-medium text-gray-500">Referencia</td>
                                 <td class="px-4 py-3 text-sm text-gray-900">Su Email de Registro</td>
                             </tr>

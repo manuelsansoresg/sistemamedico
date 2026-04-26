@@ -75,63 +75,63 @@
                 <div class="overflow-x-auto">
                     <table class="min-w-full divide-y divide-gray-200">
                         <thead class="bg-gray-50">
-                            <tr>
-                                <th class="px-6 py-3 text-left text-xs font-bold text-[#0061F5] uppercase tracking-wider">Fecha</th>
-                                <th class="px-6 py-3 text-left text-xs font-bold text-[#0061F5] uppercase tracking-wider">Clínica</th>
-                                <th class="px-6 py-3 text-left text-xs font-bold text-[#0061F5] uppercase tracking-wider">Consultorio</th>
-                                <th class="px-6 py-3 text-left text-xs font-bold text-[#0061F5] uppercase tracking-wider">Doctor</th>
-                                <th class="px-6 py-3 text-left text-xs font-bold text-[#0061F5] uppercase tracking-wider">Detalle</th>
-                                <th class="px-6 py-3 text-right text-xs font-bold text-[#0061F5] uppercase tracking-wider">Acciones</th>
-                            </tr>
-                        </thead>
-                        <tbody class="bg-white divide-y divide-gray-200">
-                            @forelse($expedientes as $expediente)
-                                <tr>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                        {{ optional($expediente->cita->fecha)->format('d/m/Y') }}
-                                        <div class="text-xs text-gray-500">
-                                            {{ optional($expediente->cita->hora_inicio)->format('H:i') }} - {{ optional($expediente->cita->hora_fin)->format('H:i') }}
-                                        </div>
-                                    </td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                        {{ $expediente->cita->clinica->nombre ?? '—' }}
-                                    </td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                        {{ $expediente->cita->consultorio->nombre ?? '—' }}
-                                    </td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                        {{ $expediente->doctor->name }} {{ $expediente->doctor->apellido_paterno }}
-                                    </td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                        <div class="text-xs text-gray-500">
-                                            <span class="font-semibold">Motivo:</span>
-                                            {{ \Illuminate\Support\Str::limit($expediente->cita->motivo ?? 'Sin motivo registrado', 60) }}
-                                        </div>
-                                        <div class="text-xs text-gray-500 mt-1">
-                                            <span class="font-semibold">Plantilla:</span>
-                                            {{ $expediente->plantilla->nombre ?? 'Sin plantilla' }}
-                                        </div>
-                                        <div class="text-xs text-gray-500 mt-1">
-                                            <span class="font-semibold">Estudios:</span>
-                                            {{ $expediente->estudios->count() }}
-                                        </div>
-                                    </td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                        <div class="flex justify-end items-center space-x-2">
-                                            <a href="{{ route('consultas.show', $expediente->id) }}" class="inline-flex items-center justify-center w-9 h-9 bg-white border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 transition-colors shadow-sm" title="Ver Consulta">
-                                                <i class="fas fa-eye text-sm"></i>
-                                            </a>
-                                        </div>
-                                    </td>
+                                <tr class="hover:bg-gray-50 transition-colors">
+                                    <th class="px-6 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">FECHA</th>
+                                    <th class="px-6 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">CLÍNICA</th>
+                                    <th class="px-6 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">CONSULTORIO</th>
+                                    <th class="px-6 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">DOCTOR</th>
+                                    <th class="px-6 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">DETALLE</th>
+                                    <th class="px-6 py-3 text-right text-xs font-bold text-gray-700 uppercase tracking-wider">ACCIONES</th>
                                 </tr>
-                            @empty
-                                <tr>
-                                    <td colspan="6" class="px-6 py-4 text-center text-sm text-gray-500">
-                                        No hay consultas registradas para este paciente con los filtros seleccionados.
-                                    </td>
-                                </tr>
-                            @endforelse
-                        </tbody>
+                            </thead>
+                            <tbody class="bg-white divide-y divide-gray-200">
+                                @forelse($expedientes as $expediente)
+                                    <tr class="hover:bg-gray-50 transition-colors">
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                            {{ optional($expediente->cita->fecha)->format('d/m/Y') }}
+                                            <div class="text-xs text-gray-500">
+                                                {{ optional($expediente->cita->hora_inicio)->format('H:i') }} - {{ optional($expediente->cita->hora_fin)->format('H:i') }}
+                                            </div>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                            {{ $expediente->cita->clinica->nombre ?? '—' }}
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                            {{ $expediente->cita->consultorio->nombre ?? '—' }}
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                            {{ $expediente->doctor->name }} {{ $expediente->doctor->apellido_paterno }}
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                            <div class="text-xs text-gray-500">
+                                                <span class="font-semibold">Motivo:</span>
+                                                {{ \Illuminate\Support\Str::limit($expediente->cita->motivo ?? 'Sin motivo registrado', 60) }}
+                                            </div>
+                                            <div class="text-xs text-gray-500 mt-1">
+                                                <span class="font-semibold">Plantilla:</span>
+                                                {{ $expediente->plantilla->nombre ?? 'Sin plantilla' }}
+                                            </div>
+                                            <div class="text-xs text-gray-500 mt-1">
+                                                <span class="font-semibold">Estudios:</span>
+                                                {{ $expediente->estudios->count() }}
+                                            </div>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                            <div class="flex justify-end items-center space-x-2">
+                                                <a href="{{ route('consultas.show', $expediente->id) }}" class="inline-flex items-center justify-center w-9 h-9 bg-white border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 transition-colors shadow-sm" title="Ver Consulta">
+                                                    <i class="fas fa-eye text-sm"></i>
+                                                </a>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                @empty
+                                    <tr class="hover:bg-gray-50 transition-colors">
+                                        <td colspan="6" class="px-6 py-4 text-center text-sm text-gray-500">
+                                            No hay consultas registradas para este paciente con los filtros seleccionados.
+                                        </td>
+                                    </tr>
+                                @endforelse
+                            </tbody>
                     </table>
                 </div>
 

@@ -12,7 +12,7 @@
                     <li aria-current="page">
                         <div class="flex items-center">
                             <i class="fas fa-chevron-right text-gray-400 mx-1"></i>
-                            <span class="ml-1 text-sm font-medium text-gray-500 md:ml-2">Auditoría</span>
+                            <span class="ml-1 text-sm font-medium text-gray-700 md:ml-2">Auditoría</span>
                         </div>
                     </li>
                 </ol>
@@ -66,13 +66,13 @@
                     <div class="overflow-x-auto">
                         <table class="min-w-full divide-y divide-gray-200">
                             <thead class="bg-gray-50">
-                                <tr>
-                                    <th class="px-6 py-3 text-left text-xs font-bold text-[#0061F5] uppercase tracking-wider">Fecha/Hora</th>
-                                    <th class="px-6 py-3 text-left text-xs font-bold text-[#0061F5] uppercase tracking-wider">Usuario</th>
-                                    <th class="px-6 py-3 text-left text-xs font-bold text-[#0061F5] uppercase tracking-wider">Acción</th>
-                                    <th class="px-6 py-3 text-left text-xs font-bold text-[#0061F5] uppercase tracking-wider">Sección</th>
-                                    <th class="px-6 py-3 text-left text-xs font-bold text-[#0061F5] uppercase tracking-wider">Detalles (Payload)</th>
-                                    <th class="px-6 py-3 text-left text-xs font-bold text-[#0061F5] uppercase tracking-wider">IP</th>
+                                <tr class="hover:bg-gray-50 transition-colors">
+                                    <th class="px-6 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">FECHA/HORA</th>
+                                    <th class="px-6 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">USUARIO</th>
+                                    <th class="px-6 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">ACCIÓN</th>
+                                    <th class="px-6 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">SECCIÓN</th>
+                                    <th class="px-6 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">DETALLES (PAYLOAD)</th>
+                                    <th class="px-6 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">IP</th>
                                 </tr>
                             </thead>
                             <tbody class="bg-white divide-y divide-gray-200">
@@ -86,11 +86,11 @@
                                             default => 'bg-gray-100 text-gray-800',
                                         };
                                     @endphp
-                                    <tr>
-                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
+                                    <tr class="hover:bg-gray-50 transition-colors">
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                             {{ optional($log->created_at)->format('d/m/Y H:i:s') }}
                                         </td>
-                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-medium">
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-700">
                                             @if($log->user)
                                                 <div>{{ $log->user->name }}</div>
                                                 <div class="text-xs text-gray-500">{{ $log->user->email }}</div>
@@ -103,10 +103,10 @@
                                                 {{ $log->action }}
                                             </span>
                                         </td>
-                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                             {{ $log->section_label }}
                                         </td>
-                                        <td class="px-6 py-4 text-sm text-gray-700">
+                                        <td class="px-6 py-4 text-sm text-gray-500">
                                             @if(!empty($log->payload))
                                                 <details class="group">
                                                     <summary class="cursor-pointer text-[#0061F5] hover:text-[#0051CC] font-semibold">Ver detalles</summary>
@@ -116,12 +116,12 @@
                                                 -
                                             @endif
                                         </td>
-                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                             {{ $log->ip_address ?? '-' }}
                                         </td>
                                     </tr>
                                 @empty
-                                    <tr>
+                                    <tr class="hover:bg-gray-50 transition-colors">
                                         <td colspan="6" class="px-6 py-10 text-center text-gray-500">No hay registros de auditoría para los filtros seleccionados.</td>
                                     </tr>
                                 @endforelse

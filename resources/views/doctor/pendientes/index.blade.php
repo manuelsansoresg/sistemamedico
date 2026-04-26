@@ -12,7 +12,7 @@
                     <li aria-current="page">
                         <div class="flex items-center">
                             <i class="fas fa-chevron-right text-gray-400 mx-1"></i>
-                            <span class="ml-1 text-sm font-medium text-gray-500 md:ml-2">Pendientes</span>
+                            <span class="ml-1 text-sm font-medium text-gray-700 md:ml-2">Pendientes</span>
                         </div>
                     </li>
                 </ol>
@@ -36,20 +36,20 @@
                     <div class="overflow-x-auto">
                         <table class="min-w-full divide-y divide-gray-200">
                             <thead class="bg-gray-50">
-                                <tr>
-                                    <th class="px-6 py-3 text-left text-xs font-bold text-[#0061F5] uppercase tracking-wider">FECHA</th>
-                                    <th class="px-6 py-3 text-left text-xs font-bold text-[#0061F5] uppercase tracking-wider">HORA</th>
-                                    <th class="px-6 py-3 text-left text-xs font-bold text-[#0061F5] uppercase tracking-wider">RECORDATORIO</th>
-                                    <th class="px-6 py-3 text-left text-xs font-bold text-[#0061F5] uppercase tracking-wider">ESTADO</th>
-                                    <th class="px-6 py-3 text-right text-xs font-bold text-[#0061F5] uppercase tracking-wider">ACCIONES</th>
+                                <tr class="hover:bg-gray-50 transition-colors">
+                                    <th class="px-6 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">FECHA</th>
+                                    <th class="px-6 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">HORA</th>
+                                    <th class="px-6 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">RECORDATORIO</th>
+                                    <th class="px-6 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">ESTADO</th>
+                                    <th class="px-6 py-3 text-right text-xs font-bold text-gray-700 uppercase tracking-wider">ACCIONES</th>
                                 </tr>
                             </thead>
                             <tbody class="bg-white divide-y divide-gray-200">
                                 @forelse ($pendientes as $pendiente)
-                                    <tr>
-                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-cyan-500">{{ $pendiente->fecha->format('d/m/Y') }}</td>
-                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-cyan-500">{{ $pendiente->hora->format('g:i A') }}</td>
-                                        <td class="px-6 py-4 text-sm text-gray-700 max-w-xs truncate">{{ $pendiente->recordatorio }}</td>
+                                    <tr class="hover:bg-gray-50 transition-colors">
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $pendiente->fecha->format('d/m/Y') }}</td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $pendiente->hora->format('g:i A') }}</td>
+                                        <td class="px-6 py-4 text-sm text-gray-500 max-w-xs truncate">{{ $pendiente->recordatorio }}</td>
                                         <td class="px-6 py-4 whitespace-nowrap">
                                             <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full {{ $pendiente->activo ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800' }}">
                                                 {{ $pendiente->activo ? 'Activo' : 'Inactivo' }}
@@ -57,7 +57,7 @@
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                                             <div class="flex justify-end items-center space-x-2">
-                                                <a href="{{ route('pendientes.edit', $pendiente) }}" class="inline-flex items-center justify-center w-9 h-9 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors shadow-sm" title="Editar">
+                                                <a href="{{ route('pendientes.edit', $pendiente) }}" class="inline-flex items-center justify-center w-9 h-9 bg-[#0061F5] text-white rounded-md hover:bg-[#0051CC] transition-colors shadow-sm" title="Editar">
                                                     <i class="fas fa-edit"></i>
                                                 </a>
                                                 <form action="{{ route('pendientes.destroy', $pendiente) }}" method="POST" class="inline-block" onsubmit="return confirm('¿Estás seguro de que deseas eliminar este pendiente?');">
@@ -71,7 +71,7 @@
                                         </td>
                                     </tr>
                                 @empty
-                                    <tr>
+                                    <tr class="hover:bg-gray-50 transition-colors">
                                         <td colspan="5" class="px-6 py-4 whitespace-nowrap text-center text-gray-500">
                                             No hay pendientes registrados.
                                         </td>

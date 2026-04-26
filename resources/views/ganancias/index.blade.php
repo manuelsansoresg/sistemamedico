@@ -135,26 +135,26 @@
                     <!-- Tabla Detallada -->
                     <div class="overflow-x-auto">
                         <table class="min-w-full divide-y divide-gray-200">
-                            <thead class="bg-[#F8FAFC]">
-                                <tr>
-                                    <th scope="col" class="px-6 py-3 text-left text-xs font-bold text-[#0061F5] uppercase tracking-wider">Fecha</th>
-                                    <th scope="col" class="px-6 py-3 text-left text-xs font-bold text-[#0061F5] uppercase tracking-wider">Concepto</th>
-                                    <th scope="col" class="px-6 py-3 text-left text-xs font-bold text-[#0061F5] uppercase tracking-wider">Item / Servicio</th>
+                            <thead class="bg-gray-50">
+                                <tr class="hover:bg-gray-50 transition-colors">
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">FECHA</th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">CONCEPTO</th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">ITEM / SERVICIO</th>
                                     @if(Auth::user()->hasRole('root'))
-                                        <th scope="col" class="px-6 py-3 text-left text-xs font-bold text-[#0061F5] uppercase tracking-wider">Doctor</th>
+                                        <th scope="col" class="px-6 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">DOCTOR</th>
                                     @endif
-                                    <th scope="col" class="px-6 py-3 text-right text-xs font-bold text-[#0061F5] uppercase tracking-wider">Monto Venta</th>
-                                    <th scope="col" class="px-6 py-3 text-right text-xs font-bold text-[#0061F5] uppercase tracking-wider">Ganancia (%)</th>
-                                    <th scope="col" class="px-6 py-3 text-right text-xs font-bold text-[#0061F5] uppercase tracking-wider">Total Ganado</th>
+                                    <th scope="col" class="px-6 py-3 text-right text-xs font-bold text-gray-700 uppercase tracking-wider">MONTO VENTA</th>
+                                    <th scope="col" class="px-6 py-3 text-right text-xs font-bold text-gray-700 uppercase tracking-wider">GANANCIA (%)</th>
+                                    <th scope="col" class="px-6 py-3 text-right text-xs font-bold text-gray-700 uppercase tracking-wider">TOTAL GANADO</th>
                                 </tr>
                             </thead>
                             <tbody class="bg-white divide-y divide-gray-200">
                                 @forelse($ganancias as $ganancia)
-                                    <tr>
+                                    <tr class="hover:bg-gray-50 transition-colors">
                                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                             {{ \Carbon\Carbon::parse($ganancia->fecha)->format('d/m/Y') }}
                                         </td>
-                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-medium">
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-700">
                                             {{ $ganancia->concepto }}
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
@@ -182,7 +182,7 @@
                                         </td>
                                     </tr>
                                 @empty
-                                    <tr>
+                                    <tr class="hover:bg-gray-50 transition-colors">
                                         <td colspan="{{ Auth::user()->hasRole('root') ? 7 : 6 }}" class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">
                                             No hay registros de ganancias en este periodo.
                                         </td>

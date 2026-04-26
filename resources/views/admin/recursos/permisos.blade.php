@@ -58,20 +58,20 @@
                         <div class="overflow-x-auto">
                             <table class="min-w-full divide-y divide-gray-200">
                                 <thead class="bg-gray-50">
-                                    <tr>
-                                        <th class="px-6 py-3 text-left text-xs font-bold text-[#0061F5] uppercase tracking-wider">Usuario</th>
-                                        <th class="px-6 py-3 text-left text-xs font-bold text-[#0061F5] uppercase tracking-wider">Rol</th>
-                                        <th class="px-6 py-3 text-center text-xs font-bold text-[#0061F5] uppercase tracking-wider">Puede gestionar recursos</th>
+                                    <tr class="hover:bg-gray-50 transition-colors">
+                                        <th class="px-6 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">USUARIO</th>
+                                        <th class="px-6 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">ROL</th>
+                                        <th class="px-6 py-3 text-center text-xs font-bold text-gray-700 uppercase tracking-wider">PUEDE GESTIONAR RECURSOS</th>
                                     </tr>
                                 </thead>
                                 <tbody class="bg-white divide-y divide-gray-200">
                                     @foreach($usuarios as $usuario)
-                                        <tr>
-                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                        <tr class="hover:bg-gray-50 transition-colors">
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                                 {{ $usuario->name }} {{ $usuario->apellido_paterno }}
                                                 <div class="text-xs text-gray-500">{{ $usuario->email }}</div>
                                             </td>
-                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                                 {{ $usuario->roles->pluck('name')->implode(', ') }}
                                             </td>
                                             <td class="px-6 py-4 whitespace-nowrap text-center text-sm">

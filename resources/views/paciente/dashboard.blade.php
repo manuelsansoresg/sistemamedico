@@ -95,19 +95,19 @@
                             <div class="overflow-x-auto">
                                 <table class="min-w-full divide-y divide-gray-200">
                                     <thead class="bg-gray-50">
-                                        <tr>
+                                        <tr class="hover:bg-gray-50 transition-colors">
                                             <th class="px-4 py-2 w-10">
                                                 <input type="checkbox" onclick="document.querySelectorAll('.expediente-checkbox').forEach(cb => cb.checked = this.checked)" />
                                             </th>
-                                            <th class="px-4 py-2 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Fecha</th>
-                                            <th class="px-4 py-2 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Doctor</th>
-                                            <th class="px-4 py-2 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Clínica</th>
-                                            <th class="px-4 py-2 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Consultorio</th>
+                                            <th class="px-4 py-2 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">Fecha</th>
+                                            <th class="px-4 py-2 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">Doctor</th>
+                                            <th class="px-4 py-2 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">Clínica</th>
+                                            <th class="px-4 py-2 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">Consultorio</th>
                                         </tr>
                                     </thead>
                                     <tbody class="bg-white divide-y divide-gray-200">
                                         @foreach($expedientes as $consulta)
-                                            <tr>
+                                            <tr class="hover:bg-gray-50 transition-colors">
                                                 <td class="px-4 py-2">
                                                     <input type="checkbox" name="selected[]" value="{{ $consulta->id }}" class="expediente-checkbox" />
                                                 </td>

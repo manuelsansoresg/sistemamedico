@@ -28,82 +28,80 @@
                         </a>
                     </div>
 
-                    <div class="overflow-x-auto">
-                        <table class="min-w-full divide-y divide-gray-200">
-                            <thead class="bg-gray-50">
-                                <tr>
-                                    <th class="px-6 py-3 text-left text-xs font-bold text-[#0061F5] uppercase tracking-wider">NOMBRE / EMAIL</th>
-                                    <th class="px-6 py-3 text-left text-xs font-bold text-[#0061F5] uppercase tracking-wider">ROL</th>
-                                    <th class="px-6 py-3 text-left text-xs font-bold text-[#0061F5] uppercase tracking-wider">CLÍNICAS</th>
-                                    <th class="px-6 py-3 text-left text-xs font-bold text-[#0061F5] uppercase tracking-wider">CONSULTORIOS</th>
-                                    <th class="px-6 py-3 text-right text-xs font-bold text-[#0061F5] uppercase tracking-wider"></th>
-                                </tr>
-                            </thead>
-                            <tbody class="bg-white divide-y divide-gray-200">
-                                @foreach($users as $user)
-                                    <tr>
-                                        <td class="px-6 py-4 whitespace-nowrap">
-                                            <div class="flex items-center">
-                                                <div class="flex-shrink-0 h-10 w-10">
-                                                    <img src="{{ $user->profile_photo_url }}" alt="Foto de perfil" class="h-10 w-10 rounded-full object-cover border border-gray-200">
-                                                </div>
-                                                <div class="ml-4">
-                                                    <div class="text-sm font-medium text-cyan-500">{{ $user->name }}</div>
-                                                    <div class="text-sm text-cyan-500">{{ $user->email }}</div>
-                                                </div>
+                    <x-table>
+                        <x-slot:header>
+                            <tr class="hover:bg-gray-50 transition-colors">
+                                <th class="px-6 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">NOMBRE / EMAIL</th>
+                                <th class="px-6 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">ROL</th>
+                                <th class="px-6 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">CLÍNICAS</th>
+                                <th class="px-6 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">CONSULTORIOS</th>
+                                <th class="px-6 py-3 text-right text-xs font-bold text-gray-700 uppercase tracking-wider"></th>
+                            </tr>
+                        </x-slot:header>
+                        <x-slot:body>
+                            @foreach($users as $user)
+                                <tr class="hover:bg-gray-50 transition-colors">
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <div class="flex items-center">
+                                            <div class="flex-shrink-0 h-10 w-10">
+                                                <img src="{{ $user->profile_photo_url }}" alt="Foto de perfil" class="h-10 w-10 rounded-full object-cover border border-gray-200">
                                             </div>
-                                        </td>
-                                        <td class="px-6 py-4 whitespace-nowrap">
-                                            @foreach($user->roles as $role)
-                                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-[#E6F0FF] text-[#0051CC]">
-                                                    {{ $role->name }}
+                                            <div class="ml-4">
+                                                <div class="text-sm font-medium text-gray-700">{{ $user->name }}</div>
+                                                <div class="text-sm text-gray-500">{{ $user->email }}</div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        @foreach($user->roles as $role)
+                                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-[#E6F0FF] text-[#0051CC]">
+                                                {{ $role->name }}
+                                            </span>
+                                        @endforeach
+                                    </td>
+                                    <td class="px-6 py-4">
+                                        <div class="flex flex-wrap gap-1">
+                                            @forelse($user->clinicas as $clinica)
+                                                <span class="px-2 py-1 bg-gray-100 text-gray-700 text-xs rounded-md">
+                                                    {{ $clinica->nombre }}
                                                 </span>
-                                            @endforeach
-                                        </td>
-                                        <td class="px-6 py-4">
-                                            <div class="flex flex-wrap gap-1">
-                                                @forelse($user->clinicas as $clinica)
-                                                    <span class="px-2 py-1 bg-gray-100 text-gray-700 text-xs rounded-md">
-                                                        {{ $clinica->nombre }}
-                                                    </span>
-                                                @empty
-                                                    <span class="text-gray-400 text-sm">-</span>
-                                                @endforelse
-                                            </div>
-                                        </td>
-                                        <td class="px-6 py-4">
-                                            <div class="flex flex-wrap gap-1">
-                                                @forelse($user->consultorios as $consultorio)
-                                                    <span class="px-2 py-1 bg-gray-100 text-gray-700 text-xs rounded-md">
-                                                        {{ $consultorio->nombre }}
-                                                    </span>
-                                                @empty
-                                                    <span class="text-gray-400 text-sm">-</span>
-                                                @endforelse
-                                            </div>
-                                        </td>
-                                        <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                            <div class="flex justify-end items-center space-x-2">
-                                                <a href="{{ route('users.edit', $user) }}" class="inline-flex items-center justify-center w-9 h-9 bg-[#0061F5] text-white rounded-md hover:bg-[#0051CC] transition-colors shadow-sm" title="Editar">
-                                                    <i class="fas fa-edit"></i>
-                                                </a>
-                                                <form action="{{ route('users.destroy', $user) }}" method="POST" class="inline-block" onsubmit="return confirm('¿Estás seguro de que deseas eliminar este usuario?');">
-                                                    @csrf
-                                                    @method('DELETE')
-                                                    <button type="submit" class="inline-flex cursor-pointer items-center justify-center w-9 h-9 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors shadow-sm" title="Eliminar">
-                                                        <i class="fas fa-trash"></i>
-                                                    </button>
-                                                </form>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                @endforeach
-                            </tbody>
-                        </table>
-                    </div>
-                    <div class="mt-4">
-                        {{ $users->links() }}
-                    </div>
+                                            @empty
+                                                <span class="text-gray-400 text-sm">-</span>
+                                            @endforelse
+                                        </div>
+                                    </td>
+                                    <td class="px-6 py-4">
+                                        <div class="flex flex-wrap gap-1">
+                                            @forelse($user->consultorios as $consultorio)
+                                                <span class="px-2 py-1 bg-gray-100 text-gray-700 text-xs rounded-md">
+                                                    {{ $consultorio->nombre }}
+                                                </span>
+                                            @empty
+                                                <span class="text-gray-400 text-sm">-</span>
+                                            @endforelse
+                                        </div>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                        <div class="flex justify-end items-center space-x-2">
+                                            <a href="{{ route('users.edit', $user) }}" class="inline-flex items-center justify-center w-9 h-9 bg-[#0061F5] text-white rounded-md hover:bg-[#0051CC] transition-colors shadow-sm" title="Editar">
+                                                <i class="fas fa-edit"></i>
+                                            </a>
+                                            <form action="{{ route('users.destroy', $user) }}" method="POST" class="inline-block" onsubmit="return confirm('¿Estás seguro de que deseas eliminar este usuario?');">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button type="submit" class="inline-flex cursor-pointer items-center justify-center w-9 h-9 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors shadow-sm" title="Eliminar">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </td>
+                                </tr>
+                            @endforeach
+                        </x-slot:body>
+                        <x-slot:footer>
+                            <x-table-pagination :paginator="$users" />
+                        </x-slot:footer>
+                    </x-table>
                 </div>
             </div>
         </div>

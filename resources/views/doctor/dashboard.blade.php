@@ -126,17 +126,17 @@
                         <div class="overflow-x-auto">
                             <table class="min-w-full divide-y divide-gray-200">
                                 <thead class="bg-gray-50">
-                                    <tr>
-                                        <th class="px-4 py-2 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Hora</th>
-                                        <th class="px-4 py-2 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Paciente</th>
-                                        <th class="px-4 py-2 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Consultorio</th>
-                                        <th class="px-4 py-2 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Estado</th>
-                                        <th class="px-4 py-2 text-right text-xs font-bold text-gray-500 uppercase tracking-wider">Acciones</th>
+                                    <tr class="hover:bg-gray-50 transition-colors">
+                                        <th class="px-4 py-2 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">Hora</th>
+                                        <th class="px-4 py-2 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">Paciente</th>
+                                        <th class="px-4 py-2 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">Consultorio</th>
+                                        <th class="px-4 py-2 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">Estado</th>
+                                        <th class="px-4 py-2 text-right text-xs font-bold text-gray-700 uppercase tracking-wider">Acciones</th>
                                     </tr>
                                 </thead>
                                 <tbody class="bg-white divide-y divide-gray-200">
                                     @foreach($citasHoy as $cita)
-                                        <tr>
+                                        <tr class="hover:bg-gray-50 transition-colors">
                                             <td class="px-4 py-2 whitespace-nowrap text-sm font-medium text-gray-900">
                                                 {{ $cita->hora_inicio->format('g:i A') }}
                                             </td>

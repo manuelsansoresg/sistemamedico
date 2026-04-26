@@ -12,7 +12,7 @@
                     <li aria-current="page">
                         <div class="flex items-center">
                             <i class="fas fa-chevron-right text-gray-400 mx-1"></i>
-                            <span class="ml-1 text-sm font-medium text-gray-500 md:ml-2">Mis Expedientes</span>
+                            <span class="ml-1 text-sm font-medium text-gray-700 md:ml-2">Mis Expedientes</span>
                         </div>
                     </li>
                 </ol>
@@ -78,32 +78,32 @@
                             <div class="overflow-x-auto">
                                 <table class="min-w-full divide-y divide-gray-200">
                                     <thead class="bg-gray-50">
-                                        <tr>
+                                        <tr class="hover:bg-gray-50 transition-colors">
                                             <th class="px-4 py-2">
                                                 <input type="checkbox" class="rounded border-gray-300 text-[#0061F5] shadow-sm focus:border-[#0061F5] focus:ring-[#0061F5]" onclick="const cbs = this.closest('table').querySelectorAll('tbody input[type=checkbox]'); cbs.forEach(cb => cb.checked = this.checked);">
                                             </th>
-                                            <th class="px-4 py-2 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Fecha</th>
-                                            <th class="px-4 py-2 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Doctor</th>
-                                            <th class="px-4 py-2 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Clínica</th>
-                                            <th class="px-4 py-2 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Consultorio</th>
+                                            <th class="px-4 py-2 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">FECHA</th>
+                                            <th class="px-4 py-2 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">DOCTOR</th>
+                                            <th class="px-4 py-2 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">CLÍNICA</th>
+                                            <th class="px-4 py-2 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">CONSULTORIO</th>
                                         </tr>
                                     </thead>
                                     <tbody class="bg-white divide-y divide-gray-200">
                                         @foreach($expedientes as $consulta)
-                                            <tr>
-                                                <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">
+                                            <tr class="hover:bg-gray-50 transition-colors">
+                                                <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-500">
                                                     <input type="checkbox" name="selected[]" value="{{ $consulta->id }}" class="rounded border-gray-300 text-[#0061F5] shadow-sm focus:border-[#0061F5] focus:ring-[#0061F5]">
                                                 </td>
-                                                <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">
+                                                <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-500">
                                                     {{ optional($consulta->cita?->fecha)->format('d/m/Y') ?? $consulta->created_at->format('d/m/Y') }}
                                                 </td>
-                                                <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-600">
+                                                <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-500">
                                                     {{ $consulta->doctor?->name }} {{ $consulta->doctor?->apellido_paterno }}
                                                 </td>
-                                                <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-600">
+                                                <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-500">
                                                     {{ $consulta->cita?->clinica?->nombre ?? '—' }}
                                                 </td>
-                                                <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-600">
+                                                <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-500">
                                                     {{ $consulta->cita?->consultorio?->nombre ?? '—' }}
                                                 </td>
                                             </tr>

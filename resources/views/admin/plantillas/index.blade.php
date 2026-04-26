@@ -13,7 +13,7 @@
                     <li aria-current="page">
                         <div class="flex items-center">
                             <i class="fas fa-chevron-right text-gray-400 mx-1"></i>
-                            <span class="ml-1 text-sm font-medium text-gray-500 md:ml-2">Plantillas</span>
+                            <span class="ml-1 text-sm font-medium text-gray-700 md:ml-2">Plantillas</span>
                         </div>
                     </li>
                 </ol>
@@ -31,20 +31,20 @@
                     <div class="overflow-x-auto">
                         <table class="min-w-full divide-y divide-gray-200">
                             <thead class="bg-gray-50">
-                                <tr>
-                                    <th class="px-6 py-3 text-left text-xs font-bold text-[#0061F5] uppercase tracking-wider">NOMBRE</th>
+                                <tr class="hover:bg-gray-50 transition-colors">
+                                    <th class="px-6 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">NOMBRE</th>
                                     @role('root')
-                                    <th class="px-6 py-3 text-left text-xs font-bold text-[#0061F5] uppercase tracking-wider">DOCTOR ASIGNADO</th>
-                                    <th class="px-6 py-3 text-left text-xs font-bold text-[#0061F5] uppercase tracking-wider">CREADO POR</th>
+                                    <th class="px-6 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">DOCTOR ASIGNADO</th>
+                                    <th class="px-6 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">CREADO POR</th>
                                     @endrole
-                                    <th class="px-6 py-3 text-left text-xs font-bold text-[#0061F5] uppercase tracking-wider">FECHA CREACIÓN</th>
-                                    <th class="px-6 py-3 text-right text-xs font-bold text-[#0061F5] uppercase tracking-wider">ACCIONES</th>
+                                    <th class="px-6 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">FECHA CREACIÓN</th>
+                                    <th class="px-6 py-3 text-right text-xs font-bold text-gray-700 uppercase tracking-wider">ACCIONES</th>
                                 </tr>
                             </thead>
                             <tbody class="bg-white divide-y divide-gray-200">
                                 @forelse ($plantillas as $plantilla)
-                                    <tr>
-                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-medium">{{ $plantilla->nombre }}</td>
+                                    <tr class="hover:bg-gray-50 transition-colors">
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-700">{{ $plantilla->nombre }}</td>
                                         @role('root')
                                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $plantilla->user->name ?? 'N/A' }}</td>
                                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $plantilla->creator->name ?? 'N/A' }}</td>
@@ -66,7 +66,7 @@
                                         </td>
                                     </tr>
                                 @empty
-                                    <tr>
+                                    <tr class="hover:bg-gray-50 transition-colors">
                                         <td colspan="{{ auth()->user()->hasRole('root') ? '5' : '3' }}" class="px-6 py-4 text-center text-gray-500">
                                             No hay plantillas registradas.
                                         </td>

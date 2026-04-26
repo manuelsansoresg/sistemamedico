@@ -37,6 +37,10 @@ class UserController extends Controller
         /** @var \App\Models\User $currentUser */
         $currentUser = Auth::user();
 
+        $query->whereDoesntHave('roles', function ($q) {
+            $q->where('name', 'paciente');
+        });
+
         if ($currentUser->hasRole(['doctor', 'asistente', 'secretaria'])) {
             $ownerId = $currentUser->hasRole('doctor') ? $currentUser->id : $currentUser->created_by;
 

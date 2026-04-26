@@ -28,56 +28,54 @@
                         </a>
                     </div>
 
-                    <div class="overflow-x-auto">
-                        <table class="min-w-full divide-y divide-gray-200">
-                            <thead class="bg-gray-50">
-                                <tr>
-                                    <th class="px-6 py-3 text-left text-xs font-bold text-[#0061F5] uppercase tracking-wider">NOMBRE</th>
-                                    <th class="px-6 py-3 text-left text-xs font-bold text-[#0061F5] uppercase tracking-wider">TELÉFONO</th>
-                                    <th class="px-6 py-3 text-left text-xs font-bold text-[#0061F5] uppercase tracking-wider">ESTADO</th>
-                                    <th class="px-6 py-3 text-left text-xs font-bold text-[#0061F5] uppercase tracking-wider">CREADO POR</th>
-                                    <th class="px-6 py-3 text-right text-xs font-bold text-[#0061F5] uppercase tracking-wider">ACCIONES</th>
+                    <x-table>
+                        <x-slot:header>
+                            <tr class="hover:bg-gray-50 transition-colors">
+                                <th class="px-6 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">NOMBRE</th>
+                                <th class="px-6 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">TELÉFONO</th>
+                                <th class="px-6 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">ESTADO</th>
+                                <th class="px-6 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">CREADO POR</th>
+                                <th class="px-6 py-3 text-right text-xs font-bold text-gray-700 uppercase tracking-wider">ACCIONES</th>
+                            </tr>
+                        </x-slot:header>
+                        <x-slot:body>
+                            @forelse ($consultorios as $consultorio)
+                                <tr class="hover:bg-gray-50 transition-colors">
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-700">{{ $consultorio->nombre }}</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $consultorio->telefono }}</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                        {{ $consultorio->activo ? 'Activo' : 'Inactivo' }}
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                        {{ $consultorio->creator->name ?? 'Desconocido' }}
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                        <div class="flex justify-end items-center space-x-2">
+                                            <a href="{{ route('consultorios.edit', $consultorio) }}" class="inline-flex items-center justify-center w-9 h-9 bg-[#0061F5] text-white rounded-md hover:bg-[#0051CC] transition-colors shadow-sm" title="Editar">
+                                                <i class="fas fa-edit"></i>
+                                            </a>
+                                            <form action="{{ route('consultorios.destroy', $consultorio) }}" method="POST" class="inline-block" onsubmit="return confirm('¿Estás seguro de que deseas eliminar este consultorio?');">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button type="submit" class="inline-flex cursor-pointer items-center justify-center w-9 h-9 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors shadow-sm" title="Eliminar">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </td>
                                 </tr>
-                            </thead>
-                            <tbody class="bg-white divide-y divide-gray-200">
-                                @forelse ($consultorios as $consultorio)
-                                    <tr>
-                                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-cyan-500">{{ $consultorio->nombre }}</td>
-                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-cyan-500">{{ $consultorio->telefono }}</td>
-                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-cyan-500">
-                                            {{ $consultorio->activo ? 'Activo' : 'Inactivo' }}
-                                        </td>
-                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-cyan-500">
-                                            {{ $consultorio->creator->name ?? 'Desconocido' }}
-                                        </td>
-                                        <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                            <div class="flex justify-end items-center space-x-2">
-                                                <a href="{{ route('consultorios.edit', $consultorio) }}" class="inline-flex items-center justify-center w-9 h-9 bg-[#0061F5] text-white rounded-md hover:bg-[#0051CC] transition-colors shadow-sm" title="Editar">
-                                                    <i class="fas fa-edit"></i>
-                                                </a>
-                                                <form action="{{ route('consultorios.destroy', $consultorio) }}" method="POST" class="inline-block" onsubmit="return confirm('¿Estás seguro de que deseas eliminar este consultorio?');">
-                                                    @csrf
-                                                    @method('DELETE')
-                                                    <button type="submit" class="inline-flex cursor-pointer items-center justify-center w-9 h-9 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors shadow-sm" title="Eliminar">
-                                                        <i class="fas fa-trash"></i>
-                                                    </button>
-                                                </form>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                @empty
-                                    <tr>
-                                        <td colspan="5" class="px-6 py-4 whitespace-nowrap text-center text-gray-500">
-                                            No hay consultorios registrados.
-                                        </td>
-                                    </tr>
-                                @endforelse
-                            </tbody>
-                        </table>
-                    </div>
-                    <div class="mt-4">
-                        {{ $consultorios->links() }}
-                    </div>
+                            @empty
+                                <tr class="hover:bg-gray-50 transition-colors">
+                                    <td colspan="5" class="px-6 py-8 text-center text-sm text-gray-500">
+                                        No hay consultorios registrados.
+                                    </td>
+                                </tr>
+                            @endforelse
+                        </x-slot:body>
+                        <x-slot:footer>
+                            <x-table-pagination :paginator="$consultorios" />
+                        </x-slot:footer>
+                    </x-table>
                 </div>
             </div>
         </div>
