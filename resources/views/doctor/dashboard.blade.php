@@ -3,6 +3,23 @@
     <div class="py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-6">
 
+            <nav class="flex" aria-label="Breadcrumb">
+                <ol class="inline-flex items-center space-x-1 md:space-x-3">
+                    <li class="inline-flex items-center">
+                        <a href="{{ route('dashboard') }}" class="inline-flex items-center text-sm font-medium text-gray-700 hover:text-[#0061F5]">
+                            <i class="fas fa-home mr-2"></i>
+                            {{ __('common.breadcrumbs.home') }}
+                        </a>
+                    </li>
+                    <li aria-current="page">
+                        <div class="flex items-center">
+                            <i class="fas fa-chevron-right text-gray-400 mx-1"></i>
+                            <span class="ml-1 text-sm font-medium text-gray-500 md:ml-2">{{ __('dashboard.title') }}</span>
+                        </div>
+                    </li>
+                </ol>
+            </nav>
+
             @if (session('payment_error'))
                 <div class="bg-red-50 border-l-4 border-red-500 p-4 shadow-sm rounded-md mb-4">
                     <div class="flex">
@@ -115,7 +132,7 @@
                 <div class="p-6 bg-white border-b border-gray-200">
                     <div class="flex justify-between items-center mb-4">
                         <h3 class="text-lg font-bold text-gray-800 flex items-center">
-                            <i class="fas fa-calendar-day text-blue-500 mr-2"></i> {{ __('citas.title') }} {{ __('common.today') }}
+                            <i class="fas fa-calendar-day text-blue-500 mr-2"></i> {{ __('citas.today_title') }}
                         </h3>
                         <a href="{{ route('citas.index') }}" class="text-sm text-blue-600 hover:text-blue-800 hover:underline">
                             {{ __('common.buttons.view_more') }} <i class="fas fa-arrow-right ml-1"></i>
@@ -187,7 +204,7 @@
                 <div class="p-6 bg-white border-b border-gray-200">
                     <div class="flex justify-between items-center mb-4">
                         <h3 class="text-lg font-bold text-gray-800 flex items-center">
-                            <i class="fas fa-tasks text-orange-500 mr-2"></i> {{ __('pendientes.title') }}
+                            <i class="fas fa-tasks text-orange-500 mr-2"></i> {{ __('pendientes.dashboard_title') }}
                         </h3>
                         <a href="{{ route('pendientes.index') }}" class="text-sm text-blue-600 hover:text-blue-800 hover:underline">
                             {{ __('common.buttons.view_more') }} <i class="fas fa-arrow-right ml-1"></i>

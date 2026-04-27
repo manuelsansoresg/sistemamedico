@@ -18,6 +18,8 @@
             th { white-space: nowrap; }
             .flex.items-center i.fas, .inline-flex.items-center i.fas { line-height: 1; }
             .dashboard-card-label { text-transform: uppercase; display: block; text-align: center; font-weight: 700; }
+            nav[aria-label="Breadcrumb"] a,
+            nav[aria-label="Breadcrumb"] span { text-transform: uppercase; letter-spacing: 0.08em; font-size: 0.75rem; }
         </style>
     </head>
     <body class="font-sans antialiased bg-[#F8FAFC]">

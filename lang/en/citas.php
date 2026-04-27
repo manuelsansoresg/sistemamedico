@@ -2,6 +2,7 @@
 
 return [
     'title' => 'Appointments List',
+    'today_title' => "Today's appointments",
     'columns' => [
         'patient' => 'PATIENT',
         'doctor' => 'DOCTOR',

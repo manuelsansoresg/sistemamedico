@@ -2,6 +2,7 @@
 
 return [
     'title' => 'PENDING LIST',
+    'dashboard_title' => 'Pending list',
     'card_label' => 'PENDING',
     'columns' => [
         'title' => 'TITLE',

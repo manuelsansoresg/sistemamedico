@@ -2,6 +2,7 @@
 
 return [
     'title' => 'Listado de Citas',
+    'today_title' => 'Citas de Hoy',
     'columns' => [
         'patient' => 'PACIENTE',
         'doctor' => 'MÉDICO',

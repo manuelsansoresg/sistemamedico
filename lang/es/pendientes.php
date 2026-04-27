@@ -2,6 +2,7 @@
 
 return [
     'title' => 'LISTADO DE PENDIENTES',
+    'dashboard_title' => 'Listado de pendientes',
     'card_label' => 'PENDIENTES',
     'columns' => [
         'title' => 'TÍTULO',

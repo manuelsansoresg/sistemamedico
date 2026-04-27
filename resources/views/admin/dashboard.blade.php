@@ -1,6 +1,22 @@
 <x-admin-layout>
     <div class="py-10 bg-white">
         <div class="max-w-[1600px] mx-auto sm:px-6 lg:px-8">
+            <nav class="flex mb-6" aria-label="Breadcrumb">
+                <ol class="inline-flex items-center space-x-1 md:space-x-3">
+                    <li class="inline-flex items-center">
+                        <a href="{{ route('dashboard') }}" class="inline-flex items-center text-sm font-medium text-gray-700 hover:text-[#0061F5]">
+                            <i class="fas fa-home mr-2"></i>
+                            {{ __('common.breadcrumbs.home') }}
+                        </a>
+                    </li>
+                    <li aria-current="page">
+                        <div class="flex items-center">
+                            <i class="fas fa-chevron-right text-gray-400 mx-1"></i>
+                            <span class="ml-1 text-sm font-medium text-gray-500 md:ml-2">{{ __('dashboard.title') }}</span>
+                        </div>
+                    </li>
+                </ol>
+            </nav>
             
             <div class="text-center mb-10">
                 <h2 class="text-xl font-bold text-[#0061F5] tracking-wide">{{ __('dashboard.title') }}</h2>
