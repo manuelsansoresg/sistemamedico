@@ -1,0 +1,73 @@
+<?php
+
+return [
+    'title' => 'GESTIÓN DE SUSCRIPCIONES',
+    'breadcrumbs' => [
+        'home' => 'INICIO',
+        'subscriptions' => 'SUSCRIPCIONES',
+    ],
+    'sections' => [
+        'active_plans' => 'MIS PLANES ACTIVOS',
+        'store' => 'TIENDA DE SERVICIOS',
+        'store_description' => 'Expande las capacidades de tu centro médico con nuevos módulos.',
+        'annual' => 'ANUAL',
+        'per_year' => '/ANUAL',
+        'annual_subscription' => 'SUSCRIPCIÓN ANUAL',
+    ],
+    'empty' => [
+        'title' => 'NO TIENES SUSCRIPCIONES ACTIVAS.',
+        'subtitle' => 'Adquiere un servicio en la sección de abajo.',
+        'no_products_title' => 'NO HAY PRODUCTOS DISPONIBLES',
+        'no_products_text' => 'En este momento no hay items en el catálogo.',
+    ],
+    'status' => [
+        'expired' => 'VENCIDO',
+        'pending' => 'PAGO PENDIENTE',
+        'paid' => 'PAGADO',
+        'validating' => 'VALIDANDO…',
+        'active_plans_count' => ':count ACTIVOS',
+        'next_renewal' => 'PRÓXIMA RENOVACIÓN: :date',
+        'next_renewal_none' => 'PRÓXIMA RENOVACIÓN: —',
+    ],
+    'actions' => [
+        'renew' => 'RENOVAR',
+        'upload_voucher' => 'SUBIR COMPROBANTE',
+        'purchase' => 'ADQUIRIR',
+        'confirm_pay' => 'CONFIRMAR Y PAGAR',
+        'cancel' => 'CANCELAR',
+        'upload_send' => 'SUBIR Y ENVIAR',
+        'select_file' => 'SELECCIONAR ARCHIVO',
+        'renew_package' => 'RENOVAR →',
+    ],
+    'modal' => [
+        'purchase_title' => 'CONFIRMAR COMPRA',
+        'purchase_desc' => 'Estás a punto de adquirir:',
+        'quantity' => 'CANTIDAD',
+        'total_annual' => 'TOTAL ANUAL:',
+        'payment_method' => 'MÉTODO DE PAGO',
+        'card' => 'TARJETA (CLIP) - ACTIVACIÓN INMEDIATA',
+        'transfer' => 'TRANSFERENCIA BANCARIA (REQUIERE VALIDACIÓN)',
+        'transfer_instructions_title' => 'INSTRUCCIONES PARA TRANSFERENCIA:',
+        'transfer_instructions_desc' => 'Realiza la transferencia a la siguiente cuenta:',
+        'transfer_bank' => 'BANCO:',
+        'transfer_clabe' => 'CLABE:',
+        'transfer_concept' => 'CONCEPTO:',
+        'transfer_note' => 'Al confirmar, se generará una orden pendiente. Deberás subir tu comprobante desde la lista de "Mis Suscripciones" para activar el servicio.',
+        'upload_title' => 'SUBIR COMPROBANTE DE PAGO',
+        'upload_desc' => 'Sube la imagen o PDF de tu transferencia para validar tu pago y activar el servicio.',
+        'renew_title' => 'RENOVAR PAQUETE',
+        'renew_package_desc' => 'Tu paquete anterior venció. Renueva para continuar usando el sistema.',
+        'renew_note' => 'Al confirmar, se generará una orden pendiente. Deberás subir tu comprobante desde la lista de "Mis Suscripciones".',
+    ],
+    'pagination' => [
+        'showing' => 'MOSTRANDO :start A :end DE :total REGISTROS',
+    ],
+    'package' => [
+        'deleted' => 'PAQUETE ELIMINADO',
+        'service_deleted' => 'SERVICIO ELIMINADO',
+    ],
+    'footer' => [
+        'description' => 'Adquiere este servicio para ampliar las capacidades de tu sistema.',
+        'store_title' => 'TIENDA DE SERVICIOS',
+    ],
+];

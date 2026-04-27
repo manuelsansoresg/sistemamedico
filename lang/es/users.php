@@ -1,0 +1,64 @@
+<?php
+
+return [
+    'title' => 'LISTADO DE USUARIOS',
+    'columns' => [
+        'name_email' => 'NOMBRE / EMAIL',
+        'role' => 'ROL',
+        'clinics' => 'CLÍNICAS',
+        'consultorios' => 'CONSULTORIOS',
+        'actions' => 'ACCIONES',
+    ],
+    'create' => 'CREAR USUARIO',
+    'edit' => 'EDITAR USUARIO',
+    'breadcrumbs' => [
+        'index' => 'USUARIOS',
+        'create' => 'CREAR',
+        'edit' => 'EDITAR',
+    ],
+    'sections' => [
+        'personal_info' => 'Información Personal',
+        'account_info' => 'Información de Cuenta',
+        'role_assignments' => 'Rol y Asignaciones',
+    ],
+    'fields' => [
+        'name' => 'Nombre',
+        'last_name' => 'Apellido Paterno',
+        'mother_last_name' => 'Apellido Materno',
+        'photo' => 'Foto de perfil',
+        'email' => 'Correo Electrónico',
+        'password' => 'Contraseña',
+        'password_confirmation' => 'Confirmar Contraseña',
+        'role' => 'Rol',
+        'clinics' => 'Clínicas',
+        'consultorios' => 'Consultorios',
+        'phone' => 'Teléfono',
+        'specialty' => 'Especialidad',
+        'professional_id' => 'Cédula Profesional',
+        'user_role' => 'Rol del Usuario',
+    ],
+    'help' => [
+        'keep_password' => 'Dejar en blanco para mantener actual.',
+        'cannot_edit_own_role' => 'No puedes modificar tu propio rol.',
+        'select_clinics_access' => 'Selecciona las clínicas a las que este usuario tendrá acceso.',
+        'select_offices_access' => 'Selecciona los consultorios a los que este usuario tendrá acceso.',
+        'download_permissions' => 'Permisos de Descarga (Expedientes)',
+        'select_download_permissions' => 'Selecciona los permisos de descarga para este usuario.',
+    ],
+    'messages' => [
+        'created_success' => 'Usuario creado exitosamente.',
+        'updated_success' => 'Usuario actualizado exitosamente.',
+        'deleted_success' => 'Usuario eliminado exitosamente.',
+    ],
+    'errors' => [
+        'cannot_assign_role' => 'No tienes permisos para asignar este rol.',
+        'subscription_limit_reached' => 'Ha alcanzado el límite de usuarios permitidos por su suscripción.',
+        'cannot_edit_doctor' => 'No tienes permiso para editar al doctor.',
+        'cannot_delete_self' => 'No puedes eliminar tu propio usuario.',
+        'cannot_delete_user' => 'No tiene permiso para eliminar este usuario.',
+        'cannot_delete_owner_doctor' => 'No tiene permiso para eliminar al doctor titular.',
+    ],
+    'logs' => [
+        'profile_photo_process_failed' => 'No se pudo procesar la foto de perfil',
+    ],
+];

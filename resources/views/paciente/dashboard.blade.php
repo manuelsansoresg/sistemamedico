@@ -134,7 +134,7 @@
                             </div>
                         </form>
                     @else
-                        <p class="text-gray-500 italic">Aún no tienes expedientes registrados.</p>
+                        <p class="text-gray-500 italic">{{ __('expedientes.patient.messages.no_records_yet') }}</p>
                     @endif
                 </div>
             </div>

@@ -6,13 +6,13 @@
                     <li class="inline-flex items-center">
                         <a href="{{ route('admin.dashboard') }}" class="inline-flex items-center text-sm font-medium text-gray-700 hover:text-[#0061F5]">
                             <i class="fas fa-home mr-2"></i>
-                            Inicio
+                            {{ __('dashboard.title') }}
                         </a>
                     </li>
                     <li aria-current="page">
                         <div class="flex items-center">
                             <i class="fas fa-chevron-right text-gray-400 mx-1"></i>
-                            <span class="ml-1 text-sm font-medium text-gray-700 md:ml-2">Auditoría</span>
+                            <span class="ml-1 text-sm font-medium text-gray-700 md:ml-2">{{ __('audit.title') }}</span>
                         </div>
                     </li>
                 </ol>
@@ -21,19 +21,19 @@
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg mb-6">
                 <div class="p-6 bg-white border-b border-gray-200">
                     <div class="flex justify-between items-center mb-6">
-                        <h2 class="text-xl font-bold text-gray-800">Bitácora de Auditoría</h2>
+                        <h2 class="text-xl font-bold text-gray-800">{{ __('audit.title') }}</h2>
                     </div>
 
                     <form method="GET" action="{{ route('admin.audit.index') }}" class="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
                         <div class="md:col-span-2">
-                            <label for="search" class="block text-sm font-medium text-gray-700">Buscar Usuario</label>
+                            <label for="search" class="block text-sm font-medium text-gray-700">{{ __('common.user') }}</label>
                             <input type="text" name="search" id="search" value="{{ request('search') }}" placeholder="Nombre o email..." class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-[#0061F5] focus:ring-[#0061F5] sm:text-sm">
                         </div>
 
                         <div>
-                            <label for="section" class="block text-sm font-medium text-gray-700">Sección</label>
+                            <label for="section" class="block text-sm font-medium text-gray-700">{{ __('common.type') }}</label>
                             <select name="section" id="section" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-[#0061F5] focus:ring-[#0061F5] sm:text-sm">
-                                <option value="">Todas</option>
+                                <option value="">{{ __('common.all') }}</option>
                                 @foreach($sections as $section)
                                     <option value="{{ $section }}" @selected(request('section') === $section)>
                                         {{ \App\Models\AuditLog::sectionLabel($section) }}
@@ -43,17 +43,17 @@
                         </div>
 
                         <div>
-                            <label for="date" class="block text-sm font-medium text-gray-700">Fecha</label>
+                            <label for="date" class="block text-sm font-medium text-gray-700">{{ __('common.date') }}</label>
                             <input type="date" name="date" id="date" value="{{ request('date') }}" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-[#0061F5] focus:ring-[#0061F5] sm:text-sm">
                         </div>
 
                         <div class="md:col-start-4 flex justify-end">
                             <button type="submit" class="cursor-pointer inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white hover:bg-[#0051CC] transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#0061F5] bg-[#0061F5]">
-                                Filtrar
+                                {{ __('common.buttons.filter') }}
                             </button>
                             @if(request()->hasAny(['search', 'section', 'date']))
                                 <a href="{{ route('admin.audit.index') }}" class="cursor-pointer ml-2 inline-flex justify-center py-2 px-4 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#0061F5]">
-                                    Limpiar
+                                    {{ __('common.buttons.clear') }}
                                 </a>
                             @endif
                         </div>
@@ -67,12 +67,12 @@
                         <table class="min-w-full divide-y divide-gray-200">
                             <thead class="bg-gray-50">
                                 <tr class="hover:bg-gray-50 transition-colors">
-                                    <th class="px-6 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">FECHA/HORA</th>
-                                    <th class="px-6 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">USUARIO</th>
-                                    <th class="px-6 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">ACCIÓN</th>
-                                    <th class="px-6 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">SECCIÓN</th>
-                                    <th class="px-6 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">DETALLES (PAYLOAD)</th>
-                                    <th class="px-6 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">IP</th>
+                                    <th class="px-6 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">{{ __('common.date') }}</th>
+                                    <th class="px-6 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">{{ __('common.user') }}</th>
+                                    <th class="px-6 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">{{ __('audit.columns.action') }}</th>
+                                    <th class="px-6 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">{{ __('common.type') }}</th>
+                                    <th class="px-6 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">{{ __('common.detail') }}</th>
+                                    <th class="px-6 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">{{ __('audit.columns.ip') }}</th>
                                 </tr>
                             </thead>
                             <tbody class="bg-white divide-y divide-gray-200">

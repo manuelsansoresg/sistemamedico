@@ -6,6 +6,21 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Public\ComprobantePagoController;
 use Illuminate\Support\Facades\Route;
 
+Route::get('/lang/{locale}', function (\Illuminate\Http\Request $request, $locale) {
+    if (! in_array($locale, ['es', 'en'], true)) {
+        $locale = 'es';
+    }
+
+    session()->put('locale', $locale);
+    session()->save();
+    app()->setLocale($locale);
+
+    $referer = $request->headers->get('referer');
+    $redirectTo = $referer ?: '/';
+
+    return redirect($redirectTo)->withCookie(cookie()->forever('app_locale', $locale));
+})->name('lang.switch');
+
 Route::get('/', function () {
     return view('public.home');
 });
@@ -23,6 +38,10 @@ Route::get('/doctor/verification-notice', function () {
     return view('doctor.verification_notice');
 })->middleware(['auth', 'role:doctor'])->name('doctor.verification.notice');
 
+Route::get('/admin/dashboard', [AdminController::class, 'index'])
+    ->middleware(['auth', 'verified'])
+    ->name('admin.dashboard');
+
 Route::middleware(['auth', 'role:doctor', 'check.doctor.status'])->group(function () {
     Route::get('/doctor/wizard', [\App\Http\Controllers\Doctor\WizardController::class, 'index'])->name('doctor.wizard.index');
     Route::post('/doctor/wizard/clinica', [\App\Http\Controllers\Doctor\WizardController::class, 'storeClinica'])->name('doctor.wizard.store_clinica');
@@ -30,7 +49,6 @@ Route::middleware(['auth', 'role:doctor', 'check.doctor.status'])->group(functio
 });
 
 Route::middleware(['auth', 'role:root'])->group(function () {
-    Route::get('/admin/dashboard', [AdminController::class, 'index'])->name('admin.dashboard');
     Route::get('/admin/audit', [AuditController::class, 'index'])->name('admin.audit.index');
     Route::resource('admin/catalogos', \App\Http\Controllers\CatalogoController::class);
     Route::resource('admin/paquetes', \App\Http\Controllers\PaqueteController::class);

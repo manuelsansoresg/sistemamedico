@@ -19,7 +19,7 @@ class PlantillaController extends Controller
 
         // Assistants and secretaries cannot access templates
         if ($user->hasRole(['asistente', 'secretaria'])) {
-            abort(403, 'No tiene permiso para acceder a plantillas.');
+            abort(403, __('plantillas.errors.no_permission_access'));
         }
 
         $query = Plantilla::with(['user', 'creator']);
@@ -62,7 +62,7 @@ class PlantillaController extends Controller
         ]);
 
         if ($user->hasRole('root') && ! $request->user_id) {
-            return back()->withErrors(['user_id' => 'Debe seleccionar un doctor.'])->withInput();
+            return back()->withErrors(['user_id' => __('plantillas.errors.select_doctor')])->withInput();
         }
 
         $userId = $user->hasRole('root') ? $request->user_id : $user->id;
@@ -100,7 +100,7 @@ class PlantillaController extends Controller
             }
         });
 
-        return redirect()->route('plantillas.index')->with('success', 'Plantilla creada exitosamente.');
+        return redirect()->route('plantillas.index')->with('success', __('plantillas.messages.created_success'));
     }
 
     public function edit(Plantilla $plantilla)
@@ -144,7 +144,7 @@ class PlantillaController extends Controller
         ]);
 
         if ($user->hasRole('root') && ! $request->user_id) {
-            return back()->withErrors(['user_id' => 'Debe seleccionar un doctor.'])->withInput();
+            return back()->withErrors(['user_id' => __('plantillas.errors.select_doctor')])->withInput();
         }
 
         DB::transaction(function () use ($request, $plantilla, $user) {
@@ -185,7 +185,7 @@ class PlantillaController extends Controller
             }
         });
 
-        return redirect()->route('plantillas.index')->with('success', 'Plantilla actualizada exitosamente.');
+        return redirect()->route('plantillas.index')->with('success', __('plantillas.messages.updated_success'));
     }
 
     public function destroy(Plantilla $plantilla)
@@ -199,7 +199,7 @@ class PlantillaController extends Controller
 
         $plantilla->delete();
 
-        return redirect()->route('plantillas.index')->with('success', 'Plantilla eliminada exitosamente.');
+        return redirect()->route('plantillas.index')->with('success', __('plantillas.messages.deleted_success'));
     }
 
     public function getCampos(Plantilla $plantilla)
@@ -209,7 +209,7 @@ class PlantillaController extends Controller
 
         // Allow if root or if doctor owns it
         if ($user->hasRole('doctor') && $plantilla->user_id !== $user->id) {
-            return response()->json(['error' => 'Unauthorized'], 403);
+            return response()->json(['error' => __('plantillas.errors.unauthorized')], 403);
         }
 
         $campos = $plantilla->campos()->orderBy('orden')->get()->map(function ($campo) {

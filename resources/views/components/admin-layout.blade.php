@@ -13,30 +13,44 @@
 
         <!-- Scripts -->
         @vite(['resources/css/app.css', 'resources/js/app.js'])
+
+        <style>
+            th { white-space: nowrap; }
+            .flex.items-center i.fas, .inline-flex.items-center i.fas { line-height: 1; }
+            .dashboard-card-label { text-transform: uppercase; display: block; text-align: center; font-weight: 700; }
+        </style>
     </head>
     <body class="font-sans antialiased bg-[#F8FAFC]">
         <div class="min-h-screen">
             
-            <!-- Admin Header -->
-            <header class="bg-[#27ADFA] shadow-sm">
-                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-                    <!-- Left spacer for balance -->
-                    <div class="w-24 hidden md:block"></div>
-                    
-                    <!-- Center Brand -->
-                    <div class="flex-grow text-center flex justify-center">
-                        <a href="{{ route('dashboard') }}" class="text-white text-2xl font-bold tracking-wider hover:text-gray-100 transition-colors">
+            <header class="bg-white border-b border-gray-200">
+                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center gap-4">
+                    <div class="flex items-center gap-3 min-w-0">
+                        <img src="{{ Auth::user()->profile_photo_url }}"
+                             alt="{{ Auth::user()->name }}"
+                             class="w-12 h-12 rounded-full object-cover">
+                        <div class="min-w-0 leading-tight">
+                            <div class="text-sm font-bold text-gray-900 uppercase">{{ Auth::user()->name }}</div>
+                            <div class="text-xs text-gray-500">
+                                {{ Auth::user()->especialidad?->nombre ?? __('common.roles.'.(Auth::user()->roles->first()?->name ?? 'user')) }}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="flex-1 flex justify-center px-4">
+                        <a href="{{ route('dashboard') }}" class="text-gray-900 font-bold text-xl md:text-2xl tracking-wide">
                             {{ config('app.name', 'Sistema Medico') }}
                         </a>
                     </div>
-                    
-                    <!-- Right User Info -->
-                    <div class="w-24 flex justify-end items-center space-x-4">
-                        <span class="text-white font-medium hidden sm:inline-block">{{ Auth::user()->name }}</span>
+
+                    <div class="flex items-center gap-4">
+                        <x-language-switcher />
+                        <div class="h-6 w-px bg-gray-200"></div>
                         <form method="POST" action="{{ route('logout') }}">
                             @csrf
-                            <button type="submit" class="text-white hover:text-gray-200 transition-colors">
-                                <i class="fas fa-sign-out-alt text-xl"></i>
+                            <button type="submit" class="flex items-center gap-2 text-gray-500 hover:text-gray-700 font-semibold uppercase tracking-wide transition-colors">
+                                <i class="fas fa-sign-out-alt"></i>
+                                <span class="hidden sm:inline">{{ __('common.log_out') }}</span>
                             </button>
                         </form>
                     </div>
@@ -56,22 +70,34 @@
             <main>
                 <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 mt-4">
                     @if (session('success'))
+                        @php
+                            $successMessage = session('success');
+                            $successText = \Illuminate\Support\Facades\Lang::has($successMessage)
+                                ? __($successMessage)
+                                : $successMessage;
+                        @endphp
                         <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative" role="alert">
-                            <strong class="font-bold">¡Éxito!</strong>
-                            <span class="block sm:inline">{{ session('success') }}</span>
+                            <strong class="font-bold">{{ __('common.success') }}</strong>
+                            <span class="block sm:inline">{{ $successText }}</span>
                         </div>
                     @endif
 
                     @if (session('error'))
+                        @php
+                            $errorMessage = session('error');
+                            $errorText = \Illuminate\Support\Facades\Lang::has($errorMessage)
+                                ? __($errorMessage)
+                                : $errorMessage;
+                        @endphp
                         <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
-                            <strong class="font-bold">¡Error!</strong>
-                            <span class="block sm:inline">{{ session('error') }}</span>
+                            <strong class="font-bold">{{ __('common.error') }}</strong>
+                            <span class="block sm:inline">{{ $errorText }}</span>
                         </div>
                     @endif
 
                     @if ($errors->any())
                         <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
-                            <strong class="font-bold">¡Atención!</strong>
+                            <strong class="font-bold">{{ __('common.warning') }}</strong>
                             <ul class="list-disc list-inside">
                                 @foreach ($errors->all() as $error)
                                     <li>{{ $error }}</li>

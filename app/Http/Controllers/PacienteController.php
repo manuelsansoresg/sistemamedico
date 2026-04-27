@@ -165,7 +165,7 @@ class PacienteController extends Controller
         $ownerForLimits = $owner ?: $user;
 
         if (! $this->subscriptionService->canCreate($ownerForLimits, 'paciente')) {
-            return redirect()->back()->with('error', 'Ha alcanzado el límite de pacientes permitidos por su suscripción.');
+            return redirect()->back()->with('error', __('pacientes.errors.subscription_limit_reached'));
         }
 
         $rules = [
@@ -222,7 +222,7 @@ class PacienteController extends Controller
             $newUser->doctors()->attach($owner->id);
         }
 
-        return redirect()->route('pacientes.index')->with('success', 'Paciente creado exitosamente.');
+        return redirect()->route('pacientes.index')->with('success', __('pacientes.messages.created_success'));
     }
 
     /**
@@ -296,7 +296,7 @@ class PacienteController extends Controller
             $this->storeProfilePhotoFromRequest($request, $paciente, $currentUser);
         }
 
-        return redirect()->route('pacientes.index')->with('success', 'Paciente actualizado exitosamente.');
+        return redirect()->route('pacientes.index')->with('success', __('pacientes.messages.updated_success'));
     }
 
     private function storeProfilePhotoFromRequest(Request $request, User $user, User $currentUser): void
@@ -313,7 +313,7 @@ class PacienteController extends Controller
             $absolutePath = Storage::disk('public')->path($path);
             $this->resizeProfilePhotoIfPossible($absolutePath);
         } catch (Throwable $e) {
-            Log::warning('No se pudo procesar la foto de perfil', [
+            Log::warning(__('pacientes.logs.profile_photo_process_failed'), [
                 'error' => $e->getMessage(),
             ]);
         }
@@ -422,7 +422,7 @@ class PacienteController extends Controller
         $currentUser = Auth::user();
 
         if ($paciente->perfil_compartido) {
-            return back()->with('success', 'El perfil del paciente ya está compartido.');
+            return back()->with('success', __('pacientes.messages.already_shared'));
         }
 
         if ($currentUser->hasRole('root')) {
@@ -446,7 +446,7 @@ class PacienteController extends Controller
                 });
 
             if (! $suscripcion) {
-                return back()->with('error', 'No hay suscripciones de Paciente disponibles para asignar.');
+                return back()->with('error', __('pacientes.errors.no_available_subscription'));
             }
 
             $paciente->perfil_compartido = true;
@@ -482,7 +482,7 @@ class PacienteController extends Controller
                 report($e);
             }
 
-            return back()->with('success', 'Perfil compartido correctamente.');
+            return back()->with('success', __('pacientes.messages.shared_success'));
         }
 
         if ($currentUser->hasRole(['doctor', 'asistente', 'secretaria'])) {
@@ -490,7 +490,7 @@ class PacienteController extends Controller
             $owner = $currentUser->hasRole('doctor') ? $currentUser : User::find($ownerId);
 
             if (! $owner || ! $this->subscriptionService->hasActiveFeature($owner, 'paciente')) {
-                return back()->with('error', 'Necesita una suscripción de Paciente activa para compartir perfiles.');
+                return back()->with('error', __('pacientes.errors.active_subscription_required'));
             }
 
             $suscripcion = \App\Models\Suscripcion::where('user_id', $owner->id)
@@ -507,7 +507,7 @@ class PacienteController extends Controller
                 });
 
             if (! $suscripcion) {
-                return back()->with('error', 'No hay suscripciones de Paciente disponibles para asignar.');
+                return back()->with('error', __('pacientes.errors.no_available_subscription'));
             }
 
             $paciente->perfil_compartido = true;
@@ -543,10 +543,10 @@ class PacienteController extends Controller
                 report($e);
             }
 
-            return back()->with('success', 'Perfil compartido correctamente.');
+            return back()->with('success', __('pacientes.messages.shared_success'));
         }
 
-        return back()->with('error', 'No tiene permiso para compartir este paciente.');
+        return back()->with('error', __('pacientes.errors.no_permission_share'));
     }
 
     /**
@@ -558,7 +558,7 @@ class PacienteController extends Controller
         $currentUser = Auth::user();
 
         if (! $currentUser->hasRole('root')) {
-            return back()->with('error', 'Solo el rol Root puede quitar el perfil compartido.');
+            return back()->with('error', __('pacientes.errors.root_only_unshare'));
         }
 
         $doctorId = $paciente->doctors()->pluck('users.id')->first();
@@ -583,7 +583,7 @@ class PacienteController extends Controller
             report($e);
         }
 
-        return back()->with('success', 'Perfil compartido eliminado correctamente.');
+        return back()->with('success', __('pacientes.messages.unshared_success'));
     }
 
     /**
@@ -596,7 +596,7 @@ class PacienteController extends Controller
         $currentUser = Auth::user();
 
         if (! $currentUser->hasRole('root')) {
-            return back()->with('error', 'Solo el rol Root puede alternar el estado de compartir.');
+            return back()->with('error', __('pacientes.errors.root_only_toggle'));
         }
 
         if ($paciente->perfil_compartido) {
@@ -627,7 +627,7 @@ class PacienteController extends Controller
                 report($e);
             }
 
-            return back()->with('success', 'Perfil compartido eliminado correctamente.');
+            return back()->with('success', __('pacientes.messages.unshared_success'));
         }
 
         $request->validate([
@@ -650,7 +650,7 @@ class PacienteController extends Controller
             });
 
         if (! $suscripcion) {
-            return back()->with('error', 'No hay suscripciones de Paciente disponibles para asignar.');
+            return back()->with('error', __('pacientes.errors.no_available_subscription'));
         }
 
         $paciente->perfil_compartido = true;
@@ -684,7 +684,7 @@ class PacienteController extends Controller
             report($e);
         }
 
-        return back()->with('success', 'Perfil compartido correctamente.');
+        return back()->with('success', __('pacientes.messages.shared_success'));
     }
 
     /**
@@ -696,7 +696,7 @@ class PacienteController extends Controller
 
         $paciente->delete();
 
-        return redirect()->route('pacientes.index')->with('success', 'Paciente eliminado exitosamente.');
+        return redirect()->route('pacientes.index')->with('success', __('pacientes.messages.deleted_success'));
     }
 
     private function authorizeAccess(User $paciente)
@@ -717,12 +717,12 @@ class PacienteController extends Controller
             $created = $paciente->created_by == $ownerId;
 
             if (! $linked && ! $created) {
-                abort(403, 'No tiene permiso para acceder a este paciente.');
+                abort(403, __('pacientes.errors.no_permission_access'));
             }
 
             return;
         }
 
-        abort(403, 'Acceso no autorizado.');
+        abort(403, __('pacientes.errors.unauthorized'));
     }
 }

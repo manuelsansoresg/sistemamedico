@@ -57,7 +57,7 @@ class ClinicaController extends Controller
         $owner = $user->hasRole('doctor') ? $user : \App\Models\User::find($user->created_by);
 
         if (! $this->subscriptionService->canCreate($owner, 'clinica')) {
-            return redirect()->back()->with('error', 'Ha alcanzado el límite de clínicas permitidas por su suscripción.');
+            return redirect()->back()->with('error', __('common.errors.subscription_limit_reached'));
         }
 
         $request->validate([
@@ -96,7 +96,7 @@ class ClinicaController extends Controller
             $clinica->users()->syncWithoutDetaching([$owner->id]);
         }
 
-        return redirect()->route('clinicas.index')->with('success', 'Clínica creada exitosamente.');
+        return redirect()->route('clinicas.index')->with('success', __('common.messages.created_success'));
     }
 
     /**
@@ -143,7 +143,7 @@ class ClinicaController extends Controller
             'activo' => $request->has('activo'),
         ]);
 
-        return redirect()->route('clinicas.index')->with('success', 'Clínica actualizada exitosamente.');
+        return redirect()->route('clinicas.index')->with('success', __('common.messages.updated_success'));
     }
 
     /**
@@ -156,6 +156,6 @@ class ClinicaController extends Controller
         }
         $clinica->delete();
 
-        return redirect()->route('clinicas.index')->with('success', 'Clínica eliminada exitosamente.');
+        return redirect()->route('clinicas.index')->with('success', __('common.messages.deleted_success'));
     }
 }

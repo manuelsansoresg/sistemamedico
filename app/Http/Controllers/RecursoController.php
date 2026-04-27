@@ -81,7 +81,7 @@ class RecursoController extends Controller
             'activo' => true,
         ]);
 
-        return redirect()->route('recursos.index', ['doctor_id' => $doctorId])->with('success', 'Recurso creado correctamente.');
+        return redirect()->route('recursos.index', ['doctor_id' => $doctorId])->with('success', __('common.messages.created_success'));
     }
 
     public function update(Request $request, Recurso $recurso)
@@ -108,7 +108,7 @@ class RecursoController extends Controller
             'activo' => $request->activo,
         ]);
 
-        return redirect()->route('recursos.index', ['doctor_id' => $recurso->user_id])->with('success', 'Recurso actualizado correctamente.');
+        return redirect()->route('recursos.index', ['doctor_id' => $recurso->user_id])->with('success', __('common.messages.updated_success'));
     }
 
     public function destroy(Recurso $recurso)
@@ -121,7 +121,7 @@ class RecursoController extends Controller
 
         $recurso->delete();
 
-        return redirect()->route('recursos.index', ['doctor_id' => $recurso->user_id])->with('success', 'Recurso eliminado correctamente.');
+        return redirect()->route('recursos.index', ['doctor_id' => $recurso->user_id])->with('success', __('common.messages.deleted_success'));
     }
 
     public function permisos(Request $request)
@@ -240,7 +240,7 @@ class RecursoController extends Controller
             report($e);
         }
 
-        return redirect()->route('recursos.permisos', ['doctor_id' => $doctorId])->with('success', 'Permisos actualizados correctamente.');
+        return redirect()->route('recursos.permisos', ['doctor_id' => $doctorId])->with('success', __('common.messages.permissions_updated_success'));
     }
 
     protected function ensureModuleEnabled(User $user): void

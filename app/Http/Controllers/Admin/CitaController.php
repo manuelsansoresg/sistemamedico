@@ -53,7 +53,7 @@ class CitaController extends Controller
 
             if ($this->doctorBlockedByCedula($ownerId)) {
                 return redirect()->route('citas.index')
-                    ->with('error', 'No puedes crear citas porque la cédula profesional del médico aún no ha sido validada.');
+                    ->with('error', __('citas.errors.cedula_not_validated_create'));
             }
 
             $owner = User::findOrFail($ownerId);
@@ -119,12 +119,12 @@ class CitaController extends Controller
         if ($this->doctorBlockedByCedula((int) $validated['doctor_id'])) {
             return back()
                 ->withInput()
-                ->withErrors(['doctor_id' => 'No se pueden crear citas para este médico hasta que su cédula profesional sea validada.']);
+                ->withErrors(['doctor_id' => __('citas.validation.cedula_not_validated')]);
         }
 
         if ($user->hasRole(['asistente', 'secretaria'])) {
             if ($validated['doctor_id'] != $user->created_by) {
-                abort(403, 'No puedes crear citas para otro doctor.');
+                abort(403, __('citas.errors.no_permission_create_other_doctor'));
             }
         }
 
@@ -149,7 +149,7 @@ class CitaController extends Controller
         if (! $consultorio || ! $clinica) {
             return back()
                 ->withInput()
-                ->withErrors(['consultorio_id' => 'El consultorio o la clínica seleccionados no están disponibles por suscripción.']);
+                ->withErrors(['consultorio_id' => __('citas.validation.office_or_clinic_unavailable')]);
         }
 
         // Get schedule to determine duration
@@ -169,7 +169,7 @@ class CitaController extends Controller
 
         foreach ($blockedDays as $blockedDay) {
             if ($blockedDay->todo_el_dia) {
-                return back()->withErrors(['hora_inicio' => 'El día está bloqueado: '.$blockedDay->motivo]);
+                return back()->withErrors(['hora_inicio' => __('citas.validation.blocked_day', ['reason' => $blockedDay->motivo])]);
             }
 
             $citaStart = Carbon::parse($validated['fecha'].' '.$validated['hora_inicio']);
@@ -181,7 +181,7 @@ class CitaController extends Controller
 
             // Overlap check: start < blockEnd && end > blockStart
             if ($citaStart->lt($blockEnd) && $citaEnd->gt($blockStart)) {
-                return back()->withErrors(['hora_inicio' => 'El horario seleccionado está bloqueado: '.$blockedDay->motivo]);
+                return back()->withErrors(['hora_inicio' => __('citas.validation.blocked_time', ['reason' => $blockedDay->motivo])]);
             }
         }
 
@@ -195,7 +195,7 @@ class CitaController extends Controller
             // Original code: $horario = Horario::where...->first();
             // $horaFin = Carbon::parse($validated['hora_inicio'])->addMinutes($horario->duracion_minutos);
             // This would crash if $horario is null. So let's assume it's required.
-            return back()->withErrors(['hora_inicio' => 'No hay horario configurado para este doctor/consultorio en esta fecha.']);
+            return back()->withErrors(['hora_inicio' => __('citas.validation.no_schedule_configured')]);
         }
 
         $horaFin = Carbon::parse($validated['hora_inicio'])->addMinutes($horario->duracion_minutos);
@@ -216,7 +216,7 @@ class CitaController extends Controller
         $cita->save();
 
         return redirect()->route('admin.citas.index')
-            ->with('success', 'Cita creada correctamente.');
+            ->with('success', __('citas.messages.created_success'));
     }
 
     public function show(Cita $cita)
@@ -316,7 +316,7 @@ class CitaController extends Controller
 
         if ($user->hasRole(['asistente', 'secretaria'])) {
             if ($validated['doctor_id'] != $user->created_by) {
-                abort(403, 'No puedes asignar citas a otro doctor.');
+                abort(403, __('citas.errors.no_permission_assign_other_doctor'));
             }
         }
 
@@ -341,7 +341,7 @@ class CitaController extends Controller
         if (! $consultorio || ! $clinica) {
             return back()
                 ->withInput()
-                ->withErrors(['consultorio_id' => 'El consultorio o la clínica seleccionados no están disponibles por suscripción.']);
+                ->withErrors(['consultorio_id' => __('citas.validation.office_or_clinic_unavailable')]);
         }
 
         // If time/date/doctor changed, we need to validate availability again
@@ -364,7 +364,7 @@ class CitaController extends Controller
 
         foreach ($blockedDays as $blockedDay) {
             if ($blockedDay->todo_el_dia) {
-                return back()->withErrors(['hora_inicio' => 'El día está bloqueado: '.$blockedDay->motivo]);
+                return back()->withErrors(['hora_inicio' => __('citas.validation.blocked_day', ['reason' => $blockedDay->motivo])]);
             }
 
             $citaStart = Carbon::parse($validated['fecha'].' '.$validated['hora_inicio']);
@@ -376,12 +376,12 @@ class CitaController extends Controller
 
             // Overlap check: start < blockEnd && end > blockStart
             if ($citaStart->lt($blockEnd) && $citaEnd->gt($blockStart)) {
-                return back()->withErrors(['hora_inicio' => 'El horario seleccionado está bloqueado: '.$blockedDay->motivo]);
+                return back()->withErrors(['hora_inicio' => __('citas.validation.blocked_time', ['reason' => $blockedDay->motivo])]);
             }
         }
 
         if (! $horario) {
-            return back()->withErrors(['hora_inicio' => 'No hay horario disponible para este médico en esta fecha/consultorio.']);
+            return back()->withErrors(['hora_inicio' => __('citas.validation.no_schedule_available')]);
         }
 
         $start = Carbon::createFromFormat('H:i', $validated['hora_inicio']);
@@ -391,7 +391,7 @@ class CitaController extends Controller
 
         $cita->update($validated);
 
-        return redirect()->route('citas.index')->with('success', 'Cita actualizada correctamente.');
+        return redirect()->route('citas.index')->with('success', __('citas.messages.updated_success'));
     }
 
     /**
@@ -405,13 +405,13 @@ class CitaController extends Controller
         if ($user->hasRole(['doctor', 'asistente', 'secretaria'])) {
             $ownerId = $user->hasRole('doctor') ? $user->id : $user->created_by;
             if ($cita->doctor_id !== $ownerId) {
-                abort(403, 'No tiene permiso para eliminar esta cita.');
+                abort(403, __('citas.errors.no_permission_delete'));
             }
         }
 
         $cita->delete();
 
-        return redirect()->route('citas.index')->with('success', 'Cita eliminada correctamente.');
+        return redirect()->route('citas.index')->with('success', __('citas.messages.deleted_success'));
     }
 
     /**
@@ -577,7 +577,7 @@ class CitaController extends Controller
             if ($this->doctorBlockedByCedula($doctorId)) {
                 return response()->json([
                     'slots' => [],
-                    'message' => 'No hay disponibilidad porque la cédula profesional del médico aún no ha sido validada.',
+                    'message' => __('citas.api.no_availability_cedula'),
                     'debug' => ['blocked_cedula' => true],
                 ]);
             }
@@ -602,7 +602,7 @@ class CitaController extends Controller
                 if ($blockedDay->todo_el_dia) {
                     return response()->json([
                         'slots' => [],
-                        'message' => 'El consultorio no tiene disponibilidad este día: '.$blockedDay->motivo,
+                        'message' => __('citas.api.office_unavailable_day', ['reason' => $blockedDay->motivo]),
                         'debug' => ['blocked' => true, 'reason' => $blockedDay->motivo],
                     ]);
                 }
@@ -626,15 +626,15 @@ class CitaController extends Controller
             if ($horarios->isEmpty()) {
                 return response()->json([
                     'slots' => [],
-                    'message' => 'El médico no tiene horario este día en este consultorio.',
+                    'message' => __('citas.api.no_schedule_day'),
                     'debug' => $debug,
                 ]);
             }
 
             $slots = [
-                'Mañana' => [],
-                'Tarde' => [],
-                'Noche' => [],
+                'morning' => [],
+                'afternoon' => [],
+                'night' => [],
             ];
 
             // Get existing appointments to exclude
@@ -690,11 +690,11 @@ class CitaController extends Controller
                     if (! $isTaken && ! $isBlocked) {
                         $hour = $current->hour;
                         if ($hour < 12) {
-                            $slots['Mañana'][] = $timeString;
+                            $slots['morning'][] = $timeString;
                         } elseif ($hour < 19) {
-                            $slots['Tarde'][] = $timeString;
+                            $slots['afternoon'][] = $timeString;
                         } else {
-                            $slots['Noche'][] = $timeString;
+                            $slots['night'][] = $timeString;
                         }
                     }
 
@@ -711,13 +711,13 @@ class CitaController extends Controller
 
             // Remove empty groups if desired, or keep them to show structure
             // For JSON response, let's keep keys but maybe we want to know if there are ANY slots
-            $totalSlots = count($slots['Mañana']) + count($slots['Tarde']) + count($slots['Noche']);
+            $totalSlots = count($slots['morning']) + count($slots['afternoon']) + count($slots['night']);
 
             return response()->json(['slots' => $slots, 'total_slots' => $totalSlots, 'debug' => $debug]);
         } catch (\Exception $e) {
             return response()->json([
                 'slots' => [],
-                'message' => 'Error: '.$e->getMessage(),
+                'message' => __('citas.api.error_generic'),
                 'debug' => ['exception' => $e->getTraceAsString()],
             ], 500);
         }

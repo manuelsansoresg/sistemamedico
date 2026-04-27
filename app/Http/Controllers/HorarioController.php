@@ -66,7 +66,7 @@ class HorarioController extends Controller
 
             // Can only manage the owner's schedule
             if ($request->user_id != $ownerId) {
-                abort(403, 'No tiene permiso para gestionar los horarios de otro médico.');
+                abort(403, __('horarios.errors.no_permission_manage_other_doctor'));
             }
         }
 
@@ -74,12 +74,12 @@ class HorarioController extends Controller
         $consultorio = Consultorio::findOrFail($request->consultorio_id);
 
         if ($ownerId && (int) $consultorio->created_by !== (int) $ownerId) {
-            abort(403, 'No tiene permiso para gestionar horarios en este consultorio.');
+            abort(403, __('horarios.errors.no_permission_manage_in_office'));
         }
 
         // Check if user is assigned to this consultorio
         if (! $user->consultorios->contains($consultorio->id)) {
-            return redirect()->route('horarios.index')->with('error', 'El usuario no está asignado a este consultorio.');
+            return redirect()->route('horarios.index')->with('error', __('horarios.errors.user_not_assigned_to_office'));
         }
 
         $horariosCollection = Horario::where('user_id', $user->id)
@@ -116,7 +116,7 @@ class HorarioController extends Controller
 
             // Can only manage the owner's schedule
             if ($request->user_id != $ownerId) {
-                abort(403, 'No tiene permiso para gestionar los horarios de otro médico.');
+                abort(403, __('horarios.errors.no_permission_manage_other_doctor'));
             }
         }
 
@@ -127,7 +127,7 @@ class HorarioController extends Controller
         if ($ownerId) {
             $consultorio = Consultorio::findOrFail($consultorioId);
             if ((int) $consultorio->created_by !== (int) $ownerId) {
-                abort(403, 'No tiene permiso para gestionar horarios en este consultorio.');
+                abort(403, __('horarios.errors.no_permission_manage_in_office'));
             }
         }
 
@@ -176,6 +176,6 @@ class HorarioController extends Controller
         }
 
         return redirect()->route('horarios.manage', ['user_id' => $userId, 'consultorio_id' => $consultorioId])
-            ->with('success', 'Horarios actualizados exitosamente.');
+            ->with('success', __('horarios.messages.updated_success'));
     }
 }

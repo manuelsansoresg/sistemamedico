@@ -24,7 +24,7 @@
                                     <i class="fas fa-hourglass-half text-yellow-400 text-xl"></i>
                                 </div>
                                 <div class="ml-3">
-                                    <p class="text-sm text-yellow-800 font-semibold">Validación de cédula en proceso.</p>
+                                    <p class="text-sm text-yellow-800 font-semibold">{{ __('common.professional_id') }} {{ __('status.pending') }}.</p>
                                 </div>
                             </div>
                         </div>
@@ -35,7 +35,7 @@
                                     <i class="fas fa-times-circle text-red-500 text-xl"></i>
                                 </div>
                                 <div class="ml-3">
-                                    <p class="text-sm text-red-800 font-semibold">Validación de cédula rechazada. Revisa tu información.</p>
+                                    <p class="text-sm text-red-800 font-semibold">{{ __('common.professional_id') }} {{ __('status.rejected') }}.</p>
                                 </div>
                             </div>
                         </div>
@@ -46,7 +46,7 @@
                                     <i class="fas fa-id-card text-red-500 text-xl"></i>
                                 </div>
                                 <div class="ml-3">
-                                    <p class="text-sm text-red-800 font-semibold">Se requiere validación de cédula para tu plan. Actualiza tu información.</p>
+                                    <p class="text-sm text-red-800 font-semibold">{{ __('common.professional_id') }} {{ __('common.required') }}.</p>
                                 </div>
                             </div>
                         </div>
@@ -64,7 +64,7 @@
                             </div>
                             <div class="ml-3">
                                 <p class="text-sm text-yellow-700 font-bold">
-                                    Atención: {{ $notification->data['mensaje'] }}
+                                    {{ __('common.warning') }}: {{ $notification->data['mensaje'] }}
                                 </p>
                             </div>
                         </div>
@@ -84,7 +84,7 @@
                             <i class="fas fa-exclamation-circle text-red-500 text-xl"></i>
                         </div>
                         <div class="ml-3">
-                            <h3 class="text-lg font-medium text-red-800">Día(s) Sin Citas Activo(s)</h3>
+                            <h3 class="text-lg font-medium text-red-800">{{ __('dias_sin_citas') }} {{ __('status.active') }}</h3>
                             <div class="mt-2 text-sm text-red-700">
                                 <ul class="list-disc pl-5 space-y-1">
                                     @foreach($diasBloqueadosHoy as $dia)
@@ -115,10 +115,10 @@
                 <div class="p-6 bg-white border-b border-gray-200">
                     <div class="flex justify-between items-center mb-4">
                         <h3 class="text-lg font-bold text-gray-800 flex items-center">
-                            <i class="fas fa-calendar-day text-blue-500 mr-2"></i> Citas de Hoy
+                            <i class="fas fa-calendar-day text-blue-500 mr-2"></i> {{ __('citas.title') }} {{ __('common.today') }}
                         </h3>
                         <a href="{{ route('citas.index') }}" class="text-sm text-blue-600 hover:text-blue-800 hover:underline">
-                            Ver más <i class="fas fa-arrow-right ml-1"></i>
+                            {{ __('common.buttons.view_more') }} <i class="fas fa-arrow-right ml-1"></i>
                         </a>
                     </div>
                     
@@ -127,11 +127,11 @@
                             <table class="min-w-full divide-y divide-gray-200">
                                 <thead class="bg-gray-50">
                                     <tr class="hover:bg-gray-50 transition-colors">
-                                        <th class="px-4 py-2 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">Hora</th>
-                                        <th class="px-4 py-2 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">Paciente</th>
-                                        <th class="px-4 py-2 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">Consultorio</th>
-                                        <th class="px-4 py-2 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">Estado</th>
-                                        <th class="px-4 py-2 text-right text-xs font-bold text-gray-700 uppercase tracking-wider">Acciones</th>
+                                        <th class="px-4 py-2 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">{{ __('common.time') }}</th>
+                                        <th class="px-4 py-2 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">{{ __('common.patient') }}</th>
+                                        <th class="px-4 py-2 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">{{ __('common.office') }}</th>
+                                        <th class="px-4 py-2 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">{{ __('common.status') }}</th>
+                                        <th class="px-4 py-2 text-right text-xs font-bold text-gray-700 uppercase tracking-wider">{{ __('common.actions') }}</th>
                                     </tr>
                                 </thead>
                                 <tbody class="bg-white divide-y divide-gray-200">
@@ -158,7 +158,7 @@
                                             <td class="px-4 py-2 whitespace-nowrap text-right text-sm font-medium">
                                                 <div class="flex justify-end items-center space-x-2">
                                                     <a href="{{ route('consultas.create', ['cita_id' => $cita->id]) }}" class="inline-flex items-center justify-center px-4 py-2 bg-blue-600 text-white font-bold rounded-md hover:bg-blue-700 transition-colors shadow-sm" title="Iniciar Consulta">
-                                                        <i class="fas fa-stethoscope mr-2"></i> INICIAR
+                                                        <i class="fas fa-stethoscope mr-2"></i> {{ __('common.buttons.start') }}
                                                     </a>
                                                     @if($cita->estado !== 'cancelada')
                                                     <form action="{{ route('citas.destroy', $cita) }}" method="POST" class="inline-block" onsubmit="return confirm('¿Estás seguro de eliminar esta cita?');">
@@ -177,7 +177,7 @@
                             </table>
                         </div>
                     @else
-                        <p class="text-gray-500 italic">No hay citas programadas para hoy.</p>
+                        <p class="text-gray-500 italic">{{ __('common.no_results') }}</p>
                     @endif
                 </div>
             </div>
@@ -187,10 +187,10 @@
                 <div class="p-6 bg-white border-b border-gray-200">
                     <div class="flex justify-between items-center mb-4">
                         <h3 class="text-lg font-bold text-gray-800 flex items-center">
-                            <i class="fas fa-tasks text-orange-500 mr-2"></i> Pendientes / Recordatorios
+                            <i class="fas fa-tasks text-orange-500 mr-2"></i> {{ __('pendientes.title') }}
                         </h3>
                         <a href="{{ route('pendientes.index') }}" class="text-sm text-blue-600 hover:text-blue-800 hover:underline">
-                            Ver más <i class="fas fa-arrow-right ml-1"></i>
+                            {{ __('common.buttons.view_more') }} <i class="fas fa-arrow-right ml-1"></i>
                         </a>
                     </div>
 
@@ -213,9 +213,9 @@
                             @endforeach
                         </div>
                     @else
-                        <p class="text-gray-500 italic">No hay pendientes activos.</p>
+                        <p class="text-gray-500 italic">{{ __('common.no_results') }}</p>
                         <a href="{{ route('pendientes.create') }}" class="mt-2 inline-flex items-center text-sm text-blue-600 hover:underline">
-                            <i class="fas fa-plus mr-1"></i> Crear nuevo recordatorio
+                            <i class="fas fa-plus mr-1"></i> {{ __('common.buttons.create_new') }}
                         </a>
                     @endif
                 </div>
@@ -228,14 +228,14 @@
                     <div class="w-20 h-20 bg-blue-50 rounded-full flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300">
                         <i class="fas fa-magic text-3xl text-[#0061F5]"></i>
                     </div>
-                    <span class="font-bold text-gray-800 text-sm tracking-wide text-center">WIZZARD</span>
+                    <span class="dashboard-card-label">{{ __('doctor.wizard') }}</span>
                 </a>
 
                 <a href="{{ route('compras.index') }}" class="flex flex-col items-center justify-center p-8 bg-white border border-gray-100 rounded-2xl shadow-[0_2px_15px_-3px_rgba(0,0,0,0.07),0_10px_20px_-2px_rgba(0,0,0,0.04)] hover:shadow-lg transition-all duration-300 group h-48">
                     <div class="w-20 h-20 bg-blue-50 rounded-full flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300">
                         <i class="fas fa-shopping-cart text-3xl text-[#0061F5]"></i>
                     </div>
-                    <span class="font-bold text-gray-800 text-sm tracking-wide">SUSCRIPCIONES</span>
+                    <span class="dashboard-card-label">{{ __('dashboard.card_labels.subscriptions') }}</span>
                 </a>
                 @endrole
 
@@ -244,21 +244,21 @@
                     <div class="w-20 h-20 bg-blue-50 rounded-full flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300">
                         <i class="fas fa-users text-3xl text-[#2563EB]"></i>
                     </div>
-                    <span class="font-bold text-gray-800 text-sm tracking-wide">USUARIOS</span>
+                    <span class="dashboard-card-label">{{ __('dashboard.card_labels.users') }}</span>
                 </a>
 
                 <a href="{{ route('clinicas.index') }}" class="flex flex-col items-center justify-center p-8 bg-white border border-gray-100 rounded-2xl shadow-[0_2px_15px_-3px_rgba(0,0,0,0.07),0_10px_20px_-2px_rgba(0,0,0,0.04)] hover:shadow-lg transition-all duration-300 group h-48">
                     <div class="w-20 h-20 bg-blue-50 rounded-full flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300">
                         <i class="fas fa-hospital-alt text-3xl text-[#2563EB]"></i>
                     </div>
-                    <span class="font-bold text-gray-800 text-sm tracking-wide">CLÍNICA</span>
+                    <span class="dashboard-card-label">{{ __('dashboard.card_labels.clinics') }}</span>
                 </a>
 
                 <a href="{{ route('consultorios.index') }}" class="flex flex-col items-center justify-center p-8 bg-white border border-gray-100 rounded-2xl shadow-[0_2px_15px_-3px_rgba(0,0,0,0.07),0_10px_20px_-2px_rgba(0,0,0,0.04)] hover:shadow-lg transition-all duration-300 group h-48">
                     <div class="w-20 h-20 bg-blue-50 rounded-full flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300">
                         <i class="fas fa-building text-3xl text-[#2563EB]"></i>
                     </div>
-                    <span class="font-bold text-gray-800 text-sm tracking-wide">CONSULTORIOS</span>
+                    <span class="dashboard-card-label">{{ __('dashboard.card_labels.offices') }}</span>
                 </a>
                 @endhasanyrole
 
@@ -267,7 +267,7 @@
                     <div class="w-20 h-20 bg-blue-50 rounded-full flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300">
                         <i class="fas fa-palette text-3xl text-[#2563EB]"></i>
                     </div>
-                    <span class="font-bold text-gray-800 text-sm tracking-wide">BRANDING</span>
+                    <span class="dashboard-card-label">{{ __('dashboard.card_labels.branding') }}</span>
                 </a>
                 @endrole
 
@@ -275,7 +275,7 @@
                     <div class="w-20 h-20 bg-blue-50 rounded-full flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300">
                         <i class="fas fa-clock text-3xl text-[#2563EB]"></i>
                     </div>
-                    <span class="font-bold text-gray-800 text-sm tracking-wide">HORARIOS</span>
+                    <span class="dashboard-card-label">{{ __('dashboard.card_labels.schedules') }}</span>
                 </a>
 
                 @role('doctor')
@@ -283,7 +283,7 @@
                     <div class="w-20 h-20 bg-green-50 rounded-full flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300">
                         <i class="fas fa-chart-line text-3xl text-green-600"></i>
                     </div>
-                    <span class="font-bold text-gray-800 text-sm tracking-wide">GANANCIAS</span>
+                    <span class="dashboard-card-label">{{ __('dashboard.card_labels.earnings') }}</span>
                 </a>
                 @endrole
 
@@ -291,21 +291,21 @@
                     <div class="w-20 h-20 bg-blue-50 rounded-full flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300">
                         <i class="fas fa-calendar-times text-3xl text-[#2563EB]"></i>
                     </div>
-                    <span class="font-bold text-gray-800 text-sm tracking-wide text-center">DÍAS SIN CITAS</span>
+                    <span class="dashboard-card-label">{{ __('dias_sin_citas.title') }}</span>
                 </a>
 
                 <a href="{{ route('recursos.agenda') }}" class="flex flex-col items-center justify-center p-8 bg-white border border-gray-100 rounded-2xl shadow-[0_2px_15px_-3px_rgba(0,0,0,0.07),0_10px_20px_-2px_rgba(0,0,0,0.04)] hover:shadow-lg transition-all duration-300 group h-48">
                     <div class="w-20 h-20 bg-blue-50 rounded-full flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300">
                         <i class="fas fa-door-open text-3xl text-[#2563EB]"></i>
                     </div>
-                    <span class="font-bold text-gray-800 text-sm tracking-wide text-center">RECURSOS</span>
+                    <span class="dashboard-card-label">{{ __('dashboard.card_labels.resources') }}</span>
                 </a>
 
                 <a href="{{ route('pacientes.index') }}" class="flex flex-col items-center justify-center p-8 bg-white border border-gray-100 rounded-2xl shadow-[0_2px_15px_-3px_rgba(0,0,0,0.07),0_10px_20px_-2px_rgba(0,0,0,0.04)] hover:shadow-lg transition-all duration-300 group h-48">
                     <div class="w-20 h-20 bg-blue-50 rounded-full flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300">
                         <i class="fas fa-user text-3xl text-[#2563EB]"></i>
                     </div>
-                    <span class="font-bold text-gray-800 text-sm tracking-wide">PACIENTES</span>
+                    <span class="dashboard-card-label">{{ __('dashboard.card_labels.patients') }}</span>
                 </a>
 
                 @if(isset($canSharePacientes) && $canSharePacientes)
@@ -313,7 +313,7 @@
                     <div class="w-20 h-20 bg-blue-50 rounded-full flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300">
                         <i class="fas fa-user-friends text-3xl text-[#2563EB]"></i>
                     </div>
-                    <span class="font-bold text-gray-800 text-sm tracking-wide text-center">PERFILES COMPARTIDOS</span>
+                    <span class="dashboard-card-label">{{ __('dashboard.card_labels.shared_profiles') }}</span>
                 </a>
                 @endif
 
@@ -321,21 +321,21 @@
                     <div class="w-20 h-20 bg-blue-50 rounded-full flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300">
                         <i class="fas fa-calendar-alt text-3xl text-[#2563EB]"></i>
                     </div>
-                    <span class="font-bold text-gray-800 text-sm tracking-wide">CITAS</span>
+                    <span class="dashboard-card-label">{{ __('dashboard.card_labels.appointments') }}</span>
                 </a>
 
                 <a href="{{ route('pendientes.index') }}" class="flex flex-col items-center justify-center p-8 bg-white border border-gray-100 rounded-2xl shadow-[0_2px_15px_-3px_rgba(0,0,0,0.07),0_10px_20px_-2px_rgba(0,0,0,0.04)] hover:shadow-lg transition-all duration-300 group h-48">
                     <div class="w-20 h-20 bg-blue-50 rounded-full flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300">
                         <i class="fas fa-clipboard-list text-3xl text-[#2563EB]"></i>
                     </div>
-                    <span class="font-bold text-gray-800 text-sm tracking-wide">PENDIENTES</span>
+                    <span class="dashboard-card-label">{{ __('pendientes.card_label') }}</span>
                 </a>
 
                 <a href="{{ route('expedientes.index') }}" class="flex flex-col items-center justify-center p-8 bg-white border border-gray-100 rounded-2xl shadow-[0_2px_15px_-3px_rgba(0,0,0,0.07),0_10px_20px_-2px_rgba(0,0,0,0.04)] hover:shadow-lg transition-all duration-300 group h-48">
                     <div class="w-20 h-20 bg-blue-50 rounded-full flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300">
                         <i class="fas fa-folder-open text-3xl text-[#2563EB]"></i>
                     </div>
-                    <span class="font-bold text-gray-800 text-sm tracking-wide">EXPEDIENTES</span>
+                    <span class="dashboard-card-label">{{ __('dashboard.card_labels.records') }}</span>
                 </a>
 
                 @if(auth()->check() && auth()->user()->hasRole('doctor'))
@@ -343,7 +343,7 @@
                     <div class="w-20 h-20 bg-blue-50 rounded-full flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300">
                         <i class="fas fa-file-medical-alt text-3xl text-[#2563EB]"></i>
                     </div>
-                    <span class="font-bold text-gray-800 text-sm tracking-wide">PLANTILLAS</span>
+                    <span class="dashboard-card-label">{{ __('dashboard.card_labels.templates') }}</span>
                 </a>
                 @endif
 

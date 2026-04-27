@@ -1,0 +1,67 @@
+<?php
+
+return [
+    'title' => 'Listado de Consultas',
+    'columns' => [
+        'patient' => 'PACIENTE',
+        'doctor' => 'MÉDICO',
+        'date' => 'FECHA',
+        'type' => 'TIPO',
+        'status' => 'ESTADO',
+        'actions' => 'ACCIONES',
+        'diagnosis' => 'DIAGNÓSTICO',
+    ],
+    'create' => 'Nueva Consulta',
+    'edit' => 'Editar Consulta',
+    'fields' => [
+        'patient' => 'Paciente',
+        'doctor' => 'Médico',
+        'date' => 'Fecha',
+        'diagnosis' => 'Diagnóstico',
+        'treatment' => 'Tratamiento',
+        'notes' => 'Notas',
+        'type' => 'Tipo',
+        'status' => 'Estado',
+    ],
+    'sections' => [
+        'vital_signs' => 'Signos Vitales',
+        'diagnosis' => 'Diagnóstico',
+        'treatment' => 'Tratamiento',
+        'studies' => 'Estudios Solicitados',
+        'prescriptions' => 'Recetas',
+        'notes' => 'Notas Adicionales',
+    ],
+    'messages' => [
+        'created_success' => 'Consulta guardada correctamente.',
+        'updated_success' => 'Consulta actualizada correctamente.',
+        'deleted_success' => 'Consulta eliminada correctamente.',
+    ],
+    'errors' => [
+        'no_permission_start' => 'No tiene permiso para iniciar esta consulta.',
+        'create_failed' => 'Error al guardar la consulta: :error',
+        'update_failed' => 'Error al actualizar la consulta: :error',
+        'delete_failed' => 'Error al eliminar la consulta.',
+    ],
+    'studies' => [
+        'title' => 'Estudios',
+        'add' => 'Agregar Estudio',
+        'edit' => 'Editar Estudio',
+        'name' => 'Nombre del Estudio',
+        'results' => 'Resultados',
+        'file' => 'Archivo',
+        'upload' => 'Subir Archivo',
+        'view' => 'Ver Estudio',
+        'no_results' => 'Sin resultados',
+        'messages' => [
+            'created_success' => 'Orden de estudio guardada correctamente.',
+            'updated_success' => 'Orden de estudio actualizada correctamente.',
+            'deleted_success' => 'Orden de estudio eliminada correctamente.',
+            'files_uploaded' => ':count archivos subidos correctamente.',
+            'file_deleted_success' => 'Archivo de estudio eliminado correctamente.',
+        ],
+        'errors' => [
+            'delete_failed' => 'Error al eliminar la orden de estudio.',
+            'file_delete_failed' => 'Error al eliminar el archivo de estudio.',
+        ],
+    ],
+];

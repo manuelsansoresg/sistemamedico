@@ -47,7 +47,7 @@ class CatalogoController extends Controller
             'activo' => $request->has('activo'),
         ]);
 
-        return redirect()->route('catalogos.index')->with('success', 'Catálogo creado exitosamente.');
+        return redirect()->route('catalogos.index')->with('success', __('catalogos.messages.created_success'));
     }
 
     /**
@@ -86,7 +86,7 @@ class CatalogoController extends Controller
             'activo' => $request->has('activo'),
         ]);
 
-        return redirect()->route('catalogos.index')->with('success', 'Catálogo actualizado exitosamente.');
+        return redirect()->route('catalogos.index')->with('success', __('catalogos.messages.updated_success'));
     }
 
     /**
@@ -96,6 +96,6 @@ class CatalogoController extends Controller
     {
         $catalogo->delete();
 
-        return redirect()->route('catalogos.index')->with('success', 'Catálogo eliminado exitosamente.');
+        return redirect()->route('catalogos.index')->with('success', __('catalogos.messages.deleted_success'));
     }
 }

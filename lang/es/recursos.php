@@ -1,0 +1,155 @@
+<?php
+
+return [
+    'title' => 'Gestión de Recursos',
+    'shared' => [
+        'title' => 'Recursos Compartidos',
+    ],
+    'columns' => [
+        'resource' => 'RECURSO',
+        'name' => 'NOMBRE',
+        'type' => 'TIPO',
+        'status' => 'ESTADO',
+        'location' => 'UBICACIÓN',
+        'actions' => 'ACCIONES',
+        'description' => 'DESCRIPCIÓN',
+    ],
+    'create' => 'Crear Recurso',
+    'edit' => 'Editar Recurso',
+    'fields' => [
+        'name' => 'Nombre',
+        'type' => 'Tipo',
+        'description' => 'Quirófanos, salas de juntas u otros recursos comunes.',
+        'location' => 'Ubicación',
+        'status' => 'Estado',
+        'color' => 'Color',
+    ],
+    'index' => [
+        'buttons' => [
+            'agenda' => 'Agenda de recursos',
+            'permissions' => 'Permisos',
+        ],
+        'new' => 'Nuevo',
+        'form' => [
+            'name' => 'Nombre',
+            'type' => 'Tipo',
+            'type_placeholder' => 'Quirófano, sala de juntas, equipo',
+            'color' => 'Color',
+            'description' => 'Descripción',
+            'submit' => 'Agregar recurso',
+        ],
+        'filters' => [
+            'doctor' => 'Doctor',
+            'current_doctor_resources' => 'Recursos del doctor actual',
+            'status' => 'Estado',
+            'all' => 'Todos',
+            'active_only' => 'Solo activos',
+            'inactive_only' => 'Solo inactivos',
+        ],
+        'messages' => [
+            'not_specified' => 'Sin especificar',
+            'no_resources' => 'No hay recursos registrados para este doctor.',
+        ],
+    ],
+    'confirm' => [
+        'delete_resource' => '¿Eliminar este recurso?',
+    ],
+    'agenda' => [
+        'title' => 'Agenda de Recursos',
+        'breadcrumb' => 'Agenda',
+        'description' => 'Agenda visual similar a Google Calendar para reservar recursos.',
+        'export_pdf' => 'Exportar Agenda PDF',
+        'reserve' => 'Reservar',
+        'edit' => 'Editar Reserva',
+        'delete' => 'Eliminar Reserva',
+        'buttons' => [
+            'catalog' => 'Catálogo de recursos',
+            'permissions' => 'Permisos',
+        ],
+        'filters' => [
+            'resource' => 'Recurso',
+            'all' => 'Todos',
+            'view' => 'Vista:',
+            'views' => [
+                'month' => 'Mes',
+                'week' => 'Semana',
+                'day' => 'Día',
+                'year' => 'Año',
+            ],
+        ],
+        'modal' => [
+            'create_title' => 'Nueva reserva de recurso',
+            'fields' => [
+                'resource' => 'Recurso',
+                'assign_to' => 'Asignar a',
+                'title' => 'Título',
+                'date' => 'Fecha',
+                'start_time' => 'Hora inicio',
+                'duration_minutes' => 'Duración (minutos)',
+                'comment' => 'Comentario',
+            ],
+            'placeholders' => [
+                'select_resource' => 'Selecciona un recurso',
+                'select_user' => 'Selecciona un usuario',
+                'title_example' => 'Ej. Cirugía, Junta, Procedimiento',
+                'comment' => 'Detalles adicionales de la reserva',
+            ],
+            'actions' => [
+                'save' => 'Guardar reserva',
+            ],
+        ],
+        'calendar' => [
+            'buttonText' => [
+                'today' => 'Hoy',
+                'month' => 'Mes',
+                'week' => 'Semana',
+                'day' => 'Día',
+                'year' => 'Año',
+                'list' => 'Lista',
+            ],
+            'allDayText' => 'Todo el día',
+            'noEventsText' => 'No hay reservas para mostrar',
+        ],
+        'js' => [
+            'confirm_delete' => '¿Eliminar esta reserva?',
+            'errors' => [
+                'generic' => 'Ocurrió un error al procesar la reserva.',
+                'need_resource_first' => 'Primero crea al menos un recurso.',
+                'select_resource' => 'Selecciona un recurso.',
+                'select_user' => 'Selecciona un usuario.',
+                'check_date_time_duration' => 'Revisa fecha, hora y duración.',
+                'create_failed' => 'No se pudo crear la reserva.',
+                'update_failed' => 'No se pudo actualizar la reserva.',
+                'delete_failed' => 'No se pudo eliminar la reserva.',
+            ],
+        ],
+    ],
+    'permissions' => [
+        'title' => 'Permisos de Recursos',
+        'manage' => 'Gestionar Permisos',
+        'breadcrumb' => 'Permisos',
+        'description' => 'Define qué usuarios pueden gestionar la agenda de recursos del doctor.',
+        'fields' => [
+            'doctor' => 'Doctor',
+            'can_manage' => 'Puede gestionar recursos',
+            'always_active' => 'Siempre activo',
+        ],
+        'buttons' => [
+            'go_to_agenda' => 'Ir a agenda',
+            'save_changes' => 'Guardar cambios',
+        ],
+    ],
+    'pdf' => [
+        'title' => 'Reporte de Reservas',
+        'subtitle' => 'Reporte de reservas de recursos',
+        'period' => 'Periodo: :period',
+        'columns' => [
+            'date' => 'Fecha',
+            'time' => 'Hora',
+            'resource' => 'Recurso',
+            'user' => 'Usuario',
+            'details' => 'Detalles / Notas',
+        ],
+        'no_reservations' => 'No hay reservas para el periodo seleccionado.',
+    ],
+];

@@ -87,6 +87,6 @@ class BrandingController extends Controller
 
         return redirect()
             ->route('branding.edit')
-            ->with('success', 'Branding actualizado exitosamente.');
+            ->with('success', __('branding.logo_updated'));
     }
 }

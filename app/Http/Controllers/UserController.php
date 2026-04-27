@@ -102,7 +102,7 @@ class UserController extends Controller
                 /** @var \App\Models\User $currentUser */
                 $currentUser = Auth::user();
                 if ($currentUser->hasRole(['doctor', 'asistente', 'secretaria']) && ! in_array($value, ['asistente', 'secretaria'])) {
-                    $fail('No tienes permisos para asignar este rol.');
+                    $fail(__('users.errors.cannot_assign_role'));
                 }
             }],
             'clinicas' => ['nullable', 'array'],
@@ -119,7 +119,7 @@ class UserController extends Controller
 
         if ($currentUser->hasRole(['doctor', 'asistente', 'secretaria']) && in_array($request->role, ['asistente', 'secretaria'])) {
             if (! $this->subscriptionService->canCreate($owner, 'usuario')) {
-                return back()->withErrors(['role' => 'Ha alcanzado el límite de usuarios permitidos por su suscripción.'])->withInput();
+                return back()->withErrors(['role' => __('users.errors.subscription_limit_reached')])->withInput();
             }
         }
 
@@ -174,7 +174,7 @@ class UserController extends Controller
             report($e);
         }
 
-        return redirect()->route('users.index')->with('success', 'Usuario creado exitosamente.');
+        return redirect()->route('users.index')->with('success', __('users.messages.created_success'));
     }
 
     /**
@@ -215,7 +215,7 @@ class UserController extends Controller
         ])->get();
 
         if ($currentUser->hasRole(['asistente', 'secretaria']) && $user->hasRole('doctor')) {
-            abort(403, 'No tienes permiso para editar al doctor.');
+            abort(403, __('users.errors.cannot_edit_doctor'));
         }
 
         return view('admin.users.edit', compact('user', 'roles', 'clinicas', 'consultorios', 'especialidades', 'permissions'));
@@ -233,7 +233,7 @@ class UserController extends Controller
         $permisosAntes = method_exists($user, 'getPermissionNames') ? $user->getPermissionNames()->values()->all() : $user->permissions()->pluck('name')->toArray();
 
         if ($currentUser->hasRole(['asistente', 'secretaria']) && $user->hasRole('doctor')) {
-            abort(403, 'No tienes permiso para editar al doctor.');
+            abort(403, __('users.errors.cannot_edit_doctor'));
         }
 
         $rules = [
@@ -260,7 +260,7 @@ class UserController extends Controller
         if (! $isDoctorSelfEdit) {
             $rules['role'] = ['required', 'exists:roles,name', function ($attribute, $value, $fail) use ($currentUser) {
                 if ($currentUser->hasRole(['doctor', 'asistente', 'secretaria']) && ! in_array($value, ['asistente', 'secretaria'])) {
-                    $fail('No tienes permisos para asignar este rol.');
+                    $fail(__('users.errors.cannot_assign_role'));
                 }
             }];
         }
@@ -347,7 +347,7 @@ class UserController extends Controller
             }
         }
 
-        return redirect()->route('users.index')->with('success', 'Usuario actualizado exitosamente.');
+        return redirect()->route('users.index')->with('success', __('users.messages.updated_success'));
     }
 
     private function storeProfilePhotoFromRequest(Request $request, User $user, User $currentUser): void
@@ -364,7 +364,7 @@ class UserController extends Controller
             $absolutePath = Storage::disk('public')->path($path);
             $this->resizeProfilePhotoIfPossible($absolutePath);
         } catch (Throwable $e) {
-            Log::warning('No se pudo procesar la foto de perfil', [
+            Log::warning(__('users.logs.profile_photo_process_failed'), [
                 'error' => $e->getMessage(),
             ]);
         }
@@ -471,7 +471,7 @@ class UserController extends Controller
         $currentUser = Auth::user();
 
         if ($user->id === $currentUser->id) {
-            return redirect()->route('users.index')->with('error', 'No puedes eliminar tu propio usuario.');
+            return redirect()->route('users.index')->with('error', __('users.errors.cannot_delete_self'));
         }
 
         if ($currentUser->hasRole(['doctor', 'asistente', 'secretaria'])) {
@@ -481,17 +481,17 @@ class UserController extends Controller
             $isOwned = ($user->id === $ownerId) || ($user->created_by === $ownerId);
 
             if (! $isOwned) {
-                abort(403, 'No tiene permiso para eliminar este usuario.');
+                abort(403, __('users.errors.cannot_delete_user'));
             }
 
             // Assistants cannot delete the doctor (owner)
             if ($user->id === $ownerId) {
-                abort(403, 'No tiene permiso para eliminar al doctor titular.');
+                abort(403, __('users.errors.cannot_delete_owner_doctor'));
             }
         }
 
         $user->delete();
 
-        return redirect()->route('users.index')->with('success', 'Usuario eliminado exitosamente.');
+        return redirect()->route('users.index')->with('success', __('users.messages.deleted_success'));
     }
 }

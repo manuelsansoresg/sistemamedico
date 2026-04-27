@@ -1,0 +1,73 @@
+<?php
+
+return [
+    'title' => 'SUBSCRIPTION MANAGEMENT',
+    'breadcrumbs' => [
+        'home' => 'HOME',
+        'subscriptions' => 'SUBSCRIPTIONS',
+    ],
+    'sections' => [
+        'active_plans' => 'MY ACTIVE PLANS',
+        'store' => 'SERVICE STORE',
+        'store_description' => 'Expand the capabilities of your medical center with new modules.',
+        'annual' => 'ANNUAL',
+        'per_year' => '/YEAR',
+        'annual_subscription' => 'ANNUAL SUBSCRIPTION',
+    ],
+    'empty' => [
+        'title' => 'NO ACTIVE SUBSCRIPTIONS.',
+        'subtitle' => 'Purchase a service from the store below.',
+        'no_products_title' => 'NO PRODUCTS AVAILABLE',
+        'no_products_text' => 'There are currently no items in the catalog.',
+    ],
+    'status' => [
+        'expired' => 'EXPIRED',
+        'pending' => 'PENDING PAYMENT',
+        'paid' => 'PAID',
+        'validating' => 'VALIDATING…',
+        'active_plans_count' => ':count ACTIVE',
+        'next_renewal' => 'NEXT RENEWAL: :date',
+        'next_renewal_none' => 'NEXT RENEWAL: —',
+    ],
+    'actions' => [
+        'renew' => 'RENEW',
+        'upload_voucher' => 'UPLOAD VOUCHER',
+        'purchase' => 'PURCHASE',
+        'confirm_pay' => 'CONFIRM AND PAY',
+        'cancel' => 'CANCEL',
+        'upload_send' => 'UPLOAD AND SEND',
+        'select_file' => 'SELECT FILE',
+        'renew_package' => 'RENEW →',
+    ],
+    'modal' => [
+        'purchase_title' => 'CONFIRM PURCHASE',
+        'purchase_desc' => 'You are about to purchase:',
+        'quantity' => 'QUANTITY',
+        'total_annual' => 'TOTAL ANNUAL:',
+        'payment_method' => 'PAYMENT METHOD',
+        'card' => 'CARD (CLIP) - IMMEDIATE ACTIVATION',
+        'transfer' => 'BANK TRANSFER (REQUIRES VALIDATION)',
+        'transfer_instructions_title' => 'TRANSFER INSTRUCTIONS:',
+        'transfer_instructions_desc' => 'Make the transfer to the following account:',
+        'transfer_bank' => 'BANK:',
+        'transfer_clabe' => 'CLABE:',
+        'transfer_concept' => 'CONCEPT:',
+        'transfer_note' => 'By confirming, a pending order will be created. You must upload your receipt from the "My Subscriptions" list to activate the service.',
+        'upload_title' => 'UPLOAD PAYMENT VOUCHER',
+        'upload_desc' => 'Upload the image or PDF of your transfer to validate your payment and activate the service.',
+        'renew_title' => 'RENEW PACKAGE',
+        'renew_package_desc' => 'Your previous package has expired. Renew to continue using the system.',
+        'renew_note' => 'By confirming, a pending order will be created. You must upload your receipt from the "My Subscriptions" list.',
+    ],
+    'pagination' => [
+        'showing' => 'SHOWING :start TO :end OF :total RECORDS',
+    ],
+    'package' => [
+        'deleted' => 'PACKAGE DELETED',
+        'service_deleted' => 'SERVICE DELETED',
+    ],
+    'footer' => [
+        'description' => 'Purchase this service to expand your system capabilities.',
+        'store_title' => 'SERVICE STORE',
+    ],
+];

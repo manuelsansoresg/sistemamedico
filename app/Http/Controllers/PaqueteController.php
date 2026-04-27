@@ -68,7 +68,7 @@ class PaqueteController extends Controller
         }
         $paquete->catalogos()->sync($syncData);
 
-        return redirect()->route('paquetes.index')->with('success', 'Paquete creado exitosamente.');
+        return redirect()->route('paquetes.index')->with('success', __('paquetes.messages.created_success'));
     }
 
     /**
@@ -125,7 +125,7 @@ class PaqueteController extends Controller
         }
         $paquete->catalogos()->sync($syncData);
 
-        return redirect()->route('paquetes.index')->with('success', 'Paquete actualizado exitosamente.');
+        return redirect()->route('paquetes.index')->with('success', __('paquetes.messages.updated_success'));
     }
 
     /**
@@ -135,6 +135,6 @@ class PaqueteController extends Controller
     {
         $paquete->delete();
 
-        return redirect()->route('paquetes.index')->with('success', 'Paquete eliminado exitosamente.');
+        return redirect()->route('paquetes.index')->with('success', __('paquetes.messages.deleted_success'));
     }
 }

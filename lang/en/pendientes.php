@@ -1,0 +1,51 @@
+<?php
+
+return [
+    'title' => 'PENDING LIST',
+    'card_label' => 'PENDING',
+    'columns' => [
+        'title' => 'TITLE',
+        'description' => 'DESCRIPTION',
+        'priority' => 'PRIORITY',
+        'status' => 'STATUS',
+        'patient' => 'PATIENT',
+        'due_date' => 'DUE DATE',
+        'date' => 'DATE',
+        'time' => 'TIME',
+        'reminder' => 'REMINDER',
+        'actions' => 'ACTIONS',
+        'created_at' => 'CREATED AT',
+    ],
+    'create' => 'NEW PENDING',
+    'edit' => 'EDIT PENDING',
+    'fields' => [
+        'title' => 'Title',
+        'description' => 'Description',
+        'priority' => 'Priority',
+        'status' => 'Status',
+        'patient' => 'Patient',
+        'due_date' => 'Due Date',
+        'assigned_to' => 'Assigned To',
+        'date' => 'Date',
+        'time' => 'Time',
+        'reminder' => 'Reminder',
+    ],
+    'priorities' => [
+        'low' => 'Low',
+        'medium' => 'Medium',
+        'high' => 'High',
+        'urgent' => 'Urgent',
+    ],
+    'statuses' => [
+        'pending' => 'Pending',
+        'in_progress' => 'In Progress',
+        'completed' => 'Completed',
+        'cancelled' => 'Cancelled',
+    ],
+    'messages' => [
+        'created_success' => 'Reminder created successfully.',
+        'updated_success' => 'Reminder updated successfully.',
+        'deleted_success' => 'Reminder deleted successfully.',
+        'none' => 'No reminders found.',
+    ],
+];

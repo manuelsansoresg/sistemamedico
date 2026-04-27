@@ -1,0 +1,65 @@
+<?php
+
+return [
+    'title' => 'Listado de Plantillas',
+    'columns' => [
+        'name' => 'NOMBRE',
+        'type' => 'TIPO',
+        'fields' => 'CAMPOS',
+        'actions' => 'ACCIONES',
+        'created_at' => 'FECHA CREACIÓN',
+        'assigned_doctor' => 'DOCTOR ASIGNADO',
+        'created_by' => 'CREADO POR',
+    ],
+    'create' => 'Crear Plantilla',
+    'edit' => 'Editar Plantilla',
+    'fields' => [
+        'name' => 'Nombre',
+        'type' => 'Tipo',
+        'description' => 'Descripción',
+    ],
+    'types' => [
+        'consulta' => 'Consulta',
+        'estudio' => 'Estudio',
+        'receta' => 'Receta',
+    ],
+    'messages' => [
+        'created_success' => 'Plantilla creada exitosamente.',
+        'updated_success' => 'Plantilla actualizada exitosamente.',
+        'deleted_success' => 'Plantilla eliminada exitosamente.',
+    ],
+    'errors' => [
+        'no_permission_access' => 'No tiene permiso para acceder a plantillas.',
+        'select_doctor' => 'Debe seleccionar un doctor.',
+        'unauthorized' => 'No autorizado.',
+    ],
+    'confirm' => [
+        'delete' => '¿Estás seguro de que deseas eliminar esta plantilla?',
+    ],
+    'empty' => 'No hay plantillas registradas.',
+    'form' => [
+        'new_title' => 'Nueva Plantilla',
+        'edit_title' => 'Editar Plantilla',
+        'template_name' => 'Nombre de la Plantilla',
+        'assign_doctor' => 'Asignar a Doctor',
+        'select_doctor_placeholder' => 'Seleccione un doctor...',
+        'fields_title' => 'Campos de la Plantilla',
+        'field_delete' => 'Eliminar campo',
+        'field_name' => 'Nombre del Campo',
+        'field_name_placeholder' => 'Ej: Motivo de Consulta',
+        'field_type' => 'Tipo de Campo',
+        'types' => [
+            'text' => 'Texto Corto',
+            'textarea' => 'Área de Texto',
+            'date' => 'Fecha',
+            'select' => 'Selección',
+        ],
+        'options_label' => 'Opciones (separadas por coma)',
+        'options_placeholder' => 'Opción 1, Opción 2, Opción 3',
+        'options_help' => 'Ingrese los valores separados por comas.',
+        'required' => 'Es obligatorio',
+        'add_field' => 'Agregar Campo',
+        'save' => 'Guardar Plantilla',
+        'update' => 'Actualizar Plantilla',
+    ],
+];

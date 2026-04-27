@@ -1,0 +1,51 @@
+<?php
+
+return [
+    'title' => 'LISTADO DE PENDIENTES',
+    'card_label' => 'PENDIENTES',
+    'columns' => [
+        'title' => 'TÍTULO',
+        'description' => 'DESCRIPCIÓN',
+        'priority' => 'PRIORIDAD',
+        'status' => 'ESTADO',
+        'patient' => 'PACIENTE',
+        'due_date' => 'FECHA LÍMITE',
+        'date' => 'FECHA',
+        'time' => 'HORA',
+        'reminder' => 'RECORDATORIO',
+        'actions' => 'ACCIONES',
+        'created_at' => 'FECHA CREACIÓN',
+    ],
+    'create' => 'NUEVO PENDIENTE',
+    'edit' => 'EDITAR PENDIENTE',
+    'fields' => [
+        'title' => 'Título',
+        'description' => 'Descripción',
+        'priority' => 'Prioridad',
+        'status' => 'Estado',
+        'patient' => 'Paciente',
+        'due_date' => 'Fecha Límite',
+        'assigned_to' => 'Asignado A',
+        'date' => 'Fecha',
+        'time' => 'Hora',
+        'reminder' => 'Recordatorio',
+    ],
+    'priorities' => [
+        'low' => 'Baja',
+        'medium' => 'Media',
+        'high' => 'Alta',
+        'urgent' => 'Urgente',
+    ],
+    'statuses' => [
+        'pending' => 'Pendiente',
+        'in_progress' => 'En Progreso',
+        'completed' => 'Completado',
+        'cancelled' => 'Cancelado',
+    ],
+    'messages' => [
+        'created_success' => 'Recordatorio creado correctamente.',
+        'updated_success' => 'Recordatorio actualizado correctamente.',
+        'deleted_success' => 'Recordatorio eliminado correctamente.',
+        'none' => 'No hay pendientes registrados.',
+    ],
+];

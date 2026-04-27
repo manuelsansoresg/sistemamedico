@@ -1,9 +1,9 @@
 <!doctype html>
-<html lang="es">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Reporte de Reservas</title>
+    <title>{{ __('recursos.pdf.title') }}</title>
     <style>
         @page {
             margin: 18px;
@@ -64,8 +64,8 @@
                 </td>
                 <td style="vertical-align: top;">
                     <h1>{{ $clinicaNombre }}</h1>
-                    <div class="muted">Reporte de reservas de recursos</div>
-                    <div class="muted">Periodo: {{ $periodoTitulo }}</div>
+                    <div class="muted">{{ __('recursos.pdf.subtitle') }}</div>
+                    <div class="muted">{{ __('recursos.pdf.period', ['period' => $periodoTitulo]) }}</div>
                 </td>
             </tr>
         </table>
@@ -74,11 +74,11 @@
     <table>
         <thead>
             <tr class="hover:bg-gray-50 transition-colors">
-                <th class="nowrap" style="width: 90px;">Fecha</th>
-                <th class="nowrap" style="width: 90px;">Hora</th>
-                <th style="width: 160px;">Recurso</th>
-                <th style="width: 170px;">Usuario</th>
-                <th>Detalles / Notas</th>
+                <th class="nowrap" style="width: 90px;">{{ __('recursos.pdf.columns.date') }}</th>
+                <th class="nowrap" style="width: 90px;">{{ __('recursos.pdf.columns.time') }}</th>
+                <th style="width: 160px;">{{ __('recursos.pdf.columns.resource') }}</th>
+                <th style="width: 170px;">{{ __('recursos.pdf.columns.user') }}</th>
+                <th>{{ __('recursos.pdf.columns.details') }}</th>
             </tr>
         </thead>
         <tbody>
@@ -87,7 +87,7 @@
                     $usuario = $reserva->user;
                     $usuarioNombre = $usuario
                         ? trim(($usuario->name ?? '').' '.($usuario->apellido_paterno ?? '').' '.($usuario->apellido_materno ?? ''))
-                        : 'Sistema';
+                        : __('common.system');
                     $detalles = trim(($reserva->titulo ?? '')."\n".($reserva->comentario ?? ''));
                 @endphp
                 <tr class="hover:bg-gray-50 transition-colors">
@@ -103,7 +103,7 @@
                 </tr>
             @empty
                 <tr class="hover:bg-gray-50 transition-colors">
-                    <td colspan="5" class="muted">No hay reservas para el periodo seleccionado.</td>
+                    <td colspan="5" class="muted">{{ __('recursos.pdf.no_reservations') }}</td>
                 </tr>
             @endforelse
         </tbody>

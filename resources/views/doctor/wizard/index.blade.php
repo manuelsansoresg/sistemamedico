@@ -7,13 +7,13 @@
                     <li class="inline-flex items-center">
                         <a href="{{ route('dashboard') }}" class="inline-flex items-center text-sm font-medium text-gray-700 hover:text-[#0061F5]">
                             <i class="fas fa-home mr-2"></i>
-                            Inicio
+                            {{ __('wizard.breadcrumbs.home') }}
                         </a>
                     </li>
                     <li aria-current="page">
                         <div class="flex items-center">
                             <i class="fas fa-chevron-right text-gray-400 mx-1"></i>
-                            <span class="ml-1 text-sm font-medium text-gray-500 md:ml-2">Configuración tu panel</span>
+                            <span class="ml-1 text-sm font-medium text-gray-500 md:ml-2">{{ __('wizard.breadcrumbs.setup') }}</span>
                         </div>
                     </li>
                 </ol>
@@ -49,68 +49,66 @@
                     <!-- Step 1: Infraestructura (Clínicas y Consultorios) -->
                     <div x-show="currentStep === 1" class="p-8" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 transform translate-x-4" x-transition:enter-end="opacity-100 transform translate-x-0">
                         <div class="text-center mb-8">
-                            <h2 class="text-2xl font-bold text-[#1E293B]">Configura tu panel</h2>
-                            <p class="text-gray-500 mt-2">Define tus clínicas y consultorios según tu plan contratado.</p>
+                            <h2 class="text-2xl font-bold text-[#1E293B]">{{ __('wizard.step1.title') }}</h2>
+                            <p class="text-gray-500 mt-2">{{ __('wizard.step1.subtitle') }}</p>
                         </div>
 
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-                            <!-- Clínicas -->
                             <div class="bg-[#F8FAFC] p-6 rounded-xl border border-gray-200 hover:shadow-md transition-shadow">
                                 <div class="flex justify-between items-center mb-4">
-                                    <h3 class="font-bold text-lg text-[#0061F5]"><i class="fas fa-hospital-alt mr-2"></i> Clínicas</h3>
+                                    <h3 class="font-bold text-lg text-[#0061F5]"><i class="fas fa-hospital-alt mr-2"></i> {{ __('wizard.step1.clinicas.title') }}</h3>
                                     <span class="text-sm font-bold bg-[#E6F0FF] text-[#0061F5] px-3 py-1 rounded-full">
                                         <span x-text="actuales.clinicas"></span> / <span x-text="limites.clinicas"></span>
                                     </span>
                                 </div>
-                                <p class="text-sm text-[#1E293B] mb-6">Lugares donde prestas tus servicios médicos.</p>
+                                <p class="text-sm text-[#1E293B] mb-6">{{ __('wizard.step1.clinicas.description') }}</p>
                                 
                                 <div class="space-y-3">
                                     <template x-if="actuales.clinicas < limites.clinicas">
                                         <button @click="openModal('clinica')" class="w-full py-2.5 bg-white border-2 border-dashed border-[#0061F5] text-[#0061F5] rounded-lg hover:bg-[#E6F0FF] hover:text-[#0051CC] transition-all flex items-center justify-center font-bold">
-                                            <i class="fas fa-plus mr-2"></i> Agregar Clínica
+                                            <i class="fas fa-plus mr-2"></i> {{ __('wizard.step1.clinicas.add') }}
                                         </button>
                                     </template>
                                     
                                     <template x-if="actuales.clinicas >= limites.clinicas">
                                         <div class="w-full py-2 bg-gray-100 border border-gray-200 text-gray-500 rounded-lg text-center text-sm font-medium">
-                                            <i class="fas fa-info-circle mr-1 text-[#FA7427]"></i> Límite alcanzado
+                                            <i class="fas fa-info-circle mr-1 text-[#FA7427]"></i> {{ __('wizard.step1.clinicas.limit_reached') }}
                                         </div>
                                     </template>
 
                                     <template x-if="actuales.clinicas > 0 || actuales.clinicas >= limites.clinicas">
                                         <a href="{{ route('clinicas.index') }}" target="_blank" class="block w-full py-2.5 bg-[#0061F5] text-white rounded-lg hover:bg-[#0051CC] transition-colors text-center font-bold shadow-sm">
-                                            <i class="fas fa-edit mr-2"></i> Gestionar Mis Clínicas
+                                            <i class="fas fa-edit mr-2"></i> {{ __('wizard.step1.clinicas.manage') }}
                                         </a>
                                     </template>
                                 </div>
                             </div>
 
-                            <!-- Consultorios -->
                             <div class="bg-[#F8FAFC] p-6 rounded-xl border border-gray-200 hover:shadow-md transition-shadow">
                                 <div class="flex justify-between items-center mb-4">
-                                    <h3 class="font-bold text-lg text-[#0061F5]"><i class="fas fa-building mr-2"></i> Consultorios</h3>
+                                    <h3 class="font-bold text-lg text-[#0061F5]"><i class="fas fa-building mr-2"></i> {{ __('wizard.step1.consultorios.title') }}</h3>
                                     <span class="text-sm font-bold bg-[#E6F0FF] text-[#0061F5] px-3 py-1 rounded-full">
                                         <span x-text="actuales.consultorios"></span> / <span x-text="limites.consultorios"></span>
                                     </span>
                                 </div>
-                                <p class="text-sm text-[#1E293B] mb-6">Espacios físicos asignados dentro de las clínicas.</p>
+                                <p class="text-sm text-[#1E293B] mb-6">{{ __('wizard.step1.consultorios.description') }}</p>
                                 
                                 <div class="space-y-3">
                                     <template x-if="actuales.consultorios < limites.consultorios">
                                         <button @click="openModal('consultorio')" class="w-full py-2.5 bg-white border-2 border-dashed border-[#0061F5] text-[#0061F5] rounded-lg hover:bg-[#E6F0FF] hover:text-[#0051CC] transition-all flex items-center justify-center font-bold">
-                                            <i class="fas fa-plus mr-2"></i> Agregar Consultorio
+                                            <i class="fas fa-plus mr-2"></i> {{ __('wizard.step1.consultorios.add') }}
                                         </button>
                                     </template>
                                     
                                     <template x-if="actuales.consultorios >= limites.consultorios">
                                         <div class="w-full py-2 bg-gray-100 border border-gray-200 text-gray-500 rounded-lg text-center text-sm font-medium">
-                                            <i class="fas fa-info-circle mr-1 text-[#FA7427]"></i> Límite alcanzado
+                                            <i class="fas fa-info-circle mr-1 text-[#FA7427]"></i> {{ __('wizard.step1.consultorios.limit_reached') }}
                                         </div>
                                     </template>
 
                                     <template x-if="actuales.consultorios > 0 || actuales.consultorios >= limites.consultorios">
                                         <a href="{{ route('consultorios.index') }}" target="_blank" class="block w-full py-2.5 bg-[#0061F5] text-white rounded-lg hover:bg-[#0051CC] transition-colors text-center font-bold shadow-sm">
-                                            <i class="fas fa-edit mr-2"></i> Gestionar Consultorios
+                                            <i class="fas fa-edit mr-2"></i> {{ __('wizard.step1.consultorios.manage') }}
                                         </a>
                                     </template>
                                 </div>
@@ -118,134 +116,129 @@
                         </div>
                     </div>
 
-                    <!-- Step 2: Horarios -->
                     <div x-show="currentStep === 2" class="p-8" x-transition>
                         <div class="text-center mb-8">
-                            <h2 class="text-2xl font-bold text-[#1E293B]">Define tus Horarios</h2>
-                            <p class="text-gray-500 mt-2">Establece tu disponibilidad para recibir citas.</p>
+                            <h2 class="text-2xl font-bold text-[#1E293B]">{{ __('wizard.step2.title') }}</h2>
+                            <p class="text-gray-500 mt-2">{{ __('wizard.step2.subtitle') }}</p>
                         </div>
                         
                         <div class="bg-[#F8FAFC] p-6 rounded-xl border border-gray-200 mb-6 text-center max-w-2xl mx-auto">
                             <div class="text-5xl text-[#FA7427] mb-4"><i class="fas fa-clock"></i></div>
-                            <h3 class="text-lg font-bold text-[#1E293B] mb-2">Configuración de Agenda</h3>
-                            <p class="text-gray-600 mb-6">Es necesario configurar al menos un horario para que los pacientes puedan agendar citas.</p>
+                            <h3 class="text-lg font-bold text-[#1E293B] mb-2">{{ __('wizard.step2.card_title') }}</h3>
+                            <p class="text-gray-600 mb-6">{{ __('wizard.step2.card_description') }}</p>
                             
                             <a href="{{ route('horarios.index') }}" target="_blank" class="inline-flex items-center px-6 py-3 bg-[#0061F5] text-white rounded-lg font-bold hover:bg-[#0051CC] transition-colors shadow-md">
                                 <i class="fas fa-external-link-alt mr-2"></i> 
-                                <span x-text="actuales.horarios > 0 ? 'Gestionar Horarios' : 'Configurar Horarios'"></span>
+                                <span x-text="actuales.horarios > 0 ? '{{ __('wizard.step2.manage') }}' : '{{ __('wizard.step2.configure') }}'"></span>
                             </a>
-                            <p class="text-xs text-gray-400 mt-3">(Se abrirá en una nueva pestaña)</p>
+                            <p class="text-xs text-gray-400 mt-3">{{ __('wizard.step2.opens_in_tab') }}</p>
                         </div>
 
                         <div class="flex items-center justify-center mt-8">
                             <label class="flex items-center space-x-3 cursor-pointer bg-blue-50 px-4 py-2 rounded-lg border border-blue-100 hover:bg-blue-100 transition-colors">
                                 <input type="checkbox" x-model="checks.horarios" class="form-checkbox h-5 w-5 text-[#0061F5] rounded border-gray-300 focus:ring-[#0061F5]">
-                                <span class="text-[#1E293B] font-bold">Ya he configurado mis horarios</span>
+                                <span class="text-[#1E293B] font-bold">{{ __('wizard.step2.checkbox_label') }}</span>
                             </label>
                         </div>
                     </div>
 
-                    <!-- Step 3: Plantillas -->
                     <div x-show="currentStep === 3" class="p-8" x-transition>
                         <div class="text-center mb-8">
-                            <h2 class="text-2xl font-bold text-[#1E293B]">Crea tus Plantillas</h2>
-                            <p class="text-gray-500 mt-2">Estandariza tus consultas con plantillas personalizadas.</p>
+                            <h2 class="text-2xl font-bold text-[#1E293B]">{{ __('wizard.step3.title') }}</h2>
+                            <p class="text-gray-500 mt-2">{{ __('wizard.step3.subtitle') }}</p>
                         </div>
 
                          <div class="bg-[#F8FAFC] p-6 rounded-xl border border-gray-200 mb-6 text-center max-w-2xl mx-auto">
                             <div class="text-5xl text-[#27ADFA] mb-4"><i class="fas fa-file-medical-alt"></i></div>
-                            <h3 class="text-lg font-bold text-[#1E293B] mb-2">Plantillas de Historia Clínica</h3>
-                            <p class="text-gray-600 mb-6">Crea formatos predefinidos para agilizar la captura de información en consulta.</p>
+                            <h3 class="text-lg font-bold text-[#1E293B] mb-2">{{ __('wizard.step3.card_title') }}</h3>
+                            <p class="text-gray-600 mb-6">{{ __('wizard.step3.card_description') }}</p>
                             
                             <a href="{{ route('plantillas.index') }}" target="_blank" class="inline-flex items-center px-6 py-3 bg-[#0061F5] text-white rounded-lg font-bold hover:bg-[#0051CC] transition-colors shadow-md">
                                 <i class="fas fa-external-link-alt mr-2"></i> 
-                                <span x-text="actuales.plantillas > 0 ? 'Gestionar Plantillas' : 'Crear Plantillas'"></span>
+                                <span x-text="actuales.plantillas > 0 ? '{{ __('wizard.step3.manage') }}' : '{{ __('wizard.step3.create') }}'"></span>
                             </a>
                         </div>
 
                         <div class="flex items-center justify-center mt-8">
                             <label class="flex items-center space-x-3 cursor-pointer bg-blue-50 px-4 py-2 rounded-lg border border-blue-100 hover:bg-blue-100 transition-colors">
                                 <input type="checkbox" x-model="checks.plantillas" class="form-checkbox h-5 w-5 text-[#0061F5] rounded border-gray-300 focus:ring-[#0061F5]">
-                                <span class="text-[#1E293B] font-bold">Ya he creado al menos una plantilla</span>
+                                <span class="text-[#1E293B] font-bold">{{ __('wizard.step3.checkbox_label') }}</span>
                             </label>
                         </div>
                     </div>
 
-                    <!-- Step 4: Pacientes -->
                     <div x-show="currentStep === 4" class="p-8" x-transition>
                         <div class="text-center mb-8">
-                            <h2 class="text-2xl font-bold text-[#1E293B]">Registra tus Pacientes</h2>
-                            <p class="text-gray-500 mt-2">Comienza a poblar tu base de datos de pacientes.</p>
+                            <h2 class="text-2xl font-bold text-[#1E293B]">{{ __('wizard.step4.title') }}</h2>
+                            <p class="text-gray-500 mt-2">{{ __('wizard.step4.subtitle') }}</p>
                         </div>
 
                          <div class="bg-[#F8FAFC] p-6 rounded-xl border border-gray-200 mb-6 text-center max-w-2xl mx-auto">
                             <div class="text-5xl text-[#0061F5] mb-4"><i class="fas fa-user-injured"></i></div>
-                            <h3 class="text-lg font-bold text-[#1E293B] mb-2">Gestión de Pacientes</h3>
-                            <p class="text-gray-600 mb-6">Registra al menos un paciente para poder realizar pruebas de citas y consultas.</p>
+                            <h3 class="text-lg font-bold text-[#1E293B] mb-2">{{ __('wizard.step4.card_title') }}</h3>
+                            <p class="text-gray-600 mb-6">{{ __('wizard.step4.card_description') }}</p>
                             
                             <a href="{{ route('pacientes.index') }}" target="_blank" class="inline-flex items-center px-6 py-3 bg-[#0061F5] text-white rounded-lg font-bold hover:bg-[#0051CC] transition-colors shadow-md">
                                 <i class="fas fa-external-link-alt mr-2"></i> 
-                                <span x-text="actuales.pacientes > 0 ? 'Gestionar Pacientes' : 'Registrar Pacientes'"></span>
+                                <span x-text="actuales.pacientes > 0 ? '{{ __('wizard.step4.manage') }}' : '{{ __('wizard.step4.register') }}'"></span>
                             </a>
                         </div>
 
                         <div class="flex items-center justify-center mt-8">
                             <label class="flex items-center space-x-3 cursor-pointer bg-blue-50 px-4 py-2 rounded-lg border border-blue-100 hover:bg-blue-100 transition-colors">
                                 <input type="checkbox" x-model="checks.pacientes" class="form-checkbox h-5 w-5 text-[#0061F5] rounded border-gray-300 focus:ring-[#0061F5]">
-                                <span class="text-[#1E293B] font-bold">Ya he registrado pacientes</span>
+                                <span class="text-[#1E293B] font-bold">{{ __('wizard.step4.checkbox_label') }}</span>
                             </label>
                         </div>
                     </div>
 
-                    <!-- Step 5: Usuarios (Opcional) -->
                     <div x-show="currentStep === 5" class="p-8" x-transition>
                         <div class="text-center mb-8">
-                            <h2 class="text-2xl font-bold text-[#1E293B]">Equipo de Trabajo (Opcional)</h2>
-                            <p class="text-gray-500 mt-2">Si tu plan lo permite, agrega asistentes o secretarias.</p>
+                            <h2 class="text-2xl font-bold text-[#1E293B]">{{ __('wizard.step5.title') }}</h2>
+                            <p class="text-gray-500 mt-2">{{ __('wizard.step5.subtitle') }}</p>
                         </div>
 
                          <div class="bg-[#F8FAFC] p-6 rounded-xl border border-gray-200 mb-6 max-w-2xl mx-auto hover:shadow-md transition-shadow">
                             <div class="flex justify-between items-center mb-4">
-                                <h3 class="font-bold text-lg text-[#0061F5]"><i class="fas fa-users mr-2"></i> Usuarios del Sistema</h3>
+                                <h3 class="font-bold text-lg text-[#0061F5]"><i class="fas fa-users mr-2"></i> {{ __('wizard.step5.card_title') }}</h3>
                                 <span class="text-sm font-bold bg-[#E6F0FF] text-[#0061F5] px-3 py-1 rounded-full">
                                     <span x-text="actuales.usuarios"></span> / <span x-text="limites.usuarios"></span>
                                 </span>
                             </div>
-                            <p class="text-sm text-[#1E293B] mb-6">Puedes crear cuentas para tu personal de apoyo.</p>
+                            <p class="text-sm text-[#1E293B] mb-6">{{ __('wizard.step5.card_description') }}</p>
                             
                              <div class="space-y-3">
                                  <template x-if="actuales.usuarios < limites.usuarios">
                                     <a href="{{ route('users.index') }}" target="_blank" class="block w-full py-3 bg-white border-2 border-dashed border-[#0061F5] text-[#0061F5] rounded-lg hover:bg-[#E6F0FF] hover:text-[#0051CC] transition-all text-center font-bold">
-                                        <i class="fas fa-external-link-alt mr-2"></i> Gestionar Usuarios
+                                        <i class="fas fa-external-link-alt mr-2"></i> {{ __('wizard.step5.manage') }}
                                     </a>
                                 </template>
                                 
                                 <template x-if="actuales.usuarios >= limites.usuarios">
                                     <div class="w-full py-3 bg-gray-100 border border-gray-200 text-gray-500 rounded-lg text-center text-sm font-medium">
-                                        <i class="fas fa-info-circle mr-1 text-[#FA7427]"></i> Límite de usuarios alcanzado
+                                        <i class="fas fa-info-circle mr-1 text-[#FA7427]"></i> {{ __('wizard.step5.limit_reached') }}
                                     </div>
                                 </template>
 
                                 <template x-if="actuales.usuarios > 0 || actuales.usuarios >= limites.usuarios">
                                     <a href="{{ route('users.index') }}" target="_blank" class="block w-full py-2.5 bg-[#0061F5] text-white rounded-lg hover:bg-[#0051CC] transition-colors text-center font-bold shadow-sm">
-                                        <i class="fas fa-edit mr-2"></i> Ver Mis Usuarios
+                                        <i class="fas fa-edit mr-2"></i> {{ __('wizard.step5.view') }}
                                     </a>
                                 </template>
                             </div>
                         </div>
                     </div>
 
-                    <!-- Footer Navigation -->
                     <div class="bg-gray-50 px-8 py-5 flex justify-between items-center border-t border-gray-100">
                         <button @click="currentStep--" 
                                 x-show="currentStep > 1"
                                 class="px-6 py-2 border border-gray-300 text-gray-700 rounded-md font-medium hover:bg-gray-100 transition-colors">
-                            Atrás
+                            {{ __('wizard.buttons.back') }}
                         </button>
                         <div class="flex-grow"></div>
                         <button @click="nextStep()" 
                                 class="px-8 py-2.5 bg-[#0061F5] text-white rounded-md font-bold hover:bg-[#0051CC] transition-colors shadow-md flex items-center">
-                            <span x-text="currentStep === 5 ? 'Finalizar Configuración' : 'Siguiente Paso'"></span>
+                            <span x-text="currentStep === 5 ? '{{ __('wizard.buttons.finish') }}' : '{{ __('wizard.buttons.next') }}'"></span>
                             <i x-show="currentStep < 5" class="fas fa-arrow-right ml-2"></i>
                             <i x-show="currentStep === 5" class="fas fa-check ml-2"></i>
                         </button>
@@ -267,82 +260,78 @@
                     <!-- Modal Content -->
                     <div class="relative z-50 inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
                         <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
-                            <h3 class="text-lg leading-6 font-medium text-gray-900 mb-4" x-text="'Agregar ' + (activeModal === 'clinica' ? 'Clínica' : 'Consultorio')"></h3>
+                            <h3 class="text-lg leading-6 font-medium text-gray-900 mb-4" x-text="activeModal === 'clinica' ? '{{ __('wizard.modals.add_clinica') }}' : '{{ __('wizard.modals.add_consultorio') }}'"></h3>
                             
-                            <!-- Form Clinica -->
                             <div x-show="activeModal === 'clinica'" class="space-y-4">
                                 <div>
-                                    <label class="block text-sm font-medium text-gray-700">Nombre de la Clínica</label>
+                                    <label class="block text-sm font-medium text-gray-700">{{ __('wizard.modals.clinica.name_label') }}</label>
                                     <input type="text" x-model="formData.clinica.nombre" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-[#0061F5] focus:ring-[#0061F5] sm:text-sm">
                                 </div>
                                 <div>
-                                    <label class="block text-sm font-medium text-gray-700">Dirección</label>
-                                    <input x-ref="clinicaAddress" type="text" x-model="formData.clinica.direccion" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-[#0061F5] focus:ring-[#0061F5] sm:text-sm" placeholder="Escribe la dirección para buscar...">
+                                    <label class="block text-sm font-medium text-gray-700">{{ __('wizard.modals.clinica.address_label') }}</label>
+                                    <input x-ref="clinicaAddress" type="text" x-model="formData.clinica.direccion" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-[#0061F5] focus:ring-[#0061F5] sm:text-sm" placeholder="{{ __('wizard.modals.clinica.address_placeholder') }}">
                                 </div>
                                 
                                 @if(Auth::user()->hasRole('root') || Auth::user()->active_package_type === 'clinica')
-                                <!-- Map Container -->
                                 <div class="h-64 w-full rounded-lg border border-gray-300 overflow-hidden">
                                     <div x-ref="clinicaMap" class="w-full h-full"></div>
                                 </div>
                                 @endif
 
                                 <div>
-                                    <label class="block text-sm font-medium text-gray-700">Teléfono</label>
+                                    <label class="block text-sm font-medium text-gray-700">{{ __('wizard.modals.clinica.phone_label') }}</label>
                                     <input type="text" x-model="formData.clinica.telefono" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-[#0061F5] focus:ring-[#0061F5] sm:text-sm">
                                 </div>
 
                                 <div>
-                                    <label class="block text-sm font-medium text-gray-700">Detalles de Ubicación (Opcional)</label>
+                                    <label class="block text-sm font-medium text-gray-700">{{ __('wizard.modals.clinica.location_label') }}</label>
                                     <textarea x-model="formData.clinica.ubicacion" rows="2" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-[#0061F5] focus:ring-[#0061F5] sm:text-sm"></textarea>
                                 </div>
 
                                 @role('root')
                                 <div class="flex items-center">
                                     <input type="checkbox" x-model="formData.clinica.activo" class="rounded border-gray-300 text-[#0061F5] shadow-sm focus:border-[#0061F5] focus:ring-[#0061F5]">
-                                    <label class="ml-2 block text-sm font-medium text-gray-700">Activo</label>
+                                    <label class="ml-2 block text-sm font-medium text-gray-700">{{ __('wizard.modals.clinica.active_label') }}</label>
                                 </div>
                                 @endrole
                             </div>
 
-                            <!-- Form Consultorio -->
                             <div x-show="activeModal === 'consultorio'" class="space-y-4">
                                 <div>
-                                    <label class="block text-sm font-medium text-gray-700">Nombre del Consultorio</label>
+                                    <label class="block text-sm font-medium text-gray-700">{{ __('wizard.modals.consultorio.name_label') }}</label>
                                     <input type="text" x-model="formData.consultorio.nombre" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-[#0061F5] focus:ring-[#0061F5] sm:text-sm">
                                 </div>
                                 <div>
-                                    <label class="block text-sm font-medium text-gray-700">Dirección (Opcional)</label>
-                                    <input x-ref="consultorioAddress" type="text" x-model="formData.consultorio.direccion" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-[#0061F5] focus:ring-[#0061F5] sm:text-sm" placeholder="Escribe la dirección para buscar...">
+                                    <label class="block text-sm font-medium text-gray-700">{{ __('wizard.modals.consultorio.address_label') }}</label>
+                                    <input x-ref="consultorioAddress" type="text" x-model="formData.consultorio.direccion" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-[#0061F5] focus:ring-[#0061F5] sm:text-sm" placeholder="{{ __('wizard.modals.consultorio.address_placeholder') }}">
                                 </div>
                                 
                                 @if(Auth::user()->hasRole('root') || Auth::user()->active_package_type === 'consultorio')
-                                <!-- Map Container -->
                                 <div class="h-64 w-full rounded-lg border border-gray-300 overflow-hidden">
                                     <div x-ref="consultorioMap" class="w-full h-full"></div>
                                 </div>
                                 @endif
 
                                 <div>
-                                    <label class="block text-sm font-medium text-gray-700">Teléfono</label>
+                                    <label class="block text-sm font-medium text-gray-700">{{ __('wizard.modals.consultorio.phone_label') }}</label>
                                     <input type="text" x-model="formData.consultorio.telefono" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-[#0061F5] focus:ring-[#0061F5] sm:text-sm">
                                 </div>
 
                                 @role('root')
                                 <div class="flex items-center">
                                     <input type="checkbox" x-model="formData.consultorio.activo" class="rounded border-gray-300 text-[#0061F5] shadow-sm focus:border-[#0061F5] focus:ring-[#0061F5]">
-                                    <label class="ml-2 block text-sm font-medium text-gray-700">Activo</label>
+                                    <label class="ml-2 block text-sm font-medium text-gray-700">{{ __('wizard.modals.consultorio.active_label') }}</label>
                                 </div>
                                 @endrole
                             </div>
                         </div>
                         <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
                             <button type="button" @click="submitForm()" class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-[#0061F5] text-base font-medium text-white hover:bg-[#0051CC] focus:outline-none sm:ml-3 sm:w-auto sm:text-sm" :disabled="loading">
-                                <span x-show="!loading">Guardar</span>
+                                <span x-show="!loading">{{ __('wizard.modals.save') }}</span>
                                 <span x-show="loading"><i class="fas fa-spinner fa-spin"></i></span>
                             </button>
                             <button type="button" class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm" @click="modalOpen = false" :disabled="loading">
-                                Cancelar
+                                {{ __('wizard.modals.cancel') }}
                             </button>
                         </div>
                     </div>
@@ -360,11 +349,11 @@
             return {
                 currentStep: 1,
                 steps: [
-                    { label: 'Infraestructura', icon: 'hospital' },
-                    { label: 'Horarios', icon: 'clock' },
-                    { label: 'Plantillas', icon: 'file-medical' },
-                    { label: 'Pacientes', icon: 'user-injured' },
-                    { label: 'Equipo', icon: 'users' }
+                    { label: '{{ __('wizard.stepper.step1') }}', icon: 'hospital' },
+                    { label: '{{ __('wizard.stepper.step2') }}', icon: 'clock' },
+                    { label: '{{ __('wizard.stepper.step3') }}', icon: 'file-medical' },
+                    { label: '{{ __('wizard.stepper.step4') }}', icon: 'user-injured' },
+                    { label: '{{ __('wizard.stepper.step5') }}', icon: 'users' }
                 ],
                 actuales: actualesData,
                 limites: limitesData,

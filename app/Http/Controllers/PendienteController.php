@@ -72,7 +72,7 @@ class PendienteController extends Controller
 
         Pendiente::create($validated);
 
-        return redirect()->route('pendientes.index')->with('success', 'Recordatorio creado correctamente.');
+        return redirect()->route('pendientes.index')->with('success', __('pendientes.messages.created_success'));
     }
 
     /**
@@ -117,7 +117,7 @@ class PendienteController extends Controller
 
         $pendiente->update($validated);
 
-        return redirect()->route('pendientes.index')->with('success', 'Recordatorio actualizado correctamente.');
+        return redirect()->route('pendientes.index')->with('success', __('pendientes.messages.updated_success'));
     }
 
     /**
@@ -136,6 +136,6 @@ class PendienteController extends Controller
 
         $pendiente->delete();
 
-        return redirect()->route('pendientes.index')->with('success', 'Recordatorio eliminado correctamente.');
+        return redirect()->route('pendientes.index')->with('success', __('pendientes.messages.deleted_success'));
     }
 }

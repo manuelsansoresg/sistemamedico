@@ -42,7 +42,7 @@ class EspecialidadController extends Controller
             'activo' => $request->has('activo'),
         ]);
 
-        return redirect()->route('especialidades.index')->with('success', 'Especialidad creada exitosamente.');
+        return redirect()->route('especialidades.index')->with('success', __('especialidades.messages.created_success'));
     }
 
     /**
@@ -70,7 +70,7 @@ class EspecialidadController extends Controller
             'activo' => $request->has('activo'),
         ]);
 
-        return redirect()->route('especialidades.index')->with('success', 'Especialidad actualizada exitosamente.');
+        return redirect()->route('especialidades.index')->with('success', __('especialidades.messages.updated_success'));
     }
 
     /**
@@ -80,6 +80,6 @@ class EspecialidadController extends Controller
     {
         $especialidad->delete();
 
-        return redirect()->route('especialidades.index')->with('success', 'Especialidad eliminada exitosamente.');
+        return redirect()->route('especialidades.index')->with('success', __('especialidades.messages.deleted_success'));
     }
 }

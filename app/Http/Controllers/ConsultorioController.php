@@ -54,7 +54,7 @@ class ConsultorioController extends Controller
         $owner = $user->hasRole('doctor') ? $user : \App\Models\User::find($user->created_by);
 
         if (! $this->subscriptionService->canCreate($owner, 'consultorio')) {
-            return redirect()->back()->with('error', 'Ha alcanzado el límite de consultorios permitidos por su suscripción.');
+            return redirect()->back()->with('error', __('consultorios.errors.subscription_limit_reached'));
         }
 
         $request->validate([
@@ -84,7 +84,7 @@ class ConsultorioController extends Controller
             $consultorio->users()->syncWithoutDetaching([$owner->id]);
         }
 
-        return redirect()->route('consultorios.index')->with('success', 'Consultorio creado exitosamente.');
+        return redirect()->route('consultorios.index')->with('success', __('consultorios.messages.created_success'));
     }
 
     /**
@@ -118,7 +118,7 @@ class ConsultorioController extends Controller
             'activo' => $request->has('activo'),
         ]);
 
-        return redirect()->route('consultorios.index')->with('success', 'Consultorio actualizado exitosamente.');
+        return redirect()->route('consultorios.index')->with('success', __('consultorios.messages.updated_success'));
     }
 
     /**
@@ -128,6 +128,6 @@ class ConsultorioController extends Controller
     {
         $consultorio->delete();
 
-        return redirect()->route('consultorios.index')->with('success', 'Consultorio eliminado exitosamente.');
+        return redirect()->route('consultorios.index')->with('success', __('consultorios.messages.deleted_success'));
     }
 }

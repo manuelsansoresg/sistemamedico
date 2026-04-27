@@ -7,36 +7,35 @@
                     <li class="inline-flex items-center">
                         <a href="{{ route('admin.dashboard') }}" class="inline-flex items-center text-sm font-medium text-gray-700 hover:text-[#0061F5]">
                             <i class="fas fa-home mr-2"></i>
-                            Inicio
+                            {{ __('dashboard.title') }}
                         </a>
                     </li>
                     <li>
                         <div class="flex items-center">
                             <i class="fas fa-chevron-right text-gray-400 mx-1"></i>
-                            <a href="{{ route('admin.suscripciones.index') }}" class="ml-1 text-sm font-medium text-gray-700 hover:text-[#0061F5] md:ml-2">Suscripciones</a>
+                            <a href="{{ route('admin.suscripciones.index') }}" class="ml-1 text-sm font-medium text-gray-700 hover:text-[#0061F5] md:ml-2">{{ __('subscriptions.title') }}</a>
                         </div>
                     </li>
                     <li aria-current="page">
                         <div class="flex items-center">
                             <i class="fas fa-chevron-right text-gray-400 mx-1"></i>
-                            <span class="ml-1 text-sm font-medium text-gray-500 md:ml-2">Detalle #{{ $suscripcion->id }}</span>
+                            <span class="ml-1 text-sm font-medium text-gray-500 md:ml-2">{{ __('subscriptions.breadcrumbs.detail', ['id' => $suscripcion->id]) }}</span>
                         </div>
                     </li>
                 </ol>
             </nav>
 
             <div class="mb-6">
-                <h2 class="text-xl font-bold text-gray-800">Detalles de Suscripción #{{ $suscripcion->id }}</h2>
+                <h2 class="text-xl font-bold text-gray-800">{{ __('subscriptions.details.title', ['id' => $suscripcion->id]) }}</h2>
             </div>
             
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <!-- Información del Usuario y Paquete -->
                 <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                     <div class="p-6 bg-white border-b border-gray-200">
-                        <h3 class="text-lg font-medium text-gray-900 mb-4">Información General</h3>
+                        <h3 class="text-lg font-medium text-gray-900 mb-4">{{ __('common.info') }}</h3>
                         <dl class="grid grid-cols-1 gap-x-4 gap-y-6 sm:grid-cols-2">
                             <div class="sm:col-span-1">
-                                <dt class="text-sm font-medium text-gray-500">Usuario</dt>
+                                <dt class="text-sm font-medium text-gray-500">{{ __('common.user') }}</dt>
                                 <dd class="mt-1 text-sm text-gray-900">
                                     <form action="{{ route('admin.suscripciones.update', $suscripcion) }}" method="POST" class="flex items-center gap-2">
                                         @csrf
@@ -49,26 +48,26 @@
                                             @endforeach
                                         </select>
                                         <button type="submit" class="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md text-white bg-[#0061F5] hover:bg-[#0051CC] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#0061F5]">
-                                            Guardar
+                                            {{ __('common.buttons.save') }}
                                         </button>
                                     </form>
                                 </dd>
                             </div>
                             <div class="sm:col-span-1">
-                                <dt class="text-sm font-medium text-gray-500">Email</dt>
+                                <dt class="text-sm font-medium text-gray-500">{{ __('common.email') }}</dt>
                                 <dd class="mt-1 text-sm text-gray-900">{{ $suscripcion->user->email }}</dd>
                             </div>
                             <div class="sm:col-span-1">
-                                <dt class="text-sm font-medium text-gray-500">Cédula Profesional</dt>
+                                <dt class="text-sm font-medium text-gray-500">{{ __('common.professional_id') }}</dt>
                                 <dd class="mt-1 text-sm text-gray-900">{{ $suscripcion->user->cedula_profesional }}</dd>
                             </div>
                             <div class="sm:col-span-1">
-                                <dt class="text-sm font-medium text-gray-500">Paquete / Servicio</dt>
+                                <dt class="text-sm font-medium text-gray-500">{{ __('subscriptions.details.service_package') }}</dt>
                                 <dd class="mt-1 text-sm text-gray-900">
                                     @if($suscripcion->tipo == 'paquete')
-                                        {{ optional($suscripcion->paquete)->nombre ?? 'Paquete no encontrado' }}
+                                        {{ optional($suscripcion->paquete)->nombre ?? __('subscriptions.details.package_not_found') }}
                                     @else
-                                        {{ optional($suscripcion->catalogo)->nombre ?? 'Servicio no encontrado' }}
+                                        {{ optional($suscripcion->catalogo)->nombre ?? __('subscriptions.details.service_not_found') }}
                                         @if($suscripcion->cantidad > 1)
                                             <span class="text-xs text-gray-500">(x{{ $suscripcion->cantidad }})</span>
                                         @endif
@@ -76,12 +75,12 @@
                                 </dd>
                             </div>
                              <div class="sm:col-span-1">
-                                <dt class="text-sm font-medium text-gray-500">Precio</dt>
+                                <dt class="text-sm font-medium text-gray-500">{{ __('common.price') }}</dt>
                                 <dd class="mt-1 text-sm text-gray-900">${{ number_format($suscripcion->precio, 2) }}</dd>
                             </div>
                              <div class="sm:col-span-1">
-                                <dt class="text-sm font-medium text-gray-500">Método de Pago</dt>
-                                <dd class="mt-1 text-sm text-gray-900">{{ ucfirst($suscripcion->metodo_pago) }}</dd>
+                                <dt class="text-sm font-medium text-gray-500">{{ __('common.payment_method') }}</dt>
+                                <dd class="mt-1 text-sm text-gray-900">{{ trans_enum('subscriptions.payment_methods_db.'.$suscripcion->metodo_pago, ucfirst($suscripcion->metodo_pago)) }}</dd>
                             </div>
                         </dl>
                     </div>
@@ -90,41 +89,41 @@
                 <!-- Gestión de Pago -->
                 <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                     <div class="p-6 bg-white border-b border-gray-200">
-                        <h3 class="text-lg font-medium text-gray-900 mb-4">Estado del Pago</h3>
+                        <h3 class="text-lg font-medium text-gray-900 mb-4">{{ __('subscriptions.columns.status') }}</h3>
                         
                         <form action="{{ route('admin.suscripciones.update', $suscripcion) }}" method="POST" class="mb-6">
                             @csrf
                             @method('PUT')
                             <div class="flex items-end gap-4">
                                 <div class="flex-1">
-                                    <label for="estatus_pago" class="block text-sm font-medium text-gray-700">Estatus Actual</label>
+                                    <label for="estatus_pago" class="block text-sm font-medium text-gray-700">{{ __('common.status') }}</label>
                                     <select id="estatus_pago" name="estatus_pago" class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
-                                        <option value="pendiente" {{ $suscripcion->estatus_pago == 'pendiente' ? 'selected' : '' }}>Pendiente</option>
-                                        <option value="pagado" {{ $suscripcion->estatus_pago == 'pagado' ? 'selected' : '' }}>Pagado</option>
-                                        <option value="rechazado" {{ $suscripcion->estatus_pago == 'rechazado' ? 'selected' : '' }}>Rechazado</option>
-                                        <option value="cancelado" {{ $suscripcion->estatus_pago == 'cancelado' ? 'selected' : '' }}>Cancelado</option>
+                                        <option value="pendiente" {{ $suscripcion->estatus_pago == 'pendiente' ? 'selected' : '' }}>{{ __('subscriptions.payment_statuses.pendiente') }}</option>
+                                        <option value="pagado" {{ $suscripcion->estatus_pago == 'pagado' ? 'selected' : '' }}>{{ __('subscriptions.payment_statuses.pagado') }}</option>
+                                        <option value="rechazado" {{ $suscripcion->estatus_pago == 'rechazado' ? 'selected' : '' }}>{{ __('subscriptions.payment_statuses.rechazado') }}</option>
+                                        <option value="cancelado" {{ $suscripcion->estatus_pago == 'cancelado' ? 'selected' : '' }}>{{ __('subscriptions.payment_statuses.cancelado') }}</option>
                                     </select>
                                 </div>
                                 <button type="submit" class="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white hover:bg-[#0051CC] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#0061F5] bg-[#0061F5]">
-                                    Actualizar
+                                    {{ __('common.buttons.update') }}
                                 </button>
                             </div>
                         </form>
 
                         <div class="mt-6 border-t pt-4">
-                            <h4 class="text-sm font-medium text-gray-900 mb-2">Acceso al Sistema</h4>
+                            <h4 class="text-sm font-medium text-gray-900 mb-2">{{ __('subscriptions.sections.active') }}</h4>
                             <form action="{{ route('admin.suscripciones.update', $suscripcion) }}" method="POST">
                                 @csrf
                                 @method('PUT')
                                 <div class="flex items-center justify-between">
-                                    <span class="text-sm text-gray-700">Permitir acceso al usuario (Activar Cuenta)</span>
+                                    <span class="text-sm text-gray-700">{{ __('subscriptions.sections.active') }}</span>
                                     <div class="flex items-center gap-2">
                                         <!-- Hidden input for false value when unchecked -->
                                         <input type="hidden" name="user_activo" value="0">
                                         <label for="user_activo_toggle" class="flex items-center cursor-pointer relative">
                                             <input type="checkbox" id="user_activo_toggle" name="user_activo" value="1" class="sr-only" {{ $suscripcion->user->activo ? 'checked' : '' }} onchange="this.form.submit()">
                                             <div class="w-11 h-6 bg-gray-200 rounded-full border border-gray-200 toggle-bg"></div>
-                                            <span class="ml-3 text-sm font-medium text-gray-900">{{ $suscripcion->user->activo ? 'Activo' : 'Inactivo' }}</span>
+                                            <span class="ml-3 text-sm font-medium text-gray-900">{{ $suscripcion->user->activo ? __('status.active') : __('status.inactive') }}</span>
                                         </label>
                                     </div>
                                 </div>
@@ -155,19 +154,19 @@
 
                         @if($suscripcion->comprobante_pago)
                             <div class="mt-6 border-t pt-4">
-                                <h4 class="text-sm font-medium text-gray-900 mb-2">Comprobante de Pago</h4>
+                                <h4 class="text-sm font-medium text-gray-900 mb-2">{{ __('subscriptions.details.payment_voucher_title') }}</h4>
                                 <div class="flex items-center gap-4">
                                     <a href="{{ route('admin.suscripciones.download_comprobante', $suscripcion) }}" class="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#0061F5]">
                                         <svg class="-ml-1 mr-2 h-5 w-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
                                         </svg>
-                                        Descargar Comprobante
+                                        {{ __('common.voucher') }}
                                     </a>
                                 </div>
                             </div>
                         @else
                             <div class="mt-6 border-t pt-4">
-                                <p class="text-sm text-gray-500 italic">No se ha subido comprobante de pago.</p>
+                                <p class="text-sm text-gray-500 italic">{{ __('common.no_data') }}</p>
                             </div>
                         @endif
                     </div>
@@ -177,11 +176,11 @@
                 @if($suscripcion->user->hasRole('doctor'))
                 <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg md:col-span-2">
                     <div class="p-6 bg-white border-b border-gray-200">
-                        <h3 class="text-lg font-medium text-gray-900 mb-4">Validación de Cédula Profesional</h3>
+                        <h3 class="text-lg font-medium text-gray-900 mb-4">{{ __('common.professional_id') }}</h3>
                         
                         <div class="flex items-center justify-between bg-gray-50 p-4 rounded-lg">
                             <div>
-                                <p class="text-sm font-medium text-gray-500">Estatus Actual</p>
+                                <p class="text-sm font-medium text-gray-500">{{ __('common.status') }}</p>
                                 @php
                                     $cedulaColor = match($suscripcion->user->estatus_cedula) {
                                         'validada' => 'green',
@@ -191,27 +190,27 @@
                                     };
                                 @endphp
                                 <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-{{ $cedulaColor }}-100 text-{{ $cedulaColor }}-800">
-                                    {{ ucfirst($suscripcion->user->estatus_cedula ?? 'N/A') }}
+                                    {{ $suscripcion->user->estatus_cedula ? __('status.'.$suscripcion->user->estatus_cedula) : 'N/A' }}
                                 </span>
                             </div>
 
                             <form action="{{ route('admin.users.validar_cedula', $suscripcion->user) }}" method="POST" class="flex gap-4">
                                 <a href="https://cedulaprofesional.sep.gob.mx" target="_blank" class="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-[#0061F5] hover:bg-[#0061F5]/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#0061F5]">
-                                    Buscador de cédula profesional
+                                    {{ __('subscriptions.details.license_search') }}
                                 </a>
                                 @csrf
                                 <button type="submit" name="accion" value="validar" class="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500">
-                                    Validar
+                                    {{ __('subscriptions.details.validate') }}
                                 </button>
                                 <button type="submit" name="accion" value="rechazar" class="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500">
-                                    Rechazar
+                                    {{ __('subscriptions.details.reject') }}
                                 </button>
                             </form>
                         </div>
 
                         @if($suscripcion->user->cedula_profesional)
                             <div class="mt-4">
-                                <p class="text-sm text-gray-500 mb-2">Cédula proporcionada:</p>
+                                <p class="text-sm text-gray-500 mb-2">{{ __('subscriptions.details.provided_license') }}</p>
                                 <div class="bg-gray-100 p-3 rounded text-mono font-medium">
                                     {{ $suscripcion->user->cedula_profesional }}
                                 </div>

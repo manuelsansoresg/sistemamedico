@@ -1,0 +1,64 @@
+<?php
+
+return [
+    'title' => 'USER LIST',
+    'columns' => [
+        'name_email' => 'NAME / EMAIL',
+        'role' => 'ROLE',
+        'clinics' => 'CLINICS',
+        'consultorios' => 'OFFICES',
+        'actions' => 'ACTIONS',
+    ],
+    'create' => 'CREATE USER',
+    'edit' => 'EDIT USER',
+    'breadcrumbs' => [
+        'index' => 'USERS',
+        'create' => 'CREATE',
+        'edit' => 'EDIT',
+    ],
+    'sections' => [
+        'personal_info' => 'Personal Information',
+        'account_info' => 'Account Information',
+        'role_assignments' => 'Role & Assignments',
+    ],
+    'fields' => [
+        'name' => 'Name',
+        'last_name' => 'Last Name',
+        'mother_last_name' => 'Mother Last Name',
+        'photo' => 'Profile Photo',
+        'email' => 'Email',
+        'password' => 'Password',
+        'password_confirmation' => 'Confirm Password',
+        'role' => 'Role',
+        'clinics' => 'Clinics',
+        'consultorios' => 'Offices',
+        'phone' => 'Phone',
+        'specialty' => 'Specialty',
+        'professional_id' => 'Professional ID',
+        'user_role' => 'User Role',
+    ],
+    'help' => [
+        'keep_password' => 'Leave blank to keep current.',
+        'cannot_edit_own_role' => "You can't modify your own role.",
+        'select_clinics_access' => 'Select the clinics this user will have access to.',
+        'select_offices_access' => 'Select the offices this user will have access to.',
+        'download_permissions' => 'Download Permissions (Records)',
+        'select_download_permissions' => 'Select the download permissions for this user.',
+    ],
+    'messages' => [
+        'created_success' => 'User created successfully.',
+        'updated_success' => 'User updated successfully.',
+        'deleted_success' => 'User deleted successfully.',
+    ],
+    'errors' => [
+        'cannot_assign_role' => 'You do not have permission to assign this role.',
+        'subscription_limit_reached' => 'You have reached the limit of users allowed by your subscription.',
+        'cannot_edit_doctor' => 'You do not have permission to edit the doctor.',
+        'cannot_delete_self' => 'You cannot delete your own user.',
+        'cannot_delete_user' => 'You do not have permission to delete this user.',
+        'cannot_delete_owner_doctor' => 'You do not have permission to delete the primary doctor.',
+    ],
+    'logs' => [
+        'profile_photo_process_failed' => 'Could not process the profile photo',
+    ],
+];

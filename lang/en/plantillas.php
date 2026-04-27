@@ -1,0 +1,65 @@
+<?php
+
+return [
+    'title' => 'Templates List',
+    'columns' => [
+        'name' => 'NAME',
+        'type' => 'TYPE',
+        'fields' => 'FIELDS',
+        'actions' => 'ACTIONS',
+        'created_at' => 'CREATED AT',
+        'assigned_doctor' => 'ASSIGNED DOCTOR',
+        'created_by' => 'CREATED BY',
+    ],
+    'create' => 'Create Template',
+    'edit' => 'Edit Template',
+    'fields' => [
+        'name' => 'Name',
+        'type' => 'Type',
+        'description' => 'Description',
+    ],
+    'types' => [
+        'consulta' => 'Consultation',
+        'estudio' => 'Study',
+        'receta' => 'Prescription',
+    ],
+    'messages' => [
+        'created_success' => 'Template created successfully.',
+        'updated_success' => 'Template updated successfully.',
+        'deleted_success' => 'Template deleted successfully.',
+    ],
+    'errors' => [
+        'no_permission_access' => 'You do not have permission to access templates.',
+        'select_doctor' => 'You must select a doctor.',
+        'unauthorized' => 'Unauthorized.',
+    ],
+    'confirm' => [
+        'delete' => 'Are you sure you want to delete this template?',
+    ],
+    'empty' => 'No templates found.',
+    'form' => [
+        'new_title' => 'New Template',
+        'edit_title' => 'Edit Template',
+        'template_name' => 'Template Name',
+        'assign_doctor' => 'Assign to Doctor',
+        'select_doctor_placeholder' => 'Select a doctor...',
+        'fields_title' => 'Template Fields',
+        'field_delete' => 'Delete field',
+        'field_name' => 'Field Name',
+        'field_name_placeholder' => 'e.g., Reason for Visit',
+        'field_type' => 'Field Type',
+        'types' => [
+            'text' => 'Short Text',
+            'textarea' => 'Text Area',
+            'date' => 'Date',
+            'select' => 'Select',
+        ],
+        'options_label' => 'Options (comma-separated)',
+        'options_placeholder' => 'Option 1, Option 2, Option 3',
+        'options_help' => 'Enter values separated by commas.',
+        'required' => 'Required',
+        'add_field' => 'Add Field',
+        'save' => 'Save Template',
+        'update' => 'Update Template',
+    ],
+];

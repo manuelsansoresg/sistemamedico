@@ -33,7 +33,7 @@ class ConsultaController extends Controller
 
         // Security check: only doctor of the appointment or root can start it
         if ($user->hasRole('doctor') && $cita->doctor_id !== $user->id) {
-            abort(403, 'No tiene permiso para iniciar esta consulta.');
+            abort(403, __('consultas.errors.no_permission_start'));
         }
 
         // Get Plantillas (Templates)
@@ -172,12 +172,12 @@ class ConsultaController extends Controller
             DB::commit();
 
             return redirect()->route('consultas.create', ['cita_id' => $consulta->cita_id])
-                ->with('success', 'Consulta actualizada correctamente.');
+                ->with('success', __('consultas.messages.updated_success'));
 
         } catch (\Exception $e) {
             DB::rollBack();
 
-            return back()->with('error', 'Error al actualizar la consulta: '.$e->getMessage());
+            return back()->with('error', __('consultas.errors.update_failed', ['error' => $e->getMessage()]));
         }
     }
 
@@ -252,7 +252,7 @@ class ConsultaController extends Controller
             }
         }
 
-        return back()->with('success', 'Orden de estudio actualizada correctamente.');
+        return back()->with('success', __('consultas.studies.messages.updated_success'));
     }
 
     public function destroyEstudio(Estudio $estudio)
@@ -278,9 +278,9 @@ class ConsultaController extends Controller
 
             $estudio->delete();
 
-            return redirect()->route('consultas.create', ['cita_id' => $citaId])->with('success', 'Orden de estudio eliminada correctamente.');
+            return redirect()->route('consultas.create', ['cita_id' => $citaId])->with('success', __('consultas.studies.messages.deleted_success'));
         } catch (\Exception $e) {
-            return back()->with('error', 'Error al eliminar la orden de estudio.');
+            return back()->with('error', __('consultas.studies.errors.delete_failed'));
         }
     }
 
@@ -313,7 +313,7 @@ class ConsultaController extends Controller
             }
         }
 
-        return back()->with('success', "$uploadedCount archivos subidos correctamente.");
+        return back()->with('success', __('consultas.studies.messages.files_uploaded', ['count' => $uploadedCount]));
     }
 
     public function destroyEstudioArchivo(EstudioArchivo $archivo)
@@ -333,9 +333,9 @@ class ConsultaController extends Controller
             $this->deleteEstudioFileFromPublic($archivo->path);
             $archivo->delete();
 
-            return back()->with('success', 'Archivo de estudio eliminado correctamente.');
+            return back()->with('success', __('consultas.studies.messages.file_deleted_success'));
         } catch (\Exception $e) {
-            return back()->with('error', 'Error al eliminar el archivo de estudio.');
+            return back()->with('error', __('consultas.studies.errors.file_delete_failed'));
         }
     }
 
@@ -398,12 +398,12 @@ class ConsultaController extends Controller
             DB::commit();
 
             return redirect()->route('consultas.create', ['cita_id' => $cita->id])
-                ->with('success', 'Consulta guardada correctamente.');
+                ->with('success', __('consultas.messages.created_success'));
 
         } catch (\Exception $e) {
             DB::rollBack();
 
-            return back()->with('error', 'Error al guardar la consulta: '.$e->getMessage());
+            return back()->with('error', __('consultas.errors.create_failed', ['error' => $e->getMessage()]));
         }
     }
 
@@ -439,7 +439,7 @@ class ConsultaController extends Controller
             }
         }
 
-        return back()->with('success', 'Orden de estudio guardada correctamente.');
+        return back()->with('success', __('consultas.studies.messages.created_success'));
     }
 
     private function storeEstudioFileToPublic($file, Estudio $estudio)
@@ -566,11 +566,11 @@ class ConsultaController extends Controller
             $consulta->delete();
             DB::commit();
 
-            return redirect()->route('consultas.create', ['cita_id' => $citaId])->with('success', 'Consulta eliminada correctamente.');
+            return redirect()->route('consultas.create', ['cita_id' => $citaId])->with('success', __('consultas.messages.deleted_success'));
         } catch (\Exception $e) {
             DB::rollBack();
 
-            return back()->with('error', 'Error al eliminar la consulta.');
+            return back()->with('error', __('consultas.errors.delete_failed'));
         }
     }
 }

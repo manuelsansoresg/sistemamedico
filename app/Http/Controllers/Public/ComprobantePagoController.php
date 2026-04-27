@@ -44,7 +44,7 @@ class ComprobantePagoController extends Controller
             return redirect()->route('suscripciones.comprobante_enviado', $token);
         }
 
-        return redirect()->back()->with('error', 'Hubo un problema al subir el archivo.');
+        return redirect()->back()->with('error', __('common.errors.file_upload_failed'));
     }
 
     public function enviado($token)

@@ -55,7 +55,7 @@ class ConfiguracionController extends Controller
             'aceptar_pagos_con_tarjeta' => $request->has('aceptar_pagos_con_tarjeta'),
         ]);
 
-        return redirect()->route('configuraciones.index')->with('success', 'Configuración creada exitosamente.');
+        return redirect()->route('configuraciones.index')->with('success', __('configuraciones.messages.created_success'));
     }
 
     /**
@@ -93,7 +93,7 @@ class ConfiguracionController extends Controller
             'aceptar_pagos_con_tarjeta' => $request->has('aceptar_pagos_con_tarjeta'),
         ]);
 
-        return redirect()->route('configuraciones.index')->with('success', 'Configuración actualizada exitosamente.');
+        return redirect()->route('configuraciones.index')->with('success', __('configuraciones.messages.updated_success'));
     }
 
     /**
@@ -103,6 +103,6 @@ class ConfiguracionController extends Controller
     {
         $configuracion->delete();
 
-        return redirect()->route('configuraciones.index')->with('success', 'Configuración eliminada exitosamente.');
+        return redirect()->route('configuraciones.index')->with('success', __('configuraciones.messages.deleted_success'));
     }
 }

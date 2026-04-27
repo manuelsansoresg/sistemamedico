@@ -91,7 +91,7 @@ class DiaSinCitaController extends Controller
                 ->count();
 
             if ($validConsultorios !== count($request->consultorios)) {
-                abort(403, 'No tiene permiso para asignar estos consultorios.');
+                abort(403, __('dias_sin_citas.errors.assign_offices_forbidden'));
             }
         }
 
@@ -107,7 +107,7 @@ class DiaSinCitaController extends Controller
 
         $diaSinCita->consultorios()->sync($request->consultorios);
 
-        return redirect()->route('dias-sin-citas.index')->with('success', 'Día sin citas registrado exitosamente.');
+        return redirect()->route('dias-sin-citas.index')->with('success', __('dias_sin_citas.messages.created_success'));
     }
 
     public function destroy(DiaSinCita $diaSinCita)
@@ -146,7 +146,7 @@ class DiaSinCitaController extends Controller
                         ->table('dias_sin_citas')->where('id', $id)->exists() : null;
 
                     return redirect()->route('dias-sin-citas.index')
-                        ->with('error', 'No se pudo eliminar el registro en la base de datos (ID: '.$id.', existe='.$exists.').');
+                        ->with('error', __('dias_sin_citas.errors.delete_db_failed', ['id' => $id, 'exists' => $exists]));
                 }
                 // Verificación y limpieza forzada en caso de que el borrado del modelo no haya surtido efecto
                 if ($id && \App\Models\DiaSinCita::on($conn)->withTrashed()->find($id)) {
@@ -157,7 +157,7 @@ class DiaSinCitaController extends Controller
                 }
 
                 return redirect()->route('dias-sin-citas.index', ['skip_id' => $id, 'r' => microtime(true)])
-                    ->with('success', 'Registro eliminado exitosamente.')
+                    ->with('success', __('dias_sin_citas.messages.deleted_success'))
                     ->with('last_deleted_id', $id);
             }
 
@@ -179,7 +179,7 @@ class DiaSinCitaController extends Controller
                             ->table('dias_sin_citas')->where('id', $id)->exists() : null;
 
                         return redirect()->route('dias-sin-citas.index')
-                            ->with('error', 'No se pudo eliminar el registro en la base de datos (ID: '.$id.', existe='.$exists.').');
+                            ->with('error', __('dias_sin_citas.errors.delete_db_failed', ['id' => $id, 'exists' => $exists]));
                     }
                     if ($id && \App\Models\DiaSinCita::on($conn)->withTrashed()->find($id)) {
                         \Illuminate\Support\Facades\DB::table('consultorio_dia_sin_cita')
@@ -189,7 +189,7 @@ class DiaSinCitaController extends Controller
                     }
 
                     return redirect()->route('dias-sin-citas.index', ['skip_id' => $id, 'r' => microtime(true)])
-                        ->with('success', 'Registro eliminado exitosamente.')
+                        ->with('success', __('dias_sin_citas.messages.deleted_success'))
                         ->with('last_deleted_id', $id);
                 }
 
@@ -202,7 +202,7 @@ class DiaSinCitaController extends Controller
                     ->exists();
 
                 if (! $affectsDoctorConsultorios) {
-                    abort(403, 'No tienes permiso para eliminar este registro.');
+                    abort(403, __('dias_sin_citas.errors.delete_forbidden'));
                 }
             }
 
@@ -218,7 +218,7 @@ class DiaSinCitaController extends Controller
                     ->table('dias_sin_citas')->where('id', $id)->exists() : null;
 
                 return redirect()->route('dias-sin-citas.index')
-                    ->with('error', 'No se pudo eliminar el registro en la base de datos (ID: '.$id.', existe='.$exists.').');
+                    ->with('error', __('dias_sin_citas.errors.delete_db_failed', ['id' => $id, 'exists' => $exists]));
             }
             if ($id && \App\Models\DiaSinCita::on($conn)->withTrashed()->find($id)) {
                 \Illuminate\Support\Facades\DB::table('consultorio_dia_sin_cita')
@@ -228,10 +228,10 @@ class DiaSinCitaController extends Controller
             }
 
             return redirect()->route('dias-sin-citas.index', ['skip_id' => $id, 'r' => microtime(true)])
-                ->with('success', 'Registro eliminado exitosamente.')
+                ->with('success', __('dias_sin_citas.messages.deleted_success'))
                 ->with('last_deleted_id', $id);
         } catch (\Throwable $e) {
-            return redirect()->route('dias-sin-citas.index')->with('error', 'Error al eliminar el registro.');
+            return redirect()->route('dias-sin-citas.index')->with('error', __('dias_sin_citas.errors.delete_failed'));
         }
     }
 }

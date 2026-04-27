@@ -87,7 +87,7 @@ class SuscripcionController extends Controller
                 ->exists();
 
             if ($activePackage) {
-                return back()->with('error', 'El usuario ya tiene un paquete activo. Solo se permite un paquete activo a la vez.');
+                return back()->with('error', __('subscriptions.errors.active_package_exists'));
             }
 
             $item = \App\Models\Paquete::findOrFail($itemId);
@@ -204,7 +204,7 @@ class SuscripcionController extends Controller
             }
         }
 
-        return redirect()->route('admin.suscripciones.index')->with('success', 'Suscripción creada correctamente.');
+        return redirect()->route('admin.suscripciones.index')->with('success', __('subscriptions.messages.created_success'));
     }
 
     /**
@@ -361,7 +361,7 @@ class SuscripcionController extends Controller
             }
         }
 
-        return redirect()->back()->with('success', 'Suscripción actualizada correctamente.');
+        return redirect()->back()->with('success', __('subscriptions.messages.updated_success'));
     }
 
     /**
@@ -370,7 +370,7 @@ class SuscripcionController extends Controller
     public function validarCedula(Request $request, User $user)
     {
         if (! $user->hasRole('doctor')) {
-            return back()->with('error', 'El usuario no es un doctor.');
+            return back()->with('error', __('subscriptions.errors.user_not_doctor'));
         }
 
         $request->validate([
@@ -382,12 +382,12 @@ class SuscripcionController extends Controller
                 'estatus_cedula' => 'validada',
                 'cedula_validada_at' => now(),
             ]);
-            $mensaje = 'Cédula validada correctamente. El doctor ya tiene acceso al panel.';
+            $mensaje = __('subscriptions.messages.license_validated');
         } else {
             $user->update([
                 'estatus_cedula' => 'rechazada',
             ]);
-            $mensaje = 'Cédula rechazada.';
+            $mensaje = __('subscriptions.messages.license_rejected');
         }
 
         $admin = Auth::user();
@@ -418,7 +418,7 @@ class SuscripcionController extends Controller
     public function downloadComprobante(Suscripcion $suscripcion)
     {
         if (! $suscripcion->comprobante_pago) {
-            return back()->with('error', 'No hay comprobante disponible.');
+            return back()->with('error', __('subscriptions.errors.no_voucher_available'));
         }
 
         // La ruta guardada es relativa a public (ej: "comprobantes/archivo.jpg")
@@ -434,7 +434,7 @@ class SuscripcionController extends Controller
             }
 
             if (! $downloadPath) {
-                return back()->with('error', 'El archivo no existe.');
+                return back()->with('error', __('subscriptions.errors.file_not_found'));
             }
         }
 

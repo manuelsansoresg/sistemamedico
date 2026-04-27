@@ -40,19 +40,19 @@
                     <li class="inline-flex items-center">
                         <a href="{{ route('dashboard') }}" class="inline-flex items-center text-sm font-medium text-gray-700 hover:text-[#0061F5]">
                             <i class="fas fa-home mr-2"></i>
-                            Inicio
+                            {{ __('compras.breadcrumbs.home') }}
                         </a>
                     </li>
                     <li aria-current="page">
                         <div class="flex items-center">
                             <i class="fas fa-chevron-right text-gray-400 mx-1"></i>
-                            <span class="ml-1 text-sm font-medium text-gray-700 md:ml-2">Suscripciones</span>
+                            <span class="ml-1 text-sm font-medium text-gray-700 md:ml-2">{{ __('compras.breadcrumbs.subscriptions') }}</span>
                         </div>
                     </li>
                 </ol>
             </nav>
 
-            <h1 class="text-2xl font-bold text-[#1E293B] mb-8">Gestión de Suscripciones</h1>
+            <h1 class="text-2xl font-bold text-[#1E293B] mb-8">{{ __('compras.title') }}</h1>
 
             @php
                 $limitesGlobales = app(\App\Services\SubscriptionService::class)->calculateLimits(auth()->user());
@@ -84,10 +84,10 @@
 
                 <div class="flex items-center justify-between mb-4">
                     <h2 class="text-xl font-bold text-[#1E293B] flex items-center">
-                        <i class="fas fa-layer-group text-[#0061F5] mr-2"></i> Mis Planes Activos
+                        <i class="fas fa-layer-group text-[#0061F5] mr-2"></i> {{ __('compras.sections.active_plans') }}
                     </h2>
                     <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold bg-[#27ADFA]/15 text-[#0061F5]">
-                        {{ $suscripcionesActivasCount }} activos
+                        {{ __('compras.status.active_plans_count', ['count' => $suscripcionesActivasCount]) }}
                     </span>
                 </div>
 
@@ -96,8 +96,8 @@
                         <div class="text-gray-400 mb-3">
                             <i class="fas fa-box-open text-5xl"></i>
                         </div>
-                        <p class="text-gray-500 text-lg">No tienes suscripciones activas.</p>
-                        <p class="text-gray-400 text-sm mt-1">Adquiere un servicio en la sección de abajo.</p>
+                        <p class="text-gray-500 text-lg">{{ __('compras.empty.title') }}</p>
+                        <p class="text-gray-400 text-sm mt-1">{{ __('compras.empty.subtitle') }}</p>
                     </div>
                 @else
                     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -114,7 +114,7 @@
                                     && $fechaFinSub
                                     && $fechaFinSub->lt(\Carbon\Carbon::now());
 
-                                $estadoLabel = $paqueteVencido ? 'VENCIDO' : strtoupper($sub->estatus_pago ?? '—');
+                                $estadoLabel = $paqueteVencido ? __('compras.status.expired') : strtoupper($sub->estatus_pago ?? '—');
                                 $estadoClasses = $paqueteVencido
                                     ? 'bg-red-100 text-red-800'
                                     : match($sub->estatus_pago) {
@@ -125,8 +125,8 @@
                                     };
 
                                 $serviceName = $sub->tipo === 'paquete'
-                                    ? (optional($sub->paquete)->nombre ?? 'Paquete Eliminado')
-                                    : (optional($sub->catalogo)->nombre ?? 'Servicio Eliminado');
+                                    ? (optional($sub->paquete)->nombre ?? __('compras.package.deleted'))
+                                    : (optional($sub->catalogo)->nombre ?? __('compras.package.service_deleted'));
 
                                 $iconClass = 'fas fa-box';
                                 $lowerName = strtolower($serviceName);
@@ -227,7 +227,7 @@
                                         </div>
                                         <div>
                                             <h3 class="text-base font-bold text-[#1E293B]">{{ $serviceName }}</h3>
-                                            <div class="text-xs text-[#64748b]">Suscripción anual</div>
+                                            <div class="text-xs text-[#64748b]">{{ __('compras.sections.annual_subscription') }}</div>
                                         </div>
                                     </div>
                                     <span class="inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-bold {{ $estadoClasses }}">
@@ -270,25 +270,25 @@
                                                     : ($sub->created_at ? \Carbon\Carbon::parse($sub->created_at)->addYear() : null));
                                         @endphp
                                         @if($sub->estatus_pago !== 'pagado')
-                                            Pago pendiente
+                                            {{ __('compras.status.pending') }}
                                         @elseif($fechaFinDisplay)
-                                            Próxima renovación: {{ $fechaFinDisplay->format('d/m/Y') }}
+                                            {{ __('compras.status.next_renewal', ['date' => $fechaFinDisplay->format('d/m/Y')]) }}
                                         @else
-                                            Próxima renovación: —
+                                            {{ __('compras.status.next_renewal_none') }}
                                         @endif
                                     </div>
 
                                     <div class="shrink-0">
                                         @if($paqueteVencido)
                                             <button type="button" @click="openRenewModal({{ $sub->id }})" class="inline-flex items-center px-3 py-1.5 rounded-md bg-[#0061F5] text-white hover:bg-[#0051CC] text-xs font-bold transition-colors">
-                                                Renovar
+                                                {{ __('compras.actions.renew') }}
                                             </button>
                                         @elseif($sub->estatus_pago === 'pendiente' && $sub->metodo_pago === 'transferencia' && !$sub->comprobante_pago)
                                             <button type="button" @click="openUploadModal({{ $sub->id }})" class="inline-flex items-center px-3 py-1.5 rounded-md bg-[#0061F5] text-white hover:bg-[#0051CC] text-xs font-bold transition-colors">
-                                                Subir comprobante
+                                                {{ __('compras.actions.upload_voucher') }}
                                             </button>
                                         @elseif($sub->estatus_pago === 'pendiente' && $sub->comprobante_pago)
-                                            <span class="text-yellow-700 text-xs font-bold">Validando…</span>
+                                            <span class="text-yellow-700 text-xs font-bold">{{ __('compras.status.validating') }}</span>
                                         @endif
                                     </div>
                                 </div>
@@ -299,7 +299,7 @@
                     @if(method_exists($suscripciones, 'links'))
                         <div class="mt-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                             <div class="text-sm text-gray-500">
-                                Mostrando {{ $suscripciones->firstItem() }} a {{ $suscripciones->lastItem() }} de {{ $suscripciones->total() }} registros
+                                {{ __('compras.pagination.showing', ['start' => $suscripciones->firstItem(), 'end' => $suscripciones->lastItem(), 'total' => $suscripciones->total()]) }}
                             </div>
                             <div>
                                 {{ $suscripciones->links() }}
@@ -314,13 +314,13 @@
                 <div class="flex items-start justify-between gap-6 mb-6">
                     <div>
                         <h2 class="text-xl font-bold text-[#1E293B] flex items-center">
-                            <i class="fas fa-shopping-bag text-[#0061F5] mr-2"></i> Tienda de Servicios
+                            <i class="fas fa-shopping-bag text-[#0061F5] mr-2"></i> {{ __('compras.sections.store') }}
                         </h2>
-                        <p class="text-sm text-[#64748b] mt-1">Expande las capacidades de tu centro médico con nuevos módulos.</p>
+                        <p class="text-sm text-[#64748b] mt-1">{{ __('compras.sections.store_description') }}</p>
                     </div>
                     <div class="shrink-0">
                         <span class="inline-flex items-center px-3 py-1.5 rounded-lg text-xs font-bold bg-[#F8FAFC] border border-[#e2e8f0] text-[#1E293B]">
-                            Anual
+                            {{ __('compras.sections.annual') }}
                         </span>
                     </div>
                 </div>
@@ -330,8 +330,8 @@
                         <div class="text-gray-400 mb-3">
                             <i class="fas fa-box-open text-5xl"></i>
                         </div>
-                        <h3 class="text-lg font-medium text-[#1E293B]">No hay productos disponibles</h3>
-                        <p class="text-[#64748b] mt-1">En este momento no hay items en el catálogo.</p>
+                        <h3 class="text-lg font-medium text-[#1E293B]">{{ __('compras.empty.no_products_title') }}</h3>
+                        <p class="text-[#64748b] mt-1">{{ __('compras.empty.no_products_text') }}</p>
                     </div>
                 @else
                     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -345,14 +345,14 @@
                                         <h3 class="text-lg font-bold text-[#1E293B]">{{ $suscripcionPaqueteVencida->paquete->nombre }}</h3>
                                     </div>
                                     <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800 shrink-0 ml-2">
-                                        Vencido
+                                        {{ __('compras.status.expired') }}
                                     </span>
                                 </div>
                                 <p class="text-2xl font-bold text-[#1E293B] mb-1">${{ number_format($suscripcionPaqueteVencida->paquete->precio, 2) }}</p>
-                                <div class="text-xs text-[#64748b] mb-3">Suscripción anual</div>
-                                <p class="text-sm text-[#64748b] flex-grow">Tu paquete anterior venció. Renueva para continuar usando el sistema.</p>
+                                <div class="text-xs text-[#64748b] mb-3">{{ __('compras.sections.annual_subscription') }}</div>
+                                <p class="text-sm text-[#64748b] flex-grow">{{ __('compras.modal.renew_package_desc') }}</p>
                                 <button type="button" @click.stop="openRenewModal({{ $suscripcionPaqueteVencida->id }})" class="mt-4 w-full inline-flex items-center justify-center px-4 py-2.5 bg-red-600 text-white font-bold rounded-lg hover:bg-red-700 transition-colors text-sm">
-                                    Renovar &rarr;
+                                    {{ __('compras.actions.renew_package') }}
                                 </button>
                             </div>
                         @endif
@@ -373,16 +373,16 @@
                                     </div>
                                     <div class="flex-1">
                                         <h3 class="text-lg font-bold text-[#1E293B]">{{ $item->nombre }}</h3>
-                                        <div class="text-xs text-[#64748b] mt-1">Suscripción anual</div>
+                                        <div class="text-xs text-[#64748b] mt-1">{{ __('compras.sections.annual_subscription') }}</div>
                                     </div>
                                 </div>
                                 <div class="flex items-end gap-2 mb-3">
                                     <p class="text-2xl font-bold text-[#1E293B]">${{ number_format($item->precio, 2) }}</p>
-                                    <span class="text-xs text-[#64748b] font-semibold mb-1">/anual</span>
+                                    <span class="text-xs text-[#64748b] font-semibold mb-1">{{ __('compras.sections.per_year') }}</span>
                                 </div>
-                                <p class="text-sm text-[#64748b] flex-grow">{{ Str::words($item->descripcion ?: 'Adquiere este servicio para ampliar las capacidades de tu sistema.', 15) }}</p>
+                                <p class="text-sm text-[#64748b] flex-grow">{{ Str::words($item->descripcion ?: __('compras.footer.description'), 15) }}</p>
                                 <button type="button" @click.stop="openModal({{ $item->id }})" class="mt-4 w-full inline-flex items-center justify-center px-4 py-2.5 bg-[#0061F5] text-white font-bold rounded-lg hover:bg-[#0051CC] transition-colors text-sm">
-                                    Adquirir
+                                    {{ __('compras.actions.purchase') }}
                                 </button>
                             </div>
                         @endforeach
@@ -423,50 +423,50 @@
                                 </div>
                                 <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left w-full">
                                     <h3 class="text-lg leading-6 font-medium text-gray-900" id="modal-title">
-                                        Confirmar Compra
+                                        {{ __('compras.modal.purchase_title') }}
                                     </h3>
                                     <div class="mt-2">
                                         <p class="text-sm text-gray-500">
-                                            Estás a punto de adquirir: <span class="font-bold text-[#1E293B]" x-text="selectedItem ? selectedItem.nombre : ''"></span>
+                                            {{ __('compras.modal.purchase_desc') }} <span class="font-bold text-[#1E293B]" x-text="selectedItem ? selectedItem.nombre : ''"></span>
                                         </p>
                                         <input type="hidden" name="catalogo_id" x-bind:value="selectedItem ? selectedItem.id : ''">
                                         
                                         <div class="mt-4">
-                                            <label for="cantidad" class="block text-sm font-bold text-gray-700">Cantidad</label>
+                                            <label for="cantidad" class="block text-sm font-bold text-gray-700">{{ __('compras.modal.quantity') }}</label>
                                             <input type="number" name="cantidad" x-model="cantidad" min="1" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-[#0061F5] focus:ring-[#0061F5]" required>
                                         </div>
 
                                         <p class="mt-2 text-lg font-bold text-[#0061F5]">
-                                            Total anual: $<span x-text="selectedItem ? (selectedItem.precio * cantidad).toFixed(2) : '0.00'"></span>
-                                            <span class="text-sm text-gray-500 font-normal">/anual</span>
+                                            {{ __('compras.modal.total_annual') }} $<span x-text="selectedItem ? (selectedItem.precio * cantidad).toFixed(2) : '0.00'"></span>
+                                            <span class="text-sm text-gray-500 font-normal">{{ __('compras.sections.per_year') }}</span>
                                         </p>
 
                                         <div class="mt-4">
-                                            <label class="block text-sm font-bold text-gray-700 mb-2">Método de Pago</label>
+                                            <label class="block text-sm font-bold text-gray-700 mb-2">{{ __('compras.modal.payment_method') }}</label>
                                             <div class="space-y-2">
                                                 <label class="inline-flex items-center w-full p-2 border rounded-md cursor-pointer hover:bg-gray-50" :class="{'border-[#0061F5] bg-blue-50': metodoPago === 'tarjeta'}">
                                                     <input type="radio" x-model="metodoPago" name="metodo_pago" value="tarjeta" class="form-radio text-[#0061F5] focus:ring-[#0061F5]">
-                                                    <span class="ml-2 flex-grow">Tarjeta (Clip) - Activación Inmediata</span>
+                                                    <span class="ml-2 flex-grow">{{ __('compras.modal.card') }}</span>
                                                     <i class="fas fa-credit-card text-gray-400"></i>
                                                 </label>
                                                 <label class="inline-flex items-center w-full p-2 border rounded-md cursor-pointer hover:bg-gray-50" :class="{'border-[#0061F5] bg-blue-50': metodoPago === 'transferencia'}">
                                                     <input type="radio" x-model="metodoPago" name="metodo_pago" value="transferencia" class="form-radio text-[#0061F5] focus:ring-[#0061F5]">
-                                                    <span class="ml-2 flex-grow">Transferencia Bancaria (Requiere Validación)</span>
+                                                    <span class="ml-2 flex-grow">{{ __('compras.modal.transfer') }}</span>
                                                     <i class="fas fa-university text-gray-400"></i>
                                                 </label>
                                             </div>
                                         </div>
 
                                         <div class="mt-4 p-4 bg-yellow-50 rounded-md border border-yellow-200" x-show="metodoPago === 'transferencia'" x-transition>
-                                            <h4 class="text-sm font-bold text-yellow-800 mb-2">Instrucciones para Transferencia:</h4>
-                                            <p class="text-xs text-yellow-700 mb-2">Realiza la transferencia a la siguiente cuenta:</p>
+                                            <h4 class="text-sm font-bold text-yellow-800 mb-2">{{ __('compras.modal.transfer_instructions_title') }}</h4>
+                                            <p class="text-xs text-yellow-700 mb-2">{{ __('compras.modal.transfer_instructions_desc') }}</p>
                                             <ul class="text-xs text-yellow-700 list-disc list-inside mb-3">
-                                                <li><strong>Banco:</strong> BBVA</li>
-                                                <li><strong>CLABE:</strong> 012345678901234567</li>
-                                                <li><strong>Concepto:</strong> <span x-text="'PAGO-' + (selectedItem ? selectedItem.nombre : '')"></span></li>
+                                                <li><strong>{{ __('compras.modal.transfer_bank') }}</strong> BBVA</li>
+                                                <li><strong>{{ __('compras.modal.transfer_clabe') }}</strong> 012345678901234567</li>
+                                                <li><strong>{{ __('compras.modal.transfer_concept') }}</strong> <span x-text="'PAGO-' + (selectedItem ? selectedItem.nombre : '')"></span></li>
                                             </ul>
                                             <p class="text-xs text-yellow-800 font-semibold">
-                                                <i class="fas fa-info-circle mr-1"></i> Al confirmar, se generará una orden pendiente. Deberás subir tu comprobante desde la lista de "Mis Suscripciones" para activar el servicio.
+                                                <i class="fas fa-info-circle mr-1"></i> {{ __('compras.modal.transfer_note') }}
                                             </p>
                                         </div>
                                     </div>
@@ -475,10 +475,10 @@
                         </div>
                         <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
                             <button type="submit" class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-[#0061F5] text-base font-medium text-white hover:bg-[#0051CC] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#0061F5] sm:ml-3 sm:w-auto sm:text-sm">
-                                Confirmar y Pagar
+                                {{ __('compras.actions.confirm_pay') }}
                             </button>
                             <button type="button" class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm" @click="purchaseModalOpen = false">
-                                Cancelar
+                                {{ __('compras.actions.cancel') }}
                             </button>
                         </div>
                     </form>
@@ -518,14 +518,14 @@
                                     </div>
                                     <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left w-full">
                                         <h3 class="text-lg leading-6 font-medium text-gray-900" id="modal-title">
-                                            Subir Comprobante de Pago
+                                            {{ __('compras.modal.upload_title') }}
                                         </h3>
                                         <div class="mt-2">
                                             <p class="text-sm text-gray-500 mb-4">
-                                                Sube la imagen o PDF de tu transferencia para validar tu pago y activar el servicio.
+                                                {{ __('compras.modal.upload_desc') }}
                                             </p>
                                             
-                                            <label for="comprobante_upload" class="block text-sm font-bold text-gray-700">Seleccionar Archivo</label>
+                                            <label for="comprobante_upload" class="block text-sm font-bold text-gray-700">{{ __('compras.actions.select_file') }}</label>
                                             <input type="file" name="comprobante_pago" id="comprobante_upload" class="mt-1 block w-full text-sm text-gray-500
                                                 file:mr-4 file:py-2 file:px-4
                                                 file:rounded-md file:border-0
@@ -539,10 +539,10 @@
                             </div>
                             <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
                                 <button type="submit" class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-[#0061F5] text-base font-medium text-white hover:bg-[#0051CC] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#0061F5] sm:ml-3 sm:w-auto sm:text-sm">
-                                    Subir y Enviar
+                                    {{ __('compras.actions.upload_send') }}
                                 </button>
                                 <button type="button" class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm" @click="uploadModalOpen = false">
-                                    Cancelar
+                                    {{ __('compras.actions.cancel') }}
                                 </button>
                             </div>
                         </form>
@@ -584,34 +584,34 @@
                                     </div>
                                     <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left w-full">
                                         <h3 class="text-lg leading-6 font-medium text-gray-900" id="modal-title">
-                                            Renovar Paquete
+                                            {{ __('compras.modal.renew_title') }}
                                         </h3>
                                         <div class="mt-4">
-                                            <label class="block text-sm font-bold text-gray-700 mb-2">Método de Pago</label>
+                                            <label class="block text-sm font-bold text-gray-700 mb-2">{{ __('compras.modal.payment_method') }}</label>
                                             <div class="space-y-2">
                                                 <label class="inline-flex items-center w-full p-2 border rounded-md cursor-pointer hover:bg-gray-50" :class="{'border-[#0061F5] bg-blue-50': metodoPagoRenovar === 'tarjeta'}">
                                                     <input type="radio" x-model="metodoPagoRenovar" name="metodo_pago" value="tarjeta" class="form-radio text-[#0061F5] focus:ring-[#0061F5]">
-                                                    <span class="ml-2 flex-grow">Tarjeta (Clip) - Activación Inmediata</span>
+                                                    <span class="ml-2 flex-grow">{{ __('compras.modal.card') }}</span>
                                                     <i class="fas fa-credit-card text-gray-400"></i>
                                                 </label>
                                                 <label class="inline-flex items-center w-full p-2 border rounded-md cursor-pointer hover:bg-gray-50" :class="{'border-[#0061F5] bg-blue-50': metodoPagoRenovar === 'transferencia'}">
                                                     <input type="radio" x-model="metodoPagoRenovar" name="metodo_pago" value="transferencia" class="form-radio text-[#0061F5] focus:ring-[#0061F5]">
-                                                    <span class="ml-2 flex-grow">Transferencia Bancaria (Requiere Validación)</span>
+                                                    <span class="ml-2 flex-grow">{{ __('compras.modal.transfer') }}</span>
                                                     <i class="fas fa-university text-gray-400"></i>
                                                 </label>
                                             </div>
                                         </div>
 
                                         <div class="mt-4 p-4 bg-yellow-50 rounded-md border border-yellow-200" x-show="metodoPagoRenovar === 'transferencia'" x-transition>
-                                            <h4 class="text-sm font-bold text-yellow-800 mb-2">Instrucciones para Transferencia:</h4>
-                                            <p class="text-xs text-yellow-700 mb-2">Realiza la transferencia a la siguiente cuenta:</p>
+                                            <h4 class="text-sm font-bold text-yellow-800 mb-2">{{ __('compras.modal.transfer_instructions_title') }}</h4>
+                                            <p class="text-xs text-yellow-700 mb-2">{{ __('compras.modal.transfer_instructions_desc') }}</p>
                                             <ul class="text-xs text-yellow-700 list-disc list-inside mb-3">
-                                                <li><strong>Banco:</strong> BBVA</li>
-                                                <li><strong>CLABE:</strong> 012345678901234567</li>
-                                                <li><strong>Concepto:</strong> RENOVACION-PAQUETE</li>
+                                                <li><strong>{{ __('compras.modal.transfer_bank') }}</strong> BBVA</li>
+                                                <li><strong>{{ __('compras.modal.transfer_clabe') }}</strong> 012345678901234567</li>
+                                                <li><strong>{{ __('compras.modal.transfer_concept') }}</strong> RENOVACION-PAQUETE</li>
                                             </ul>
                                             <p class="text-xs text-yellow-800 font-semibold">
-                                                <i class="fas fa-info-circle mr-1"></i> Al confirmar, se generará una orden pendiente. Deberás subir tu comprobante desde la lista de "Mis Suscripciones".
+                                                <i class="fas fa-info-circle mr-1"></i> {{ __('compras.modal.renew_note') }}
                                             </p>
                                         </div>
                                     </div>
@@ -619,10 +619,10 @@
                             </div>
                             <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
                                 <button type="submit" class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-red-600 text-base font-medium text-white hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-600 sm:ml-3 sm:w-auto sm:text-sm">
-                                    Renovar
+                                    {{ __('compras.actions.renew') }}
                                 </button>
                                 <button type="button" class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm" @click="renewModalOpen = false">
-                                    Cancelar
+                                    {{ __('compras.actions.cancel') }}
                                 </button>
                             </div>
                         </form>

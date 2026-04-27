@@ -251,6 +251,6 @@ class CompraController extends Controller
             }
         }
 
-        return back()->with('success', 'Comprobante subido correctamente. Esperando validación del administrador.');
+        return back()->with('success', __('compras.messages.voucher_uploaded_pending'));
     }
 }

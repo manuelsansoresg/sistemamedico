@@ -121,7 +121,7 @@ class ExpedienteController extends Controller
         }
 
         if (! $this->patientHasActiveSubscription($user)) {
-            return back()->with('error', 'Tu suscripción de paciente ha vencido. Solicita a tu médico la renovación para descargar tu expediente.');
+            return back()->with('error', __('expedientes.errors.patient_subscription_expired'));
         }
 
         $request->validate([
@@ -143,7 +143,7 @@ class ExpedienteController extends Controller
         }
 
         if (! $this->patientHasActiveSubscription($user)) {
-            return back()->with('error', 'Tu suscripción de paciente ha vencido. Solicita a tu médico la renovación para descargar tu expediente.');
+            return back()->with('error', __('expedientes.errors.patient_subscription_expired'));
         }
 
         $query = \App\Models\Consulta::join('citas', 'consultas.cita_id', '=', 'citas.id')
@@ -166,7 +166,7 @@ class ExpedienteController extends Controller
         $ids = $query->pluck('consultas.id')->toArray();
 
         if (empty($ids)) {
-            return back()->with('error', 'No hay expedientes para descargar con los filtros seleccionados.');
+            return back()->with('error', __('expedientes.errors.no_records_for_filters'));
         }
 
         return $this->generateZip($ids);
@@ -271,7 +271,7 @@ class ExpedienteController extends Controller
         $ids = $query->pluck('consultas.id')->toArray();
 
         if (empty($ids)) {
-            return back()->with('error', 'No hay expedientes para descargar con los filtros seleccionados.');
+            return back()->with('error', __('expedientes.errors.no_records_for_filters'));
         }
 
         return $this->generateZip($ids);
@@ -311,7 +311,7 @@ class ExpedienteController extends Controller
 
         if ($isPatient) {
             if (! $this->patientHasActiveSubscription($user)) {
-                return back()->with('error', 'Tu suscripción de paciente ha vencido. Solicita a tu médico la renovación para descargar tu expediente.');
+                return back()->with('error', __('expedientes.errors.patient_subscription_expired'));
             }
 
             $ownIds = Consulta::whereIn('consultas.id', $ids)
@@ -320,7 +320,7 @@ class ExpedienteController extends Controller
                 ->toArray();
 
             if (empty($ownIds)) {
-                return back()->with('error', 'No hay expedientes para descargar.');
+                return back()->with('error', __('expedientes.errors.no_records_to_download'));
             }
 
             $ids = $ownIds;
@@ -337,7 +337,7 @@ class ExpedienteController extends Controller
         }
 
         if (! $isPatient && ! $canDownloadConsultas && ! $canDownloadEstudios && ! $canDownloadAll) {
-            return back()->with('error', 'No tienes permisos para descargar expedientes.');
+            return back()->with('error', __('expedientes.errors.no_download_permission'));
         }
 
         $consultas = Consulta::with(['paciente', 'doctor', 'cita', 'estudios.archivos'])
@@ -410,7 +410,7 @@ class ExpedienteController extends Controller
 
             $zip->close();
         } else {
-            return back()->with('error', 'No se pudo crear el archivo ZIP.');
+            return back()->with('error', __('expedientes.errors.zip_create_failed'));
         }
 
         try {

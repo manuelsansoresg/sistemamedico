@@ -6,21 +6,21 @@
                     <li class="inline-flex items-center">
                         <a href="{{ auth()->user()->hasRole('root') ? route('admin.dashboard') : route('dashboard') }}" class="inline-flex items-center text-sm font-medium text-gray-700 hover:text-[#0061F5]">
                             <i class="fas fa-home mr-2"></i>
-                            Inicio
+                            {{ __('common.breadcrumbs.home') }}
                         </a>
                     </li>
                     <li class="inline-flex items-center">
                         <div class="flex items-center">
                             <i class="fas fa-chevron-right text-gray-400 mx-1"></i>
                             <a href="{{ route('recursos.index', ['doctor_id' => $doctorId]) }}" class="ml-1 text-sm font-medium text-gray-700 hover:text-[#0061F5] md:ml-2">
-                                Recursos Compartidos
+                                {{ __('recursos.shared.title') }}
                             </a>
                         </div>
                     </li>
                     <li aria-current="page">
                         <div class="flex items-center">
                             <i class="fas fa-chevron-right text-gray-400 mx-1"></i>
-                            <span class="ml-1 text-sm font-medium text-gray-500 md:ml-2">Agenda</span>
+                            <span class="ml-1 text-sm font-medium text-gray-500 md:ml-2">{{ __('recursos.agenda.breadcrumb') }}</span>
                         </div>
                     </li>
                 </ol>
@@ -30,13 +30,13 @@
                 <div class="p-6 bg-white border-b border-gray-200">
                     <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
                         <div>
-                            <h2 class="text-xl font-bold text-gray-800">Agenda de Recursos</h2>
-                            <p class="mt-1 text-sm text-gray-500">Agenda visual similar a Google Calendar para reservar recursos.</p>
+                            <h2 class="text-xl font-bold text-gray-800">{{ __('recursos.agenda.title') }}</h2>
+                            <p class="mt-1 text-sm text-gray-500">{{ __('recursos.agenda.description') }}</p>
                         </div>
                         <div class="flex flex-wrap items-center gap-2">
                             @if(auth()->user()->hasRole('root'))
                                 <form method="GET" action="{{ route('recursos.agenda') }}" class="flex items-center gap-2">
-                                    <label class="text-xs font-semibold text-gray-500">Doctor</label>
+                                    <label class="text-xs font-semibold text-gray-500">{{ __('recursos.permissions.fields.doctor') }}</label>
                                     <select name="doctor_id" onchange="this.form.submit()" class="px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-[#0061F5] focus:border-[#0061F5]">
                                         @foreach($doctors as $doctor)
                                             <option value="{{ $doctor->id }}" @selected($doctorId === $doctor->id)>{{ $doctor->name }}</option>
@@ -46,11 +46,11 @@
                             @endif
                             <a href="{{ route('recursos.index', ['doctor_id' => $doctorId]) }}" class="inline-flex items-center px-4 py-2 bg-white text-[#0061F5] text-sm font-bold rounded-md border border-[#0061F5] hover:bg-[#F8FAFC] transition-colors shadow-sm">
                                 <i class="fas fa-list mr-2"></i>
-                                Catálogo de recursos
+                                {{ __('recursos.agenda.buttons.catalog') }}
                             </a>
                             <a href="{{ route('recursos.permisos', ['doctor_id' => $doctorId]) }}" class="inline-flex items-center px-4 py-2 bg-white text-[#0061F5] text-sm font-bold rounded-md border border-[#0061F5] hover:bg-[#F8FAFC] transition-colors shadow-sm">
                                 <i class="fas fa-user-shield mr-2"></i>
-                                Permisos
+                                {{ __('recursos.agenda.buttons.permissions') }}
                             </a>
                             <a
                                 id="exportPdfBtn"
@@ -59,27 +59,27 @@
                                 class="inline-flex items-center px-4 py-2 bg-white text-[#0061F5] text-sm font-bold rounded-md border border-[#0061F5] hover:bg-blue-50 transition-colors shadow-sm"
                             >
                                 <i class="fas fa-file-pdf mr-2"></i>
-                                Exportar PDF
+                                {{ __('common.buttons.export_pdf') }}
                             </a>
                         </div>
                     </div>
 
                     <div class="mb-4 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
                         <div class="flex items-center gap-2">
-                            <label class="text-xs font-semibold text-gray-500">Recurso</label>
+                            <label class="text-xs font-semibold text-gray-500">{{ __('recursos.agenda.filters.resource') }}</label>
                             <select id="recursoFilter" class="pr-8 px-3 py-2 border border-gray-300 rounded-md text-sm bg-white focus:ring-[#0061F5] focus:border-[#0061F5]">
-                                <option value="">Todos</option>
+                                <option value="">{{ __('recursos.agenda.filters.all') }}</option>
                                 @foreach($recursos as $recurso)
                                     <option value="{{ $recurso->id }}">{{ $recurso->nombre }}</option>
                                 @endforeach
                             </select>
                         </div>
                         <div class="flex items-center gap-2 text-xs text-gray-500">
-                            <span class="font-semibold">Vista:</span>
-                            <button type="button" data-view="dayGridMonth" class="agenda-view-btn px-3 py-1 rounded-md border border-gray-300 bg-white text-gray-700 hover:bg-[#F8FAFC] text-xs transition-colors">Mes</button>
-                            <button type="button" data-view="timeGridWeek" class="agenda-view-btn px-3 py-1 rounded-md border border-gray-300 bg-white text-gray-700 hover:bg-[#F8FAFC] text-xs transition-colors">Semana</button>
-                            <button type="button" data-view="timeGridDay" class="agenda-view-btn px-3 py-1 rounded-md border border-gray-300 bg-white text-gray-700 hover:bg-[#F8FAFC] text-xs transition-colors">Día</button>
-                            <button type="button" data-view="listYear" class="agenda-view-btn px-3 py-1 rounded-md border border-gray-300 bg-white text-gray-700 hover:bg-[#F8FAFC] text-xs transition-colors">Año</button>
+                            <span class="font-semibold">{{ __('recursos.agenda.filters.view') }}</span>
+                            <button type="button" data-view="dayGridMonth" class="agenda-view-btn px-3 py-1 rounded-md border border-gray-300 bg-white text-gray-700 hover:bg-[#F8FAFC] text-xs transition-colors">{{ __('recursos.agenda.filters.views.month') }}</button>
+                            <button type="button" data-view="timeGridWeek" class="agenda-view-btn px-3 py-1 rounded-md border border-gray-300 bg-white text-gray-700 hover:bg-[#F8FAFC] text-xs transition-colors">{{ __('recursos.agenda.filters.views.week') }}</button>
+                            <button type="button" data-view="timeGridDay" class="agenda-view-btn px-3 py-1 rounded-md border border-gray-300 bg-white text-gray-700 hover:bg-[#F8FAFC] text-xs transition-colors">{{ __('recursos.agenda.filters.views.day') }}</button>
+                            <button type="button" data-view="listYear" class="agenda-view-btn px-3 py-1 rounded-md border border-gray-300 bg-white text-gray-700 hover:bg-[#F8FAFC] text-xs transition-colors">{{ __('recursos.agenda.filters.views.year') }}</button>
                         </div>
                     </div>
 
@@ -97,6 +97,32 @@
                         data-eventos-url="{{ route('recursos.eventos') }}"
                         data-eventos-store-url="{{ route('recursos.eventos.store') }}"
                         data-eventos-base-url="{{ url('admin/recursos/eventos') }}"
+                        data-locale="{{ app()->getLocale() }}"
+                        data-i18n='{{ e(json_encode([
+                            "confirm_delete" => __("recursos.agenda.js.confirm_delete"),
+                            "calendar" => [
+                                "buttonText" => [
+                                    "today" => __("recursos.agenda.calendar.buttonText.today"),
+                                    "month" => __("recursos.agenda.calendar.buttonText.month"),
+                                    "week" => __("recursos.agenda.calendar.buttonText.week"),
+                                    "day" => __("recursos.agenda.calendar.buttonText.day"),
+                                    "year" => __("recursos.agenda.calendar.buttonText.year"),
+                                    "list" => __("recursos.agenda.calendar.buttonText.list"),
+                                ],
+                                "allDayText" => __("recursos.agenda.calendar.allDayText"),
+                                "noEventsText" => __("recursos.agenda.calendar.noEventsText"),
+                            ],
+                            "errors" => [
+                                "generic" => __("recursos.agenda.js.errors.generic"),
+                                "need_resource_first" => __("recursos.agenda.js.errors.need_resource_first"),
+                                "select_resource" => __("recursos.agenda.js.errors.select_resource"),
+                                "select_user" => __("recursos.agenda.js.errors.select_user"),
+                                "check_date_time_duration" => __("recursos.agenda.js.errors.check_date_time_duration"),
+                                "create_failed" => __("recursos.agenda.js.errors.create_failed"),
+                                "update_failed" => __("recursos.agenda.js.errors.update_failed"),
+                                "delete_failed" => __("recursos.agenda.js.errors.delete_failed"),
+                            ],
+                        ])) }}'
                     ></div>
 
                     <div id="reserva-modal" class="fixed inset-0 z-50 hidden">
@@ -104,7 +130,7 @@
                         <div class="relative z-10 flex items-center justify-center min-h-full">
                             <div class="bg-white rounded-xl shadow-lg w-full max-w-md p-6">
                                 <div class="flex items-center justify-between mb-4">
-                                    <h3 class="text-lg font-bold text-gray-800">Nueva reserva de recurso</h3>
+                                    <h3 class="text-lg font-bold text-gray-800">{{ __('recursos.agenda.modal.create_title') }}</h3>
                                     <button type="button" id="reserva-close" class="text-gray-400 hover:text-gray-600">
                                         <i class="fas fa-times"></i>
                                     </button>
@@ -112,56 +138,56 @@
                                 <form id="reserva-form" class="space-y-4">
                                     <input type="hidden" id="reserva-date">
                                     <div>
-                                        <label class="block text-xs font-semibold text-gray-500 mb-1">Recurso</label>
+                                        <label class="block text-xs font-semibold text-gray-500 mb-1">{{ __('recursos.agenda.modal.fields.resource') }}</label>
                                         <select id="reserva-recurso" class="block w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-[#0061F5] focus:border-[#0061F5]">
-                                            <option value="">Selecciona un recurso</option>
+                                            <option value="">{{ __('recursos.agenda.modal.placeholders.select_resource') }}</option>
                                             @foreach($recursos as $recurso)
                                                 <option value="{{ $recurso->id }}">{{ $recurso->nombre }}</option>
                                             @endforeach
                                         </select>
                                     </div>
                                     <div>
-                                        <label class="block text-xs font-semibold text-gray-500 mb-1">Asignar a</label>
+                                        <label class="block text-xs font-semibold text-gray-500 mb-1">{{ __('recursos.agenda.modal.fields.assign_to') }}</label>
                                         <select id="reserva-user" class="block w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-[#0061F5] focus:border-[#0061F5]">
-                                            <option value="">Selecciona un usuario</option>
+                                            <option value="">{{ __('recursos.agenda.modal.placeholders.select_user') }}</option>
                                             @foreach($usuarios as $usuario)
                                                 <option value="{{ $usuario->id }}">{{ $usuario->name }} {{ $usuario->apellido_paterno }}</option>
                                             @endforeach
                                         </select>
                                     </div>
                                     <div>
-                                        <label class="block text-xs font-semibold text-gray-500 mb-1">Título</label>
-                                        <input type="text" id="reserva-titulo" class="block w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-[#0061F5] focus:border-[#0061F5]" placeholder="Ej. Cirugía, Junta, Procedimiento">
+                                        <label class="block text-xs font-semibold text-gray-500 mb-1">{{ __('recursos.agenda.modal.fields.title') }}</label>
+                                        <input type="text" id="reserva-titulo" class="block w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-[#0061F5] focus:border-[#0061F5]" placeholder="{{ __('recursos.agenda.modal.placeholders.title_example') }}">
                                     </div>
                                     <div class="grid grid-cols-2 gap-4">
                                         <div>
-                                            <label class="block text-xs font-semibold text-gray-500 mb-1">Fecha</label>
+                                            <label class="block text-xs font-semibold text-gray-500 mb-1">{{ __('recursos.agenda.modal.fields.date') }}</label>
                                             <input type="date" id="reserva-fecha" readonly class="block w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-[#0061F5] focus:border-[#0061F5]">
                                         </div>
                                         <div>
-                                            <label class="block text-xs font-semibold text-gray-500 mb-1">Hora inicio</label>
+                                            <label class="block text-xs font-semibold text-gray-500 mb-1">{{ __('recursos.agenda.modal.fields.start_time') }}</label>
                                             <input type="time" id="reserva-hora" class="block w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-[#0061F5] focus:border-[#0061F5]">
                                         </div>
                                     </div>
                                     <div>
-                                        <label class="block text-xs font-semibold text-gray-500 mb-1">Duración (minutos)</label>
+                                        <label class="block text-xs font-semibold text-gray-500 mb-1">{{ __('recursos.agenda.modal.fields.duration_minutes') }}</label>
                                         <input type="number" id="reserva-duracion" min="1" step="5" value="60" class="block w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-[#0061F5] focus:border-[#0061F5]">
                                     </div>
                                     <div>
-                                        <label class="block text-xs font-semibold text-gray-500 mb-1">Comentario</label>
-                                        <textarea id="reserva-comentario" rows="3" class="block w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-[#0061F5] focus:border-[#0061F5]" placeholder="Detalles adicionales de la reserva"></textarea>
+                                        <label class="block text-xs font-semibold text-gray-500 mb-1">{{ __('recursos.agenda.modal.fields.comment') }}</label>
+                                        <textarea id="reserva-comentario" rows="3" class="block w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-[#0061F5] focus:border-[#0061F5]" placeholder="{{ __('recursos.agenda.modal.placeholders.comment') }}"></textarea>
                                     </div>
                                     <div class="flex items-center justify-between pt-2">
                                         <button type="button" id="reserva-delete" class="hidden px-3 py-2 text-xs font-semibold text-red-600 bg-red-50 border border-red-200 rounded-md hover:bg-red-100 flex items-center gap-1">
                                             <i class="fas fa-trash text-sm"></i>
-                                            Eliminar
+                                            {{ __('common.buttons.delete') }}
                                         </button>
                                         <div class="flex gap-2">
                                             <button type="button" id="reserva-cancel" class="px-4 py-2 text-sm font-semibold text-gray-600 bg-gray-100 rounded-md hover:bg-gray-200">
-                                                Cancelar
+                                                {{ __('common.buttons.cancel') }}
                                             </button>
                                             <button type="button" id="reserva-save" class="px-4 py-2 text-sm font-bold text-white bg-[#0061F5] rounded-md hover:bg-[#0051CC]">
-                                                Guardar reserva
+                                                {{ __('recursos.agenda.modal.actions.save') }}
                                             </button>
                                         </div>
                                     </div>
@@ -258,6 +284,13 @@
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             const calendarEl = document.getElementById('recursos-calendar');
+            const locale = calendarEl && calendarEl.dataset ? (calendarEl.dataset.locale || 'es') : 'es';
+            let i18n = null;
+            try {
+                i18n = calendarEl && calendarEl.dataset && calendarEl.dataset.i18n ? JSON.parse(calendarEl.dataset.i18n) : null;
+            } catch (e) {
+                i18n = null;
+            }
             const doctorId = parseInt(calendarEl.dataset.doctorId || '0', 10);
             const recursoFilter = document.getElementById('recursoFilter');
             const exportPdfBtn = document.getElementById('exportPdfBtn');
@@ -332,18 +365,11 @@
             }
 
             const calendar = new FullCalendar.Calendar(calendarEl, {
-                locale: 'es',
+                locale,
                 initialView: 'dayGridMonth',
-                buttonText: {
-                    today: 'Hoy',
-                    month: 'Mes',
-                    week: 'Semana',
-                    day: 'Día',
-                    year: 'Año',
-                    list: 'Lista'
-                },
-                allDayText: 'Todo el día',
-                noEventsText: 'No hay reservas para mostrar',
+                buttonText: i18n && i18n.calendar && i18n.calendar.buttonText ? i18n.calendar.buttonText : undefined,
+                allDayText: i18n && i18n.calendar ? i18n.calendar.allDayText : undefined,
+                noEventsText: i18n && i18n.calendar ? i18n.calendar.noEventsText : undefined,
                 headerToolbar: {
                     left: 'prev,next today',
                     center: 'title',
@@ -436,10 +462,10 @@
 
             function showError(message) {
                 if (errorBox) {
-                    errorBox.textContent = message || 'Ocurrió un error al procesar la reserva.';
+                    errorBox.textContent = message || (i18n && i18n.errors ? i18n.errors.generic : '');
                     errorBox.classList.remove('hidden');
                 } else {
-                    alert(message || 'Ocurrió un error al procesar la reserva.');
+                    alert(message || (i18n && i18n.errors ? i18n.errors.generic : ''));
                 }
             }
 
@@ -485,7 +511,7 @@
 
                 if (!recursoSelect.options.length || recursoSelect.options.length === 1) {
                     if (!defaultRecursoId && !recursoFilter.value) {
-                        alert('Primero crea al menos un recurso.');
+                        alert(i18n && i18n.errors ? i18n.errors.need_resource_first : '');
                         return;
                     }
                 }
@@ -574,16 +600,16 @@
 
                 if (editingEventId === null) {
                     if (!recursoId) {
-                        showError('Selecciona un recurso.');
+                        showError(i18n && i18n.errors ? i18n.errors.select_resource : '');
                         return;
                     }
                     if (!userId) {
-                        showError('Selecciona un usuario.');
+                        showError(i18n && i18n.errors ? i18n.errors.select_user : '');
                         return;
                     }
                 }
                 if (!fecha || !hora || !duracion || Number.isNaN(duracion) || duracion <= 0) {
-                    showError('Revisa fecha, hora y duración.');
+                    showError(i18n && i18n.errors ? i18n.errors.check_date_time_duration : '');
                     return;
                 }
 
@@ -616,7 +642,7 @@
                     })
                         .then(async response => {
                             if (!response.ok) {
-                                let message = 'No se pudo crear la reserva.';
+                                let message = i18n && i18n.errors ? i18n.errors.create_failed : '';
                                 try {
                                     const data = await response.json();
                                     if (data && typeof data.message === 'string') {
@@ -633,7 +659,7 @@
                             calendar.refetchEvents();
                         })
                         .catch(error => {
-                            showError(error.message || 'No se pudo crear la reserva.');
+                            showError(error.message || (i18n && i18n.errors ? i18n.errors.create_failed : ''));
                         });
                 } else {
                     fetch(eventosBaseUrl + '/' + editingEventId, {
@@ -651,9 +677,9 @@
                                     if (data && data.message) {
                                         throw new Error(data.message);
                                     }
-                                    throw new Error('No se pudo actualizar la reserva.');
+                                    throw new Error(i18n && i18n.errors ? i18n.errors.update_failed : '');
                                 }).catch(function () {
-                                    throw new Error('No se pudo actualizar la reserva.');
+                                    throw new Error(i18n && i18n.errors ? i18n.errors.update_failed : '');
                                 });
                             }
                         })
@@ -662,7 +688,7 @@
                             calendar.refetchEvents();
                         })
                         .catch(error => {
-                            showError(error.message || 'No se pudo actualizar la reserva.');
+                            showError(error.message || (i18n && i18n.errors ? i18n.errors.update_failed : ''));
                         });
                 }
             }
@@ -677,7 +703,7 @@
                 if (editingEventId === null) {
                     return;
                 }
-                if (!confirm('¿Eliminar esta reserva?')) {
+                if (!confirm(i18n ? i18n.confirm_delete : '')) {
                     return;
                 }
 
@@ -696,7 +722,7 @@
                 })
                     .then(response => {
                         if (!response.ok) {
-                            return handleErrorResponse(response, 'No se pudo eliminar la reserva.');
+                            return handleErrorResponse(response, i18n && i18n.errors ? i18n.errors.delete_failed : '');
                         }
                     })
                     .then(() => {
@@ -704,7 +730,7 @@
                         calendar.refetchEvents();
                     })
                     .catch(error => {
-                        showError(error.message || 'No se pudo eliminar la reserva.');
+                        showError(error.message || (i18n && i18n.errors ? i18n.errors.delete_failed : ''));
                     });
             });
 
@@ -731,15 +757,15 @@
                     .then(response => {
                         if (!response.ok) {
                             return response.json().then(data => {
-                                const message = data && data.message ? data.message : 'No se pudo actualizar la reserva.';
+                                const message = data && data.message ? data.message : (i18n && i18n.errors ? i18n.errors.update_failed : '');
                                 throw new Error(message);
                             }).catch(() => {
-                                throw new Error('No se pudo actualizar la reserva.');
+                                throw new Error(i18n && i18n.errors ? i18n.errors.update_failed : '');
                             });
                         }
                     })
                     .catch(error => {
-                        alert(error.message || 'No se pudo actualizar la reserva.');
+                        alert(error.message || (i18n && i18n.errors ? i18n.errors.update_failed : ''));
                         event.revert();
                     });
             }

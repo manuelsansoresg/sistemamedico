@@ -7,19 +7,19 @@
                     <li class="inline-flex items-center">
                         <a href="{{ route('dashboard') }}" class="inline-flex items-center text-sm font-medium text-gray-700 hover:text-[#0061F5]">
                             <i class="fas fa-home mr-2"></i>
-                            Inicio
+                            {{ __('common.breadcrumbs.home') }}
                         </a>
                     </li>
                     <li>
                         <div class="flex items-center">
                             <i class="fas fa-chevron-right text-gray-400 mx-1"></i>
-                            <a href="{{ route('citas.index') }}" class="ml-1 text-sm font-medium text-gray-700 hover:text-[#0061F5] md:ml-2">Citas</a>
+                            <a href="{{ route('citas.index') }}" class="ml-1 text-sm font-medium text-gray-700 hover:text-[#0061F5] md:ml-2">{{ __('citas.breadcrumbs.index') }}</a>
                         </div>
                     </li>
                     <li aria-current="page">
                         <div class="flex items-center">
                             <i class="fas fa-chevron-right text-gray-400 mx-1"></i>
-                            <span class="ml-1 text-sm font-medium text-gray-500 md:ml-2">Nueva Cita</span>
+                            <span class="ml-1 text-sm font-medium text-gray-500 md:ml-2">{{ __('citas.breadcrumbs.create') }}</span>
                         </div>
                     </li>
                 </ol>
@@ -27,7 +27,7 @@
 
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                 <div class="p-6 bg-white border-b border-gray-200">
-                    <h2 class="text-2xl font-bold mb-6">Nueva Cita</h2>
+                    <h2 class="text-2xl font-bold mb-6">{{ __('citas.headings.create') }}</h2>
 
                     <div x-data="appointmentForm()" class="space-y-6">
                         
@@ -43,7 +43,7 @@
                             
                             <!-- 1. Seleccionar Doctor -->
                             <div class="mb-6">
-                                <label class="block text-gray-700 text-sm font-bold mb-2">1. Seleccionar Doctor</label>
+                                <label class="block text-gray-700 text-sm font-bold mb-2">{{ __('citas.steps.select_doctor') }}</label>
                                 
                                 <div x-show="isDoctorFixed" class="p-4 bg-gray-50 border border-gray-200 rounded-lg flex items-center mb-2">
                                     <div class="bg-[#E6F0FF] p-2 rounded-full mr-3">
@@ -51,7 +51,7 @@
                                     </div>
                                     <div>
                                         <p class="font-bold text-gray-800" x-text="searchDoctor"></p>
-                                        <p class="text-sm text-gray-500">Usted se ha asignado automáticamente.</p>
+                                        <p class="text-sm text-gray-500">{{ __('citas.helpers.auto_assigned') }}</p>
                                     </div>
                                     <input type="hidden" name="doctor_id" x-model="selectedDoctorId">
                                 </div>
@@ -67,7 +67,7 @@
                                            spellcheck="false"
                                            readonly
                                            @focus="$el.removeAttribute('readonly')"
-                                           placeholder="Buscar doctor por nombre..." 
+                                           placeholder="{{ __('citas.placeholders.search_doctor') }}" 
                                            class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:border-[#0061F5] focus:ring-[#0061F5] focus:outline-none"
                                            :class="{'border-green-500': selectedDoctor}"
                                     >
@@ -83,26 +83,26 @@
                                     </div>
                                 </div>
                                 <div x-show="!isDoctorFixed && selectedDoctor" class="mt-2 text-green-600 font-semibold">
-                                    Doctor Seleccionado: <span x-text="selectedDoctor.name + ' ' + selectedDoctor.apellido_paterno"></span>
-                                    <button type="button" @click="resetDoctor" class="ml-2 text-red-500 text-sm underline">Cambiar</button>
+                                    {{ __('citas.labels.doctor_selected') }} <span x-text="selectedDoctor.name + ' ' + selectedDoctor.apellido_paterno"></span>
+                                    <button type="button" @click="resetDoctor" class="ml-2 text-red-500 text-sm underline">{{ __('citas.buttons.change') }}</button>
                                 </div>
                             </div>
 
                             <!-- 2. Consultorio y Clinica (Visible only if Doctor selected) -->
                             <div x-show="selectedDoctorId" class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6" x-transition>
                                 <div>
-                                    <label class="block text-gray-700 text-sm font-bold mb-2">2. Consultorio</label>
+                                    <label class="block text-gray-700 text-sm font-bold mb-2">{{ __('citas.steps.office') }}</label>
                                     <select name="consultorio_id" x-model="selectedConsultorioId" @change="fetchSlotsIfReady" class="shadow border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:border-[#0061F5] focus:ring-[#0061F5] focus:outline-none">
-                                        <option value="">Seleccione Consultorio</option>
+                                        <option value="">{{ __('citas.select.office') }}</option>
                                         <template x-for="consultorio in consultorios" :key="consultorio.id">
                                             <option :value="consultorio.id" x-text="consultorio.nombre"></option>
                                         </template>
                                     </select>
                                 </div>
                                 <div>
-                                    <label class="block text-gray-700 text-sm font-bold mb-2">3. Clínica</label>
+                                    <label class="block text-gray-700 text-sm font-bold mb-2">{{ __('citas.steps.clinic') }}</label>
                                     <select name="clinica_id" x-model="selectedClinicaId" class="shadow border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:border-[#0061F5] focus:ring-[#0061F5] focus:outline-none">
-                                        <option value="">Seleccione Clínica</option>
+                                        <option value="">{{ __('citas.select.clinic') }}</option>
                                         <template x-for="clinica in clinicas" :key="clinica.id">
                                             <option :value="clinica.id" x-text="clinica.nombre"></option>
                                         </template>
@@ -112,7 +112,7 @@
 
                             <!-- 4. Fecha (Visible if Doctor selected) -->
                             <div x-show="selectedDoctorId" class="mb-6" x-transition>
-                                <label class="block text-gray-700 text-sm font-bold mb-2">4. Fecha de la Cita</label>
+                                <label class="block text-gray-700 text-sm font-bold mb-2">{{ __('citas.steps.date') }}</label>
                                 <div class="w-full">
                                     <input type="date" 
                                            name="fecha" 
@@ -124,7 +124,7 @@
 
                             <!-- 5. Paciente -->
                             <div x-show="selectedDoctorId" class="mb-6" x-transition>
-                                <label class="block text-gray-700 text-sm font-bold mb-2">5. Seleccionar Paciente</label>
+                                <label class="block text-gray-700 text-sm font-bold mb-2">{{ __('citas.steps.select_patient') }}</label>
                                 <div class="relative">
                                     <input type="text" 
                                            x-model="searchPatient" 
@@ -136,7 +136,7 @@
                                            spellcheck="false"
                                            readonly
                                            @focus="$el.removeAttribute('readonly')"
-                                           placeholder="Buscar paciente por nombre..." 
+                                           placeholder="{{ __('citas.placeholders.search_patient') }}" 
                                            class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:border-[#0061F5] focus:ring-[#0061F5] focus:outline-none"
                                            :class="{'border-green-500': selectedPatient}"
                                     >
@@ -152,31 +152,31 @@
                                     </div>
                                 </div>
                                 <div x-show="selectedPatient" class="mt-2 text-green-600 font-semibold">
-                                    Paciente Seleccionado: <span x-text="selectedPatient.name + ' ' + selectedPatient.apellido_paterno"></span>
-                                    <button type="button" @click="resetPatient" class="ml-2 text-red-500 text-sm underline">Cambiar</button>
+                                    {{ __('citas.labels.patient_selected') }} <span x-text="selectedPatient.name + ' ' + selectedPatient.apellido_paterno"></span>
+                                    <button type="button" @click="resetPatient" class="ml-2 text-red-500 text-sm underline">{{ __('citas.buttons.change') }}</button>
                                 </div>
                             </div>
 
                             <!-- 6. Horarios Disponibles (Slots) -->
                             <div x-show="isLoading" class="mb-6 text-center">
-                                <span class="text-[#0061F5] font-bold">Cargando horarios...</span>
+                                <span class="text-[#0061F5] font-bold">{{ __('citas.slots.loading') }}</span>
                             </div>
 
                             <div x-show="!isLoading && totalSlots > 0" class="mb-6" x-transition>
-                                <label class="block text-gray-700 text-sm font-bold mb-2">6. Horarios Disponibles <span class="text-sm font-normal text-gray-500 ml-2">(Haga clic en una hora para seleccionarla)</span></label>
+                                <label class="block text-gray-700 text-sm font-bold mb-2">{{ __('citas.steps.available_slots') }} <span class="text-sm font-normal text-gray-500 ml-2">{{ __('citas.helpers.select_slot_hint') }}</span></label>
                                 
                                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                                     
                                     <!-- Mañana -->
-                                    <div x-show="slots['Mañana'] && slots['Mañana'].length > 0" class="bg-yellow-50 rounded-lg p-4 border border-yellow-100">
+                                    <div x-show="slots.morning && slots.morning.length > 0" class="bg-yellow-50 rounded-lg p-4 border border-yellow-100">
                                         <div class="flex justify-between items-center mb-3">
                                             <h4 class="font-bold text-yellow-800 flex items-center">
-                                                <i class="fas fa-sun mr-2"></i> Mañana
+                                                <i class="fas fa-sun mr-2"></i> {{ __('horarios.periods.morning') }}
                                             </h4>
-                                            <span class="text-xs font-medium text-yellow-600 bg-yellow-100 px-2 py-1 rounded">07:00 - 12:00</span>
+                                            <span class="text-xs font-medium text-yellow-600 bg-yellow-100 px-2 py-1 rounded">{{ __('citas.slots.morning_range') }}</span>
                                         </div>
                                         <div class="grid grid-cols-2 gap-2">
-                                            <template x-for="slot in slots['Mañana']" :key="slot">
+                                            <template x-for="slot in slots.morning" :key="slot">
                                                 <button type="button" 
                                                         @click="selectedSlot = slot"
                                                         :class="{'bg-yellow-500 text-white shadow-md transform scale-105': selectedSlot === slot, 'bg-white text-gray-700 hover:bg-yellow-100 border border-yellow-200': selectedSlot !== slot}"
@@ -188,15 +188,15 @@
                                     </div>
 
                                     <!-- Tarde -->
-                                    <div x-show="slots['Tarde'] && slots['Tarde'].length > 0" class="bg-orange-50 rounded-lg p-4 border border-orange-100">
+                                    <div x-show="slots.afternoon && slots.afternoon.length > 0" class="bg-orange-50 rounded-lg p-4 border border-orange-100">
                                         <div class="flex justify-between items-center mb-3">
                                             <h4 class="font-bold text-orange-800 flex items-center">
-                                                <i class="fas fa-cloud-sun mr-2"></i> Tarde
+                                                <i class="fas fa-cloud-sun mr-2"></i> {{ __('horarios.periods.afternoon') }}
                                             </h4>
-                                            <span class="text-xs font-medium text-orange-600 bg-orange-100 px-2 py-1 rounded">12:00 - 19:00</span>
+                                            <span class="text-xs font-medium text-orange-600 bg-orange-100 px-2 py-1 rounded">{{ __('citas.slots.afternoon_range') }}</span>
                                         </div>
                                         <div class="grid grid-cols-2 gap-2">
-                                            <template x-for="slot in slots['Tarde']" :key="slot">
+                                            <template x-for="slot in slots.afternoon" :key="slot">
                                                 <button type="button" 
                                                         @click="selectedSlot = slot"
                                                         :class="{'bg-orange-500 text-white shadow-md transform scale-105': selectedSlot === slot, 'bg-white text-gray-700 hover:bg-orange-100 border border-orange-200': selectedSlot !== slot}"
@@ -208,15 +208,15 @@
                                     </div>
 
                                     <!-- Noche -->
-                                    <div x-show="slots['Noche'] && slots['Noche'].length > 0" class="bg-indigo-50 rounded-lg p-4 border border-indigo-100">
+                                    <div x-show="slots.night && slots.night.length > 0" class="bg-indigo-50 rounded-lg p-4 border border-indigo-100">
                                         <div class="flex justify-between items-center mb-3">
                                             <h4 class="font-bold text-indigo-800 flex items-center">
-                                                <i class="fas fa-moon mr-2"></i> Noche
+                                                <i class="fas fa-moon mr-2"></i> {{ __('horarios.periods.night') }}
                                             </h4>
-                                            <span class="text-xs font-medium text-indigo-600 bg-indigo-100 px-2 py-1 rounded">19:00 - 21:00</span>
+                                            <span class="text-xs font-medium text-indigo-600 bg-indigo-100 px-2 py-1 rounded">{{ __('citas.slots.night_range') }}</span>
                                         </div>
                                         <div class="grid grid-cols-2 gap-2">
-                                            <template x-for="slot in slots['Noche']" :key="slot">
+                                            <template x-for="slot in slots.night" :key="slot">
                                                 <button type="button" 
                                                         @click="selectedSlot = slot"
                                                         :class="{'bg-indigo-500 text-white shadow-md transform scale-105': selectedSlot === slot, 'bg-white text-gray-700 hover:bg-indigo-100 border border-indigo-200': selectedSlot !== slot}"
@@ -233,7 +233,7 @@
                             </div>
                             
                             <div x-show="!isLoading && totalSlots === 0 && fecha && selectedConsultorioId" class="mb-6 text-red-500">
-                                <p>No hay horarios disponibles para esta selección.</p>
+                                <p>{{ __('citas.slots.none_available') }}</p>
                                 <template x-if="errorMessage">
                                     <p x-text="errorMessage" class="text-sm mt-1"></p>
                                 </template>
@@ -241,23 +241,23 @@
 
                             <!-- 7. Motivo -->
                             <div x-show="selectedSlot" class="mb-6" x-transition>
-                                <label class="block text-gray-700 text-sm font-bold mb-2">7. Motivo de la Consulta</label>
+                                <label class="block text-gray-700 text-sm font-bold mb-2">{{ __('citas.steps.reason') }}</label>
                                 <textarea name="motivo" rows="4" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:border-[#0061F5] focus:ring-[#0061F5] focus:outline-none"></textarea>
                             </div>
 
                             <div class="flex items-center justify-end mt-6 space-x-4">
                                 <div x-show="!isValid" class="text-sm text-red-500 font-medium mr-4">
-                                    <span x-show="!selectedDoctorId">Falta seleccionar Doctor.</span>
-                                    <span x-show="selectedDoctorId && !selectedConsultorioId">Falta seleccionar Consultorio.</span>
-                                    <span x-show="selectedDoctorId && !selectedClinicaId">Falta seleccionar Clínica.</span>
-                                    <span x-show="selectedDoctorId && selectedConsultorioId && !selectedSlot">Falta seleccionar un Horario.</span>
-                                    <span x-show="selectedDoctorId && selectedConsultorioId && selectedSlot && !selectedPatientId">Falta seleccionar Paciente.</span>
+                                    <span x-show="!selectedDoctorId">{{ __('citas.validation.missing_doctor') }}</span>
+                                    <span x-show="selectedDoctorId && !selectedConsultorioId">{{ __('citas.validation.missing_office') }}</span>
+                                    <span x-show="selectedDoctorId && !selectedClinicaId">{{ __('citas.validation.missing_clinic') }}</span>
+                                    <span x-show="selectedDoctorId && selectedConsultorioId && !selectedSlot">{{ __('citas.validation.missing_slot') }}</span>
+                                    <span x-show="selectedDoctorId && selectedConsultorioId && selectedSlot && !selectedPatientId">{{ __('citas.validation.missing_patient') }}</span>
                                 </div>
                                 <div>
                                     <x-primary-button 
                                             x-bind:disabled="!isValid"
                                             class="disabled:opacity-50 disabled:cursor-not-allowed">
-                                        Guardar
+                                        {{ __('citas.buttons.save') }}
                                     </x-primary-button>
                                 </div>
                             </div>
@@ -276,8 +276,22 @@
         ] : null, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP) !!}
     </script>
 
+    <script type="application/json" id="citas-i18n-json">
+        {!! json_encode([
+            'connectionErrorSlots' => __('citas.api.connection_error_slots'),
+            'am' => __('citas.time.am'),
+            'pm' => __('citas.time.pm'),
+        ], JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP) !!}
+    </script>
+
     <script>
         function appointmentForm() {
+            let t = {
+                connectionErrorSlots: '',
+                am: '',
+                pm: '',
+            };
+
             return {
                 searchDoctor: '',
                 doctors: [],
@@ -306,6 +320,17 @@
                 errorMessage: '',
 
                 init() {
+                    const i18nEl = document.getElementById('citas-i18n-json');
+                    if (i18nEl && i18nEl.textContent) {
+                        try {
+                            const parsed = JSON.parse(i18nEl.textContent);
+                            if (parsed && typeof parsed === 'object') {
+                                t = { ...t, ...parsed };
+                            }
+                        } catch (e) {
+                        }
+                    }
+
                     const fixedDoctorEl = document.getElementById('fixed-doctor-json');
                     if (!fixedDoctorEl || !fixedDoctorEl.textContent) {
                         return;
@@ -443,7 +468,7 @@
                             console.error('Error fetching slots:', error);
                             this.slots = {};
                             this.totalSlots = 0;
-                            this.errorMessage = 'Error de conexión al buscar horarios.';
+                            this.errorMessage = t.connectionErrorSlots;
                         } finally {
                             this.isLoading = false;
                         }
@@ -458,7 +483,7 @@
                     if (!time) return '';
                     let [hours, minutes] = time.split(':');
                     hours = parseInt(hours);
-                    const ampm = hours >= 12 ? 'p.m.' : 'a.m.';
+                    const ampm = hours >= 12 ? t.pm : t.am;
                     hours = hours % 12;
                     hours = hours ? hours : 12; // the hour '0' should be '12'
                     hours = hours < 10 ? '0' + hours : hours;

@@ -1,0 +1,67 @@
+<?php
+
+return [
+    'title' => 'Consultations List',
+    'columns' => [
+        'patient' => 'PATIENT',
+        'doctor' => 'DOCTOR',
+        'date' => 'DATE',
+        'type' => 'TYPE',
+        'status' => 'STATUS',
+        'actions' => 'ACTIONS',
+        'diagnosis' => 'DIAGNOSIS',
+    ],
+    'create' => 'New Consultation',
+    'edit' => 'Edit Consultation',
+    'fields' => [
+        'patient' => 'Patient',
+        'doctor' => 'Doctor',
+        'date' => 'Date',
+        'diagnosis' => 'Diagnosis',
+        'treatment' => 'Treatment',
+        'notes' => 'Notes',
+        'type' => 'Type',
+        'status' => 'Status',
+    ],
+    'sections' => [
+        'vital_signs' => 'Vital Signs',
+        'diagnosis' => 'Diagnosis',
+        'treatment' => 'Treatment',
+        'studies' => 'Ordered Studies',
+        'prescriptions' => 'Prescriptions',
+        'notes' => 'Additional Notes',
+    ],
+    'studies' => [
+        'title' => 'Studies',
+        'add' => 'Add Study',
+        'edit' => 'Edit Study',
+        'name' => 'Study Name',
+        'results' => 'Results',
+        'file' => 'File',
+        'upload' => 'Upload File',
+        'view' => 'View Study',
+        'no_results' => 'No results',
+        'messages' => [
+            'created_success' => 'Study order saved successfully.',
+            'updated_success' => 'Study order updated successfully.',
+            'deleted_success' => 'Study order deleted successfully.',
+            'files_uploaded' => ':count files uploaded successfully.',
+            'file_deleted_success' => 'Study file deleted successfully.',
+        ],
+        'errors' => [
+            'delete_failed' => 'Error deleting the study order.',
+            'file_delete_failed' => 'Error deleting the study file.',
+        ],
+    ],
+    'messages' => [
+        'created_success' => 'Consultation saved successfully.',
+        'updated_success' => 'Consultation updated successfully.',
+        'deleted_success' => 'Consultation deleted successfully.',
+    ],
+    'errors' => [
+        'no_permission_start' => 'You do not have permission to start this consultation.',
+        'create_failed' => 'Error saving the consultation: :error',
+        'update_failed' => 'Error updating the consultation: :error',
+        'delete_failed' => 'Error deleting the consultation.',
+    ],
+];

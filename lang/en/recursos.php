@@ -1,0 +1,155 @@
+<?php
+
+return [
+    'title' => 'Resource Management',
+    'shared' => [
+        'title' => 'Shared Resources',
+    ],
+    'columns' => [
+        'resource' => 'RESOURCE',
+        'name' => 'NAME',
+        'type' => 'TYPE',
+        'status' => 'STATUS',
+        'location' => 'LOCATION',
+        'actions' => 'ACTIONS',
+        'description' => 'DESCRIPTION',
+    ],
+    'create' => 'Create Resource',
+    'edit' => 'Edit Resource',
+    'fields' => [
+        'name' => 'Name',
+        'type' => 'Type',
+        'description' => 'Operating rooms, meeting rooms or other shared resources.',
+        'location' => 'Location',
+        'status' => 'Status',
+        'color' => 'Color',
+    ],
+    'index' => [
+        'buttons' => [
+            'agenda' => 'Resource schedule',
+            'permissions' => 'Permissions',
+        ],
+        'new' => 'New',
+        'form' => [
+            'name' => 'Name',
+            'type' => 'Type',
+            'type_placeholder' => 'Operating room, meeting room, equipment',
+            'color' => 'Color',
+            'description' => 'Description',
+            'submit' => 'Add resource',
+        ],
+        'filters' => [
+            'doctor' => 'Doctor',
+            'current_doctor_resources' => 'Current doctor resources',
+            'status' => 'Status',
+            'all' => 'All',
+            'active_only' => 'Active only',
+            'inactive_only' => 'Inactive only',
+        ],
+        'messages' => [
+            'not_specified' => 'Not specified',
+            'no_resources' => 'No resources registered for this doctor.',
+        ],
+    ],
+    'confirm' => [
+        'delete_resource' => 'Delete this resource?',
+    ],
+    'agenda' => [
+        'title' => 'Resource Schedule',
+        'breadcrumb' => 'Schedule',
+        'description' => 'Calendar-like view similar to Google Calendar to reserve resources.',
+        'export_pdf' => 'Export Schedule PDF',
+        'reserve' => 'Reserve',
+        'edit' => 'Edit Reservation',
+        'delete' => 'Delete Reservation',
+        'buttons' => [
+            'catalog' => 'Resource catalog',
+            'permissions' => 'Permissions',
+        ],
+        'filters' => [
+            'resource' => 'Resource',
+            'all' => 'All',
+            'view' => 'View:',
+            'views' => [
+                'month' => 'Month',
+                'week' => 'Week',
+                'day' => 'Day',
+                'year' => 'Year',
+            ],
+        ],
+        'modal' => [
+            'create_title' => 'New resource reservation',
+            'fields' => [
+                'resource' => 'Resource',
+                'assign_to' => 'Assign to',
+                'title' => 'Title',
+                'date' => 'Date',
+                'start_time' => 'Start time',
+                'duration_minutes' => 'Duration (minutes)',
+                'comment' => 'Comment',
+            ],
+            'placeholders' => [
+                'select_resource' => 'Select a resource',
+                'select_user' => 'Select a user',
+                'title_example' => 'e.g. Surgery, Meeting, Procedure',
+                'comment' => 'Additional reservation details',
+            ],
+            'actions' => [
+                'save' => 'Save reservation',
+            ],
+        ],
+        'calendar' => [
+            'buttonText' => [
+                'today' => 'Today',
+                'month' => 'Month',
+                'week' => 'Week',
+                'day' => 'Day',
+                'year' => 'Year',
+                'list' => 'List',
+            ],
+            'allDayText' => 'All-day',
+            'noEventsText' => 'No reservations to display',
+        ],
+        'js' => [
+            'confirm_delete' => 'Delete this reservation?',
+            'errors' => [
+                'generic' => 'An error occurred while processing the reservation.',
+                'need_resource_first' => 'Create at least one resource first.',
+                'select_resource' => 'Select a resource.',
+                'select_user' => 'Select a user.',
+                'check_date_time_duration' => 'Check date, time and duration.',
+                'create_failed' => "Couldn't create the reservation.",
+                'update_failed' => "Couldn't update the reservation.",
+                'delete_failed' => "Couldn't delete the reservation.",
+            ],
+        ],
+    ],
+    'permissions' => [
+        'title' => 'Resource Permissions',
+        'manage' => 'Manage Permissions',
+        'breadcrumb' => 'Permissions',
+        'description' => "Define which users can manage the doctor's resource schedule.",
+        'fields' => [
+            'doctor' => 'Doctor',
+            'can_manage' => 'Can manage resources',
+            'always_active' => 'Always active',
+        ],
+        'buttons' => [
+            'go_to_agenda' => 'Go to schedule',
+            'save_changes' => 'Save changes',
+        ],
+    ],
+    'pdf' => [
+        'title' => 'Reservations Report',
+        'subtitle' => 'Resource reservations report',
+        'period' => 'Period: :period',
+        'columns' => [
+            'date' => 'Date',
+            'time' => 'Time',
+            'resource' => 'Resource',
+            'user' => 'User',
+            'details' => 'Details / Notes',
+        ],
+        'no_reservations' => 'No reservations for the selected period.',
+    ],
+];

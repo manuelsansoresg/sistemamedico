@@ -6,13 +6,13 @@
                     <li class="inline-flex items-center">
                         <a href="{{ auth()->user()->hasRole('root') ? route('admin.dashboard') : route('dashboard') }}" class="inline-flex items-center text-sm font-medium text-gray-700 hover:text-[#0061F5]">
                             <i class="fas fa-home mr-2"></i>
-                            Inicio
+                            {{ __('dashboard.title') }}
                         </a>
                     </li>
                     <li aria-current="page">
                         <div class="flex items-center">
                             <i class="fas fa-chevron-right text-gray-400 mx-1"></i>
-                            <span class="ml-1 text-sm font-medium text-gray-500 md:ml-2">Recursos Compartidos</span>
+                            <span class="ml-1 text-sm font-medium text-gray-500 md:ml-2">{{ __('recursos.title') }}</span>
                         </div>
                     </li>
                 </ol>
@@ -22,18 +22,18 @@
                 <div class="p-6 bg-white border-b border-gray-200">
                     <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
                         <div>
-                            <h2 class="text-xl font-bold text-gray-800">Recursos Compartidos</h2>
-                            <p class="mt-1 text-sm text-gray-500">Quirofanos, salas de juntas u otros recursos comunes.</p>
+                            <h2 class="text-xl font-bold text-gray-800">{{ __('recursos.title') }}</h2>
+                            <p class="mt-1 text-sm text-gray-500">{{ __('recursos.fields.description') }}</p>
                         </div>
                         <div class="flex flex-wrap items-center gap-2">
                             <a href="{{ route('recursos.agenda', ['doctor_id' => $doctorId]) }}" class="inline-flex items-center px-4 py-2 bg-[#0061F5] text-white text-sm font-bold rounded-md hover:bg-[#0051CC] transition-colors shadow-sm">
                                 <i class="fas fa-calendar-alt mr-2"></i>
-                                Agenda de recursos
+                                {{ __('recursos.index.buttons.agenda') }}
                             </a>
                             @if(auth()->user()->hasRole(['root', 'doctor']))
                                 <a href="{{ route('recursos.permisos', ['doctor_id' => $doctorId]) }}" class="inline-flex items-center px-4 py-2 bg-gray-100 text-gray-700 text-sm font-bold rounded-md hover:bg-gray-200 transition-colors shadow-sm">
                                     <i class="fas fa-user-shield mr-2"></i>
-                                    Permisos
+                                    {{ __('recursos.index.buttons.permissions') }}
                                 </a>
                             @endif
                         </div>
@@ -42,22 +42,22 @@
                     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
                         <div class="lg:col-span-1">
                             <div class="mb-4 flex items-center justify-between">
-                                <h3 class="text-sm font-bold text-gray-800">Nuevo</h3>
+                                <h3 class="text-sm font-bold text-gray-800">{{ __('recursos.index.new') }}</h3>
                             </div>
                             <form action="{{ route('recursos.store') }}" method="POST" class="space-y-4">
                                 @csrf
                                 <input type="hidden" name="doctor_id" value="{{ $doctorId }}">
                                 <div>
-                                    <label class="block text-xs font-semibold text-gray-500 mb-1">Nombre</label>
+                                    <label class="block text-xs font-semibold text-gray-500 mb-1">{{ __('recursos.index.form.name') }}</label>
                                     <input type="text" name="nombre" class="block w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-[#0061F5] focus:border-[#0061F5]" required>
                                 </div>
                                 <div>
-                                    <label class="block text-xs font-semibold text-gray-500 mb-1">Tipo</label>
-                                    <input type="text" name="tipo" class="block w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-[#0061F5] focus:border-[#0061F5]" placeholder="Quirofano, sala de juntas, equipo">
+                                    <label class="block text-xs font-semibold text-gray-500 mb-1">{{ __('recursos.index.form.type') }}</label>
+                                    <input type="text" name="tipo" class="block w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-[#0061F5] focus:border-[#0061F5]" placeholder="{{ __('recursos.index.form.type_placeholder') }}">
                                 </div>
                                 <div class="flex items-center gap-3">
                                     <div class="flex-1">
-                                        <label class="block text-xs font-semibold text-gray-500 mb-1">Color</label>
+                                        <label class="block text-xs font-semibold text-gray-500 mb-1">{{ __('recursos.index.form.color') }}</label>
                                         <input type="text" name="color" value="#0061F5" class="block w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-[#0061F5] focus:border-[#0061F5]">
                                     </div>
                                     <div class="mt-6">
@@ -65,13 +65,13 @@
                                     </div>
                                 </div>
                                 <div>
-                                    <label class="block text-xs font-semibold text-gray-500 mb-1">Descripción</label>
+                                    <label class="block text-xs font-semibold text-gray-500 mb-1">{{ __('recursos.index.form.description') }}</label>
                                     <textarea name="descripcion" rows="3" class="block w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-[#0061F5] focus:border-[#0061F5]"></textarea>
                                 </div>
                                 <div class="flex justify-end">
                                     <button type="submit" class="inline-flex items-center px-4 py-2 bg-[#0061F5] text-white text-sm font-bold rounded-md hover:bg-[#0051CC] transition-colors shadow-sm">
                                         <i class="fas fa-plus mr-2"></i>
-                                        Agregar recurso
+                                        {{ __('recursos.index.form.submit') }}
                                     </button>
                                 </div>
                             </form>
@@ -82,7 +82,7 @@
                                 <div class="flex items-center gap-2">
                                     @if(auth()->user()->hasRole('root'))
                                         <form method="GET" action="{{ route('recursos.index') }}" class="flex items-center gap-2">
-                                            <label class="text-xs font-semibold text-gray-500">Doctor</label>
+                                            <label class="text-xs font-semibold text-gray-500">{{ __('recursos.index.filters.doctor') }}</label>
                                             <select name="doctor_id" onchange="this.form.submit()" class="px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-[#0061F5] focus:border-[#0061F5]">
                                                 @foreach($doctors as $doctor)
                                                     <option value="{{ $doctor->id }}" @selected($doctorId === $doctor->id)>{{ $doctor->name }}</option>
@@ -90,17 +90,17 @@
                                             </select>
                                         </form>
                                     @else
-                                        <span class="text-xs text-gray-500">Recursos del doctor actual</span>
+                                        <span class="text-xs text-gray-500">{{ __('recursos.index.filters.current_doctor_resources') }}</span>
                                     @endif
                                 </div>
 
                                 <form method="GET" action="{{ route('recursos.index') }}" class="flex items-center gap-2">
                                     <input type="hidden" name="doctor_id" value="{{ $doctorId }}">
-                                    <label class="text-xs font-semibold text-gray-500">Estado</label>
+                                    <label class="text-xs font-semibold text-gray-500">{{ __('recursos.index.filters.status') }}</label>
                                     <select name="activo" onchange="this.form.submit()" class="px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-[#0061F5] focus:border-[#0061F5]">
-                                        <option value="">Todos</option>
-                                        <option value="1" @selected(request('activo') === '1')>Solo activos</option>
-                                        <option value="0" @selected(request('activo') === '0')>Solo inactivos</option>
+                                        <option value="">{{ __('recursos.index.filters.all') }}</option>
+                                        <option value="1" @selected(request('activo') === '1')>{{ __('recursos.index.filters.active_only') }}</option>
+                                        <option value="0" @selected(request('activo') === '0')>{{ __('recursos.index.filters.inactive_only') }}</option>
                                     </select>
                                 </form>
                             </div>
@@ -109,10 +109,10 @@
                                 <table class="min-w-full divide-y divide-gray-200">
                                     <thead class="bg-gray-50">
                                         <tr class="hover:bg-gray-50 transition-colors">
-                                            <th class="px-6 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">RECURSO</th>
-                                            <th class="px-6 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">TIPO</th>
-                                            <th class="px-6 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">ESTADO</th>
-                                            <th class="px-6 py-3 text-right text-xs font-bold text-gray-700 uppercase tracking-wider">ACCIONES</th>
+                                            <th class="px-6 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">{{ __('recursos.columns.resource') }}</th>
+                                            <th class="px-6 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">{{ __('recursos.columns.type') }}</th>
+                                            <th class="px-6 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">{{ __('recursos.columns.status') }}</th>
+                                            <th class="px-6 py-3 text-right text-xs font-bold text-gray-700 uppercase tracking-wider">{{ __('recursos.columns.actions') }}</th>
                                         </tr>
                                     </thead>
                                     <tbody class="bg-white divide-y divide-gray-200">
@@ -128,13 +128,13 @@
                                                     @endif
                                                 </td>
                                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                                    {{ $recurso->tipo ?: 'Sin especificar' }}
+                                                    {{ $recurso->tipo ?: __('recursos.index.messages.not_specified') }}
                                                 </td>
                                                 <td class="px-6 py-4 whitespace-nowrap text-sm">
                                                     @if($recurso->activo)
-                                                        <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-700">Activo</span>
+                                                        <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-700">{{ __('status.active') }}</span>
                                                     @else
-                                                        <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-gray-100 text-gray-600">Inactivo</span>
+                                                        <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-gray-100 text-gray-600">{{ __('status.inactive') }}</span>
                                                     @endif
                                                 </td>
                                                 <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
@@ -147,14 +147,17 @@
                                                             <input type="hidden" name="color" value="{{ $recurso->color }}">
                                                             <input type="hidden" name="descripcion" value="{{ $recurso->descripcion }}">
                                                             <input type="hidden" name="activo" value="{{ $recurso->activo ? 0 : 1 }}">
-                                                            <button type="submit" class="inline-flex items-center justify-center w-9 h-9 rounded-md {{ $recurso->activo ? 'bg-gray-100 text-gray-700 hover:bg-gray-200' : 'bg-green-100 text-green-700 hover:bg-green-200' }} transition-colors shadow-sm" title="{{ $recurso->activo ? 'Desactivar' : 'Activar' }}">
+                                                            <button type="submit" class="inline-flex items-center justify-center w-9 h-9 rounded-md {{ $recurso->activo ? 'bg-gray-100 text-gray-700 hover:bg-gray-200' : 'bg-green-100 text-green-700 hover:bg-green-200' }} transition-colors shadow-sm" title="{{ $recurso->activo ? __('common.buttons.deactivate') : __('common.buttons.activate') }}">
                                                                 <i class="fas {{ $recurso->activo ? 'fa-toggle-on' : 'fa-toggle-off' }}"></i>
                                                             </button>
                                                         </form>
-                                                        <form action="{{ route('recursos.destroy', $recurso) }}" method="POST" class="inline-block" onsubmit="return confirm('¿Eliminar este recurso?');">
+                                                        @php
+                                                            $confirmDeleteResource = __('recursos.confirm.delete_resource');
+                                                        @endphp
+                                                        <form action="{{ route('recursos.destroy', $recurso) }}" method="POST" class="inline-block" onsubmit="return confirm('{{ $confirmDeleteResource }}');">
                                                             @csrf
                                                             @method('DELETE')
-                                                            <button type="submit" class="inline-flex cursor-pointer items-center justify-center w-9 h-9 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors shadow-sm" title="Eliminar">
+                                                            <button type="submit" class="inline-flex cursor-pointer items-center justify-center w-9 h-9 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors shadow-sm" title="{{ __('common.buttons.delete') }}">
                                                                 <i class="fas fa-trash"></i>
                                                             </button>
                                                         </form>
@@ -164,7 +167,7 @@
                                         @empty
                                             <tr class="hover:bg-gray-50 transition-colors">
                                                 <td colspan="4" class="px-6 py-4 text-center text-sm text-gray-500">
-                                                    No hay recursos registrados para este doctor.
+                                                    {{ __('recursos.index.messages.no_resources') }}
                                                 </td>
                                             </tr>
                                         @endforelse

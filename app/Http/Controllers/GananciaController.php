@@ -75,7 +75,7 @@ class GananciaController extends Controller
 
         $chartQuery = clone $summaryQuery;
 
-        if (!$user->hasRole('doctor')) {
+        if (! $user->hasRole('doctor')) {
             $totalGanancias = $summaryQuery->sum(DB::raw('monto_total - monto_ganancia_doctor'));
             $gananciasPorDia = $chartQuery->selectRaw('DATE(fecha) as dia, SUM(monto_total - monto_ganancia_doctor) as total')
                 ->groupBy('dia')->orderBy('dia')->get();
@@ -87,7 +87,7 @@ class GananciaController extends Controller
 
         $ganancias = $query->latest('fecha')->paginate(15)->withQueryString();
 
-        $doctors = !$user->hasRole('doctor') ? User::role('doctor')->get() : [];
+        $doctors = ! $user->hasRole('doctor') ? User::role('doctor')->get() : [];
 
         $tiposIngreso = [
             'compra' => 'Compra',
@@ -115,7 +115,7 @@ class GananciaController extends Controller
 
         $totalVentas = (clone $query)->sum('monto_total');
 
-        if (!$user->hasRole('doctor')) {
+        if (! $user->hasRole('doctor')) {
             $totalGanancias = (clone $query)->sum(DB::raw('monto_total - monto_ganancia_doctor'));
         } else {
             $totalGanancias = (clone $query)->sum('monto_ganancia_doctor');
@@ -134,13 +134,13 @@ class GananciaController extends Controller
         if ($periodo === 'mes_anterior') {
             $carbon = now()->subMonth();
             $monthName = $nombresMeses[$carbon->format('F')] ?? $carbon->format('F');
-            $periodoLabel = $monthName . ' ' . $carbon->format('Y');
+            $periodoLabel = $monthName.' '.$carbon->format('Y');
         } elseif ($periodo === 'mes_actual') {
             $carbon = now();
             $monthName = $nombresMeses[$carbon->format('F')] ?? $carbon->format('F');
-            $periodoLabel = $monthName . ' ' . $carbon->format('Y');
+            $periodoLabel = $monthName.' '.$carbon->format('Y');
         } else {
-            $periodoLabel = 'Del ' . \Carbon\Carbon::parse($dateStart)->format('d/m/Y') . ' al ' . \Carbon\Carbon::parse($dateEnd)->format('d/m/Y');
+            $periodoLabel = 'Del '.\Carbon\Carbon::parse($dateStart)->format('d/m/Y').' al '.\Carbon\Carbon::parse($dateEnd)->format('d/m/Y');
         }
 
         $pdf = Pdf::loadView('ganancias.pdf', compact(
@@ -148,7 +148,7 @@ class GananciaController extends Controller
             'user', 'periodoLabel', 'dateStart', 'dateEnd'
         ))->setPaper('a4', 'landscape');
 
-        $filename = 'reporte-ganancias-' . now()->format('Y-m-d') . '.pdf';
+        $filename = 'reporte-ganancias-'.now()->format('Y-m-d').'.pdf';
 
         return $pdf->download($filename);
     }

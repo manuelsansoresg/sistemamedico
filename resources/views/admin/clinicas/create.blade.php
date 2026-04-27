@@ -7,19 +7,19 @@
                     <li class="inline-flex items-center">
                         <a href="{{ route('dashboard') }}" class="inline-flex items-center text-sm font-medium text-gray-700 hover:text-[#0061F5]">
                             <i class="fas fa-home mr-2"></i>
-                            Inicio
+                            {{ __('common.breadcrumbs.home') }}
                         </a>
                     </li>
                     <li>
                         <div class="flex items-center">
                             <i class="fas fa-chevron-right text-gray-400 mx-1"></i>
-                            <a href="{{ route('clinicas.index') }}" class="ml-1 text-sm font-medium text-gray-700 hover:text-[#0061F5] md:ml-2">Clínicas</a>
+                            <a href="{{ route('clinicas.index') }}" class="ml-1 text-sm font-medium text-gray-700 hover:text-[#0061F5] md:ml-2">{{ __('clinicas.breadcrumbs.index') }}</a>
                         </div>
                     </li>
                     <li aria-current="page">
                         <div class="flex items-center">
                             <i class="fas fa-chevron-right text-gray-400 mx-1"></i>
-                            <span class="ml-1 text-sm font-medium text-gray-500 md:ml-2">Crear</span>
+                            <span class="ml-1 text-sm font-medium text-gray-500 md:ml-2">{{ __('clinicas.breadcrumbs.create') }}</span>
                         </div>
                     </li>
                 </ol>
@@ -33,14 +33,14 @@
                         <div class="grid grid-cols-1 gap-6">
                             <!-- Nombre -->
                             <div>
-                                <label for="nombre" class="block text-sm font-bold text-gray-700">Nombre</label>
+                                <label for="nombre" class="block text-sm font-bold text-gray-700">{{ __('clinicas.fields.name') }}</label>
                                 <input type="text" name="nombre" id="nombre" value="{{ old('nombre') }}" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-[#0061F5] focus:ring-[#0061F5]" required>
                             </div>
 
                             <!-- Dirección -->
                             <div>
-                                <label for="direccion" class="block text-sm font-bold text-gray-700">Dirección</label>
-                                <input x-ref="addressInput" type="text" name="direccion" id="direccion" x-model="address" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-[#0061F5] focus:ring-[#0061F5]" placeholder="Escribe la dirección para buscar..." required>
+                                <label for="direccion" class="block text-sm font-bold text-gray-700">{{ __('clinicas.fields.address') }}</label>
+                                <input x-ref="addressInput" type="text" name="direccion" id="direccion" x-model="address" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-[#0061F5] focus:ring-[#0061F5]" placeholder="{{ __('clinicas.placeholders.address_search') }}" required>
                                 <input type="hidden" name="lat" x-model="lat">
                                 <input type="hidden" name="lng" x-model="lng">
                             </div>
@@ -54,32 +54,32 @@
 
                             <!-- Teléfono -->
                             <div>
-                                <label for="telefono" class="block text-sm font-bold text-gray-700">Teléfono</label>
+                                <label for="telefono" class="block text-sm font-bold text-gray-700">{{ __('clinicas.fields.phone') }}</label>
                                 <input type="text" name="telefono" id="telefono" value="{{ old('telefono') }}" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-[#0061F5] focus:ring-[#0061F5]" required>
                             </div>
 
                             <!-- Ubicación (Notas) -->
                             <div>
-                                <label for="ubicacion" class="block text-sm font-bold text-gray-700">Detalles de Ubicación (Opcional)</label>
+                                <label for="ubicacion" class="block text-sm font-bold text-gray-700">{{ __('clinicas.fields.location_details_optional') }}</label>
                                 <textarea name="ubicacion" id="ubicacion" rows="3" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-[#0061F5] focus:ring-[#0061F5]">{{ old('ubicacion') }}</textarea>
                             </div>
 
                             <!-- Logotipo -->
                             <div>
-                                <label for="logo" class="block text-sm font-bold text-gray-700">Logo</label>
+                                <label for="logo" class="block text-sm font-bold text-gray-700">{{ __('clinicas.fields.logo') }}</label>
                                 <input type="file" name="logo" id="logo" class="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-[#E6F0FF] file:text-[#0061F5] hover:file:bg-[#CCE0FF]">
                             </div>
 
                             <!-- Activo -->
                             <div class="flex items-center">
                                 <input type="checkbox" name="activo" id="activo" value="1" class="rounded border-gray-300 text-[#0061F5] shadow-sm focus:border-[#0061F5] focus:ring-[#0061F5]" {{ old('activo', '1') ? 'checked' : '' }}>
-                                <label for="activo" class="ml-2 block text-sm font-medium text-gray-700">Activo</label>
+                                <label for="activo" class="ml-2 block text-sm font-medium text-gray-700">{{ __('status.active') }}</label>
                             </div>
                         </div>
 
                         <div class="flex justify-end mt-6">
-                            <a href="{{ route('clinicas.index') }}" class="px-4 py-2 bg-gray-500 text-white font-bold rounded-md hover:bg-gray-600 transition-colors mr-2">Cancelar</a>
-                            <x-primary-button>Guardar</x-primary-button>
+                            <a href="{{ route('clinicas.index') }}" class="px-4 py-2 bg-gray-500 text-white font-bold rounded-md hover:bg-gray-600 transition-colors mr-2">{{ __('common.buttons.cancel') }}</a>
+                            <x-primary-button>{{ __('common.buttons.save') }}</x-primary-button>
                         </div>
                     </form>
                 </div>
