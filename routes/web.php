@@ -67,6 +67,10 @@ Route::middleware(['auth', 'role:root'])->group(function () {
     // Horarios Routes (Moved to shared group)
 });
 
+Route::middleware(['auth', 'role:root|doctor'])->group(function () {
+    Route::resource('admin/servicios', \App\Http\Controllers\ServicioController::class);
+});
+
 Route::middleware(['auth', 'role:root|doctor|asistente|secretaria', 'check.doctor.status'])->group(function () {
     Route::resource('admin/clinicas', \App\Http\Controllers\ClinicaController::class);
     Route::resource('admin/consultorios', \App\Http\Controllers\ConsultorioController::class);
@@ -154,7 +158,7 @@ Route::middleware(['auth', 'role:root|doctor|asistente|secretaria', 'check.docto
 
     // Branding
     Route::get('admin/branding', [App\Http\Controllers\BrandingController::class, 'edit'])->name('branding.edit');
-    Route::post('admin/branding/logo', [App\Http\Controllers\BrandingController::class, 'updateLogo'])->name('branding.update_logo');
+    Route::post('admin/branding', [App\Http\Controllers\BrandingController::class, 'update'])->name('branding.update');
 });
 
 Route::middleware(['auth', 'role:doctor'])->group(function () {

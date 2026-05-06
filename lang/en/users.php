@@ -23,6 +23,8 @@ return [
     ],
     'fields' => [
         'name' => 'Name',
+        'apellido_paterno' => 'Last Name',
+        'apellido_materno' => 'Mother Last Name',
         'last_name' => 'Last Name',
         'mother_last_name' => 'Mother Last Name',
         'photo' => 'Profile Photo',
@@ -36,6 +38,13 @@ return [
         'specialty' => 'Specialty',
         'professional_id' => 'Professional ID',
         'user_role' => 'User Role',
+        'birth_date' => 'Birth Date',
+        'gender' => 'Gender',
+        'imss_number' => 'IMSS Number',
+        'address' => 'Address',
+        'weight' => 'Weight',
+        'height' => 'Height',
+        'allergies' => 'Allergies',
     ],
     'help' => [
         'keep_password' => 'Leave blank to keep current.',

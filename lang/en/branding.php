@@ -1,16 +1,13 @@
 <?php
 
 return [
-    'title' => 'Brand Customization',
-    'edit' => 'Edit Brand',
-    'description' => 'Configure the logo that will appear on prescriptions, orders, and reports.',
+    'title' => 'My Profile',
+    'edit' => 'Edit Profile',
+    'description' => 'Update your personal information and contact details.',
     'fields' => [
-        'logo' => 'Logo',
-        'company_name' => 'Company Name',
-        'primary_color' => 'Primary Color',
-        'secondary_color' => 'Secondary Color',
+        'profile_photo' => 'Profile Photo',
     ],
-    'current_logo' => 'Current Logo',
-    'upload_logo' => 'Upload Logo',
-    'logo_updated' => 'Logo updated successfully',
+    'profile_updated' => 'Profile updated successfully.',
+    'change_password' => 'Change Password',
+    'password_hint' => 'Leave blank to keep current password.',
 ];

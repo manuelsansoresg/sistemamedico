@@ -1,16 +1,13 @@
 <?php
 
 return [
-    'title' => 'Personalización de Marca',
-    'edit' => 'Editar Marca',
-    'description' => 'Configura el logo que se mostrará en recetas, órdenes y reportes.',
+    'title' => 'Mi Perfil',
+    'edit' => 'Editar Perfil',
+    'description' => 'Actualiza tu información personal y datos de contacto.',
     'fields' => [
-        'logo' => 'Logo',
-        'company_name' => 'Nombre de la Empresa',
-        'primary_color' => 'Color Principal',
-        'secondary_color' => 'Color Secundario',
+        'profile_photo' => 'Foto de Perfil',
     ],
-    'current_logo' => 'Logo Actual',
-    'upload_logo' => 'Subir Logo',
-    'logo_updated' => 'Logo actualizado exitosamente',
+    'profile_updated' => 'Perfil actualizado exitosamente.',
+    'change_password' => 'Cambiar Contraseña',
+    'password_hint' => 'Dejar en blanco para mantener la contraseña actual.',
 ];

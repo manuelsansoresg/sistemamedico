@@ -3,23 +3,6 @@
     <div class="py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-6">
 
-            <nav class="flex" aria-label="Breadcrumb">
-                <ol class="inline-flex items-center space-x-1 md:space-x-3">
-                    <li class="inline-flex items-center">
-                        <a href="{{ route('dashboard') }}" class="inline-flex items-center text-sm font-medium text-gray-700 hover:text-[#0061F5]">
-                            <i class="fas fa-home mr-2"></i>
-                            {{ __('common.breadcrumbs.home') }}
-                        </a>
-                    </li>
-                    <li aria-current="page">
-                        <div class="flex items-center">
-                            <i class="fas fa-chevron-right text-gray-400 mx-1"></i>
-                            <span class="ml-1 text-sm font-medium text-gray-500 md:ml-2">{{ __('dashboard.title') }}</span>
-                        </div>
-                    </li>
-                </ol>
-            </nav>
-
             @if (session('payment_error'))
                 <div class="bg-red-50 border-l-4 border-red-500 p-4 shadow-sm rounded-md mb-4">
                     <div class="flex">
@@ -281,10 +264,17 @@
 
                 @role('doctor')
                 <a href="{{ route('branding.edit') }}" class="flex flex-col items-center justify-center p-8 bg-white border border-gray-100 rounded-2xl shadow-[0_2px_15px_-3px_rgba(0,0,0,0.07),0_10px_20px_-2px_rgba(0,0,0,0.04)] hover:shadow-lg transition-all duration-300 group h-48">
-                    <div class="w-20 h-20 bg-blue-50 rounded-full flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300">
-                        <i class="fas fa-palette text-3xl text-[#2563EB]"></i>
+                    <div class="w-20 h-20 bg-[#E6F0FF] rounded-full flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300">
+                        <i class="fas fa-user-circle text-3xl text-[#0061F5]"></i>
                     </div>
-                    <span class="dashboard-card-label">{{ __('dashboard.card_labels.branding') }}</span>
+                    <span class="dashboard-card-label">{{ __('dashboard.card_labels.my_profile') }}</span>
+                </a>
+
+                <a href="{{ route('servicios.index') }}" class="flex flex-col items-center justify-center p-8 bg-white border border-gray-100 rounded-2xl shadow-[0_2px_15px_-3px_rgba(0,0,0,0.07),0_10px_20px_-2px_rgba(0,0,0,0.04)] hover:shadow-lg transition-all duration-300 group h-48">
+                    <div class="w-20 h-20 bg-[#E6F0FF] rounded-full flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300">
+                        <i class="fas fa-hand-holding-medical text-3xl text-[#0061F5]"></i>
+                    </div>
+                    <span class="dashboard-card-label">{{ __('dashboard.card_labels.services') }}</span>
                 </a>
                 @endrole
 
@@ -297,8 +287,8 @@
 
                 @role('doctor')
                 <a href="{{ route('ganancias.index') }}" class="flex flex-col items-center justify-center p-8 bg-white border border-gray-100 rounded-2xl shadow-[0_2px_15px_-3px_rgba(0,0,0,0.07),0_10px_20px_-2px_rgba(0,0,0,0.04)] hover:shadow-lg transition-all duration-300 group h-48">
-                    <div class="w-20 h-20 bg-green-50 rounded-full flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300">
-                        <i class="fas fa-chart-line text-3xl text-green-600"></i>
+                    <div class="w-20 h-20 bg-[#E6F0FF] rounded-full flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300">
+                        <i class="fas fa-chart-line text-3xl text-[#0061F5]"></i>
                     </div>
                     <span class="dashboard-card-label">{{ __('dashboard.card_labels.earnings') }}</span>
                 </a>

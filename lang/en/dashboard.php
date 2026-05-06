@@ -20,6 +20,8 @@ return [
         'resources' => 'RESOURCES',
         'offices' => 'OFFICES',
         'branding' => 'BRANDING',
+        'my_profile' => 'MY PROFILE',
+        'services' => 'SERVICES',
         'schedules' => 'SCHEDULES',
         'patients' => 'PATIENTS',
         'shared_profiles' => 'SHARED PROFILES',

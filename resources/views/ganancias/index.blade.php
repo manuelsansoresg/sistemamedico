@@ -6,7 +6,7 @@
                     <li class="inline-flex items-center">
                         <a href="{{ route('dashboard') }}" class="inline-flex items-center text-sm font-medium text-[#1E293B] hover:text-[#0061F5]">
                             <i class="fas fa-home mr-2"></i>
-                            {{ __('dashboard.title') }}
+                            {{ __('common.breadcrumbs.home') }}
                         </a>
                     </li>
                     <li aria-current="page">

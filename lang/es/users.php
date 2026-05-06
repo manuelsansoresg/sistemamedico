@@ -23,6 +23,8 @@ return [
     ],
     'fields' => [
         'name' => 'Nombre',
+        'apellido_paterno' => 'Apellido Paterno',
+        'apellido_materno' => 'Apellido Materno',
         'last_name' => 'Apellido Paterno',
         'mother_last_name' => 'Apellido Materno',
         'photo' => 'Foto de perfil',
@@ -36,6 +38,13 @@ return [
         'specialty' => 'Especialidad',
         'professional_id' => 'Cédula Profesional',
         'user_role' => 'Rol del Usuario',
+        'birth_date' => 'Fecha de Nacimiento',
+        'gender' => 'Sexo',
+        'imss_number' => 'Número IMSS',
+        'address' => 'Dirección',
+        'weight' => 'Peso',
+        'height' => 'Estatura',
+        'allergies' => 'Alergias',
     ],
     'help' => [
         'keep_password' => 'Dejar en blanco para mantener actual.',

@@ -20,6 +20,8 @@ return [
         'resources' => 'RECURSOS',
         'offices' => 'CONSULTORIOS',
         'branding' => 'BRANDING',
+        'my_profile' => 'MI PERFIL',
+        'services' => 'SERVICIOS',
         'schedules' => 'HORARIOS',
         'patients' => 'PACIENTES',
         'shared_profiles' => 'PERFILES COMPARTIDOS',
