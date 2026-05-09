@@ -35,7 +35,7 @@ class CitaController extends Controller
 
         if ($user->hasRole(['doctor', 'asistente', 'secretaria'])) {
             $ownerId = $user->hasRole('doctor') ? $user->id : $user->created_by;
-            $query->where('doctor_id', $ownerId);
+            $query->whereIn('doctor_id', $this->appointmentAssignableUsersQuery($ownerId)->pluck('id'));
         }
 
         $citas = $query->latest()->paginate(10);
@@ -59,7 +59,8 @@ class CitaController extends Controller
             $owner = User::findOrFail($ownerId);
             $limits = $this->subscriptionService->calculateLimits($owner);
 
-            $doctors = User::where('id', $ownerId)->get();
+            $doctors = $this->appointmentAssignableUsersQuery($ownerId)->get();
+
             $pacientes = User::role('paciente')
                 ->where(function ($q) use ($ownerId) {
                     $q->whereHas('doctors', function ($subQ) use ($ownerId) {
@@ -92,7 +93,7 @@ class CitaController extends Controller
             $clinicas = $clinicasLimit > 0 ? $clinicasQuery->get() : collect();
             $consultorios = $consultoriosLimit > 0 ? $consultoriosQuery->get() : collect();
         } else {
-            $doctors = User::role('doctor')->get();
+            $doctors = $this->appointmentAssignableUsersQuery()->get();
             $pacientes = User::role('paciente')->get();
             $clinicas = Clinica::where('activo', true)->get();
             $consultorios = Consultorio::where('activo', true)->get();
@@ -116,14 +117,15 @@ class CitaController extends Controller
         /** @var \App\Models\User $user */
         $user = Auth::user();
 
-        if ($this->doctorBlockedByCedula((int) $validated['doctor_id'])) {
+        if ($this->doctorBlockedByCedula($this->ownerIdForAppointmentUser((int) $validated['doctor_id']))) {
             return back()
                 ->withInput()
                 ->withErrors(['doctor_id' => __('citas.validation.cedula_not_validated')]);
         }
 
-        if ($user->hasRole(['asistente', 'secretaria'])) {
-            if ($validated['doctor_id'] != $user->created_by) {
+        if ($user->hasRole(['doctor', 'asistente', 'secretaria'])) {
+            $ownerId = $user->hasRole('doctor') ? $user->id : $user->created_by;
+            if (! $this->appointmentAssignableUsersQuery($ownerId)->whereKey($validated['doctor_id'])->exists()) {
                 abort(403, __('citas.errors.no_permission_create_other_doctor'));
             }
         }
@@ -226,7 +228,7 @@ class CitaController extends Controller
 
         if ($user->hasRole(['doctor', 'asistente', 'secretaria'])) {
             $ownerId = $user->hasRole('doctor') ? $user->id : $user->created_by;
-            if ($cita->doctor_id !== $ownerId) {
+            if (! $this->appointmentAssignableUsersQuery($ownerId)->whereKey($cita->doctor_id)->exists()) {
                 abort(403);
             }
         }
@@ -242,14 +244,15 @@ class CitaController extends Controller
         if ($user->hasRole(['doctor', 'asistente', 'secretaria'])) {
             $ownerId = $user->hasRole('doctor') ? $user->id : $user->created_by;
 
-            if ($cita->doctor_id !== $ownerId) {
+            if (! $this->appointmentAssignableUsersQuery($ownerId)->whereKey($cita->doctor_id)->exists()) {
                 abort(403);
             }
 
             $owner = User::findOrFail($ownerId);
             $limits = $this->subscriptionService->calculateLimits($owner);
 
-            $doctors = User::where('id', $ownerId)->get();
+            $doctors = $this->appointmentAssignableUsersQuery($ownerId)->get();
+
             $pacientes = User::role('paciente')
                 ->where(function ($q) use ($ownerId) {
                     $q->whereHas('doctors', function ($subQ) use ($ownerId) {
@@ -282,7 +285,7 @@ class CitaController extends Controller
             $clinicas = $clinicasLimit > 0 ? $clinicasQuery->get() : collect();
             $consultorios = $consultoriosLimit > 0 ? $consultoriosQuery->get() : collect();
         } else {
-            $doctors = User::role('doctor')->get();
+            $doctors = $this->appointmentAssignableUsersQuery()->get();
             $pacientes = User::role('paciente')->get();
             $clinicas = Clinica::where('activo', true)->get();
             $consultorios = Consultorio::where('activo', true)->get();
@@ -298,7 +301,7 @@ class CitaController extends Controller
 
         if ($user->hasRole(['doctor', 'asistente', 'secretaria'])) {
             $ownerId = $user->hasRole('doctor') ? $user->id : $user->created_by;
-            if ($cita->doctor_id !== $ownerId) {
+            if (! $this->appointmentAssignableUsersQuery($ownerId)->whereKey($cita->doctor_id)->exists()) {
                 abort(403);
             }
         }
@@ -314,8 +317,9 @@ class CitaController extends Controller
             'estado' => 'required|in:pendiente,confirmada,cancelada,completada',
         ]);
 
-        if ($user->hasRole(['asistente', 'secretaria'])) {
-            if ($validated['doctor_id'] != $user->created_by) {
+        if ($user->hasRole(['doctor', 'asistente', 'secretaria'])) {
+            $ownerId = $user->hasRole('doctor') ? $user->id : $user->created_by;
+            if (! $this->appointmentAssignableUsersQuery($ownerId)->whereKey($validated['doctor_id'])->exists()) {
                 abort(403, __('citas.errors.no_permission_assign_other_doctor'));
             }
         }
@@ -404,7 +408,7 @@ class CitaController extends Controller
 
         if ($user->hasRole(['doctor', 'asistente', 'secretaria'])) {
             $ownerId = $user->hasRole('doctor') ? $user->id : $user->created_by;
-            if ($cita->doctor_id !== $ownerId) {
+            if (! $this->appointmentAssignableUsersQuery($ownerId)->whereKey($cita->doctor_id)->exists()) {
                 abort(403, __('citas.errors.no_permission_delete'));
             }
         }
@@ -415,18 +419,32 @@ class CitaController extends Controller
     }
 
     /**
-     * Search doctors by name.
+     * Search doctors and assistants by name.
      */
     public function searchDoctors(Request $request)
     {
         $search = $request->get('q');
-        $doctors = User::role('doctor')
+        /** @var \App\Models\User $user */
+        $user = Auth::user();
+
+        $query = $this->appointmentAssignableUsersQuery()
             ->where(function ($q) use ($search) {
                 $q->where('name', 'like', "%{$search}%")
                     ->orWhere('apellido_paterno', 'like', "%{$search}%")
                     ->orWhere('email', 'like', "%{$search}%");
-            })
-            ->limit(10)
+            });
+
+        if ($user->hasRole(['doctor', 'asistente', 'secretaria'])) {
+            $ownerId = $user->hasRole('doctor') ? $user->id : $user->created_by;
+            $query = $this->appointmentAssignableUsersQuery($ownerId)
+                ->where(function ($q) use ($search) {
+                    $q->where('name', 'like', "%{$search}%")
+                        ->orWhere('apellido_paterno', 'like', "%{$search}%")
+                        ->orWhere('email', 'like', "%{$search}%");
+                });
+        }
+
+        $doctors = $query->limit(10)
             ->get(['id', 'name', 'apellido_paterno', 'apellido_materno']);
 
         return response()->json($doctors);
@@ -467,79 +485,66 @@ class CitaController extends Controller
     public function getDoctorData($doctorId)
     {
         $doctor = User::findOrFail($doctorId);
-
-        $limits = $this->subscriptionService->calculateLimits($doctor);
-        $clinicasLimit = $limits['clinicas'] ?? 0;
-        $consultoriosLimit = $limits['consultorios'] ?? 0;
+        $ownerId = $this->ownerIdForAppointmentUser((int) $doctorId);
 
         /** @var \App\Models\User $user */
         $user = Auth::user();
 
-        if ($user->hasRole('doctor')) {
-            $allConsultorios = Consultorio::where('created_by', $user->id)
-                ->where('activo', true)
-                ->where(function ($q) {
-                    $q->whereNull('origen_suscripcion_id')
-                        ->orWhereHas('origenSuscripcion', function ($q2) {
-                            $q2->pagadaVigente();
-                        });
-                })
-                ->get();
-
-            $allClinicas = Clinica::where('created_by', $user->id)
-                ->where('activo', true)
-                ->where(function ($q) {
-                    $q->whereNull('origen_suscripcion_id')
-                        ->orWhereHas('origenSuscripcion', function ($q2) {
-                            $q2->pagadaVigente();
-                        });
-                })
-                ->get();
-        } else {
-            $assignedConsultorios = $doctor->consultorios()
-                ->where('activo', true)
-                ->where(function ($q) {
-                    $q->whereNull('origen_suscripcion_id')
-                        ->orWhereHas('origenSuscripcion', function ($q2) {
-                            $q2->pagadaVigente();
-                        });
-                })
-                ->get();
-
-            $createdConsultorios = Consultorio::where('created_by', $doctorId)
-                ->where('activo', true)
-                ->where(function ($q) {
-                    $q->whereNull('origen_suscripcion_id')
-                        ->orWhereHas('origenSuscripcion', function ($q2) {
-                            $q2->pagadaVigente();
-                        });
-                })
-                ->get();
-
-            $allConsultorios = $assignedConsultorios->merge($createdConsultorios)->unique('id')->values();
-
-            $assignedClinicas = $doctor->clinicas()
-                ->where('activo', true)
-                ->where(function ($q) {
-                    $q->whereNull('origen_suscripcion_id')
-                        ->orWhereHas('origenSuscripcion', function ($q2) {
-                            $q2->pagadaVigente();
-                        });
-                })
-                ->get();
-
-            $createdClinicas = Clinica::where('created_by', $doctorId)
-                ->where('activo', true)
-                ->where(function ($q) {
-                    $q->whereNull('origen_suscripcion_id')
-                        ->orWhereHas('origenSuscripcion', function ($q2) {
-                            $q2->pagadaVigente();
-                        });
-                })
-                ->get();
-
-            $allClinicas = $assignedClinicas->merge($createdClinicas)->unique('id')->values();
+        if ($user->hasRole(['doctor', 'asistente', 'secretaria'])) {
+            $currentOwnerId = $user->hasRole('doctor') ? $user->id : $user->created_by;
+            if (! $this->appointmentAssignableUsersQuery($currentOwnerId)->whereKey($doctorId)->exists()) {
+                abort(403);
+            }
         }
+
+        $owner = User::findOrFail($ownerId);
+        $limits = $this->subscriptionService->calculateLimits($owner);
+        $clinicasLimit = $limits['clinicas'] ?? 0;
+        $consultoriosLimit = $limits['consultorios'] ?? 0;
+
+        $assignedConsultorios = $doctor->consultorios()
+            ->where('activo', true)
+            ->where(function ($q) {
+                $q->whereNull('origen_suscripcion_id')
+                    ->orWhereHas('origenSuscripcion', function ($q2) {
+                        $q2->pagadaVigente();
+                    });
+            })
+            ->get();
+
+        $createdConsultorios = Consultorio::where('created_by', $ownerId)
+            ->where('activo', true)
+            ->where(function ($q) {
+                $q->whereNull('origen_suscripcion_id')
+                    ->orWhereHas('origenSuscripcion', function ($q2) {
+                        $q2->pagadaVigente();
+                    });
+            })
+            ->get();
+
+        $allConsultorios = $assignedConsultorios->merge($createdConsultorios)->unique('id')->values();
+
+        $assignedClinicas = $doctor->clinicas()
+            ->where('activo', true)
+            ->where(function ($q) {
+                $q->whereNull('origen_suscripcion_id')
+                    ->orWhereHas('origenSuscripcion', function ($q2) {
+                        $q2->pagadaVigente();
+                    });
+            })
+            ->get();
+
+        $createdClinicas = Clinica::where('created_by', $ownerId)
+            ->where('activo', true)
+            ->where(function ($q) {
+                $q->whereNull('origen_suscripcion_id')
+                    ->orWhereHas('origenSuscripcion', function ($q2) {
+                        $q2->pagadaVigente();
+                    });
+            })
+            ->get();
+
+        $allClinicas = $assignedClinicas->merge($createdClinicas)->unique('id')->values();
 
         if ($clinicasLimit <= 0) {
             $allClinicas = collect();
@@ -574,7 +579,14 @@ class CitaController extends Controller
             $doctorId = (int) $request->doctor_id;
             $consultorioId = $request->consultorio_id;
 
-            if ($this->doctorBlockedByCedula($doctorId)) {
+            if ($user->hasRole(['doctor', 'asistente', 'secretaria'])) {
+                $ownerId = $user->hasRole('doctor') ? $user->id : $user->created_by;
+                if (! $this->appointmentAssignableUsersQuery($ownerId)->whereKey($doctorId)->exists()) {
+                    abort(403);
+                }
+            }
+
+            if ($this->doctorBlockedByCedula($this->ownerIdForAppointmentUser($doctorId))) {
                 return response()->json([
                     'slots' => [],
                     'message' => __('citas.api.no_availability_cedula'),
@@ -721,6 +733,39 @@ class CitaController extends Controller
                 'debug' => ['exception' => $e->getTraceAsString()],
             ], 500);
         }
+    }
+
+    /**
+     * Usuarios que pueden seleccionarse como responsable de una cita.
+     */
+    private function appointmentAssignableUsersQuery(?int $ownerId = null)
+    {
+        $query = User::whereHas('roles', function ($q) {
+            $q->whereIn('name', ['doctor', 'asistente']);
+        });
+
+        if ($ownerId !== null) {
+            $query->where(function ($q) use ($ownerId) {
+                $q->where('id', $ownerId)
+                    ->orWhere('created_by', $ownerId);
+            });
+        }
+
+        return $query->orderBy('name')->orderBy('apellido_paterno');
+    }
+
+    /**
+     * Resuelve el doctor dueño de la suscripción para un doctor/asistente.
+     */
+    private function ownerIdForAppointmentUser(int $userId): int
+    {
+        $appointmentUser = User::find($userId);
+
+        if (! $appointmentUser) {
+            return $userId;
+        }
+
+        return $appointmentUser->hasRole('doctor') ? $appointmentUser->id : (int) ($appointmentUser->created_by ?: $appointmentUser->id);
     }
 
     /**

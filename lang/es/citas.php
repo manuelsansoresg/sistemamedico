@@ -58,12 +58,16 @@ return [
         'doctor_locked' => 'No puede cambiar el doctor de esta cita.',
     ],
     'placeholders' => [
-        'search_doctor' => 'Buscar doctor por nombre...',
-        'search_patient' => 'Buscar paciente por nombre...',
+        'search_doctor' => 'Buscar por nombre o email...',
+        'select_doctor' => 'Seleccione doctor o asistente...',
+        'search_patient' => 'Buscar por nombre o email...',
+        'select_patient' => 'Seleccione paciente...',
     ],
     'select' => [
         'office' => 'Seleccione Consultorio',
         'clinic' => 'Seleccione Clínica',
+        'no_doctors' => 'No hay doctores o asistentes disponibles.',
+        'no_patients' => 'No hay pacientes disponibles.',
     ],
     'slots' => [
         'morning_range' => '07:00 - 12:00',

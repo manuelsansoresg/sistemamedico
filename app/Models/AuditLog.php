@@ -92,4 +92,66 @@ class AuditLog extends Model
     {
         return $this->morphTo();
     }
+
+    // -------------------------------------------------------------------
+    // Category routing helpers
+    // -------------------------------------------------------------------
+
+    public static function categories(): array
+    {
+        return config('audit.categories', []);
+    }
+
+    /**
+     * Resolve the target Eloquent model class for a given normalized section.
+     */
+    public static function resolveModelClass(?string $section): string
+    {
+        foreach (self::categories() as $category) {
+            if (in_array($section, $category['sections'], true)) {
+                return $category['model'];
+            }
+        }
+
+        // Fallback: settings category (audit_logs table was dropped)
+        return AuditSettingsLog::class;
+    }
+
+    /**
+     * Resolve the target database table for a given normalized section.
+     */
+    public static function resolveTable(?string $section): string
+    {
+        foreach (self::categories() as $category) {
+            if (in_array($section, $category['sections'], true)) {
+                return $category['table'];
+            }
+        }
+
+        return 'audit_settings_logs';
+    }
+
+    /**
+     * Get a collection of distinct sections across all audit tables.
+     */
+    public static function allDistinctSections(): array
+    {
+        $sections = [];
+
+        foreach (self::categories() as $category) {
+            $modelClass = $category['model'];
+            $results = $modelClass::query()
+                ->whereNotNull('section')
+                ->distinct()
+                ->pluck('section')
+                ->toArray();
+
+            $sections = array_merge($sections, $results);
+        }
+
+        $sections = array_unique($sections);
+        sort($sections);
+
+        return $sections;
+    }
 }

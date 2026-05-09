@@ -9,7 +9,7 @@ class AuditPurge extends Command
 {
     protected $signature = 'audit:purge {--days=365}';
 
-    protected $description = 'Eliminar registros antiguos de audit_logs';
+    protected $description = 'Eliminar registros antiguos de todas las tablas de auditoría';
 
     public function handle()
     {
@@ -22,12 +22,19 @@ class AuditPurge extends Command
         }
 
         $threshold = now()->subDays($days);
+        $totalDeleted = 0;
 
-        $deleted = AuditLog::query()
-            ->where('created_at', '<', $threshold)
-            ->delete();
+        foreach (AuditLog::categories() as $cat) {
+            $modelClass = $cat['model'];
+            $deleted = $modelClass::query()
+                ->where('created_at', '<', $threshold)
+                ->delete();
 
-        $this->info("Registros eliminados: {$deleted}. Umbral: {$threshold->toDateTimeString()} (>{$days} días).");
+            $this->line("  {$cat['table']}: {$deleted} registros eliminados.");
+            $totalDeleted += $deleted;
+        }
+
+        $this->info("Total de registros eliminados: {$totalDeleted}. Umbral: {$threshold->toDateTimeString()} (>{$days} días).");
 
         return self::SUCCESS;
     }

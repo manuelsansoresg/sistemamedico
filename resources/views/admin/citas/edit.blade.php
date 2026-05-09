@@ -25,7 +25,7 @@
                 </ol>
             </nav>
 
-            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
+            <div class="bg-white overflow-visible shadow-sm sm:rounded-lg">
                 <div class="p-6 bg-white border-b border-gray-200">
                     <h2 class="text-2xl font-bold mb-6">{{ __('citas.headings.edit') }}</h2>
 
@@ -119,27 +119,48 @@
                             <!-- 5. Paciente -->
                             <div x-show="selectedDoctorId" class="mb-6" x-transition>
                                 <label class="block text-gray-700 text-sm font-bold mb-2">5. Seleccionar Paciente</label>
-                                <div class="relative">
-                                    <input type="text" 
-                                           x-model="searchPatient" 
-                                           @input.debounce.300ms="findPatients()"
-                                           placeholder="Buscar paciente por nombre..." 
-                                           class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:border-[#0061F5] focus:ring-[#0061F5] focus:outline-none"
-                                           :class="{'border-green-500': selectedPatient}"
-                                    >
+                                <div class="relative" @click.outside="patientDropdownOpen = false">
+                                    <button type="button"
+                                            @click="togglePatientDropdown()"
+                                            class="shadow appearance-none border border-gray-300 rounded w-full py-2 px-3 text-left text-gray-700 leading-tight focus:border-[#0061F5] focus:ring-[#0061F5] focus:outline-none flex items-center justify-between bg-white"
+                                            :class="{'border-green-500': selectedPatient, 'border-[#0061F5] ring-1 ring-[#0061F5]': patientDropdownOpen}">
+                                        <span x-text="selectedPatient ? patientDisplayName(selectedPatient) : '{{ __('citas.placeholders.select_patient') }}'"
+                                              :class="selectedPatient ? 'text-gray-800' : 'text-gray-500'"></span>
+                                        <i class="fas fa-chevron-down text-gray-400 ml-3 transition-transform" :class="{'rotate-180': patientDropdownOpen}"></i>
+                                    </button>
                                     <input type="hidden" name="paciente_id" x-model="selectedPatientId">
-                                    
-                                    <!-- Results Dropdown -->
-                                    <div x-show="patients.length > 0 && !selectedPatient" class="absolute z-10 bg-white w-full border rounded shadow-lg mt-1 max-h-60 overflow-y-auto">
-                                        <template x-for="patient in patients" :key="patient.id">
-                                            <div @click="selectPatient(patient)" class="p-2 hover:bg-gray-100 cursor-pointer border-b">
-                                                <span x-text="patient.name + ' ' + patient.apellido_paterno"></span>
+
+                                    <div x-show="patientDropdownOpen"
+                                         x-transition
+                                         class="absolute z-50 bg-white w-full border border-gray-200 rounded-lg shadow-xl mt-2 overflow-hidden">
+                                        <div class="p-2 border-b border-gray-100 bg-gray-50">
+                                            <input type="text"
+                                                   x-model="searchPatient"
+                                                   @input="filterPatients()"
+                                                   @keydown.escape="patientDropdownOpen = false"
+                                                   x-ref="patientSearchInput"
+                                                   autocomplete="new-password"
+                                                   autocorrect="off"
+                                                   autocapitalize="none"
+                                                   spellcheck="false"
+                                                   placeholder="{{ __('citas.placeholders.search_patient') }}"
+                                                   class="appearance-none border border-gray-300 rounded w-full py-2 px-3 text-gray-700 leading-tight focus:border-[#0061F5] focus:ring-[#0061F5] focus:outline-none bg-white">
+                                        </div>
+                                        <div class="max-h-60 overflow-y-auto">
+                                            <template x-for="patient in patients" :key="patient.id">
+                                                <button type="button" @click="selectPatient(patient)" class="w-full p-3 hover:bg-[#E6F0FF] cursor-pointer border-b border-gray-100 text-left transition-colors last:border-b-0">
+                                                    <span class="font-semibold text-gray-800" x-text="patientDisplayName(patient)"></span>
+                                                    <span class="block text-xs text-gray-500" x-show="patient.email" x-text="patient.email"></span>
+                                                </button>
+                                            </template>
+                                            <div x-show="patients.length === 0" class="p-4 text-sm text-gray-500 text-center">
+                                                {{ __('citas.select.no_patients') }}
                                             </div>
-                                        </template>
+                                        </div>
                                     </div>
                                 </div>
                                 <div x-show="selectedPatient" class="mt-2 text-green-600 font-semibold">
-                                    {{ __('citas.labels.patient_selected') }} <span x-text="selectedPatient.name + ' ' + selectedPatient.apellido_paterno"></span>
+                                    {{ __('citas.labels.patient_selected') }} <span x-text="patientDisplayName(selectedPatient)"></span>
                                     <button type="button" @click="resetPatient" class="ml-2 text-red-500 text-sm underline">{{ __('citas.buttons.change') }}</button>
                                 </div>
                             </div>
@@ -298,6 +319,16 @@
         ], JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP) !!}
     </script>
 
+    <script type="application/json" id="available-patients-json">
+        {!! json_encode($pacientes->map(fn ($paciente) => [
+            'id' => $paciente->id,
+            'name' => $paciente->name,
+            'apellido_paterno' => $paciente->apellido_paterno,
+            'apellido_materno' => $paciente->apellido_materno,
+            'email' => $paciente->email,
+        ])->values(), JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP) !!}
+    </script>
+
     <script>
         function appointmentForm() {
             let t = {
@@ -323,7 +354,9 @@
                 fecha: '',
                 
                 searchPatient: '',
+                allPatients: [],
                 patients: [],
+                patientDropdownOpen: false,
                 selectedPatient: null,
                 selectedPatientId: '',
                 
@@ -378,6 +411,18 @@
                                 }
                             }
                         } catch (e) {
+                        }
+                    }
+
+                    const patientsEl = document.getElementById('available-patients-json');
+                    if (patientsEl && patientsEl.textContent) {
+                        try {
+                            const parsedPatients = JSON.parse(patientsEl.textContent);
+                            this.allPatients = Array.isArray(parsedPatients) ? parsedPatients : [];
+                            this.patients = this.allPatients;
+                        } catch (e) {
+                            this.allPatients = [];
+                            this.patients = [];
                         }
                     }
                     
@@ -479,29 +524,47 @@
                     return `${h}:${minutes} ${ampm}`;
                 },
 
-                async findPatients() {
-                    if (this.searchPatient.length < 2) {
-                        this.patients = [];
+                togglePatientDropdown() {
+                    this.patientDropdownOpen = !this.patientDropdownOpen;
+                    if (this.patientDropdownOpen) {
+                        this.searchPatient = '';
+                        this.patients = this.allPatients;
+                        this.$nextTick(() => this.$refs.patientSearchInput?.focus());
+                    }
+                },
+
+                filterPatients() {
+                    const search = this.searchPatient.trim().toLowerCase();
+                    if (!search) {
+                        this.patients = this.allPatients;
                         return;
                     }
-                    try {
-                        const response = await fetch(`{{ route('api.patients.search') }}?q=${this.searchPatient}`);
-                        this.patients = await response.json();
-                    } catch (error) {
-                        console.error('Error fetching patients:', error);
-                    }
+
+                    this.patients = this.allPatients.filter((patient) => {
+                        return this.patientDisplayName(patient).toLowerCase().includes(search)
+                            || (patient.email || '').toLowerCase().includes(search);
+                    });
                 },
 
                 selectPatient(patient) {
                     this.selectedPatient = patient;
                     this.selectedPatientId = patient.id;
                     this.searchPatient = '';
-                    this.patients = [];
+                    this.patientDropdownOpen = false;
+                    this.patients = this.allPatients;
+                },
+
+                patientDisplayName(patient) {
+                    return [patient.name, patient.apellido_paterno, patient.apellido_materno]
+                        .filter(Boolean)
+                        .join(' ');
                 },
 
                 resetPatient() {
                     this.selectedPatient = null;
                     this.selectedPatientId = '';
+                    this.searchPatient = '';
+                    this.patients = this.allPatients;
                 },
 
                 submitForm(e) {

@@ -40,6 +40,7 @@
                             <div>
                                 <label for="periodo" class="block text-sm font-medium text-[#1E293B]">{{ __('earnings.filters.month') }}</label>
                                 <select name="periodo" id="periodo" x-model="periodo" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-[#0061F5] focus:ring-[#0061F5] sm:text-sm">
+                                    <option value="hoy">{{ __('earnings.ui.period_today') }}</option>
                                     <option value="mes_anterior">{{ __('earnings.ui.period_previous_month') }}</option>
                                     <option value="mes_actual">{{ __('earnings.ui.period_current_month') }}</option>
                                     <option value="rango">{{ __('earnings.ui.period_date_range') }}</option>
@@ -84,7 +85,7 @@
 
                             <div>
                                 <button type="submit" class="w-full inline-flex justify-center items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-[#0061F5] hover:bg-[#0051CC] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#0061F5]">
-                                    <i class="fas fa-filter mr-2"></i> {{ __('common.buttons.apply') }}
+                                    <i class="fas fa-filter mr-2"></i> {{ __('common.buttons.apply_filters') }}
                                 </button>
                             </div>
                         </div>

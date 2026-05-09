@@ -58,12 +58,16 @@ return [
         'doctor_locked' => 'You cannot change the doctor for this appointment.',
     ],
     'placeholders' => [
-        'search_doctor' => 'Search doctor by name...',
-        'search_patient' => 'Search patient by name...',
+        'search_doctor' => 'Search by name or email...',
+        'select_doctor' => 'Select doctor or assistant...',
+        'search_patient' => 'Search by name or email...',
+        'select_patient' => 'Select patient...',
     ],
     'select' => [
         'office' => 'Select Office',
         'clinic' => 'Select Clinic',
+        'no_doctors' => 'No doctors or assistants are available.',
+        'no_patients' => 'No patients are available.',
     ],
     'slots' => [
         'morning_range' => '07:00 - 12:00',

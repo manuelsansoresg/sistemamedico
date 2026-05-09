@@ -73,7 +73,7 @@
                             {{ __('horarios.fields.consultation_time') }}
                         </label>
                         @php
-                            $duraciones = [20, 30, 45, 60];
+                            $duraciones = [15, 20, 30, 45, 60];
                             $valorDuracion = old('duracion_consulta', $duracionConsulta ?? 30);
                         @endphp
                         <select

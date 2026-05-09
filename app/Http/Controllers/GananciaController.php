@@ -24,7 +24,10 @@ class GananciaController extends Controller
 
         $periodo = $request->periodo ?? 'mes_anterior';
 
-        if ($periodo === 'mes_actual') {
+        if ($periodo === 'hoy') {
+            $dateStart = now()->format('Y-m-d');
+            $dateEnd = now()->format('Y-m-d');
+        } elseif ($periodo === 'mes_actual') {
             $dateStart = now()->startOfMonth()->format('Y-m-d');
             $dateEnd = now()->format('Y-m-d');
         } elseif ($periodo === 'mes_anterior') {
@@ -131,7 +134,9 @@ class GananciaController extends Controller
         ];
 
         $periodoLabel = '';
-        if ($periodo === 'mes_anterior') {
+        if ($periodo === 'hoy') {
+            $periodoLabel = 'Hoy';
+        } elseif ($periodo === 'mes_anterior') {
             $carbon = now()->subMonth();
             $monthName = $nombresMeses[$carbon->format('F')] ?? $carbon->format('F');
             $periodoLabel = $monthName.' '.$carbon->format('Y');

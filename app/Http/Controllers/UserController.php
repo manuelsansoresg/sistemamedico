@@ -115,7 +115,13 @@ class UserController extends Controller
 
         /** @var \App\Models\User $currentUser */
         $currentUser = Auth::user();
-        $owner = $currentUser->hasRole('doctor') ? $currentUser : User::find($currentUser->created_by);
+
+        $owner = null;
+        if ($currentUser->hasRole('doctor')) {
+            $owner = $currentUser;
+        } elseif ($currentUser->hasRole(['asistente', 'secretaria'])) {
+            $owner = User::findOrFail($currentUser->created_by);
+        }
 
         if ($currentUser->hasRole(['doctor', 'asistente', 'secretaria']) && in_array($request->role, ['asistente', 'secretaria'])) {
             if (! $this->subscriptionService->canCreate($owner, 'usuario')) {
@@ -132,7 +138,7 @@ class UserController extends Controller
             'telefono' => $request->telefono,
             'cedula_profesional' => $request->cedula_profesional,
             'especialidad_id' => $request->especialidad_id,
-            'created_by' => $owner->id,
+            'created_by' => $owner?->id,
         ]);
 
         if ($request->hasFile('profile_photo')) {

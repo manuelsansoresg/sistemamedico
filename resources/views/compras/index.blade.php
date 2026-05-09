@@ -336,7 +336,7 @@
                 @else
                     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                         @if(!empty($suscripcionPaqueteVencida) && $suscripcionPaqueteVencida->paquete)
-                            <div class="rounded-[16px] border-2 border-dashed border-red-300 bg-red-50 p-6 flex flex-col h-full hover:border-red-500 transition-colors shadow-sm">
+                            <div class="bg-red-50 rounded-xl border border-red-300 p-6 flex flex-col h-full hover:border-red-500 transition-colors shadow-sm">
                                 <div class="flex items-start justify-between mb-3">
                                     <div class="h-10 w-10 rounded-lg bg-red-100 flex items-center justify-center text-red-600 shrink-0 mr-3">
                                         <i class="fas fa-exclamation-triangle"></i>
@@ -366,7 +366,7 @@
                                 elseif (str_contains($lowerName, 'usuario')) $iconClass = 'fas fa-user-cog';
                                 else $iconClass = 'fas fa-cube';
                             @endphp
-                            <div class="rounded-[16px] border-2 border-dashed border-[#cbd5e1] bg-[#F8FAFC] p-6 flex flex-col h-full hover:border-[#0061F5] transition-colors shadow-sm">
+                            <div class="bg-white rounded-xl border border-gray-200 p-6 flex flex-col h-full hover:border-[#27ADFA]/60 transition-colors shadow-sm">
                                 <div class="flex items-start mb-3">
                                     <div class="h-10 w-10 rounded-lg bg-[#27ADFA]/15 flex items-center justify-center text-[#0061F5] shrink-0 mr-3">
                                         <i class="{{ $iconClass }}"></i>

@@ -2,6 +2,9 @@
 
 return [
     'title' => 'Registro de Auditoría',
+    'category' => 'CATEGORÍA',
+    'view_details' => 'Ver detalles',
+    'no_records' => 'No hay registros de auditoría para los filtros seleccionados.',
     'columns' => [
         'user' => 'USUARIO',
         'action' => 'ACCIÓN',
@@ -10,6 +13,14 @@ return [
         'ip' => 'DIRECCIÓN IP',
         'date' => 'FECHA',
         'actions' => 'ACCIONES',
+    ],
+    'categories' => [
+        'seguridad' => 'Seguridad',
+        'suscripciones' => 'Suscripciones',
+        'usuarios' => 'Usuarios',
+        'clinico' => 'Clínico',
+        'expedientes' => 'Expedientes',
+        'administracion' => 'Administración',
     ],
     'actions_list' => [
         'created' => 'Creación',

@@ -96,10 +96,13 @@ trait Auditable
                 }
             }
 
-            AuditLog::create([
+            $normalizedSection = AuditLog::normalizeSection($resolvedSection);
+            $modelClass = AuditLog::resolveModelClass($normalizedSection);
+
+            $modelClass::create([
                 'user_id' => Auth::id(),
                 'action' => $action,
-                'section' => AuditLog::normalizeSection($resolvedSection),
+                'section' => $normalizedSection,
                 'model_type' => $model ? get_class($model) : null,
                 'model_id' => $model ? $model->getKey() : null,
                 'payload' => $payload,
@@ -110,7 +113,7 @@ trait Auditable
         } catch (Throwable $e) {
             Log::error('AuditLog write failed', [
                 'action' => $action,
-                'section' => $section,
+                'section' => $section ?? $resolvedSection ?? null,
                 'model_type' => $model ? get_class($model) : null,
                 'model_id' => $model ? $model->getKey() : null,
                 'exception' => $e,

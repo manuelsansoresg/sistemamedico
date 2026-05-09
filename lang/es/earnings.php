@@ -10,7 +10,7 @@ return [
         'service_origin' => 'Origen del Servicio',
         'all_doctors' => 'Todos los doctores',
         'all_income' => 'Todos los ingresos',
-        'month' => 'Mes',
+        'month' => 'Ingresos',
         'custom_range' => 'Rango personalizado',
         'all_origins' => 'Todos los orígenes',
     ],
@@ -43,6 +43,7 @@ return [
     ],
     'ui' => [
         'doctor_label' => 'Doctor',
+        'period_today' => 'Hoy',
         'period_previous_month' => 'Mes anterior',
         'period_current_month' => 'Mes actual',
         'period_date_range' => 'Rango de fechas',
