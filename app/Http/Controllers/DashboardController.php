@@ -116,7 +116,10 @@ class DashboardController extends Controller
             }
 
             $notifications = $user->unreadNotifications()
-                ->where('type', 'App\Notifications\SubscriptionExpiringNotification')
+                ->whereIn('type', [
+                    'App\Notifications\SubscriptionExpiringNotification',
+                    'App\Notifications\CitaAfectadaNotification',
+                ])
                 ->get();
 
             $canSharePacientes = $doctor ? $this->subscriptionService->hasActiveFeature($doctor, 'paciente') : false;

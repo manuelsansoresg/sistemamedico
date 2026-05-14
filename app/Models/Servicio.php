@@ -27,6 +27,11 @@ class Servicio extends Model
         return $this->belongsTo(User::class, 'created_by');
     }
 
+    public function cobroItems()
+    {
+        return $this->hasMany(ConsultaCobroItem::class);
+    }
+
     public function auditSection(): string
     {
         return 'servicios';

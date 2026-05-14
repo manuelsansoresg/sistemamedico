@@ -125,7 +125,7 @@
 
                     <div class="flex justify-end space-x-3">
                         <a href="{{ route('consultas.create', $estudio->consulta->cita_id) }}" class="inline-flex items-center px-4 py-2 bg-gray-200 border border-transparent rounded-md font-semibold text-xs text-gray-700 uppercase tracking-widest hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transition ease-in-out duration-150">
-                            Cancelar
+                            {{ __('common.buttons.cancel') }}
                         </a>
                         <button type="submit" class="inline-flex items-center px-4 py-2 bg-[#0061F5] border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-[#0051CC] active:bg-[#004499] focus:outline-none focus:border-[#004499] focus:ring ring-[#80B0FA] disabled:opacity-25 transition ease-in-out duration-150">
                             <i class="fas fa-save mr-2"></i> Actualizar Estudio

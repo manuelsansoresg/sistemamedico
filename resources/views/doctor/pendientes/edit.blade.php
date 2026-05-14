@@ -71,7 +71,8 @@
                             </label>
                         </div>
 
-                        <div class="flex items-center justify-end">
+                        <div class="flex items-center justify-end gap-2">
+                            <a href="{{ route('pendientes.index') }}" class="px-4 py-2 bg-gray-500 text-white font-bold rounded-md hover:bg-gray-600 transition-colors">{{ __('common.buttons.cancel') }}</a>
                             <x-primary-button>
                                 {{ __('common.update_record') }}
                             </x-primary-button>

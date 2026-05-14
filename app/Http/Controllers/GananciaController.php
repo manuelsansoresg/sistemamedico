@@ -16,7 +16,7 @@ class GananciaController extends Controller
         /** @var \App\Models\User $user */
         $user = Auth::user();
 
-        $query = Ganancia::with(['user', 'catalogo', 'paquete']);
+        $query = Ganancia::with(['user', 'catalogo', 'paquete', 'consultaCobro.cita.paciente', 'consultaCobro.items']);
 
         if ($user->hasRole('doctor')) {
             $query->where('user_id', $user->id);
@@ -95,6 +95,7 @@ class GananciaController extends Controller
         $tiposIngreso = [
             'compra' => 'Compra',
             'renovacion' => 'Renovación',
+            'consulta' => __('earnings.ui.type_consultation'),
         ];
 
         $servicios = $this->getServiciosDisponibles();
@@ -165,6 +166,10 @@ class GananciaController extends Controller
             ->with('catalogo', 'paquete')
             ->get()
             ->map(function ($g) {
+                if ($g->consulta_cobro_id) {
+                    return __('earnings.ui.consultation_charge');
+                }
+
                 return optional($g->catalogo)->nombre ?? optional($g->paquete)->nombre ?? null;
             })
             ->filter()

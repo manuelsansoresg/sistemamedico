@@ -231,7 +231,20 @@
                                             {{ $ganancia->concepto }}
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                            {{ optional($ganancia->catalogo)->nombre ?? optional($ganancia->paquete)->nombre ?? __('earnings.ui.not_available') }}
+                                            {{ $ganancia->consulta_cobro_id ? __('earnings.ui.consultation_charge') : (optional($ganancia->catalogo)->nombre ?? optional($ganancia->paquete)->nombre ?? __('earnings.ui.not_available')) }}
+                                            @if($ganancia->consultaCobro)
+                                                <details class="mt-2">
+                                                    <summary class="cursor-pointer text-xs font-semibold text-[#0061F5] hover:text-[#004499]">{{ __('earnings.ui.view_breakdown') }}</summary>
+                                                    <div class="mt-2 space-y-1 text-xs text-gray-600">
+                                                        @foreach($ganancia->consultaCobro->items as $item)
+                                                            <div class="flex justify-between gap-4 border-b border-gray-100 pb-1">
+                                                                <span>{{ $item->nombre_snapshot }} x{{ $item->cantidad }}</span>
+                                                                <span>${{ number_format($item->subtotal, 2) }}</span>
+                                                            </div>
+                                                        @endforeach
+                                                    </div>
+                                                </details>
+                                            @endif
                                         </td>
                                         @if(!Auth::user()->hasRole('doctor'))
                                             <td class="px-6 py-4 whitespace-nowrap text-sm">
@@ -242,6 +255,10 @@
                                                 @elseif($ganancia->tipo_ingreso === 'renovacion')
                                                     <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
                                                         <i class="fas fa-sync-alt mr-1"></i> {{ __('earnings.ui.type_renewal') }}
+                                                    </span>
+                                                @elseif($ganancia->tipo_ingreso === 'consulta')
+                                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
+                                                        <i class="fas fa-stethoscope mr-1"></i> {{ __('earnings.ui.type_consultation') }}
                                                     </span>
                                                 @else
                                                     <span class="text-sm text-gray-500">{{ __('earnings.ui.dash') }}</span>

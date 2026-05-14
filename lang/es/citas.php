@@ -102,6 +102,11 @@ return [
         'confirmed' => 'Confirmada',
         'canceled' => 'Cancelada',
         'completed' => 'Completada',
+        'pendiente' => 'Pendiente',
+        'confirmada' => 'Confirmada',
+        'cancelada' => 'Cancelada',
+        'completada' => 'Completada',
+        'requiere_reagenda' => 'Requiere reagenda',
     ],
     'messages' => [
         'created_success' => 'Cita creada correctamente.',

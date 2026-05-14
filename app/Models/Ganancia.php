@@ -13,6 +13,7 @@ class Ganancia extends Model
     protected $fillable = [
         'user_id',
         'suscripcion_id',
+        'consulta_cobro_id',
         'catalogo_id',
         'paquete_id',
         'monto_total',
@@ -38,6 +39,11 @@ class Ganancia extends Model
     public function suscripcion()
     {
         return $this->belongsTo(Suscripcion::class);
+    }
+
+    public function consultaCobro()
+    {
+        return $this->belongsTo(ConsultaCobro::class);
     }
 
     public function catalogo()

@@ -209,8 +209,9 @@
                             </div>
                         </div>
 
-                        <div class="flex items-center justify-end mt-4">
-                            <x-primary-button class="ml-4">
+                        <div class="flex items-center justify-end mt-4 gap-2">
+                            <a href="{{ route('pacientes.index') }}" class="px-4 py-2 bg-gray-500 text-white font-bold rounded-md hover:bg-gray-600 transition-colors">{{ __('common.buttons.cancel') }}</a>
+                            <x-primary-button>
                                 {{ __('Guardar Paciente') }}
                             </x-primary-button>
                         </div>

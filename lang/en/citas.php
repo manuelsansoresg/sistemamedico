@@ -102,6 +102,11 @@ return [
         'confirmed' => 'Confirmed',
         'canceled' => 'Canceled',
         'completed' => 'Completed',
+        'pendiente' => 'Pending',
+        'confirmada' => 'Confirmed',
+        'cancelada' => 'Canceled',
+        'completada' => 'Completed',
+        'requiere_reagenda' => 'Requires reschedule',
     ],
     'messages' => [
         'created_success' => 'Appointment created successfully.',

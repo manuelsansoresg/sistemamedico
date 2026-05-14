@@ -10,7 +10,15 @@ class ServicioController extends Controller
 {
     public function index()
     {
-        $servicios = Servicio::paginate(15);
+        /** @var \App\Models\User $user */
+        $user = Auth::user();
+        $query = Servicio::query();
+
+        if (! $user->hasRole('root')) {
+            $query->where('created_by', $user->id);
+        }
+
+        $servicios = $query->paginate(15);
 
         return view('admin.servicios.index', compact('servicios'));
     }
@@ -40,11 +48,15 @@ class ServicioController extends Controller
 
     public function edit(Servicio $servicio)
     {
+        $this->authorizeServicioAccess($servicio);
+
         return view('admin.servicios.edit', compact('servicio'));
     }
 
     public function update(Request $request, Servicio $servicio)
     {
+        $this->authorizeServicioAccess($servicio);
+
         $request->validate([
             'nombre' => 'required|string|max:255',
             'duracion' => 'required|integer|min:1',
@@ -62,8 +74,22 @@ class ServicioController extends Controller
 
     public function destroy(Servicio $servicio)
     {
+        $this->authorizeServicioAccess($servicio);
+
         $servicio->delete();
 
         return redirect()->route('servicios.index')->with('success', __('servicios.messages.deleted_success'));
+    }
+
+    private function authorizeServicioAccess(Servicio $servicio): void
+    {
+        /** @var \App\Models\User $user */
+        $user = Auth::user();
+
+        if ($user->hasRole('root') || (int) $servicio->created_by === (int) $user->id) {
+            return;
+        }
+
+        abort(403);
     }
 }

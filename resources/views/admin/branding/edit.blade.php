@@ -193,7 +193,10 @@
                             </div>
                         </div>
 
-                        <div class="flex justify-end mt-8">
+                        <div class="flex justify-end mt-8 gap-2">
+                            <a href="{{ route('dashboard') }}" class="px-6 py-2 bg-gray-500 text-white font-bold rounded-md hover:bg-gray-600 transition-colors">
+                                {{ __('common.buttons.cancel') }}
+                            </a>
                             <button type="submit" class="px-6 py-2 bg-[#0061F5] text-white font-bold rounded-md hover:bg-[#0051CC] transition-colors">
                                 {{ __('common.buttons.save') }}
                             </button>

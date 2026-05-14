@@ -222,6 +222,130 @@
                 </div>
             </div>
 
+            @if(auth()->user()->hasRole('doctor'))
+                @php
+                    $servicioItems = $consultaCobro?->items?->where('tipo', 'servicio')->keyBy('servicio_id') ?? collect();
+                @endphp
+                <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg border border-blue-100">
+                    <div class="p-6">
+                        <div class="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between mb-5">
+                            <div>
+                                <h3 class="text-lg font-bold text-[#1E293B] flex items-center gap-2">
+                                    <i class="fas fa-cash-register text-[#0061F5]"></i>
+                                    {{ __('cobros.title') }}
+                                </h3>
+                                <p class="text-sm text-gray-500 mt-1">{{ __('cobros.help.doctor_instructions') }}</p>
+                            </div>
+                            <a href="{{ route('consulta-cobros.show', $cita) }}" class="inline-flex items-center px-3 py-2 bg-white text-[#0061F5] text-xs font-bold rounded-md border border-[#0061F5] hover:bg-blue-50 transition-colors">
+                                <i class="fas fa-list-ul mr-2"></i>{{ __('cobros.actions.view_breakdown') }}
+                            </a>
+                        </div>
+
+                        <form id="cobro-doctor-form" method="POST" action="{{ route('consulta-cobros.doctor.save', $cita) }}" @submit.prevent="previewCobro($event)">
+                            @csrf
+                            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                                <div class="lg:col-span-2">
+                                    <div class="overflow-x-auto border border-gray-200 rounded-lg">
+                                        <table class="min-w-full divide-y divide-gray-200">
+                                            <thead class="bg-gray-50">
+                                                <tr>
+                                                    <th class="px-4 py-3 text-left text-xs font-bold text-gray-700 uppercase">{{ __('cobros.columns.select') }}</th>
+                                                    <th class="px-4 py-3 text-left text-xs font-bold text-gray-700 uppercase">{{ __('servicios.columns.name') }}</th>
+                                                    <th class="px-4 py-3 text-left text-xs font-bold text-gray-700 uppercase">{{ __('servicios.columns.duration') }}</th>
+                                                    <th class="px-4 py-3 text-left text-xs font-bold text-gray-700 uppercase">{{ __('cobros.fields.catalog_price') }}</th>
+                                                    <th class="px-4 py-3 text-left text-xs font-bold text-gray-700 uppercase">{{ __('cobros.fields.charged_price') }}</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody class="bg-white divide-y divide-gray-200">
+                                                @forelse($servicios as $servicio)
+                                                    @php
+                                                        $item = $servicioItems->get($servicio->id);
+                                                    @endphp
+                                                    <tr>
+                                                        <td class="px-4 py-3">
+                                                            <input type="checkbox" name="servicios[{{ $servicio->id }}][selected]" value="1" class="rounded border-gray-300 text-[#0061F5] focus:ring-[#0061F5]" {{ $item ? 'checked' : '' }}>
+                                                        </td>
+                                                        <td class="px-4 py-3 text-sm font-medium text-gray-700">{{ $servicio->nombre }}</td>
+                                                        <td class="px-4 py-3 text-sm text-gray-500">{{ $servicio->duracion }} min</td>
+                                                        <td class="px-4 py-3 text-sm text-gray-500">${{ number_format($servicio->costo, 2) }}</td>
+                                                        <td class="px-4 py-3">
+                                                            <input type="number" step="0.01" min="0" name="servicios[{{ $servicio->id }}][precio_cobrado]" value="{{ old("servicios.{$servicio->id}.precio_cobrado", $item?->precio_cobrado ?? $servicio->costo) }}" class="w-32 rounded-md border-gray-300 shadow-sm focus:border-[#0061F5] focus:ring-[#0061F5] text-sm">
+                                                        </td>
+                                                    </tr>
+                                                @empty
+                                                    <tr>
+                                                        <td colspan="5" class="px-4 py-6 text-center text-sm text-gray-500">{{ __('cobros.messages.no_services') }}</td>
+                                                    </tr>
+                                                @endforelse
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+
+                                <div class="space-y-4">
+                                    <div>
+                                        <label class="block text-sm font-bold text-gray-700 mb-2">{{ __('cobros.fields.instruction_status') }}</label>
+                                        <div class="space-y-2">
+                                            <label class="flex items-center gap-2 text-sm text-gray-700">
+                                                <input type="radio" name="estado_instrucciones" value="con_instrucciones" class="text-[#0061F5] focus:ring-[#0061F5]" {{ old('estado_instrucciones', $consultaCobro?->estado_instrucciones ?? 'con_instrucciones') === 'con_instrucciones' ? 'checked' : '' }}>
+                                                {{ __('cobros.statuses.with_instructions') }}
+                                            </label>
+                                            <label class="flex items-center gap-2 text-sm text-gray-700">
+                                                <input type="radio" name="estado_instrucciones" value="sin_instrucciones" class="text-[#0061F5] focus:ring-[#0061F5]" {{ old('estado_instrucciones', $consultaCobro?->estado_instrucciones) === 'sin_instrucciones' ? 'checked' : '' }}>
+                                                {{ __('cobros.statuses.without_instructions') }}
+                                            </label>
+                                        </div>
+                                    </div>
+
+                                    <div>
+                                        <label for="instrucciones_cobro" class="block text-sm font-bold text-gray-700">{{ __('cobros.fields.instructions') }}</label>
+                                        <textarea id="instrucciones_cobro" name="instrucciones_cobro" rows="5" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-[#0061F5] focus:ring-[#0061F5] text-sm" placeholder="{{ __('cobros.placeholders.instructions') }}">{{ old('instrucciones_cobro', $consultaCobro?->instrucciones_cobro) }}</textarea>
+                                    </div>
+
+                                    <button type="submit" class="w-full inline-flex justify-center items-center px-4 py-2 bg-[#0061F5] border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-[#0051CC] transition">
+                                        <i class="fas fa-paper-plane mr-2"></i>{{ __('cobros.actions.send_instructions') }}
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <div x-show="cobroModalOpen" style="display: none;" class="fixed inset-0 z-50" role="dialog" aria-modal="true">
+                    <div class="absolute inset-0 bg-gray-500 bg-opacity-60"></div>
+                    <div class="fixed inset-0 z-10 overflow-y-auto">
+                        <div class="flex min-h-full items-center justify-center p-4">
+                            <div class="w-full max-w-2xl bg-white rounded-xl shadow-xl border border-gray-100 overflow-hidden">
+                                <div class="px-6 py-4 border-b border-gray-100">
+                                    <h3 class="text-lg font-bold text-gray-900">{{ __('cobros.affectations.warning_title') }}</h3>
+                                    <p class="text-sm text-gray-500 mt-1" x-text="cobroPreviewSummary"></p>
+                                </div>
+                                <div class="p-6">
+                                    <div class="space-y-3 max-h-72 overflow-y-auto">
+                                        <template x-for="item in cobroAffected" :key="item.id">
+                                            <div class="border border-red-100 bg-red-50 rounded-lg p-3">
+                                                <div class="font-bold text-red-800" x-text="item.paciente"></div>
+                                                <div class="text-sm text-red-700">
+                                                    <span x-text="item.hora_inicio"></span>
+                                                    <span> · </span>
+                                                    <span x-text="item.telefono || '{{ __('cobros.ui.no_phone') }}'"></span>
+                                                    <span> · </span>
+                                                    <span x-text="item.email || '{{ __('cobros.ui.no_email') }}'"></span>
+                                                </div>
+                                            </div>
+                                        </template>
+                                    </div>
+                                </div>
+                                <div class="px-6 py-4 bg-gray-50 flex justify-end gap-2">
+                                    <button type="button" @click="cobroModalOpen = false" class="px-4 py-2 bg-gray-500 text-white font-bold rounded-md hover:bg-gray-600 transition-colors">{{ __('common.buttons.cancel') }}</button>
+                                    <button type="button" @click="confirmCobroSubmit()" class="px-4 py-2 bg-red-600 text-white font-bold rounded-md hover:bg-red-700 transition-colors">{{ __('cobros.actions.confirm_affectations') }}</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            @endif
+
             <!-- History Modal -->
             <div x-show="showHistory" style="display: none;" class="relative z-50" aria-labelledby="modal-title" role="dialog" aria-modal="true">
                 <div x-show="showHistory" 
@@ -359,10 +483,13 @@
                             </template>
                         </div>
 
-                        <div class="flex justify-end">
-                            <button type="submit" class="inline-flex items-center px-4 py-2 bg-[#0061F5] border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-[#0051CC] active:bg-[#004499] focus:outline-none focus:border-[#004499] focus:ring ring-[#80B0FA] disabled:opacity-25 transition ease-in-out duration-150">
-                                <i class="fas fa-save mr-2"></i> Guardar Consulta
-                            </button>
+                    <div class="flex justify-end gap-2">
+                        <a href="{{ route('citas.index') }}" class="inline-flex items-center px-4 py-2 bg-gray-500 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transition ease-in-out duration-150">
+                            {{ __('common.buttons.cancel') }}
+                        </a>
+                        <button type="submit" class="inline-flex items-center px-4 py-2 bg-[#0061F5] border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-[#0051CC] active:bg-[#004499] focus:outline-none focus:border-[#004499] focus:ring ring-[#80B0FA] disabled:opacity-25 transition ease-in-out duration-150">
+                            <i class="fas fa-save mr-2"></i> Guardar Consulta
+                        </button>
                         </div>
                     </form>
 
@@ -482,7 +609,10 @@
                                 </div>
                             </div>
 
-                            <div class="flex justify-end">
+                            <div class="flex justify-end gap-2">
+                                <a href="{{ route('citas.index') }}" class="inline-flex items-center px-4 py-2 bg-gray-500 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transition ease-in-out duration-150">
+                                    {{ __('common.buttons.cancel') }}
+                                </a>
                                 <button type="submit" class="inline-flex items-center px-4 py-2 bg-[#0061F5] border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-[#0051CC] active:bg-[#004499] focus:outline-none focus:border-[#004499] focus:ring ring-[#80B0FA] disabled:opacity-25 transition ease-in-out duration-150">
                                     <i class="fas fa-save mr-2"></i> Guardar Orden
                                 </button>
@@ -652,6 +782,11 @@
                 empathyIndexUrl: "{{ route('pacientes.empatia.index', ['paciente' => $paciente->id]) }}",
                 empathyStoreUrl: "{{ route('pacientes.empatia.store', ['paciente' => $paciente->id]) }}",
                 empathyNoteBaseUrl: "{{ url('admin/pacientes/empatia') }}",
+                cobroPreviewUrl: "{{ route('consulta-cobros.preview', $cita) }}",
+                cobroPendingForm: null,
+                cobroModalOpen: false,
+                cobroAffected: [],
+                cobroPreviewSummary: '',
                 
                 // File Upload Logic
                 isDragging: false,
@@ -744,6 +879,48 @@
                 getCsrfToken() {
                     const el = document.querySelector('meta[name="csrf-token"]');
                     return el ? el.getAttribute('content') : '';
+                },
+
+                async previewCobro(event) {
+                    const form = event.target;
+                    this.cobroPendingForm = form;
+
+                    try {
+                        const response = await fetch(this.cobroPreviewUrl, {
+                            method: 'POST',
+                            headers: {
+                                'Accept': 'application/json',
+                                'X-CSRF-TOKEN': this.getCsrfToken(),
+                            },
+                            body: new FormData(form),
+                        });
+
+                        if (!response.ok) {
+                            form.submit();
+                            return;
+                        }
+
+                        const data = await response.json();
+                        this.cobroAffected = data.affected || [];
+
+                        if (this.cobroAffected.length === 0) {
+                            form.submit();
+                            return;
+                        }
+
+                        this.cobroPreviewSummary = '{{ __('cobros.affectations.warning_summary') }}'
+                            .replace(':time', data.hora_fin_proyectada)
+                            .replace(':count', this.cobroAffected.length);
+                        this.cobroModalOpen = true;
+                    } catch (error) {
+                        form.submit();
+                    }
+                },
+
+                confirmCobroSubmit() {
+                    if (this.cobroPendingForm) {
+                        this.cobroPendingForm.submit();
+                    }
                 },
 
                 async fetchEmpathyNotes(reset = false) {

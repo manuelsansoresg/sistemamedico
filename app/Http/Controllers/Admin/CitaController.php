@@ -31,7 +31,7 @@ class CitaController extends Controller
     {
         /** @var \App\Models\User $user */
         $user = Auth::user();
-        $query = Cita::with(['doctor', 'paciente', 'consultorio', 'clinica']);
+        $query = Cita::with(['doctor', 'paciente', 'consultorio', 'clinica', 'cobro']);
 
         if ($user->hasRole(['doctor', 'asistente', 'secretaria'])) {
             $ownerId = $user->hasRole('doctor') ? $user->id : $user->created_by;
@@ -314,7 +314,7 @@ class CitaController extends Controller
             'fecha' => 'required|date',
             'hora_inicio' => 'required|date_format:H:i',
             'motivo' => 'nullable|string',
-            'estado' => 'required|in:pendiente,confirmada,cancelada,completada',
+            'estado' => 'required|in:pendiente,confirmada,cancelada,completada,requiere_reagenda',
         ]);
 
         if ($user->hasRole(['doctor', 'asistente', 'secretaria'])) {

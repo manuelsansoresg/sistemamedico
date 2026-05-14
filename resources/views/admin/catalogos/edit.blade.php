@@ -69,7 +69,8 @@
                             </div>
                         </div>
 
-                        <div class="flex justify-end mt-6">
+                        <div class="flex justify-end mt-6 gap-2">
+                            <a href="{{ route('catalogos.index') }}" class="px-4 py-2 bg-gray-500 text-white font-bold rounded-md hover:bg-gray-600 transition-colors">{{ __('common.buttons.cancel') }}</a>
                             <x-primary-button>
                                 {{ __('common.buttons.save') }}
                             </x-primary-button>

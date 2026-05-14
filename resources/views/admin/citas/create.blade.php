@@ -282,8 +282,9 @@
                                     <span x-show="selectedDoctorId && selectedConsultorioId && !selectedSlot">{{ __('citas.validation.missing_slot') }}</span>
                                     <span x-show="selectedDoctorId && selectedConsultorioId && selectedSlot && !selectedPatientId">{{ __('citas.validation.missing_patient') }}</span>
                                 </div>
-                                <div>
-                                    <x-primary-button 
+                                <div class="flex items-center gap-2">
+                                    <a href="{{ route('citas.index') }}" class="px-4 py-2 bg-gray-500 text-white font-bold rounded-md hover:bg-gray-600 transition-colors">{{ __('common.buttons.cancel') }}</a>
+                                    <x-primary-button
                                             x-bind:disabled="!isValid"
                                             class="disabled:opacity-50 disabled:cursor-not-allowed">
                                         {{ __('citas.buttons.save') }}

@@ -109,6 +109,14 @@ Route::middleware(['auth', 'role:root|doctor|asistente|secretaria', 'check.docto
     Route::get('consultas/create/{cita_id}', [\App\Http\Controllers\ConsultaController::class, 'create'])->name('consultas.create');
     Route::post('consultas', [\App\Http\Controllers\ConsultaController::class, 'store'])->name('consultas.store');
     Route::resource('consultas', \App\Http\Controllers\ConsultaController::class)->except(['create', 'store', 'index']);
+    Route::get('admin/consulta-cobros/{cita}', [\App\Http\Controllers\ConsultaCobroController::class, 'show'])->name('consulta-cobros.show');
+    Route::get('admin/consulta-cobros/{cita}/status', [\App\Http\Controllers\ConsultaCobroController::class, 'status'])->name('consulta-cobros.status');
+    Route::post('admin/consulta-cobros/{cita}/preview', [\App\Http\Controllers\ConsultaCobroController::class, 'preview'])->name('consulta-cobros.preview');
+    Route::post('admin/consulta-cobros/{cita}/doctor', [\App\Http\Controllers\ConsultaCobroController::class, 'saveDoctor'])->name('consulta-cobros.doctor.save');
+    Route::post('admin/consulta-cobros/{consultaCobro}/articulos', [\App\Http\Controllers\ConsultaCobroController::class, 'storeArticuloItem'])->name('consulta-cobros.articulos.store');
+    Route::put('admin/consulta-cobro-items/{item}', [\App\Http\Controllers\ConsultaCobroController::class, 'updateItem'])->name('consulta-cobro-items.update');
+    Route::delete('admin/consulta-cobro-items/{item}', [\App\Http\Controllers\ConsultaCobroController::class, 'destroyItem'])->name('consulta-cobro-items.destroy');
+    Route::patch('admin/cita-afectaciones/{afectacion}', [\App\Http\Controllers\ConsultaCobroController::class, 'updateAfectacion'])->name('cita-afectaciones.update');
     Route::post('consultas/{consulta}/estudios', [\App\Http\Controllers\ConsultaController::class, 'storeEstudio'])->name('consultas.estudios.store');
     Route::get('consultas/{consulta}/print', [\App\Http\Controllers\ConsultaController::class, 'print'])->name('consultas.print');
     Route::get('estudios/{estudio}/print', [\App\Http\Controllers\ConsultaController::class, 'printEstudio'])->name('consultas.estudios.print');
@@ -133,6 +141,10 @@ Route::middleware(['auth', 'role:root|doctor|asistente|secretaria', 'check.docto
     Route::get('ganancias/exportar-pdf', [\App\Http\Controllers\GananciaController::class, 'exportPdf'])
         ->middleware('role:root|doctor|asistente|secretaria')
         ->name('ganancias.export_pdf');
+
+    Route::resource('admin/articulos-cobro', \App\Http\Controllers\ArticuloCobroController::class)
+        ->parameters(['articulos-cobro' => 'articulosCobro'])
+        ->except(['show']);
 
     // Días Sin Citas
     Route::resource('dias-sin-citas', \App\Http\Controllers\DiaSinCitaController::class);

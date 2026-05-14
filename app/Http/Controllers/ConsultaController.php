@@ -9,6 +9,7 @@ use App\Models\ConsultaValor;
 use App\Models\Estudio;
 use App\Models\EstudioArchivo;
 use App\Models\Plantilla;
+use App\Models\Servicio;
 use App\Models\User;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
@@ -57,7 +58,14 @@ class ConsultaController extends Controller
             $q->where('paciente_id', $paciente->id);
         })->with(['consulta.doctor'])->latest()->get();
 
-        return view('admin.consultas.create', compact('cita', 'paciente', 'plantillas', 'historialConsultas', 'historialEstudios'));
+        $servicios = Servicio::where('created_by', $cita->doctor_id)
+            ->orderBy('nombre')
+            ->get();
+        $consultaCobro = $cita->cobro()
+            ->with(['items', 'afectaciones.citaAfectada.paciente'])
+            ->first();
+
+        return view('admin.consultas.create', compact('cita', 'paciente', 'plantillas', 'historialConsultas', 'historialEstudios', 'servicios', 'consultaCobro'));
     }
 
     /**

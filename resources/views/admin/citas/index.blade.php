@@ -60,12 +60,18 @@
                                                 @if($cita->estado === 'pendiente') bg-yellow-100 text-yellow-800 
                                                 @elseif($cita->estado === 'confirmada') bg-green-100 text-green-800 
                                                 @elseif($cita->estado === 'cancelada') bg-red-100 text-red-800 
+                                                @elseif($cita->estado === 'requiere_reagenda') bg-orange-100 text-orange-800 
                                                 @else bg-gray-100 text-gray-800 @endif">
-                                                {{ __("status.{$cita->estado}") ?? ucfirst($cita->estado) }}
+                                                {{ trans_enum("citas.statuses.{$cita->estado}", ucfirst($cita->estado)) }}
                                             </span>
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                                             <div class="flex justify-end items-center space-x-2">
+                                                <a href="{{ route('consulta-cobros.show', $cita) }}"
+                                                   class="inline-flex items-center justify-center w-10 h-10 {{ $cita->cobro ? 'bg-emerald-600 hover:bg-emerald-700' : 'bg-gray-600 hover:bg-gray-700' }} text-white rounded-md transition-colors shadow-sm"
+                                                   title="{{ __('cobros.title') }}">
+                                                    <i class="fas fa-cash-register text-lg"></i>
+                                                </a>
                                                 <a href="{{ route('consultas.create', ['cita_id' => $cita->id]) }}" 
                                                    onclick="return confirm('¿{{ __('consultas.title') }}?')"
                                                    class="inline-flex items-center justify-center w-10 h-10 bg-[#0061F5] text-white rounded-md hover:bg-[#0051CC] transition-colors shadow-sm" 

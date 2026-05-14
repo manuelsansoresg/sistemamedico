@@ -151,8 +151,9 @@
                                                     @if($cita->estado === 'pendiente') bg-yellow-100 text-yellow-800 
                                                     @elseif($cita->estado === 'confirmada') bg-green-100 text-green-800 
                                                     @elseif($cita->estado === 'cancelada') bg-red-100 text-red-800 
+                                                    @elseif($cita->estado === 'requiere_reagenda') bg-orange-100 text-orange-800 
                                                     @else bg-gray-100 text-gray-800 @endif">
-                                                    {{ ucfirst($cita->estado) }}
+                                                    {{ trans_enum("citas.statuses.{$cita->estado}", ucfirst($cita->estado)) }}
                                                 </span>
                                             </td>
                                             <td class="px-4 py-2 whitespace-nowrap text-right text-sm font-medium">
@@ -295,7 +296,7 @@
                 @endrole
 
                 <a href="{{ route('dias-sin-citas.index') }}" class="flex flex-col items-center justify-center p-8 bg-white border border-gray-100 rounded-2xl shadow-[0_2px_15px_-3px_rgba(0,0,0,0.07),0_10px_20px_-2px_rgba(0,0,0,0.04)] hover:shadow-lg transition-all duration-300 group h-48">
-                    <div class="w-20 h-20 bg-blue-50 rounded-full flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300">
+                    <div class="w-20 h-20 aspect-square shrink-0 bg-blue-50 rounded-full flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300">
                         <i class="fas fa-calendar-times text-3xl text-[#2563EB]"></i>
                     </div>
                     <span class="dashboard-card-label">{{ __('dias_sin_citas.title') }}</span>
@@ -303,7 +304,7 @@
 
                 <a href="{{ route('recursos.agenda') }}" class="flex flex-col items-center justify-center p-8 bg-white border border-gray-100 rounded-2xl shadow-[0_2px_15px_-3px_rgba(0,0,0,0.07),0_10px_20px_-2px_rgba(0,0,0,0.04)] hover:shadow-lg transition-all duration-300 group h-48">
                     <div class="w-20 h-20 bg-blue-50 rounded-full flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300">
-                        <i class="fas fa-door-open text-3xl text-[#2563EB]"></i>
+                        <img src="{{ asset('icons/clinic-schedule.svg') }}" alt="" class="h-8 w-8" aria-hidden="true">
                     </div>
                     <span class="dashboard-card-label">{{ __('dashboard.card_labels.resources') }}</span>
                 </a>

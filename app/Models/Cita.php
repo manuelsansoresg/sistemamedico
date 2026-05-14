@@ -48,6 +48,21 @@ class Cita extends Model
         return $this->belongsTo(Clinica::class);
     }
 
+    public function cobro()
+    {
+        return $this->hasOne(ConsultaCobro::class);
+    }
+
+    public function afectacionesOrigen()
+    {
+        return $this->hasMany(CitaAfectacion::class, 'cita_origen_id');
+    }
+
+    public function afectacionesRecibidas()
+    {
+        return $this->hasMany(CitaAfectacion::class, 'cita_afectada_id');
+    }
+
     public function auditSection(): string
     {
         return 'citas';
