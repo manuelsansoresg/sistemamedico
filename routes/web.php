@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Admin\AuditController;
 use App\Http\Controllers\AdminController;
+use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Public\ComprobantePagoController;
 use Illuminate\Support\Facades\Route;
@@ -111,6 +112,7 @@ Route::middleware(['auth', 'role:root|doctor|asistente|secretaria', 'check.docto
     Route::resource('consultas', \App\Http\Controllers\ConsultaController::class)->except(['create', 'store', 'index']);
     Route::get('admin/consulta-cobros/{cita}', [\App\Http\Controllers\ConsultaCobroController::class, 'show'])->name('consulta-cobros.show');
     Route::get('admin/consulta-cobros/{cita}/status', [\App\Http\Controllers\ConsultaCobroController::class, 'status'])->name('consulta-cobros.status');
+    Route::get('admin/consulta-cobros/{cita}/articulos', [\App\Http\Controllers\ConsultaCobroController::class, 'articulos'])->name('consulta-cobros.articulos.index');
     Route::post('admin/consulta-cobros/{cita}/preview', [\App\Http\Controllers\ConsultaCobroController::class, 'preview'])->name('consulta-cobros.preview');
     Route::post('admin/consulta-cobros/{cita}/doctor', [\App\Http\Controllers\ConsultaCobroController::class, 'saveDoctor'])->name('consulta-cobros.doctor.save');
     Route::post('admin/consulta-cobros/{consultaCobro}/articulos', [\App\Http\Controllers\ConsultaCobroController::class, 'storeArticuloItem'])->name('consulta-cobros.articulos.store');
@@ -149,9 +151,6 @@ Route::middleware(['auth', 'role:root|doctor|asistente|secretaria', 'check.docto
     // Días Sin Citas
     Route::resource('dias-sin-citas', \App\Http\Controllers\DiaSinCitaController::class);
 
-    // Notifications
-    Route::get('admin/notifications/{id}/read', [\App\Http\Controllers\DashboardController::class, 'markNotificationRead'])->name('admin.notifications.read');
-
     // Recursos compartidos
     Route::get('admin/recursos', [\App\Http\Controllers\RecursoController::class, 'index'])->name('recursos.index');
     Route::post('admin/recursos', [\App\Http\Controllers\RecursoController::class, 'store'])->name('recursos.store');
@@ -182,6 +181,13 @@ Route::middleware(['auth', 'role:doctor'])->group(function () {
 });
 
 Route::middleware('auth')->group(function () {
+    Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.index');
+    Route::get('/notifications/{notification}/open', [NotificationController::class, 'markAsReadAndOpen'])->name('notifications.open');
+    Route::patch('/notifications/{notification}/read', [NotificationController::class, 'markAsRead'])->name('notifications.read');
+    Route::patch('/notifications/read-all', [NotificationController::class, 'markAllAsRead'])->name('notifications.read_all');
+    Route::delete('/notifications/{notification}', [NotificationController::class, 'destroy'])->name('notifications.destroy');
+    Route::get('/admin/notifications/{notification}/read', [NotificationController::class, 'markAsReadAndOpen'])->name('admin.notifications.read');
+
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');

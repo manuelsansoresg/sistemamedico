@@ -52,6 +52,7 @@ class SubscriptionExpiringNotification extends Notification
             : ($this->suscripcion->catalogo->nombre ?? __('emails.subscription_expiry.extra_fallback'));
 
         return [
+            'titulo' => __('notifications.types.subscription_expiring'),
             'suscripcion_id' => $this->suscripcion->id,
             'tipo' => $this->suscripcion->tipo,
             'nombre' => $nombre,
@@ -60,6 +61,8 @@ class SubscriptionExpiringNotification extends Notification
                 'name' => $nombre,
                 'date' => \Carbon\Carbon::parse($this->suscripcion->fecha_fin)->format('d/m/Y'),
             ]),
+            'action_url' => route('compras.index'),
+            'icon' => 'fa-hourglass-half',
         ];
     }
 }

@@ -15,6 +15,7 @@
         @vite(['resources/css/app.css', 'resources/js/app.js'])
 
         <style>
+            [x-cloak] { display: none !important; }
             .dashboard-card-label { text-transform: uppercase; display: block; text-align: center; font-weight: 700; }
             nav[aria-label="Breadcrumb"] a,
             nav[aria-label="Breadcrumb"] span { text-transform: uppercase; letter-spacing: 0.08em; font-size: 0.75rem; }

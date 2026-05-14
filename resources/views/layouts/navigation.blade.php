@@ -1,31 +1,24 @@
 <nav x-data="{ open: false }" class="bg-[#27ADFA]">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center gap-4">
-        <div class="flex items-center gap-3 min-w-0">
+    <div class="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 h-14 sm:h-16 flex items-center gap-2 sm:gap-3">
+        <div class="flex flex-none items-center min-w-0">
             <img src="{{ Auth::user()->profile_photo_url }}"
                  alt="{{ Auth::user()->name }}"
-                 class="w-12 h-12 rounded-full object-cover border-2 border-white/60">
-            <div class="min-w-0 leading-tight">
-                <div class="text-sm font-bold text-white uppercase">{{ Auth::user()->name }}</div>
-                <div class="text-xs text-white/70">
-                    {{ Auth::user()->especialidad?->nombre ?? __('common.roles.'.(Auth::user()->roles->first()?->name ?? 'user')) }}
-                </div>
-            </div>
+                 class="w-9 h-9 sm:w-10 sm:h-10 rounded-lg object-cover border border-white/40 shrink-0">
         </div>
 
-        <div class="flex-1 flex justify-center px-4">
-            <a href="{{ route('dashboard') }}" class="text-white font-bold text-xl md:text-2xl tracking-wide">
+        <div class="flex-1 min-w-0 flex items-center">
+            <a href="{{ route('dashboard') }}" class="truncate text-white font-bold text-base sm:text-lg tracking-tight leading-tight">
                 {{ config('app.name', 'Sistema Medico') }}
             </a>
         </div>
 
-        <div class="flex items-center gap-4">
+        <div class="flex flex-none items-center justify-end gap-1.5 sm:gap-3">
             <x-language-switcher />
-            <div class="h-6 w-px bg-white/30"></div>
+            <x-notification-center />
             <form method="POST" action="{{ route('logout') }}">
                 @csrf
-                <button type="submit" class="flex items-center gap-2 text-white/80 hover:text-white font-semibold uppercase tracking-wide transition-colors">
-                    <i class="fas fa-sign-out-alt"></i>
-                    <span class="hidden sm:inline">{{ __('common.log_out') }}</span>
+                <button type="submit" class="inline-flex h-9 w-9 sm:h-10 sm:w-10 items-center justify-center rounded-full text-white hover:bg-white/15 transition-colors" title="{{ __('common.log_out') }}">
+                    <i class="fas fa-sign-out-alt text-base sm:text-lg" style="color: #ffffff;"></i>
                 </button>
             </form>
         </div>

@@ -211,13 +211,10 @@ class CitaController extends Controller
         $cita->hora_inicio = $validated['hora_inicio'];
         $cita->hora_fin = $horaFin->format('H:i');
         $cita->motivo = $validated['motivo'];
-        $cita->status = 'programada';
-        /** @var \App\Models\User $user */
-        $user = Auth::user();
-        $cita->created_by = $user->id;
+        $cita->estado = 'pendiente';
         $cita->save();
 
-        return redirect()->route('admin.citas.index')
+        return redirect()->route('citas.index')
             ->with('success', __('citas.messages.created_success'));
     }
 

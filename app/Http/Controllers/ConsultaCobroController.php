@@ -33,8 +33,9 @@ class ConsultaCobroController extends Controller
             ->where('activo', true)
             ->orderBy('nombre')
             ->get();
+        $articulosPayload = $this->formatArticulos($articulos);
 
-        return view('admin.consulta_cobros.show', compact('cita', 'cobro', 'articulos'));
+        return view('admin.consulta_cobros.show', compact('cita', 'cobro', 'articulos', 'articulosPayload'));
     }
 
     public function status(Cita $cita)
@@ -54,6 +55,18 @@ class ConsultaCobroController extends Controller
             'affected_count' => $cobro?->afectaciones->count() ?? 0,
             'updated_at' => $cobro?->updated_at?->format('d/m/Y H:i:s'),
         ]);
+    }
+
+    public function articulos(Cita $cita)
+    {
+        $this->authorizeCitaAccess($cita);
+
+        $articulos = ArticuloCobro::where('doctor_id', $cita->doctor_id)
+            ->where('activo', true)
+            ->orderBy('nombre')
+            ->get(['id', 'nombre', 'precio']);
+
+        return response()->json($this->formatArticulos($articulos));
     }
 
     public function preview(Request $request, Cita $cita)
@@ -230,5 +243,15 @@ class ConsultaCobroController extends Controller
         }
 
         abort(403);
+    }
+
+    private function formatArticulos($articulos): array
+    {
+        return $articulos->map(fn (ArticuloCobro $articulo): array => [
+            'id' => $articulo->id,
+            'nombre' => $articulo->nombre,
+            'precio' => (float) $articulo->precio,
+            'label' => $articulo->nombre.' - $'.number_format((float) $articulo->precio, 2),
+        ])->values()->all();
     }
 }

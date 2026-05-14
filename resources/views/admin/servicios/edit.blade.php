@@ -35,6 +35,9 @@
                             <div>
                                 <label for="nombre" class="block text-sm font-bold text-gray-700">{{ __('servicios.fields.name') }}</label>
                                 <input type="text" name="nombre" id="nombre" value="{{ old('nombre', $servicio->nombre) }}" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-[#0061F5] focus:ring-[#0061F5]" required>
+                                @error('nombre')
+                                    <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                                @enderror
                             </div>
 
                             <div>

@@ -9,6 +9,7 @@ use App\Models\Especialidad;
 use App\Models\Paquete;
 use App\Models\Suscripcion;
 use App\Models\User;
+use App\Notifications\SystemNotification;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -187,6 +188,12 @@ class RegisteredUserController extends Controller
 
                             try {
                                 Mail::to($user)->send(new BienvenidaTarjetaMail($suscripcion, $user));
+                                $user->notify(new SystemNotification(
+                                    __('notifications.types.card_welcome'),
+                                    __('notifications.mail.card_welcome'),
+                                    route('dashboard'),
+                                    'fa-credit-card'
+                                ));
                             } catch (\Exception $e) {
                                 Log::error('Error enviando correo de bienvenida tarjeta: '.$e->getMessage());
                             }
@@ -319,6 +326,12 @@ class RegisteredUserController extends Controller
 
         try {
             Mail::to($user)->send(new InstruccionesTransferenciaMail($suscripcion, $user, $urlSubirComprobante));
+            $user->notify(new SystemNotification(
+                __('notifications.types.transfer_instructions'),
+                __('notifications.mail.transfer_instructions'),
+                $urlSubirComprobante,
+                'fa-file-invoice-dollar'
+            ));
         } catch (\Exception $e) {
             Log::error('Error enviando correo de transferencia: '.$e->getMessage());
         }

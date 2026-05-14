@@ -68,9 +68,10 @@
                                         <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                                             <div class="flex justify-end items-center space-x-2">
                                                 <a href="{{ route('consulta-cobros.show', $cita) }}"
-                                                   class="inline-flex items-center justify-center w-10 h-10 {{ $cita->cobro ? 'bg-emerald-600 hover:bg-emerald-700' : 'bg-gray-600 hover:bg-gray-700' }} text-white rounded-md transition-colors shadow-sm"
+                                                   class="inline-flex items-center justify-center rounded-md transition-colors shadow-sm"
+                                                   style="width: 2.5rem; height: 2.5rem; background-color: {{ $cita->cobro ? '#475569' : '#64748b' }}; color: #ffffff;"
                                                    title="{{ __('cobros.title') }}">
-                                                    <i class="fas fa-cash-register text-lg"></i>
+                                                    <i class="fas fa-cash-register text-lg" style="color: #ffffff;"></i>
                                                 </a>
                                                 <a href="{{ route('consultas.create', ['cita_id' => $cita->id]) }}" 
                                                    onclick="return confirm('¿{{ __('consultas.title') }}?')"

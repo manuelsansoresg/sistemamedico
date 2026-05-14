@@ -247,8 +247,11 @@ class ConsultaCobroService
             return;
         }
 
-        User::where('created_by', $cobro->doctor_id)
-            ->whereHas('roles', fn ($query) => $query->whereIn('name', ['secretaria', 'asistente']))
+        User::where('id', $cobro->doctor_id)
+            ->orWhere(function ($query) use ($cobro) {
+                $query->where('created_by', $cobro->doctor_id)
+                    ->whereHas('roles', fn ($roleQuery) => $roleQuery->whereIn('name', ['secretaria', 'asistente']));
+            })
             ->get()
             ->each(fn (User $user) => $user->notify(new CitaAfectadaNotification($cobro, $affected->count())));
     }

@@ -47,30 +47,71 @@
                     <p class="text-sm text-yellow-800 font-medium">{{ __('cobros.messages.no_charge_yet') }}</p>
                 </div>
             @else
-                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                    <div class="lg:col-span-2 bg-white overflow-hidden shadow-sm sm:rounded-lg">
-                        <div class="p-6">
+                <div class="space-y-6">
+                    <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
+                        <div class="p-5 lg:p-6">
                             <div class="flex items-center justify-between mb-4">
-                                <h2 class="text-lg font-bold text-gray-800">{{ __('cobros.sections.breakdown') }}</h2>
+                                <h2 class="text-lg font-bold text-gray-800">{{ __('cobros.fields.instructions') }}</h2>
                                 <span class="px-3 py-1 rounded-full text-xs font-bold bg-blue-100 text-blue-800" x-text="status.estado_instrucciones">{{ trans_enum('cobros.statuses.'.$cobro->estado_instrucciones, $cobro->estado_instrucciones) }}</span>
                             </div>
 
-                            <div class="mb-6 bg-[#F8FAFC] border border-gray-100 rounded-lg p-4">
+                            <div class="bg-[#F8FAFC] border border-gray-100 rounded-lg p-4">
                                 <h3 class="text-sm font-bold text-gray-700 mb-2">{{ __('cobros.fields.instructions') }}</h3>
                                 <p class="text-sm text-gray-700 whitespace-pre-wrap">{{ $cobro->instrucciones_cobro ?: __('cobros.messages.without_instructions') }}</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
+                        <div class="p-5 lg:p-6">
+                            <h2 class="text-lg font-bold text-gray-800 mb-4">{{ __('cobros.sections.add_article') }}</h2>
+                            <form method="POST" action="{{ route('consulta-cobros.articulos.store', $cobro) }}" class="space-y-4">
+                                @csrf
+                                <div>
+                                    <label class="block text-xs font-bold text-gray-700 uppercase tracking-wide">{{ __('cobros.fields.article') }}</label>
+                                    <select name="articulo_cobro_id" x-model="selectedArticuloId" @focus="fetchArticulos" @mousedown="fetchArticulos" @change="syncArticuloPrice(true)" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-[#0061F5] focus:ring-[#0061F5]" required>
+                                        <option value="">{{ __('cobros.placeholders.select_article') }}</option>
+                                        <template x-for="articulo in articulos" :key="articulo.id">
+                                            <option :value="articulo.id" x-text="articulo.label"></option>
+                                        </template>
+                                    </select>
+                                </div>
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                    <div>
+                                        <label class="block text-xs font-bold text-gray-700 uppercase tracking-wide">{{ __('cobros.fields.quantity') }}</label>
+                                        <input type="number" name="cantidad" value="1" min="1" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-[#0061F5] focus:ring-[#0061F5]" required>
+                                    </div>
+                                    <div>
+                                        <label class="block text-xs font-bold text-gray-700 uppercase tracking-wide">{{ __('cobros.fields.charged_price') }}</label>
+                                        <input type="number" name="precio_cobrado" x-ref="precioCobrado" step="0.01" min="0" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-[#0061F5] focus:ring-[#0061F5]" required>
+                                    </div>
+                                </div>
+                                <button type="submit" class="w-full inline-flex justify-center items-center px-4 py-2 bg-[#0061F5] text-white text-sm font-bold rounded-md hover:bg-[#0051CC]">
+                                    <i class="fas fa-plus mr-2"></i>{{ __('cobros.actions.add_article') }}
+                                </button>
+                            </form>
+                            <a target="_blank" rel="noopener" href="{{ route('articulos-cobro.index') }}" class="mt-3 inline-flex text-sm font-semibold text-[#0061F5] hover:text-[#004499]">{{ __('cobros.actions.manage_articles') }}</a>
+                        </div>
+                    </div>
+
+                    <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
+                        <div class="p-5 lg:p-6">
+                            <div class="flex items-center justify-between mb-4">
+                                <h2 class="text-lg font-bold text-gray-800">{{ __('cobros.sections.breakdown') }}</h2>
+                                <span class="px-3 py-1 rounded-full text-xs font-bold bg-blue-100 text-blue-800" x-text="status.estado_instrucciones">{{ trans_enum('cobros.statuses.'.$cobro->estado_instrucciones, $cobro->estado_instrucciones) }}</span>
                             </div>
 
                             <div class="overflow-x-auto">
                                 <table class="min-w-full divide-y divide-gray-200">
                                     <thead class="bg-gray-50">
                                         <tr>
-                                            <th class="px-4 py-3 text-left text-xs font-bold text-gray-700 uppercase">{{ __('cobros.columns.type') }}</th>
-                                            <th class="px-4 py-3 text-left text-xs font-bold text-gray-700 uppercase">{{ __('cobros.columns.description') }}</th>
-                                            <th class="px-4 py-3 text-right text-xs font-bold text-gray-700 uppercase">{{ __('cobros.fields.catalog_price') }}</th>
-                                            <th class="px-4 py-3 text-right text-xs font-bold text-gray-700 uppercase">{{ __('cobros.fields.charged_price') }}</th>
-                                            <th class="px-4 py-3 text-right text-xs font-bold text-gray-700 uppercase">{{ __('cobros.fields.quantity') }}</th>
-                                            <th class="px-4 py-3 text-right text-xs font-bold text-gray-700 uppercase">{{ __('cobros.fields.subtotal') }}</th>
-                                            <th class="px-4 py-3 text-right text-xs font-bold text-gray-700 uppercase">{{ __('common.actions') }}</th>
+                                            <th class="px-3 py-3 text-left text-xs font-bold text-gray-700 uppercase">{{ __('cobros.columns.type') }}</th>
+                                            <th class="px-3 py-3 text-left text-xs font-bold text-gray-700 uppercase">{{ __('cobros.columns.description') }}</th>
+                                            <th class="px-3 py-3 text-right text-xs font-bold text-gray-700 uppercase">{{ __('cobros.fields.catalog_price') }}</th>
+                                            <th class="px-3 py-3 text-right text-xs font-bold text-gray-700 uppercase">{{ __('cobros.fields.charged_price') }}</th>
+                                            <th class="px-3 py-3 text-right text-xs font-bold text-gray-700 uppercase">{{ __('cobros.fields.quantity') }}</th>
+                                            <th class="px-3 py-3 text-right text-xs font-bold text-gray-700 uppercase">{{ __('cobros.fields.subtotal') }}</th>
+                                            <th class="px-3 py-3 text-right text-xs font-bold text-gray-700 uppercase">{{ __('common.actions') }}</th>
                                         </tr>
                                     </thead>
                                     <tbody class="bg-white divide-y divide-gray-200">
@@ -84,8 +125,8 @@
                                                     @csrf
                                                     @method('DELETE')
                                                 </form>
-                                                <td class="px-4 py-3 text-sm text-gray-500">{{ trans_enum('cobros.item_types.'.$item->tipo, ucfirst($item->tipo)) }}</td>
-                                                <td class="px-4 py-3 text-sm font-medium text-gray-700">
+                                                <td class="px-3 py-3 text-sm text-gray-500">{{ trans_enum('cobros.item_types.'.$item->tipo, ucfirst($item->tipo)) }}</td>
+                                                <td class="px-3 py-3 text-sm font-medium text-gray-700">
                                                     {{ $item->nombre_snapshot }}
                                                     @if($item->duracion_minutos_snapshot > 0)
                                                         <div class="text-xs text-gray-400">{{ $item->duracion_minutos_snapshot }} min</div>
@@ -94,15 +135,15 @@
                                                         <div class="text-xs text-orange-600 font-semibold">{{ __('cobros.ui.modified_price') }}</div>
                                                     @endif
                                                 </td>
-                                                <td class="px-4 py-3 text-sm text-gray-500 text-right">${{ number_format($item->precio_catalogo, 2) }}</td>
-                                                <td class="px-4 py-3 text-right">
-                                                    <input form="item-update-{{ $item->id }}" type="number" step="0.01" min="0" name="precio_cobrado" value="{{ $item->precio_cobrado }}" class="w-28 rounded-md border-gray-300 shadow-sm focus:border-[#0061F5] focus:ring-[#0061F5] text-sm text-right">
+                                                <td class="px-3 py-3 text-sm text-gray-500 text-right">${{ number_format($item->precio_catalogo, 2) }}</td>
+                                                <td class="px-3 py-3 text-right">
+                                                    <input form="item-update-{{ $item->id }}" type="number" step="0.01" min="0" name="precio_cobrado" value="{{ $item->precio_cobrado }}" class="w-24 rounded-md border-gray-300 shadow-sm focus:border-[#0061F5] focus:ring-[#0061F5] text-sm text-right">
                                                 </td>
-                                                <td class="px-4 py-3 text-right">
-                                                    <input form="item-update-{{ $item->id }}" type="number" min="1" name="cantidad" value="{{ $item->cantidad }}" class="w-20 rounded-md border-gray-300 shadow-sm focus:border-[#0061F5] focus:ring-[#0061F5] text-sm text-right" {{ $item->tipo === 'servicio' ? 'readonly' : '' }}>
+                                                <td class="px-3 py-3 text-right">
+                                                    <input form="item-update-{{ $item->id }}" type="number" min="1" name="cantidad" value="{{ $item->cantidad }}" class="w-16 rounded-md border-gray-300 shadow-sm focus:border-[#0061F5] focus:ring-[#0061F5] text-sm text-right" {{ $item->tipo === 'servicio' ? 'readonly' : '' }}>
                                                 </td>
-                                                <td class="px-4 py-3 text-sm text-gray-700 font-bold text-right">${{ number_format($item->subtotal, 2) }}</td>
-                                                <td class="px-4 py-3 text-right whitespace-nowrap">
+                                                <td class="px-3 py-3 text-sm text-gray-700 font-bold text-right">${{ number_format($item->subtotal, 2) }}</td>
+                                                <td class="px-3 py-3 text-right whitespace-nowrap">
                                                     <button form="item-update-{{ $item->id }}" type="submit" class="inline-flex items-center justify-center w-9 h-9 bg-[#0061F5] text-white rounded-md hover:bg-[#0051CC]" title="{{ __('common.buttons.save') }}"><i class="fas fa-save"></i></button>
                                                     <button form="item-delete-{{ $item->id }}" type="submit" class="inline-flex items-center justify-center w-9 h-9 bg-red-600 text-white rounded-md hover:bg-red-700" onclick="return confirm('{{ __('common.confirm_delete') }}')" title="{{ __('common.buttons.delete') }}"><i class="fas fa-trash"></i></button>
                                                 </td>
@@ -111,47 +152,13 @@
                                     </tbody>
                                 </table>
                             </div>
-                        </div>
-                    </div>
 
-                    <div class="space-y-6">
-                        <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
-                            <div class="p-6">
-                                <h2 class="text-lg font-bold text-gray-800 mb-4">{{ __('cobros.sections.add_article') }}</h2>
-                                <form method="POST" action="{{ route('consulta-cobros.articulos.store', $cobro) }}" class="space-y-4">
-                                    @csrf
-                                    <div>
-                                        <label class="block text-sm font-bold text-gray-700">{{ __('cobros.fields.article') }}</label>
-                                        <select name="articulo_cobro_id" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-[#0061F5] focus:ring-[#0061F5]" required>
-                                            <option value="">{{ __('cobros.placeholders.select_article') }}</option>
-                                            @foreach($articulos as $articulo)
-                                                <option value="{{ $articulo->id }}">{{ $articulo->nombre }} - ${{ number_format($articulo->precio, 2) }}</option>
-                                            @endforeach
-                                        </select>
-                                    </div>
-                                    <div class="grid grid-cols-2 gap-3">
-                                        <div>
-                                            <label class="block text-sm font-bold text-gray-700">{{ __('cobros.fields.quantity') }}</label>
-                                            <input type="number" name="cantidad" value="1" min="1" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-[#0061F5] focus:ring-[#0061F5]" required>
-                                        </div>
-                                        <div>
-                                            <label class="block text-sm font-bold text-gray-700">{{ __('cobros.fields.charged_price') }}</label>
-                                            <input type="number" name="precio_cobrado" step="0.01" min="0" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-[#0061F5] focus:ring-[#0061F5]" required>
-                                        </div>
-                                    </div>
-                                    <button type="submit" class="w-full inline-flex justify-center items-center px-4 py-2 bg-[#0061F5] text-white text-sm font-bold rounded-md hover:bg-[#0051CC]">
-                                        <i class="fas fa-plus mr-2"></i>{{ __('cobros.actions.add_article') }}
-                                    </button>
-                                </form>
-                                <a href="{{ route('articulos-cobro.index') }}" class="mt-3 inline-flex text-sm font-semibold text-[#0061F5] hover:text-[#004499]">{{ __('cobros.actions.manage_articles') }}</a>
-                            </div>
-                        </div>
-
-                        <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
-                            <div class="p-6 space-y-2">
-                                <div class="flex justify-between text-sm"><span>{{ __('cobros.fields.services_subtotal') }}</span><strong>${{ number_format($cobro->subtotal_servicios, 2) }}</strong></div>
-                                <div class="flex justify-between text-sm"><span>{{ __('cobros.fields.articles_subtotal') }}</span><strong>${{ number_format($cobro->subtotal_articulos, 2) }}</strong></div>
-                                <div class="border-t pt-2 flex justify-between text-lg font-extrabold"><span>{{ __('cobros.fields.total') }}</span><span>${{ number_format($cobro->total, 2) }}</span></div>
+                            <div class="mt-6 flex justify-end">
+                                <div class="w-full sm:max-w-md rounded-lg border border-gray-200 bg-[#F8FAFC] p-4 space-y-2">
+                                    <div class="flex justify-between text-sm"><span>{{ __('cobros.fields.services_subtotal') }}</span><strong>${{ number_format($cobro->subtotal_servicios, 2) }}</strong></div>
+                                    <div class="flex justify-between text-sm"><span>{{ __('cobros.fields.articles_subtotal') }}</span><strong>${{ number_format($cobro->subtotal_articulos, 2) }}</strong></div>
+                                    <div class="border-t pt-2 flex justify-between text-lg font-extrabold"><span>{{ __('cobros.fields.total') }}</span><span>${{ number_format($cobro->total, 2) }}</span></div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -215,6 +222,26 @@
                     estado_instrucciones: '{{ trans_enum('cobros.statuses.'.($cobro?->estado_instrucciones ?? 'pendiente'), $cobro?->estado_instrucciones ?? 'pendiente') }}',
                     updated_at: '{{ $cobro?->updated_at?->format('d/m/Y H:i:s') }}',
                 },
+                articulos: @json($articulosPayload),
+                selectedArticuloId: '',
+                async fetchArticulos() {
+                    try {
+                        const response = await fetch('{{ route('consulta-cobros.articulos.index', $cita) }}', { headers: { 'Accept': 'application/json' } });
+
+                        if (response.ok) {
+                            this.articulos = await response.json();
+                            this.syncArticuloPrice();
+                        }
+                    } catch (error) {
+                    }
+                },
+                syncArticuloPrice(force = false) {
+                    const articulo = this.articulos.find((item) => String(item.id) === String(this.selectedArticuloId));
+
+                    if (articulo && this.$refs.precioCobrado && (force || ! this.$refs.precioCobrado.value)) {
+                        this.$refs.precioCobrado.value = Number(articulo.precio).toFixed(2);
+                    }
+                },
                 async fetchStatus() {
                     try {
                         const response = await fetch('{{ route('consulta-cobros.status', $cita) }}', { headers: { 'Accept': 'application/json' } });
@@ -226,6 +253,8 @@
                 },
                 startPolling() {
                     this.fetchStatus();
+                    window.addEventListener('focus', () => this.fetchArticulos());
+                    window.addEventListener('pageshow', () => this.fetchArticulos());
                     setInterval(() => this.fetchStatus(), 5000);
                 },
             }

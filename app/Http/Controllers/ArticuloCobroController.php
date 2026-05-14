@@ -6,6 +6,7 @@ use App\Models\ArticuloCobro;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Validation\Rule;
 
 class ArticuloCobroController extends Controller
 {
@@ -33,10 +34,11 @@ class ArticuloCobroController extends Controller
     {
         /** @var \App\Models\User $user */
         $user = Auth::user();
-        $validated = $this->validated($request);
+        $doctorId = $this->ownerDoctorId($user);
+        $validated = $this->validated($request, $doctorId);
 
         ArticuloCobro::create($validated + [
-            'doctor_id' => $this->ownerDoctorId($user),
+            'doctor_id' => $doctorId,
             'created_by' => $user->id,
             'updated_by' => $user->id,
         ]);
@@ -57,7 +59,7 @@ class ArticuloCobroController extends Controller
 
         /** @var \App\Models\User $user */
         $user = Auth::user();
-        $articulosCobro->update($this->validated($request) + ['updated_by' => $user->id]);
+        $articulosCobro->update($this->validated($request, $this->ownerDoctorId($user), $articulosCobro) + ['updated_by' => $user->id]);
 
         return redirect()->route('articulos-cobro.index')->with('success', __('cobros.messages.article_updated'));
     }
@@ -70,10 +72,21 @@ class ArticuloCobroController extends Controller
         return redirect()->route('articulos-cobro.index')->with('success', __('cobros.messages.article_deleted'));
     }
 
-    private function validated(Request $request): array
+    private function validated(Request $request, int $doctorId, ?ArticuloCobro $articulo = null): array
     {
+        $request->merge([
+            'nombre' => trim((string) $request->input('nombre')),
+        ]);
+
         return $request->validate([
-            'nombre' => ['required', 'string', 'max:255'],
+            'nombre' => [
+                'required',
+                'string',
+                'max:255',
+                Rule::unique('articulos_cobro', 'nombre')
+                    ->where(fn ($query) => $query->where('doctor_id', $doctorId))
+                    ->ignore($articulo?->id),
+            ],
             'descripcion' => ['nullable', 'string'],
             'unidad' => ['nullable', 'string', 'max:50'],
             'precio' => ['required', 'numeric', 'min:0'],

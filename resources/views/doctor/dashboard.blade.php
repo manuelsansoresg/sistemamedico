@@ -158,8 +158,17 @@
                                             </td>
                                             <td class="px-4 py-2 whitespace-nowrap text-right text-sm font-medium">
                                                 <div class="flex justify-end items-center space-x-2">
+                                                    <a href="{{ route('consulta-cobros.show', $cita) }}"
+                                                       class="inline-flex items-center justify-center rounded-md transition-colors shadow-sm"
+                                                       style="width: 2.5rem; height: 2.5rem; background-color: {{ $cita->cobro ? '#475569' : '#64748b' }}; color: #ffffff;"
+                                                       title="{{ __('cobros.title') }}">
+                                                        <i class="fas fa-cash-register text-lg" style="color: #ffffff;"></i>
+                                                    </a>
                                                     <a href="{{ route('consultas.create', ['cita_id' => $cita->id]) }}" class="inline-flex items-center justify-center px-4 py-2 bg-blue-600 text-white font-bold rounded-md hover:bg-blue-700 transition-colors shadow-sm" title="{{ __('consultas.create') }}">
                                                         <i class="fas fa-stethoscope mr-2"></i> {{ __('common.buttons.start') }}
+                                                    </a>
+                                                    <a href="{{ route('citas.edit', $cita) }}" class="inline-flex items-center justify-center w-10 h-10 bg-[#0061F5] text-white rounded-md hover:bg-[#0051CC] transition-colors shadow-sm" title="{{ __('common.buttons.edit') }}">
+                                                        <i class="fas fa-edit text-lg"></i>
                                                     </a>
                                                     @if($cita->estado !== 'cancelada')
                                                     <form action="{{ route('citas.destroy', $cita) }}" method="POST" class="inline-block" onsubmit="return confirm('{{ __('citas.confirm.delete') }}');">
