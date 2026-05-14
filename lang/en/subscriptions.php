@@ -87,14 +87,20 @@ return [
         'updated_success' => 'Subscription updated successfully.',
         'license_validated' => 'License validated successfully. The doctor now has access to the dashboard.',
         'license_rejected' => 'License rejected.',
+        'renewal_success' => 'Renewal completed successfully.',
+        'renewal_request_created' => 'Renewal request created. Please upload your payment receipt to activate the package.',
     ],
     'errors' => [
         'active_package_exists' => 'The user already has an active package. Only one active package is allowed at a time.',
         'user_not_doctor' => 'The user is not a doctor.',
         'no_voucher_available' => 'No voucher available.',
         'file_not_found' => 'The file does not exist.',
+        'package_expired' => 'Your package has expired. You must renew it to continue using the system.',
     ],
     'service_description' => 'Acquire :service service for your office',
+    'notifications' => [
+        'expiring_message' => 'Your subscription (:name) expires on :date',
+    ],
     'breadcrumbs' => [
         'index' => 'SUBSCRIPTIONS',
         'create' => 'NEW SUBSCRIPTION',

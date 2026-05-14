@@ -53,13 +53,13 @@ class RegisteredUserController extends Controller
                 $terminosHtml = nl2br(e($terminosContent));
             }
         } else {
-            $terminosHtml = '<p class="text-red-500">No se pudo cargar el archivo de términos y condiciones.</p>';
+            $terminosHtml = '<p class="text-red-500">'.__('auth.registration.payment_errors.terms_load_failed').'</p>';
             Log::warning('Terminos file not found at: '.base_path('terminos.md'));
         }
 
         // Ensure we have something to show
         if (empty($terminosHtml)) {
-            $terminosHtml = '<p>No hay términos y condiciones disponibles en este momento.</p>';
+            $terminosHtml = '<p>'.__('auth.registration.payment_errors.terms_unavailable').'</p>';
         }
 
         $clipApiKey = env('CLIP_API_KEY');
@@ -96,18 +96,20 @@ class RegisteredUserController extends Controller
             $cardToken = $request->input('card_token_id');
 
             if (! $cardToken) {
+                $message = __('auth.registration.payment_errors.card_read_failed');
+
                 if ($request->expectsJson()) {
                     return response()->json([
                         'status' => 'error',
-                        'message' => 'No se pudo leer la tarjeta. Intenta nuevamente.',
+                        'message' => $message,
                         'errors' => [
-                            'payment' => ['No se pudo leer la tarjeta. Intenta nuevamente.'],
+                            'payment' => [$message],
                         ],
                     ], 422);
                 }
 
                 return back()
-                    ->withErrors(['payment' => 'No se pudo leer la tarjeta. Intenta nuevamente.'])
+                    ->withErrors(['payment' => $message])
                     ->withInput();
             }
 
@@ -123,7 +125,7 @@ class RegisteredUserController extends Controller
                     ])->post($baseUrl.'/payments', [
                         'amount' => (float) $paquete->precio,
                         'currency' => 'MXN',
-                        'description' => "Suscripción {$paquete->nombre}",
+                        'description' => __('auth.registration.payment.subscription_description', ['package' => $paquete->nombre]),
                         'capture_method' => 'automatic',
                         'payment_method' => [
                             'token' => $cardToken,
@@ -192,80 +194,84 @@ class RegisteredUserController extends Controller
                             if ($request->expectsJson()) {
                                 return response()->json([
                                     'status' => 'success',
-                                    'message' => 'Tu registro y pago con tarjeta se realizaron correctamente.',
+                                    'message' => __('auth.registration.success.card_payment_done'),
                                     'redirect' => route('dashboard'),
                                 ]);
                             }
 
                             return redirect()
                                 ->route('dashboard')
-                                ->with('payment_success', 'Tu registro y pago con tarjeta se realizaron correctamente.');
+                                ->with('payment_success', __('auth.registration.success.card_payment_done'));
                         }
 
                         Log::warning('Clip Payments unexpected status', ['data' => $data]);
+                        $message = __('auth.registration.payment_errors.payment_rejected');
 
                         if ($request->expectsJson()) {
                             return response()->json([
                                 'status' => 'error',
-                                'message' => 'El pago fue rechazado o no autorizado. Intenta con otra tarjeta.',
+                                'message' => $message,
                                 'errors' => [
-                                    'payment' => ['El pago fue rechazado o no autorizado. Intenta con otra tarjeta.'],
+                                    'payment' => [$message],
                                 ],
                             ], 422);
                         }
 
                         return back()
-                            ->withErrors(['payment' => 'El pago fue rechazado o no autorizado. Intenta con otra tarjeta.'])
+                            ->withErrors(['payment' => $message])
                             ->withInput();
                     }
 
                     Log::error('Clip API Error: '.($response instanceof \Illuminate\Http\Client\Response ? $response->body() : 'No response'));
+                    $message = __('auth.registration.payment_errors.card_processing_failed');
 
                     if ($request->expectsJson()) {
                         return response()->json([
                             'status' => 'error',
-                            'message' => 'Ocurrió un error al procesar el pago con tarjeta. Intenta nuevamente.',
+                            'message' => $message,
                             'errors' => [
-                                'payment' => ['Ocurrió un error al procesar el pago con tarjeta. Intenta nuevamente.'],
+                                'payment' => [$message],
                             ],
                         ], 422);
                     }
 
                     return back()
-                        ->withErrors(['payment' => 'Ocurrió un error al procesar el pago con tarjeta. Intenta nuevamente.'])
+                        ->withErrors(['payment' => $message])
                         ->withInput();
                 }
 
                 Log::warning('Missing API key or card token for Clip Transparent Checkout');
+                $message = __('auth.registration.payment_errors.payment_config_unavailable');
 
                 if ($request->expectsJson()) {
                     return response()->json([
                         'status' => 'error',
-                        'message' => 'Configuración de pagos no disponible. Intenta más tarde o usa transferencia.',
+                        'message' => $message,
                         'errors' => [
-                            'payment' => ['Configuración de pagos no disponible. Intenta más tarde o usa transferencia.'],
+                            'payment' => [$message],
                         ],
                     ], 422);
                 }
 
                 return back()
-                    ->withErrors(['payment' => 'Configuración de pagos no disponible. Intenta más tarde o usa transferencia.'])
+                    ->withErrors(['payment' => $message])
                     ->withInput();
             } catch (\Exception $e) {
                 Log::error('Clip Transparent Checkout Error: '.$e->getMessage());
+                $message = __('auth.registration.payment_errors.card_processing_failed');
 
                 if ($request->expectsJson()) {
                     return response()->json([
                         'status' => 'error',
-                        'message' => 'Ocurrió un error al procesar el pago con tarjeta. Intenta nuevamente.',
+                        'message' => $message,
                         'errors' => [
-                            'payment' => ['Ocurrió un error al procesar el pago con tarjeta. Intenta nuevamente.'],
+                            'payment' => [$message],
                         ],
                     ], 422);
                 }
 
                 return back()
-                    ->withErrors(['payment' => 'Ocurrió un error al procesar el pago con tarjeta. Intenta nuevamente.'])
+                    ->withErrors(['payment' => $message])
                     ->withInput();
             }
         }

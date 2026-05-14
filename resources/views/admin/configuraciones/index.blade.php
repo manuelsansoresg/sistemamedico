@@ -70,11 +70,11 @@
                                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                             @if($configuracion->aceptar_transferencia_bancaria)
                                                 <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
-                                                    Sí
+                                                    {{ __('common.yes') }}
                                                 </span>
                                             @else
                                                 <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">
-                                                    No
+                                                    {{ __('common.no') }}
                                                 </span>
                                             @endif
                                         </td>
@@ -90,20 +90,20 @@
                                             @endif
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                            {{ $configuracion->user->name ?? 'Desconocido' }}
+                                            {{ $configuracion->user->name ?? __('common.unknown') }}
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                            {{ $configuracion->creator->name ?? 'Desconocido' }}
+                                            {{ $configuracion->creator->name ?? __('common.unknown') }}
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                                             <div class="flex justify-end items-center space-x-2">
-                                                <a href="{{ route('configuraciones.edit', $configuracion) }}" class="inline-flex items-center justify-center w-9 h-9 bg-[#0061F5] text-white rounded-md hover:bg-[#0051CC] transition-colors shadow-sm" title="Editar">
+                                                <a href="{{ route('configuraciones.edit', $configuracion) }}" class="inline-flex items-center justify-center w-9 h-9 bg-[#0061F5] text-white rounded-md hover:bg-[#0051CC] transition-colors shadow-sm" title="{{ __('common.buttons.edit') }}">
                                                     <i class="fas fa-edit"></i>
                                                 </a>
-                                                <form action="{{ route('configuraciones.destroy', $configuracion) }}" method="POST" class="inline-block" onsubmit="return confirm('¿Estás seguro de que deseas eliminar esta configuración?');">
+                                                <form action="{{ route('configuraciones.destroy', $configuracion) }}" method="POST" class="inline-block" onsubmit="return confirm('{{ __('configuraciones.confirm.delete') }}');">
                                                     @csrf
                                                     @method('DELETE')
-                                                    <button type="submit" class="inline-flex cursor-pointer items-center justify-center w-9 h-9 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors shadow-sm" title="Eliminar">
+                                                    <button type="submit" class="inline-flex cursor-pointer items-center justify-center w-9 h-9 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors shadow-sm" title="{{ __('common.buttons.delete') }}">
                                                         <i class="fas fa-trash"></i>
                                                     </button>
                                                 </form>

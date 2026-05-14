@@ -551,15 +551,15 @@
                                 this.formData.consultorio = { nombre: '', direccion: '', lat: null, lng: null, telefono: '', activo: true };
                             }
                         } else {
-                            alert('Error al guardar: ' + (result.message || 'Error desconocido'));
+                            alert(@json(__('wizard.alerts.save_failed', ['message' => '__MESSAGE__'])).replace('__MESSAGE__', result.message || @json(__('wizard.alerts.unknown_error'))));
                         }
                     } catch (error) {
                         console.error('Error:', error);
                         if (error.response) {
                              // Attempt to parse validation errors
-                             alert('Error de validación: Verifique los datos.');
+                              alert(@json(__('wizard.alerts.validation_error')));
                         } else {
-                             alert('Ocurrió un error al procesar la solicitud.');
+                              alert(@json(__('wizard.alerts.request_error')));
                         }
                     } finally {
                         this.loading = false;
@@ -579,15 +579,15 @@
                 nextStep() {
                     if (this.currentStep < 5) {
                         if (this.currentStep === 2 && !this.checks.horarios && this.actuales.horarios === 0) {
-                            alert('Por favor configura tus horarios o confirma que ya lo has hecho.');
+                            alert(@json(__('wizard.alerts.configure_schedules')));
                             return;
                         }
                         if (this.currentStep === 3 && !this.checks.plantillas && this.actuales.plantillas === 0) {
-                            alert('Por favor crea una plantilla o confirma que ya lo has hecho.');
+                            alert(@json(__('wizard.alerts.create_template')));
                             return;
                         }
                         if (this.currentStep === 4 && !this.checks.pacientes && this.actuales.pacientes === 0) {
-                            alert('Por favor registra un paciente o confirma que ya lo has hecho.');
+                            alert(@json(__('wizard.alerts.register_patient')));
                             return;
                         }
                         

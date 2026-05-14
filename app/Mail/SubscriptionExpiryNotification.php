@@ -28,10 +28,12 @@ class SubscriptionExpiryNotification extends Mailable
      */
     public function envelope(): Envelope
     {
-        $tipo = $this->suscripcion->tipo == 'paquete' ? 'Paquete' : 'Servicio Extra';
+        $tipo = $this->suscripcion->tipo == 'paquete'
+            ? __('emails.subscription_expiry.package_fallback')
+            : __('emails.subscription_expiry.extra_fallback');
 
         return new Envelope(
-            subject: "Aviso de Vencimiento de Suscripción: $tipo",
+            subject: __('emails.subscription_expiry.subject_with_type', ['type' => $tipo]),
         );
     }
 

@@ -36,7 +36,7 @@ class InstruccionesTransferenciaMail extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Instrucciones para activar tu suscripción - Sistema Médico',
+            subject: __('emails.transfer_instructions.subject'),
         );
     }
 

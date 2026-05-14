@@ -280,7 +280,7 @@ class RecursoReservaController extends Controller
             ]);
 
             return response()->json([
-                'message' => 'Este recurso ya está reservado.',
+                'message' => __('recursos.index.messages.already_reserved'),
             ], 422);
         }
 
@@ -345,7 +345,7 @@ class RecursoReservaController extends Controller
             ]);
 
             return response()->json([
-                'message' => 'Este recurso ya está reservado.',
+                'message' => __('recursos.index.messages.already_reserved'),
             ], 422);
         }
 

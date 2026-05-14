@@ -87,14 +87,20 @@ return [
         'updated_success' => 'Suscripción actualizada correctamente.',
         'license_validated' => 'Cédula validada correctamente. El doctor ya tiene acceso al panel.',
         'license_rejected' => 'Cédula rechazada.',
+        'renewal_success' => 'Renovación realizada exitosamente.',
+        'renewal_request_created' => 'Solicitud de renovación generada. Por favor sube tu comprobante de pago para activar el paquete.',
     ],
     'errors' => [
         'active_package_exists' => 'El usuario ya tiene un paquete activo. Solo se permite un paquete activo a la vez.',
         'user_not_doctor' => 'El usuario no es un doctor.',
         'no_voucher_available' => 'No hay comprobante disponible.',
         'file_not_found' => 'El archivo no existe.',
+        'package_expired' => 'Tu paquete ha vencido. Debes renovarlo para continuar usando el sistema.',
     ],
     'service_description' => 'Adquiere el servicio de :service para tu consultorio',
+    'notifications' => [
+        'expiring_message' => 'Su suscripción (:name) vence el :date',
+    ],
     'breadcrumbs' => [
         'index' => 'SUSCRIPCIONES',
         'create' => 'NUEVA SUSCRIPCIÓN',

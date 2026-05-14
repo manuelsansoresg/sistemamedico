@@ -24,6 +24,7 @@ return [
     ],
     'labels' => [
         'all_day' => 'All day',
+        'affects' => 'Affects:',
     ],
     'confirm' => [
         'delete' => 'Are you sure you want to delete this record?',

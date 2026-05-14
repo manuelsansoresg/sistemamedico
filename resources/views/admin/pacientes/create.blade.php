@@ -122,11 +122,11 @@
                             </div>
 
                             <div>
-                                <x-input-label for="sexo" :value="__('Sexo')" />
+                                <x-input-label for="sexo" :value="__('common.gender')" />
                                 <select id="sexo" name="sexo" class="block mt-1 w-full border-gray-300 focus:border-[#0061F5] focus:ring-[#0061F5] rounded-md shadow-sm">
-                                    <option value="">Seleccione...</option>
-                                    <option value="M" {{ old('sexo') == 'M' ? 'selected' : '' }}>Masculino</option>
-                                    <option value="F" {{ old('sexo') == 'F' ? 'selected' : '' }}>Femenino</option>
+                                    <option value="">{{ __('pacientes.select.default') }}</option>
+                                    <option value="M" {{ old('sexo') == 'M' ? 'selected' : '' }}>{{ __('common.male') }}</option>
+                                    <option value="F" {{ old('sexo') == 'F' ? 'selected' : '' }}>{{ __('common.female') }}</option>
                                 </select>
                                 <x-input-error :messages="$errors->get('sexo')" class="mt-2" />
                             </div>
@@ -135,23 +135,23 @@
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
                             <!-- Datos de Contacto y Médicos -->
                             <div class="col-span-full">
-                                <h3 class="text-lg font-semibold border-b pb-2 mb-4 text-gray-700">Datos de Contacto y Médicos</h3>
+                                <h3 class="text-lg font-semibold border-b pb-2 mb-4 text-gray-700">{{ __('pacientes.sections.contact_medical_data') }}</h3>
                             </div>
 
                             <div>
-                                <x-input-label for="telefono" :value="__('Teléfono')" />
+                                <x-input-label for="telefono" :value="__('common.phone')" />
                                 <x-text-input id="telefono" class="block mt-1 w-full" type="text" name="telefono" :value="old('telefono')" />
                                 <x-input-error :messages="$errors->get('telefono')" class="mt-2" />
                             </div>
 
                             <div>
-                                <x-input-label for="numero_imss" :value="__('Número IMSS')" />
+                                <x-input-label for="numero_imss" :value="__('common.imss')" />
                                 <x-text-input id="numero_imss" class="block mt-1 w-full" type="text" name="numero_imss" :value="old('numero_imss')" />
                                 <x-input-error :messages="$errors->get('numero_imss')" class="mt-2" />
                             </div>
 
                             <div class="col-span-full">
-                                <x-input-label for="direccion" :value="__('Dirección')" />
+                                <x-input-label for="direccion" :value="__('common.address')" />
                                 <x-text-input id="direccion" class="block mt-1 w-full" type="text" name="direccion" :value="old('direccion')" />
                                 <x-input-error :messages="$errors->get('direccion')" class="mt-2" />
                             </div>
@@ -160,11 +160,11 @@
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
                             <!-- Cuenta de Usuario -->
                             <div class="col-span-full">
-                                <h3 class="text-lg font-semibold border-b pb-2 mb-4 text-gray-700">Cuenta de Usuario</h3>
+                                <h3 class="text-lg font-semibold border-b pb-2 mb-4 text-gray-700">{{ __('pacientes.sections.user_account') }}</h3>
                             </div>
 
                             <div>
-                                <x-input-label for="email" :value="__('Correo Electrónico *')" />
+                                <x-input-label for="email" :value="__('common.email').' *'" />
                                 <x-text-input id="email" class="block mt-1 w-full" type="email" name="email" :value="old('email')" required />
                                 <x-input-error :messages="$errors->get('email')" class="mt-2" />
                             </div>
@@ -172,13 +172,13 @@
                             <div></div> <!-- Spacer -->
 
                             <div>
-                                <x-input-label for="password" :value="__('Contraseña *')" />
+                                <x-input-label for="password" :value="__('common.password').' *'" />
                                 <x-text-input id="password" class="block mt-1 w-full" type="password" name="password" required autocomplete="new-password" />
                                 <x-input-error :messages="$errors->get('password')" class="mt-2" />
                             </div>
 
                             <div>
-                                <x-input-label for="password_confirmation" :value="__('Confirmar Contraseña *')" />
+                                <x-input-label for="password_confirmation" :value="__('common.confirm_password').' *'" />
                                 <x-text-input id="password_confirmation" class="block mt-1 w-full" type="password" name="password_confirmation" required />
                                 <x-input-error :messages="$errors->get('password_confirmation')" class="mt-2" />
                             </div>
@@ -186,11 +186,11 @@
 
                         @role('root')
                         <div class="mb-6">
-                            <h3 class="text-lg font-semibold border-b pb-2 mb-4 text-gray-700">Asignación</h3>
+                            <h3 class="text-lg font-semibold border-b pb-2 mb-4 text-gray-700">{{ __('pacientes.sections.assignment') }}</h3>
                             <div>
-                                <x-input-label for="doctor_id" :value="__('Médico Asignado *')" />
+                                <x-input-label for="doctor_id" :value="__('pacientes.fields.doctor').' *'" />
                                 <select id="doctor_id" name="doctor_id" class="block mt-1 w-full border-gray-300 focus:border-[#0061F5] focus:ring-[#0061F5] rounded-md shadow-sm" required>
-                                    <option value="">Seleccione un médico...</option>
+                                    <option value="">{{ __('pacientes.select.doctor') }}</option>
                                     @foreach($doctors as $doctor)
                                         <option value="{{ $doctor->id }}" {{ old('doctor_id') == $doctor->id ? 'selected' : '' }}>
                                             {{ $doctor->name }} {{ $doctor->apellido_paterno }}
@@ -205,7 +205,7 @@
                         <div class="flex items-center space-x-6 mb-6 relative z-10">
                             <div class="flex items-center">
                                 <input id="activo" type="checkbox" name="activo" value="1" {{ old('activo', 1) ? 'checked' : '' }} class="rounded border-gray-300 text-[#0061F5] shadow-sm focus:border-[#0061F5] focus:ring-[#0061F5] cursor-pointer w-5 h-5">
-                                <label for="activo" class="ml-2 text-sm font-medium text-gray-900 cursor-pointer">Activo</label>
+                                <label for="activo" class="ml-2 text-sm font-medium text-gray-900 cursor-pointer">{{ __('common.active') }}</label>
                             </div>
                         </div>
 

@@ -80,6 +80,12 @@ return [
         'change' => 'Change',
         'save' => 'Save',
     ],
+    'actions' => [
+        'delete' => 'Delete Appointment',
+    ],
+    'confirm' => [
+        'delete' => 'Are you sure you want to delete this appointment?',
+    ],
     'labels' => [
         'doctor_selected' => 'Selected Doctor:',
         'patient_selected' => 'Selected Patient:',

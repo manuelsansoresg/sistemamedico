@@ -8,19 +8,19 @@
                     <li class="inline-flex items-center">
                         <a href="{{ route('dashboard') }}" class="inline-flex items-center text-sm font-medium text-gray-700 hover:text-[#0061F5]">
                             <i class="fas fa-home mr-2"></i>
-                            Inicio
+                            {{ __('common.breadcrumbs.home') }}
                         </a>
                     </li>
                     <li>
                         <div class="flex items-center">
                             <i class="fas fa-chevron-right text-gray-400 mx-1"></i>
-                            <a href="{{ route('consultas.create', $estudio->consulta->cita_id) }}" class="ml-1 text-sm font-medium text-gray-700 hover:text-[#0061F5] md:ml-2">Consulta</a>
+                            <a href="{{ route('consultas.create', $estudio->consulta->cita_id) }}" class="ml-1 text-sm font-medium text-gray-700 hover:text-[#0061F5] md:ml-2">{{ __('consultas.tabs.consultation') }}</a>
                         </div>
                     </li>
                     <li aria-current="page">
                         <div class="flex items-center">
                             <i class="fas fa-chevron-right text-gray-400 mx-1"></i>
-                            <span class="ml-1 text-sm font-medium text-gray-500 md:ml-2">Editar</span>
+                            <span class="ml-1 text-sm font-medium text-gray-500 md:ml-2">{{ __('common.buttons.edit') }}</span>
                         </div>
                     </li>
                 </ol>
@@ -31,10 +31,10 @@
                 <div class="flex justify-between items-start">
                     <div>
                         <h2 class="text-2xl font-bold text-gray-800">
-                            Editando Estudio de: {{ $estudio->consulta->paciente->name }} {{ $estudio->consulta->paciente->apellido_paterno }}
+                            {{ __('consultas.messages.editing_study_for', ['patient' => $estudio->consulta->paciente->name.' '.$estudio->consulta->paciente->apellido_paterno]) }}
                         </h2>
                         <p class="text-sm text-gray-600 mt-1">
-                            Fecha original: {{ $estudio->created_at->format('d/m/Y H:i') }}
+                            {{ __('consultas.messages.original_date', ['date' => $estudio->created_at->format('d/m/Y H:i')]) }}
                         </p>
                     </div>
                 </div>
@@ -46,19 +46,19 @@
                     @csrf
                     
                     <div class="mb-4">
-                        <label class="block text-sm font-medium text-gray-700">Orden de Estudio</label>
-                        <textarea name="orden" rows="4" class="mt-1 shadow-sm focus:ring-[#0061F5] focus:border-[#0061F5] block w-full sm:text-sm border-gray-300 rounded-md" placeholder="Escriba los estudios requeridos...">{{ old('orden', $estudio->orden) }}</textarea>
+                        <label class="block text-sm font-medium text-gray-700">{{ __('consultas.fields.study_order') }}</label>
+                        <textarea name="orden" rows="4" class="mt-1 shadow-sm focus:ring-[#0061F5] focus:border-[#0061F5] block w-full sm:text-sm border-gray-300 rounded-md" placeholder="{{ __('consultas.placeholders.study_order') }}">{{ old('orden', $estudio->orden) }}</textarea>
                     </div>
                     
                     <div class="mb-4">
-                        <label class="block text-sm font-medium text-gray-700">Observaciones</label>
-                        <textarea name="observacion" rows="2" class="mt-1 shadow-sm focus:ring-[#0061F5] focus:border-[#0061F5] block w-full sm:text-sm border-gray-300 rounded-md" placeholder="Observaciones adicionales...">{{ old('observacion', $estudio->observacion) }}</textarea>
+                        <label class="block text-sm font-medium text-gray-700">{{ __('consultas.fields.observations') }}</label>
+                        <textarea name="observacion" rows="2" class="mt-1 shadow-sm focus:ring-[#0061F5] focus:border-[#0061F5] block w-full sm:text-sm border-gray-300 rounded-md" placeholder="{{ __('consultas.placeholders.observations') }}">{{ old('observacion', $estudio->observacion) }}</textarea>
                     </div>
 
                     <!-- Existing Files -->
                     @if($estudio->archivos->count() > 0)
                     <div class="mb-6">
-                        <label class="block text-sm font-medium text-gray-700 mb-2">Archivos Existentes</label>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">{{ __('consultas.sections.existing_files') }}</label>
                         <div class="bg-gray-50 rounded-md border border-gray-200 p-4 space-y-2">
                             @foreach($estudio->archivos as $archivo)
                                 <div class="flex items-center justify-between p-2 bg-white rounded-md border border-gray-100 shadow-sm">
@@ -70,21 +70,21 @@
                                         <span class="text-xs text-gray-400">({{ number_format($archivo->size / 1024, 2) }} KB)</span>
                                     </div>
                                     <a href="{{ route('consultas.estudios.archivos.delete', $archivo) }}"
-                                       onclick="return confirm('¿Deseas eliminar este archivo?');"
+                                        onclick="return confirm('{{ __('consultas.confirm.delete_file') }}');"
                                        class="inline-flex cursor-pointer items-center justify-center w-9 h-9 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors shadow-sm"
-                                       title="Eliminar archivo">
+                                       title="{{ __('common.buttons.delete') }}">
                                         <i class="fas fa-trash text-sm"></i>
                                     </a>
                                 </div>
                             @endforeach
                         </div>
-                        <p class="text-xs text-gray-500 mt-1">Haz clic en el ícono de eliminar para borrar el archivo.</p>
+                        <p class="text-xs text-gray-500 mt-1">{{ __('consultas.messages.delete_file_hint') }}</p>
                     </div>
                     @endif
                     
                     <!-- New Files Upload -->
                     <div class="mb-6">
-                        <label class="block text-sm font-medium text-gray-700 mb-2">Adjuntar Nuevos Archivos</label>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">{{ __('consultas.messages.attach_new_files') }}</label>
                         
                         <div 
                             class="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-md transition-colors duration-200"
@@ -97,12 +97,12 @@
                                 <i class="fas fa-cloud-upload-alt text-4xl text-gray-400 mb-2" :class="{ 'text-[#0061F5]': isDragging }"></i>
                                 <div class="flex text-sm text-gray-600 justify-center">
                                     <label for="file-upload" class="relative cursor-pointer bg-white rounded-md font-medium text-[#0061F5] hover:text-[#0061F5] focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-[#0061F5]">
-                                        <span>Subir</span>
+                                        <span>{{ __('consultas.file_upload.upload') }}</span>
                                         <input id="file-upload" name="archivos[]" type="file" class="sr-only" multiple accept="image/*,.pdf" x-ref="fileInput" @change="handleFiles($event)">
                                     </label>
-                                    <p class="pl-1">o arrastrar y soltar</p>
+                                    <p class="pl-1">{{ __('consultas.file_upload.drag_drop') }}</p>
                                 </div>
-                                <p class="text-xs text-gray-500">PNG, JPG, PDF hasta 5MB</p>
+                                <p class="text-xs text-gray-500">{{ __('consultas.file_upload.hint') }}</p>
                             </div>
                         </div>
 
@@ -113,7 +113,7 @@
                                     <div class="flex items-center space-x-2 truncate">
                                         <i class="fas fa-file text-gray-400"></i>
                                         <span class="text-sm text-gray-600 truncate" x-text="file.name"></span>
-                                        <span class="text-xs text-gray-400" x-text="(file.size / 1024).toFixed(2) + ' KB'"></span>
+                                        <span class="text-xs text-gray-400" x-text="(file.size / 1024).toFixed(2) + ' ' + @json(__('common.file_size_kb'))"></span>
                                     </div>
                                     <button type="button" @click="removeFile(index)" class="text-red-500 hover:text-red-700">
                                         <i class="fas fa-times"></i>
@@ -128,7 +128,7 @@
                             {{ __('common.buttons.cancel') }}
                         </a>
                         <button type="submit" class="inline-flex items-center px-4 py-2 bg-[#0061F5] border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-[#0051CC] active:bg-[#004499] focus:outline-none focus:border-[#004499] focus:ring ring-[#80B0FA] disabled:opacity-25 transition ease-in-out duration-150">
-                            <i class="fas fa-save mr-2"></i> Actualizar Estudio
+                            <i class="fas fa-save mr-2"></i> {{ __('consultas.buttons.update_study') }}
                         </button>
                     </div>
                 </form>
@@ -158,7 +158,7 @@
                         if(files[i].size <= 5242880) { // 5MB
                             this.filesArray.push(files[i]);
                         } else {
-                            alert('El archivo ' + files[i].name + ' excede el límite de 5MB');
+                            alert(@json(__('consultas.messages.file_too_large', ['name' => '__NAME__'])).replace('__NAME__', files[i].name));
                         }
                     }
                     this.updateFileInput();

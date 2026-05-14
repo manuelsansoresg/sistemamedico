@@ -17,19 +17,19 @@
         </div>
         
         <h2 class="text-3xl font-extrabold mb-4" style="color: #003366;">
-            ¡Comprobante Enviado!
+            {{ __('public.receipt.sent_title') }}
         </h2>
         
         <p class="text-gray-600 mb-4 text-lg">
-            Hemos recibido tu comprobante correctamente.
+            {{ __('public.receipt.sent_message') }}
         </p>
         
         <p class="text-gray-500 mb-8 max-w-md mx-auto">
-            En breve validaremos tu pago y activaremos tu cuenta. Por favor, mantente pendiente de tu correo electrónico para recibir la confirmación de activación.
+            {{ __('public.receipt.sent_hint') }}
         </p>
 
         <a href="{{ route('login') }}" class="inline-flex items-center justify-center px-5 py-3 border border-transparent text-base font-medium rounded-md text-white hover:bg-opacity-90" style="background-color: #003366;">
-            Ir al Inicio
+            {{ __('public.receipt.go_home') }}
         </a>
     </div>
 </x-guest-layout>

@@ -17,15 +17,15 @@
         </div>
         
         <h2 class="text-3xl font-extrabold text-blue-900 mb-4">
-            ¡Pago Validado!
+            {{ __('public.receipt.paid_title') }}
         </h2>
         
         <p class="text-gray-600 mb-8">
-            Esta suscripción ya ha sido marcada como pagada. No es necesario realizar más acciones.
+            {{ __('public.receipt.paid_message') }}
         </p>
 
         <a href="{{ route('login') }}" class="inline-flex items-center justify-center px-5 py-3 border border-transparent text-base font-medium rounded-md text-white bg-blue-800 hover:bg-blue-900">
-            Ir al Inicio de Sesión
+            {{ __('public.receipt.go_login') }}
         </a>
     </div>
 </x-guest-layout>

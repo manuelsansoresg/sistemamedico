@@ -96,4 +96,15 @@ return [
     'messages' => [
         'wizard_completed' => 'Setup completed successfully!',
     ],
+    'alerts' => [
+        'save_failed' => 'Error saving: :message',
+        'unknown_error' => 'Unknown error',
+        'validation_error' => 'Validation error: Please verify the data.',
+        'request_error' => 'An error occurred while processing the request.',
+        'configure_schedules' => 'Please configure your schedules or confirm that you have already done so.',
+        'create_template' => 'Please create a template or confirm that you have already done so.',
+        'register_patient' => 'Please register a patient or confirm that you have already done so.',
+        'clinic_limit_reached' => 'You have reached the clinic limit allowed by your subscription.',
+        'office_limit_reached' => 'You have reached the office limit allowed by your subscription.',
+    ],
 ];

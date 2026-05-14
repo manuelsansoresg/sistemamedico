@@ -27,4 +27,7 @@ return [
         'updated_success' => 'Configuration updated successfully.',
         'deleted_success' => 'Configuration deleted successfully.',
     ],
+    'confirm' => [
+        'delete' => 'Are you sure you want to delete this configuration?',
+    ],
 ];

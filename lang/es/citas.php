@@ -80,6 +80,12 @@ return [
         'change' => 'Cambiar',
         'save' => 'Guardar',
     ],
+    'actions' => [
+        'delete' => 'Eliminar Cita',
+    ],
+    'confirm' => [
+        'delete' => '¿Estás seguro de eliminar esta cita?',
+    ],
     'labels' => [
         'doctor_selected' => 'Doctor Seleccionado:',
         'patient_selected' => 'Paciente Seleccionado:',

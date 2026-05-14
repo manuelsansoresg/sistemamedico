@@ -10,10 +10,10 @@
     <div class="py-4">
         <div class="text-center mb-8">
             <h2 class="text-3xl font-extrabold" style="color: #003366;">
-                Subir Comprobante de Pago
+                {{ __('public.receipt.upload_title') }}
             </h2>
             <p class="mt-2 text-sm text-gray-600">
-                Paquete: <strong>{{ $suscripcion->paquete->nombre }}</strong> | Monto: <strong>${{ number_format($suscripcion->precio, 2) }} MXN</strong>
+                {!! __('public.receipt.package_amount', ['package' => '<strong>'.e($suscripcion->paquete->nombre).'</strong>', 'amount' => '<strong>$'.number_format($suscripcion->precio, 2).'</strong>']) !!}
             </p>
         </div>
 
@@ -58,8 +58,8 @@
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                             </svg>
                             <div>
-                                <h3 class="font-bold text-blue-800">Comprobante Recibido</h3>
-                                <p class="text-sm text-blue-600">Ya hemos recibido un archivo. Puedes subir uno nuevo si deseas reemplazarlo.</p>
+                                <h3 class="font-bold text-blue-800">{{ __('public.receipt.received_title') }}</h3>
+                                <p class="text-sm text-blue-600">{{ __('public.receipt.received_message') }}</p>
                             </div>
                         </div>
                     </div>
@@ -70,7 +70,7 @@
                     
                     <div x-data="{ isDropping: false, fileName: '' }" class="w-full">
                         <label class="block text-sm font-medium text-gray-700">
-                            Selecciona tu comprobante (PDF o Imagen)
+                            {{ __('public.receipt.select_label') }}
                         </label>
                         <div 
                             @dragover.prevent="isDropping = true"
@@ -85,7 +85,7 @@
                                 </svg>
                                 <div class="flex text-sm text-gray-600 justify-center">
                                     <label for="comprobante" class="relative cursor-pointer bg-white rounded-md font-medium text-blue-800 hover:text-blue-600 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-blue-500">
-                                        <span>Sube un archivo</span>
+                                        <span>{{ __('public.receipt.upload_file') }}</span>
                                         <input 
                                             x-ref="fileInput"
                                             @change="fileName = $refs.fileInput.files[0].name"
@@ -96,10 +96,10 @@
                                             accept="application/pdf,image/png,image/jpeg,image/jpg"
                                         >
                                     </label>
-                                    <p class="pl-1">o arrastra y suelta</p>
+                                    <p class="pl-1">{{ __('public.receipt.drag_drop') }}</p>
                                 </div>
                                 <p class="text-xs text-gray-500">
-                                    PDF, PNG, JPG hasta 2MB
+                                    {{ __('public.receipt.file_hint') }}
                                 </p>
                                 <p x-show="fileName" x-text="fileName" class="text-sm text-green-600 font-medium mt-2"></p>
                             </div>
@@ -111,7 +111,7 @@
 
                     <div class="flex items-center justify-end">
                         <button type="submit" class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500" style="background-color: #003366;">
-                            Enviar Comprobante
+                            {{ __('public.receipt.submit') }}
                         </button>
                     </div>
                 </form>

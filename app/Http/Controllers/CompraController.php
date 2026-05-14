@@ -206,8 +206,8 @@ class CompraController extends Controller
         }
 
         $mensaje = ($estatusPago === 'pagado')
-            ? 'Renovación realizada exitosamente.'
-            : 'Solicitud de renovación generada. Por favor sube tu comprobante de pago para activar el paquete.';
+            ? __('subscriptions.messages.renewal_success')
+            : __('subscriptions.messages.renewal_request_created');
 
         return redirect()->route('compras.index')->with('success', $mensaje);
     }

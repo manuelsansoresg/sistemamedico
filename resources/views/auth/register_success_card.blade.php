@@ -6,19 +6,19 @@
             </div>
         </div>
 
-        <h2 class="mb-4 text-3xl font-bold text-gray-900">¡Registro Exitoso!</h2>
+        <h2 class="mb-4 text-3xl font-bold text-gray-900">{{ __('auth.registration.success.title') }}</h2>
         
         <p class="lead text-lg text-gray-600 mb-4">
-            El pago se ha procesado correctamente. Por favor, revise su correo electrónico para activar su cuenta y comenzar a usar nuestros servicios.
+            {{ __('auth.registration.success.card_message') }}
         </p>
         
         <p class="text-muted text-gray-500 mb-8">
-            <small>Si no encuentra el correo, revise su bandeja de spam o correo no deseado.</small>
+            <small>{{ __('auth.registration.success.spam_hint') }}</small>
         </p>
 
         <div class="mt-4">
             <a href="{{ route('login') }}" class="inline-flex items-center px-4 py-2 bg-indigo-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-indigo-700 focus:bg-indigo-700 active:bg-indigo-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition ease-in-out duration-150">
-                Ir al Inicio de Sesión
+                {{ __('auth.registration.buttons.go_login') }}
             </a>
         </div>
     </div>

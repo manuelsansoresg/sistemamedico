@@ -33,7 +33,7 @@ class BienvenidaTarjetaMail extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: '¡Bienvenido a Sistema Médico! Tu cuenta está activa',
+            subject: __('emails.card_welcome.subject'),
         );
     }
 

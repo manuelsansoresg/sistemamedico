@@ -8,19 +8,19 @@
                     <li class="inline-flex items-center">
                         <a href="{{ route('dashboard') }}" class="inline-flex items-center text-sm font-medium text-gray-700 hover:text-[#0061F5]">
                             <i class="fas fa-home mr-2"></i>
-                            Inicio
+                            {{ __('common.breadcrumbs.home') }}
                         </a>
                     </li>
                     <li>
                         <div class="flex items-center">
                             <i class="fas fa-chevron-right text-gray-400 mx-1"></i>
-                            <a href="{{ route('citas.index') }}" class="ml-1 text-sm font-medium text-gray-700 hover:text-[#0061F5] md:ml-2">Citas</a>
+                            <a href="{{ route('citas.index') }}" class="ml-1 text-sm font-medium text-gray-700 hover:text-[#0061F5] md:ml-2">{{ __('citas.title') }}</a>
                         </div>
                     </li>
                     <li aria-current="page">
                         <div class="flex items-center">
                             <i class="fas fa-chevron-right text-gray-400 mx-1"></i>
-                            <span class="ml-1 text-sm font-medium text-gray-500 md:ml-2">Nueva Consulta</span>
+                            <span class="ml-1 text-sm font-medium text-gray-500 md:ml-2">{{ __('consultas.create') }}</span>
                         </div>
                     </li>
                 </ol>
@@ -31,27 +31,27 @@
                 <div class="flex justify-between items-start">
                     <div>
                         <div class="flex items-start gap-4">
-                            <img src="{{ $paciente->profile_photo_url }}" alt="Foto del paciente" class="h-14 w-14 rounded-full object-cover border border-gray-200">
+                            <img src="{{ $paciente->profile_photo_url }}" alt="{{ __('pacientes.profile_photo_alt') }}" class="h-14 w-14 rounded-full object-cover border border-gray-200">
                             <div class="min-w-0">
                                 <h2 class="text-2xl font-bold text-gray-800">
                                     {{ $paciente->name }} {{ $paciente->apellido_paterno }} {{ $paciente->apellido_materno }}
                                 </h2>
                                 <div class="mt-2 flex flex-wrap gap-4 text-sm text-gray-600">
                                     <span class="flex items-center"><i class="fas fa-birthday-cake mr-2 text-[#0061F5]"></i> {{ $paciente->fecha_nacimiento ? $paciente->fecha_nacimiento->format('d/m/Y') : 'N/A' }}</span>
-                                    <span class="flex items-center"><i class="fas fa-user-clock mr-2 text-[#0061F5]"></i> {{ $paciente->fecha_nacimiento ? $paciente->fecha_nacimiento->age . ' años' : 'N/A' }}</span>
-                                    <span class="flex items-center"><i class="fas fa-venus-mars mr-2 text-[#0061F5]"></i> {{ $paciente->sexo == 'M' ? 'Masculino' : 'Femenino' }}</span>
-                                    <span class="flex items-center"><i class="fas fa-clinic-medical mr-2 text-[#0061F5]"></i> <span class="text-gray-500 mr-1">Consultorio:</span> {{ $cita->consultorio->nombre }}</span>
+                                     <span class="flex items-center"><i class="fas fa-user-clock mr-2 text-[#0061F5]"></i> {{ $paciente->fecha_nacimiento ? __('pacientes.age_years', ['age' => $paciente->fecha_nacimiento->age]) : 'N/A' }}</span>
+                                     <span class="flex items-center"><i class="fas fa-venus-mars mr-2 text-[#0061F5]"></i> {{ $paciente->sexo == 'M' ? __('common.male') : __('common.female') }}</span>
+                                     <span class="flex items-center"><i class="fas fa-clinic-medical mr-2 text-[#0061F5]"></i> <span class="text-gray-500 mr-1">{{ __('consultas.fields.office') }}</span> {{ $cita->consultorio->nombre }}</span>
                                 </div>
                             </div>
                         </div>
                     </div>
                     <div class="text-right flex flex-col items-end gap-2">
                         <div class="flex items-center gap-2">
-                            <span class="px-3 py-1 bg-green-100 text-green-800 rounded-full text-xs font-bold">EN CONSULTA</span>
+                            <span class="px-3 py-1 bg-green-100 text-green-800 rounded-full text-xs font-bold">{{ __('consultas.statuses.in_consultation') }}</span>
                             @if(auth()->user()->hasRole('doctor'))
                                 <button type="button" @click="toggleEmpatia()" class="inline-flex items-center px-3 py-1 bg-white text-[#0061F5] text-xs font-bold rounded-full border border-[#0061F5] hover:bg-blue-50 transition-colors shadow-sm">
                                     <i class="fas fa-hand-holding-heart mr-1"></i>
-                                    Empatía
+                                     {{ __('consultas.sections.empathy') }}
                                 </button>
                             @endif
                         </div>
@@ -83,8 +83,8 @@
                              class="bg-white rounded-xl shadow-lg border border-gray-100 overflow-hidden">
                             <div class="px-5 py-4 border-b border-gray-100 flex items-center justify-between">
                                 <div>
-                                    <h3 id="empathy-title" class="text-sm font-extrabold text-gray-800 tracking-wide uppercase">Empatía</h3>
-                                    <p class="text-xs text-gray-500 mt-0.5">Notas personales para mejorar el vínculo.</p>
+                                    <h3 id="empathy-title" class="text-sm font-extrabold text-gray-800 tracking-wide uppercase">{{ __('consultas.sections.empathy') }}</h3>
+                                    <p class="text-xs text-gray-500 mt-0.5">{{ __('consultas.sections.empathy_subtitle') }}</p>
                                 </div>
                                 <button type="button" @click="closeEmpatia()" class="text-gray-400 hover:text-gray-700">
                                     <i class="fas fa-times"></i>
@@ -93,13 +93,13 @@
 
                             <div class="p-5 space-y-4">
                                 <div class="bg-white rounded-xl border border-gray-100 shadow-sm p-4 sticky top-0 z-10">
-                                    <label class="block text-xs font-semibold text-gray-500 mb-2">Nueva nota</label>
-                                    <textarea x-model="empathyNewContent" rows="2" class="shadow-sm focus:ring-[#0061F5] focus:border-[#0061F5] block w-full sm:text-sm border-gray-300 rounded-md resize-none" placeholder="Ej. Le gusta el béisbol, viaja a España pronto..."></textarea>
+                                    <label class="block text-xs font-semibold text-gray-500 mb-2">{{ __('consultas.sections.new_note') }}</label>
+                                    <textarea x-model="empathyNewContent" rows="2" class="shadow-sm focus:ring-[#0061F5] focus:border-[#0061F5] block w-full sm:text-sm border-gray-300 rounded-md resize-none" placeholder="{{ __('consultas.placeholders.empathy_note') }}"></textarea>
                                     <div class="flex items-center justify-between mt-3">
                                         <p class="text-xs text-red-600" x-text="empathyError" x-show="empathyError"></p>
                                         <button type="button" @click="saveEmpathyNote()" class="inline-flex items-center px-4 py-1.5 bg-[#0061F5] text-white text-xs font-bold rounded-md hover:bg-[#0051CC] transition-colors shadow-sm">
                                             <i class="fas fa-save mr-2"></i>
-                                            Guardar nota
+                                             {{ __('consultas.buttons.save_note') }}
                                         </button>
                                     </div>
                                 </div>
@@ -107,12 +107,12 @@
                                 <div class="bg-white rounded-xl border border-gray-100 shadow-sm flex flex-col max-h-[400px]">
                                     <div class="px-4 py-3 border-b border-gray-100 flex items-center justify-between sticky top-0 bg-white rounded-t-xl z-10">
                                         <h4 class="text-xs font-extrabold text-gray-700 tracking-wide uppercase flex items-center gap-2">
-                                            Histórico
+                                            {{ __('consultas.sections.history') }}
                                             <span x-show="empathyLoading" class="text-gray-400"><i class="fas fa-spinner fa-spin"></i></span>
                                         </h4>
                                         <div class="flex items-center gap-2">
                                             <div class="relative">
-                                                <input type="text" x-model="empathySearch" @input.debounce.500ms="fetchEmpathyNotes(true)" placeholder="Buscar..." class="w-32 sm:w-40 text-xs border-gray-300 rounded-md focus:ring-[#0061F5] focus:border-[#0061F5] pl-7 py-1">
+                                                <input type="text" x-model="empathySearch" @input.debounce.500ms="fetchEmpathyNotes(true)" placeholder="{{ __('common.search_placeholder') }}" class="w-32 sm:w-40 text-xs border-gray-300 rounded-md focus:ring-[#0061F5] focus:border-[#0061F5] pl-7 py-1">
                                                 <i class="fas fa-search absolute left-2.5 top-1.5 text-gray-400 text-xs"></i>
                                             </div>
                                             <button type="button" @click="fetchEmpathyNotes(true)" class="text-xs font-semibold text-[#0061F5] hover:text-[#004499]">
@@ -123,7 +123,7 @@
 
                                     <div class="p-4 overflow-y-auto flex-1">
                                         <div x-show="!empathyLoading && empathyNotes.length === 0" class="text-sm text-gray-500 italic text-center py-4">
-                                            Aún no hay notas de empatía o no hay coincidencias.
+                                             {{ __('consultas.messages.no_empathy_notes') }}
                                         </div>
 
                                         <div class="space-y-4" x-show="empathyNotes.length > 0">
@@ -141,10 +141,10 @@
                                                         <div class="flex items-start justify-between gap-2">
                                                             <div class="text-[11px] text-gray-400 font-medium flex items-center gap-1" x-text="note.created_at"></div>
                                                             <div class="flex items-center gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity">
-                                                                <button type="button" class="text-gray-400 hover:text-[#0061F5] p-1" @click="startEdit(note)" title="Editar">
+                                                                <button type="button" class="text-gray-400 hover:text-[#0061F5] p-1" @click="startEdit(note)" title="{{ __('common.buttons.edit') }}">
                                                                     <i class="fas fa-pen text-[10px]"></i>
                                                                 </button>
-                                                                <button type="button" class="text-gray-400 hover:text-red-600 p-1" @click="deleteEmpathyNote(note.id)" title="Borrar">
+                                                                <button type="button" class="text-gray-400 hover:text-red-600 p-1" @click="deleteEmpathyNote(note.id)" title="{{ __('common.buttons.delete') }}">
                                                                     <i class="fas fa-trash text-[10px]"></i>
                                                                 </button>
                                                             </div>
@@ -158,10 +158,10 @@
                                                             <textarea x-model="empathyEditContent" rows="2" class="shadow-sm focus:ring-[#0061F5] focus:border-[#0061F5] block w-full text-sm border-gray-300 rounded-md"></textarea>
                                                             <div class="mt-2 flex items-center justify-end gap-2">
                                                                 <button type="button" class="px-2.5 py-1.5 text-xs font-medium text-gray-600 bg-gray-100 rounded hover:bg-gray-200" @click="cancelEdit()">
-                                                                    Cancelar
+                                                                    {{ __('common.buttons.cancel') }}
                                                                 </button>
                                                                 <button type="button" class="px-2.5 py-1.5 text-xs font-bold text-white bg-[#0061F5] rounded hover:bg-[#0051CC]" @click="updateEmpathyNote(note.id)">
-                                                                    Guardar
+                                                                    {{ __('common.buttons.save') }}
                                                                 </button>
                                                             </div>
                                                         </div>
@@ -171,7 +171,7 @@
                                             
                                             <div class="pt-2 pb-1 text-center" x-show="empathyHasMore">
                                                 <button type="button" @click="loadMoreEmpathyNotes()" class="text-xs font-semibold text-[#0061F5] hover:text-[#004499] bg-blue-50 hover:bg-blue-100 px-4 py-1.5 rounded-full transition-colors">
-                                                    <i class="fas fa-chevron-down mr-1"></i> Ver notas anteriores
+                                                    <i class="fas fa-chevron-down mr-1"></i> {{ __('consultas.buttons.load_previous_notes') }}
                                                 </button>
                                             </div>
                                         </div>
@@ -187,18 +187,18 @@
             <div class="bg-[#E6F0FF] overflow-hidden shadow-sm sm:rounded-lg p-6 border border-[#CCE0FF]">
                 <div class="flex justify-between items-center mb-4">
                     <h3 class="text-lg font-semibold text-[#004499] flex items-center">
-                        <i class="fas fa-heartbeat mr-2"></i> Signos Vitales y Alergias
+                        <i class="fas fa-heartbeat mr-2"></i> {{ __('consultas.sections.vital_signs_and_allergies') }}
                     </h3>
                     @if($historialConsultas->count() > 0)
                     <button @click="showHistory = true" type="button" class="text-sm text-[#0061F5] hover:text-[#004499] font-medium flex items-center transition-colors duration-150">
                         <i class="fas fa-history mr-1"></i>
-                        Ver Historial
+                        {{ __('consultas.buttons.view_history') }}
                     </button>
                     @endif
                 </div>
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                     <div>
-                        <label class="block text-sm font-medium text-gray-700">Peso</label>
+                        <label class="block text-sm font-medium text-gray-700">{{ __('consultas.fields.weight') }}</label>
                         <div class="mt-1 flex rounded-md shadow-sm">
                             <input type="number" step="0.01" x-model="peso" class="focus:ring-[#0061F5] focus:border-[#0061F5] flex-1 block w-full rounded-none rounded-l-md sm:text-sm border-gray-300" placeholder="0.00">
                             <span class="inline-flex items-center px-3 rounded-r-md border border-l-0 border-gray-300 bg-gray-50 text-gray-500 sm:text-sm">
@@ -207,7 +207,7 @@
                         </div>
                     </div>
                     <div>
-                        <label class="block text-sm font-medium text-gray-700">Estatura</label>
+                        <label class="block text-sm font-medium text-gray-700">{{ __('consultas.fields.height') }}</label>
                         <div class="mt-1 flex rounded-md shadow-sm">
                             <input type="number" step="0.01" x-model="estatura" class="focus:ring-[#0061F5] focus:border-[#0061F5] flex-1 block w-full rounded-none rounded-l-md sm:text-sm border-gray-300" placeholder="0.00">
                             <span class="inline-flex items-center px-3 rounded-r-md border border-l-0 border-gray-300 bg-gray-50 text-gray-500 sm:text-sm">
@@ -216,8 +216,8 @@
                         </div>
                     </div>
                     <div>
-                        <label class="block text-sm font-medium text-gray-700">Alergias</label>
-                        <textarea x-model="alergias" rows="1" class="shadow-sm focus:ring-[#0061F5] focus:border-[#0061F5] block w-full sm:text-sm border-gray-300 rounded-md" placeholder="Ninguna conocida..."></textarea>
+                        <label class="block text-sm font-medium text-gray-700">{{ __('consultas.fields.allergies') }}</label>
+                        <textarea x-model="alergias" rows="1" class="shadow-sm focus:ring-[#0061F5] focus:border-[#0061F5] block w-full sm:text-sm border-gray-300 rounded-md" placeholder="{{ __('consultas.placeholders.allergies') }}"></textarea>
                     </div>
                 </div>
             </div>
@@ -371,14 +371,14 @@
                             
                             <div class="bg-white px-4 pb-4 pt-5 sm:p-6 sm:pb-4">
                                 <div class="mt-3 text-center sm:mt-0 sm:text-left">
-                                    <h3 class="text-base font-semibold leading-6 text-gray-900" id="modal-title">Historial de Signos Vitales</h3>
+                                    <h3 class="text-base font-semibold leading-6 text-gray-900" id="modal-title">{{ __('consultas.sections.vital_signs_history') }}</h3>
                                     <div class="mt-4 overflow-x-auto max-h-[60vh]">
                                         <table class="min-w-full divide-y divide-gray-200">
                                             <thead class="bg-gray-50 sticky top-0">
                                                 <tr class="hover:bg-gray-50 transition-colors">
-                                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">Fecha</th>
-                                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">Peso</th>
-                                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">Estatura</th>
+                                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">{{ __('common.date') }}</th>
+                                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">{{ __('consultas.fields.weight') }}</th>
+                                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">{{ __('consultas.fields.height') }}</th>
                                                 </tr>
                                             </thead>
                                             <tbody class="bg-white divide-y divide-gray-200">
@@ -394,13 +394,13 @@
                                             </tbody>
                                         </table>
                                         @if($historialConsultas->whereNotNull('peso')->isEmpty() && $historialConsultas->whereNotNull('estatura')->isEmpty())
-                                            <p class="text-sm text-gray-500 text-center py-4">No hay registros previos de signos vitales.</p>
+                                            <p class="text-sm text-gray-500 text-center py-4">{{ __('consultas.messages.no_vital_signs') }}</p>
                                         @endif
                                     </div>
                                 </div>
                             </div>
                             <div class="bg-gray-50 px-4 py-3 sm:flex sm:flex-row-reverse sm:px-6">
-                                <button type="button" @click="showHistory = false" class="inline-flex w-full justify-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 sm:ml-3 sm:w-auto">Cerrar</button>
+                                <button type="button" @click="showHistory = false" class="inline-flex w-full justify-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 sm:ml-3 sm:w-auto">{{ __('common.close') }}</button>
                             </div>
                         </div>
                     </div>
@@ -414,12 +414,12 @@
                         <button @click="activeTab = 'consulta'" 
                             :class="{'border-[#0061F5] text-[#0061F5]': activeTab === 'consulta', 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300': activeTab !== 'consulta'}"
                             class="w-1/2 py-4 px-1 text-center border-b-2 font-medium text-sm">
-                            <i class="fas fa-notes-medical mr-2"></i> Consulta
+                            <i class="fas fa-notes-medical mr-2"></i> {{ __('consultas.tabs.consultation') }}
                         </button>
                         <button @click="activeTab = 'estudios'"
                             :class="{'border-[#0061F5] text-[#0061F5]': activeTab === 'estudios', 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300': activeTab !== 'estudios'}"
                             class="w-1/2 py-4 px-1 text-center border-b-2 font-medium text-sm">
-                            <i class="fas fa-microscope mr-2"></i> Estudios
+                            <i class="fas fa-microscope mr-2"></i> {{ __('consultas.tabs.studies') }}
                         </button>
                     </nav>
                 </div>
@@ -434,9 +434,9 @@
                         <input type="hidden" name="alergias" :value="alergias">
                         
                         <div class="mb-4">
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Plantilla</label>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">{{ __('consultas.fields.template') }}</label>
                             <select name="plantilla_id" x-model="selectedPlantillaId" @change="loadPlantillaCampos()" class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-[#0061F5] focus:border-[#0061F5] sm:text-sm">
-                                <option value="">Seleccione una plantilla</option>
+                                <option value="">{{ __('consultas.messages.select_template') }}</option>
                                 @foreach($plantillas as $plantilla)
                                     <option value="{{ $plantilla->id }}">{{ $plantilla->nombre }}</option>
                                 @endforeach
@@ -448,7 +448,7 @@
                             <template x-if="!selectedPlantillaId">
                                 <div class="text-center text-gray-500 py-10">
                                     <i class="fas fa-file-medical text-4xl mb-2 opacity-50"></i>
-                                    <p>Seleccione una plantilla para comenzar a llenar la consulta.</p>
+                                    <p>{{ __('consultas.messages.select_template') }}</p>
                                 </div>
                             </template>
                             
@@ -488,22 +488,22 @@
                             {{ __('common.buttons.cancel') }}
                         </a>
                         <button type="submit" class="inline-flex items-center px-4 py-2 bg-[#0061F5] border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-[#0051CC] active:bg-[#004499] focus:outline-none focus:border-[#004499] focus:ring ring-[#80B0FA] disabled:opacity-25 transition ease-in-out duration-150">
-                            <i class="fas fa-save mr-2"></i> Guardar Consulta
+                            <i class="fas fa-save mr-2"></i> {{ __('consultas.buttons.save_consultation') }}
                         </button>
                         </div>
                     </form>
 
                     <!-- History List -->
                     <div class="mt-10">
-                        <h3 class="text-lg font-bold text-gray-800 mb-4">Historial de Consultas</h3>
+                        <h3 class="text-lg font-bold text-gray-800 mb-4">{{ __('consultas.sections.consultation_history') }}</h3>
                         <div class="overflow-x-auto">
                             <table class="min-w-full divide-y divide-gray-200">
                                 <thead class="bg-gray-50">
                                     <tr class="hover:bg-gray-50 transition-colors">
-                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">Fecha</th>
-                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">Doctor</th>
-                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">Plantilla</th>
-                                        <th class="px-6 py-3 text-right text-xs font-medium text-gray-700 uppercase tracking-wider">Acciones</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">{{ __('common.date') }}</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">{{ __('common.doctor') }}</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">{{ __('consultas.fields.template') }}</th>
+                                        <th class="px-6 py-3 text-right text-xs font-medium text-gray-700 uppercase tracking-wider">{{ __('common.actions') }}</th>
                                     </tr>
                                 </thead>
                                 <tbody class="bg-white divide-y divide-gray-200">
@@ -515,26 +515,26 @@
                                             <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                                                 <div class="flex justify-end items-center space-x-2">
                                                     @if(auth()->user()->hasRole('doctor'))
-                                                        <a href="{{ route('consultas.edit', $historia) }}" class="inline-flex items-center justify-center w-10 h-10 bg-[#0061F5] text-white rounded-md hover:bg-[#0051CC] transition-colors shadow-sm" title="Editar Consulta">
+                                                        <a href="{{ route('consultas.edit', $historia) }}" class="inline-flex items-center justify-center w-10 h-10 bg-[#0061F5] text-white rounded-md hover:bg-[#0051CC] transition-colors shadow-sm" title="{{ __('consultas.edit') }}">
                                                             <i class="fas fa-edit text-xl"></i>
                                                         </a>
                                                     @elseif(auth()->user()->hasRole(['asistente','secretaria']))
-                                                        <a href="{{ route('consultas.show', $historia) }}" class="inline-flex items-center justify-center w-10 h-10 bg-gray-600 text-white rounded-md hover:bg-gray-700 transition-colors shadow-sm" title="Ver Consulta">
+                                                        <a href="{{ route('consultas.show', $historia) }}" class="inline-flex items-center justify-center w-10 h-10 bg-gray-600 text-white rounded-md hover:bg-gray-700 transition-colors shadow-sm" title="{{ __('consultas.view') }}">
                                                             <i class="fas fa-eye text-xl"></i>
                                                         </a>
                                                     @else
-                                                        <a href="{{ route('consultas.edit', $historia) }}" class="inline-flex items-center justify-center w-10 h-10 bg-yellow-500 text-white rounded-md hover:bg-yellow-600 transition-colors shadow-sm" title="Editar">
+                                                        <a href="{{ route('consultas.edit', $historia) }}" class="inline-flex items-center justify-center w-10 h-10 bg-yellow-500 text-white rounded-md hover:bg-yellow-600 transition-colors shadow-sm" title="{{ __('common.buttons.edit') }}">
                                                             <i class="fas fa-edit text-xl"></i>
                                                         </a>
                                                     @endif
-                                                <a href="{{ route('consultas.print', $historia) }}" target="_blank" class="inline-flex items-center justify-center w-10 h-10 bg-gray-800 text-white rounded-md hover:bg-gray-900 transition-colors shadow-sm" style="background-color: #1f2937;" title="Imprimir">
+                                                <a href="{{ route('consultas.print', $historia) }}" target="_blank" class="inline-flex items-center justify-center w-10 h-10 bg-gray-800 text-white rounded-md hover:bg-gray-900 transition-colors shadow-sm" style="background-color: #1f2937;" title="{{ __('common.buttons.print') }}">
                                                     <i class="fas fa-print text-xl"></i>
                                                 </a>
                                                 @if(!auth()->user()->hasRole(['asistente','secretaria']))
-                                                    <form action="{{ route('consultas.destroy', $historia) }}" method="POST" class="inline-block" onsubmit="return confirm('¿Estás seguro de eliminar esta consulta?');">
+                                                    <form action="{{ route('consultas.destroy', $historia) }}" method="POST" class="inline-block" onsubmit="return confirm('{{ __('consultas.confirm.delete_consultation') }}');">
                                                         @csrf
                                                         @method('DELETE')
-                                                        <button type="submit" class="inline-flex cursor-pointer items-center justify-center w-10 h-10 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors shadow-sm" title="Borrar">
+                                                        <button type="submit" class="inline-flex cursor-pointer items-center justify-center w-10 h-10 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors shadow-sm" title="{{ __('common.buttons.delete') }}">
                                                             <i class="fas fa-trash text-xl"></i>
                                                         </button>
                                                     </form>
@@ -544,7 +544,7 @@
                                         </tr>
                                     @empty
                                         <tr class="hover:bg-gray-50 transition-colors">
-                                            <td colspan="4" class="px-6 py-4 text-center text-gray-500">No hay consultas previas.</td>
+                                            <td colspan="4" class="px-6 py-4 text-center text-gray-500">{{ __('consultas.messages.no_previous_consultations') }}</td>
                                         </tr>
                                     @endforelse
                                 </tbody>
@@ -561,16 +561,16 @@
                         <form action="{{ route('consultas.estudios.store', $historialConsultas->first()->id) }}" method="POST" enctype="multipart/form-data">
                             @csrf
                             <div class="mb-4">
-                                <label class="block text-sm font-medium text-gray-700">Orden de Estudio</label>
-                                <textarea name="orden" rows="4" class="mt-1 shadow-sm focus:ring-[#0061F5] focus:border-[#0061F5] block w-full sm:text-sm border-gray-300 rounded-md" placeholder="Escriba los estudios requeridos..."></textarea>
+                                <label class="block text-sm font-medium text-gray-700">{{ __('consultas.fields.study_order') }}</label>
+                                <textarea name="orden" rows="4" class="mt-1 shadow-sm focus:ring-[#0061F5] focus:border-[#0061F5] block w-full sm:text-sm border-gray-300 rounded-md" placeholder="{{ __('consultas.placeholders.study_order') }}"></textarea>
                             </div>
                             <div class="mb-4">
-                                <label class="block text-sm font-medium text-gray-700">Observaciones</label>
-                                <textarea name="observacion" rows="2" class="mt-1 shadow-sm focus:ring-[#0061F5] focus:border-[#0061F5] block w-full sm:text-sm border-gray-300 rounded-md" placeholder="Observaciones adicionales..."></textarea>
+                                <label class="block text-sm font-medium text-gray-700">{{ __('consultas.fields.observations') }}</label>
+                                <textarea name="observacion" rows="2" class="mt-1 shadow-sm focus:ring-[#0061F5] focus:border-[#0061F5] block w-full sm:text-sm border-gray-300 rounded-md" placeholder="{{ __('consultas.placeholders.observations') }}"></textarea>
                             </div>
                             
                             <div class="mb-4">
-                                <label class="block text-sm font-medium text-gray-700">Adjuntar Imágenes/Archivos (Opcional)</label>
+                                <label class="block text-sm font-medium text-gray-700">{{ __('consultas.fields.attachments_optional') }}</label>
                                 
                                 <div 
                                     class="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-md transition-colors duration-200"
@@ -583,12 +583,12 @@
                                         <i class="fas fa-cloud-upload-alt text-4xl text-gray-400 mb-2" :class="{ 'text-[#0061F5]': isDragging }"></i>
                                         <div class="flex text-sm text-gray-600 justify-center">
                                             <label for="file-upload" class="relative cursor-pointer bg-white rounded-md font-medium text-[#0061F5] hover:text-[#0061F5] focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-[#0061F5]">
-                                                <span>Subir</span>
+                                                <span>{{ __('consultas.file_upload.upload') }}</span>
                                                 <input id="file-upload" name="archivos[]" type="file" class="sr-only" multiple accept="image/*,.pdf" x-ref="fileInput" @change="handleFiles($event)">
                                             </label>
-                                            <p class="pl-1">o arrastrar y soltar</p>
+                                            <p class="pl-1">{{ __('consultas.file_upload.drag_drop') }}</p>
                                         </div>
-                                        <p class="text-xs text-gray-500">PNG, JPG, PDF hasta 5MB</p>
+                                        <p class="text-xs text-gray-500">{{ __('consultas.file_upload.hint') }}</p>
                                     </div>
                                 </div>
 
@@ -599,7 +599,7 @@
                                             <div class="flex items-center space-x-2 truncate">
                                                 <i class="fas fa-file text-gray-400"></i>
                                                 <span class="text-sm text-gray-600 truncate" x-text="file.name"></span>
-                                                <span class="text-xs text-gray-400" x-text="(file.size / 1024).toFixed(2) + ' KB'"></span>
+                                                <span class="text-xs text-gray-400" x-text="(file.size / 1024).toFixed(2) + ' ' + @json(__('common.file_size_kb'))"></span>
                                             </div>
                                             <button type="button" @click="removeFile(index)" class="text-red-500 hover:text-red-700">
                                                 <i class="fas fa-times"></i>
@@ -614,27 +614,27 @@
                                     {{ __('common.buttons.cancel') }}
                                 </a>
                                 <button type="submit" class="inline-flex items-center px-4 py-2 bg-[#0061F5] border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-[#0051CC] active:bg-[#004499] focus:outline-none focus:border-[#004499] focus:ring ring-[#80B0FA] disabled:opacity-25 transition ease-in-out duration-150">
-                                    <i class="fas fa-save mr-2"></i> Guardar Orden
+                                    <i class="fas fa-save mr-2"></i> {{ __('consultas.buttons.save_order') }}
                                 </button>
                             </div>
                         </form>
                     @else
                         <div class="text-center p-10 bg-yellow-50 rounded-lg border border-yellow-100">
-                            <p class="text-yellow-700">Primero debe guardar una consulta para poder crear una orden de estudios.</p>
+                            <p class="text-yellow-700">{{ __('consultas.messages.save_consultation_first') }}</p>
                         </div>
                     @endif
 
                     <!-- Estudios History -->
                     <div class="mt-10">
-                        <h3 class="text-lg font-bold text-gray-800 mb-4">Historial de Estudios</h3>
+                        <h3 class="text-lg font-bold text-gray-800 mb-4">{{ __('consultas.sections.study_history') }}</h3>
                         <div class="overflow-x-auto">
                             <table class="min-w-full divide-y divide-gray-200">
                                 <thead class="bg-gray-50">
                                     <tr class="hover:bg-gray-50 transition-colors">
-                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">Fecha</th>
-                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">Doctor</th>
-                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">Estudios</th>
-                                        <th class="px-6 py-3 text-right text-xs font-medium text-gray-700 uppercase tracking-wider">Acciones</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">{{ __('common.date') }}</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">{{ __('common.doctor') }}</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">{{ __('consultas.sections.studies') }}</th>
+                                        <th class="px-6 py-3 text-right text-xs font-medium text-gray-700 uppercase tracking-wider">{{ __('common.actions') }}</th>
                                     </tr>
                                 </thead>
                                 <tbody class="bg-white divide-y divide-gray-200">
@@ -646,27 +646,27 @@
                                             <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                                                 <div class="flex justify-end items-center space-x-2">
                                                     <!-- Edit Button -->
-                                                    <a href="{{ route('consultas.estudios.edit', $estudio) }}" class="inline-flex items-center justify-center w-10 h-10 bg-yellow-500 text-white rounded-md hover:bg-yellow-600 transition-colors shadow-sm" title="Editar">
+                                                    <a href="{{ route('consultas.estudios.edit', $estudio) }}" class="inline-flex items-center justify-center w-10 h-10 bg-yellow-500 text-white rounded-md hover:bg-yellow-600 transition-colors shadow-sm" title="{{ __('common.buttons.edit') }}">
                                                         <i class="fas fa-edit text-xl"></i>
                                                     </a>
 
                                                     <!-- Print Button -->
-                                                    <a href="{{ route('consultas.estudios.print', $estudio) }}" target="_blank" class="inline-flex items-center justify-center w-10 h-10 bg-gray-800 text-white rounded-md hover:bg-gray-900 transition-colors shadow-sm" style="background-color: #1f2937;" title="Imprimir">
+                                                    <a href="{{ route('consultas.estudios.print', $estudio) }}" target="_blank" class="inline-flex items-center justify-center w-10 h-10 bg-gray-800 text-white rounded-md hover:bg-gray-900 transition-colors shadow-sm" style="background-color: #1f2937;" title="{{ __('common.buttons.print') }}">
                                                         <i class="fas fa-print text-xl"></i>
                                                     </a>
 
                                                     <!-- View Files Button -->
                                                     @if($estudio->archivos && $estudio->archivos->count() > 0)
-                                                        <button type="button" @click="openFilesModal({{ $estudio->id }})" class="inline-flex items-center justify-center w-10 h-10 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors shadow-sm" title="Ver archivos">
+                                                        <button type="button" @click="openFilesModal({{ $estudio->id }})" class="inline-flex items-center justify-center w-10 h-10 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors shadow-sm" title="{{ __('consultas.sections.study_files') }}">
                                                             <i class="fas fa-images text-xl"></i>
                                                         </button>
                                                     @endif
 
                                                     <!-- Delete Button -->
-                                                    <form action="{{ route('consultas.estudios.destroy', $estudio) }}" method="POST" class="inline-block" onsubmit="return confirm('¿Estás seguro de eliminar esta orden de estudio?');">
+                                                    <form action="{{ route('consultas.estudios.destroy', $estudio) }}" method="POST" class="inline-block" onsubmit="return confirm('{{ __('consultas.confirm.delete_study_order') }}');">
                                                         @csrf
                                                         @method('DELETE')
-                                                        <button type="submit" class="inline-flex cursor-pointer items-center justify-center w-10 h-10 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors shadow-sm" title="Borrar">
+                                                        <button type="submit" class="inline-flex cursor-pointer items-center justify-center w-10 h-10 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors shadow-sm" title="{{ __('common.buttons.delete') }}">
                                                             <i class="fas fa-trash text-xl"></i>
                                                         </button>
                                                     </form>
@@ -675,7 +675,7 @@
                                         </tr>
                                     @empty
                                         <tr class="hover:bg-gray-50 transition-colors">
-                                            <td colspan="4" class="px-6 py-4 text-center text-gray-500">No hay órdenes de estudios previas.</td>
+                                            <td colspan="4" class="px-6 py-4 text-center text-gray-500">{{ __('consultas.messages.no_previous_studies') }}</td>
                                         </tr>
                                     @endforelse
                                 </tbody>
@@ -708,11 +708,11 @@
                                     
                                     <div class="bg-white px-4 pb-4 pt-5 sm:p-6 sm:pb-4">
                                         <div class="mt-3 text-center sm:mt-0 sm:text-left">
-                                            <h3 class="text-base font-semibold leading-6 text-gray-900" id="files-modal-title">Archivos del estudio</h3>
-                                            <p class="mt-2 text-sm text-gray-500">Selecciona un archivo para verlo o descargarlo.</p>
+                                            <h3 class="text-base font-semibold leading-6 text-gray-900" id="files-modal-title">{{ __('consultas.sections.study_files') }}</h3>
+                                            <p class="mt-2 text-sm text-gray-500">{{ __('consultas.messages.select_file_to_view') }}</p>
                                             <div class="mt-4 space-y-2 max-h-[60vh] overflow-y-auto">
                                                 <template x-if="filesModalItems.length === 0">
-                                                    <p class="text-sm text-gray-500">Este estudio no tiene archivos adjuntos.</p>
+                                                    <p class="text-sm text-gray-500">{{ __('consultas.messages.no_study_files') }}</p>
                                                 </template>
                                                 <template x-for="(archivo, index) in filesModalItems" :key="index">
                                                     <a :href="archivo.url" target="_blank" class="flex items-center justify-between px-4 py-2 bg-gray-50 rounded-md border border-gray-200 hover:bg-gray-100">
@@ -720,14 +720,14 @@
                                                             <i class="fas fa-file text-gray-400"></i>
                                                             <span class="text-sm text-gray-700 truncate" x-text="archivo.nombre"></span>
                                                         </div>
-                                                        <span class="text-xs text-[#0061F5] font-medium">Abrir</span>
+                                                        <span class="text-xs text-[#0061F5] font-medium">{{ __('common.open') }}</span>
                                                     </a>
                                                 </template>
                                             </div>
                                         </div>
                                     </div>
                                     <div class="bg-gray-50 px-4 py-3 sm:flex sm:flex-row-reverse sm:px-6">
-                                        <button type="button" @click="closeFilesModal()" class="inline-flex w-full justify-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 sm:ml-3 sm:w-auto">Cerrar</button>
+                                        <button type="button" @click="closeFilesModal()" class="inline-flex w-full justify-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 sm:ml-3 sm:w-auto">{{ __('common.close') }}</button>
                                     </div>
                                 </div>
                             </div>
@@ -809,7 +809,7 @@
                             // Check for duplicates?
                             this.filesArray.push(files[i]);
                         } else {
-                            alert('El archivo ' + files[i].name + ' excede el límite de 5MB');
+                            alert(@json(__('consultas.messages.file_too_large', ['name' => '__NAME__'])).replace('__NAME__', files[i].name));
                         }
                     }
                     this.updateFileInput();
@@ -943,7 +943,7 @@
                             },
                         });
                         if (!response.ok) {
-                            throw new Error('No se pudo cargar las notas.');
+                            throw new Error(@json(__('consultas.messages.load_notes_failed')));
                         }
                         const data = await response.json();
                         
@@ -957,7 +957,7 @@
                         if (reset) {
                             this.empathyNotes = [];
                         }
-                        this.empathyError = error && error.message ? error.message : 'No se pudo cargar las notas.';
+                        this.empathyError = error && error.message ? error.message : @json(__('consultas.messages.load_notes_failed'));
                     } finally {
                         this.empathyLoading = false;
                     }
@@ -973,7 +973,7 @@
                 async saveEmpathyNote() {
                     const content = (this.empathyNewContent || '').trim();
                     if (!content) {
-                        this.empathyError = 'Escribe una nota.';
+                        this.empathyError = @json(__('consultas.messages.write_note'));
                         return;
                     }
 
@@ -990,7 +990,7 @@
                         });
 
                         if (!response.ok) {
-                            let message = 'No se pudo guardar la nota.';
+                            let message = @json(__('consultas.messages.save_note_failed'));
                             try {
                                 const data = await response.json();
                                 if (data && data.message) {
@@ -1007,7 +1007,7 @@
                         this.empathyNewContent = '';
                         await this.fetchEmpathyNotes(true);
                     } catch (error) {
-                        this.empathyError = error && error.message ? error.message : 'No se pudo guardar la nota.';
+                        this.empathyError = error && error.message ? error.message : @json(__('consultas.messages.save_note_failed'));
                     }
                 },
 
@@ -1025,7 +1025,7 @@
                 async updateEmpathyNote(noteId) {
                     const content = (this.empathyEditContent || '').trim();
                     if (!content) {
-                        this.empathyError = 'Escribe una nota.';
+                        this.empathyError = @json(__('consultas.messages.write_note'));
                         return;
                     }
 
@@ -1042,7 +1042,7 @@
                         });
 
                         if (!response.ok) {
-                            let message = 'No se pudo actualizar la nota.';
+                            let message = @json(__('consultas.messages.update_note_failed'));
                             try {
                                 const data = await response.json();
                                 if (data && data.message) {
@@ -1059,13 +1059,13 @@
                         this.cancelEdit();
                         await this.fetchEmpathyNotes(true);
                     } catch (error) {
-                        this.empathyError = error && error.message ? error.message : 'No se pudo actualizar la nota.';
+                        this.empathyError = error && error.message ? error.message : @json(__('consultas.messages.update_note_failed'));
                     }
                 },
 
                 async deleteEmpathyNote(noteId) {
                     this.empathyError = '';
-                    if (!confirm('¿Eliminar esta nota de empatía?')) {
+                    if (!confirm(@json(__('consultas.confirm.delete_empathy_note')))) {
                         return;
                     }
 
@@ -1079,7 +1079,7 @@
                         });
 
                         if (!response.ok) {
-                            let message = 'No se pudo eliminar la nota.';
+                            let message = @json(__('consultas.messages.delete_note_failed'));
                             try {
                                 const data = await response.json();
                                 if (data && data.message) {
@@ -1092,7 +1092,7 @@
 
                         await this.fetchEmpathyNotes(true);
                     } catch (error) {
-                        this.empathyError = error && error.message ? error.message : 'No se pudo eliminar la nota.';
+                        this.empathyError = error && error.message ? error.message : @json(__('consultas.messages.delete_note_failed'));
                     }
                 }
             }

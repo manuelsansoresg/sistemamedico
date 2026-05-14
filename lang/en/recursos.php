@@ -49,6 +49,7 @@ return [
         'messages' => [
             'not_specified' => 'Not specified',
             'no_resources' => 'No resources registered for this doctor.',
+            'already_reserved' => 'This resource is already reserved.',
         ],
     ],
     'confirm' => [

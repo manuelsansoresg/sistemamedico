@@ -28,4 +28,7 @@ return [
         'updated_success' => 'Catalog updated successfully.',
         'deleted_success' => 'Catalog deleted successfully.',
     ],
+    'confirm' => [
+        'delete' => 'Are you sure you want to delete this catalog?',
+    ],
 ];

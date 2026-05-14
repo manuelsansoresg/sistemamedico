@@ -96,4 +96,15 @@ return [
     'messages' => [
         'wizard_completed' => '¡Configuración completada exitosamente!',
     ],
+    'alerts' => [
+        'save_failed' => 'Error al guardar: :message',
+        'unknown_error' => 'Error desconocido',
+        'validation_error' => 'Error de validación: Verifique los datos.',
+        'request_error' => 'Ocurrió un error al procesar la solicitud.',
+        'configure_schedules' => 'Por favor configura tus horarios o confirma que ya lo has hecho.',
+        'create_template' => 'Por favor crea una plantilla o confirma que ya lo has hecho.',
+        'register_patient' => 'Por favor registra un paciente o confirma que ya lo has hecho.',
+        'clinic_limit_reached' => 'Ha alcanzado el límite de clínicas permitidas por su suscripción.',
+        'office_limit_reached' => 'Ha alcanzado el límite de consultorios permitidos por su suscripción.',
+    ],
 ];

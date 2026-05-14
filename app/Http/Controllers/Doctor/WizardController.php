@@ -53,7 +53,7 @@ class WizardController extends Controller
         if (! $this->subscriptionService->canCreate($user, 'clinica')) {
             return response()->json([
                 'success' => false,
-                'message' => 'Ha alcanzado el límite de clínicas permitidas por su suscripción.',
+                'message' => __('wizard.alerts.clinic_limit_reached'),
             ], 403);
         }
 
@@ -102,7 +102,7 @@ class WizardController extends Controller
         if (! $this->subscriptionService->canCreate($user, 'consultorio')) {
             return response()->json([
                 'success' => false,
-                'message' => 'Ha alcanzado el límite de consultorios permitidos por su suscripción.',
+                'message' => __('wizard.alerts.office_limit_reached'),
             ], 403);
         }
 

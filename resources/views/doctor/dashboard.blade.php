@@ -69,7 +69,7 @@
                             </div>
                         </div>
                         <div>
-                             <a href="{{ route('admin.notifications.read', $notification->id) }}" class="text-xs text-yellow-600 hover:text-yellow-800 underline">Marcar como leído</a>
+                             <a href="{{ route('admin.notifications.read', $notification->id) }}" class="text-xs text-yellow-600 hover:text-yellow-800 underline">{{ __('common.buttons.mark_read') }}</a>
                         </div>
                     </div>
                 @endforeach
@@ -91,11 +91,11 @@
                                         <li>
                                             <strong>{{ $dia->motivo }}</strong>
                                             @if($dia->todo_el_dia)
-                                                (Todo el día)
+                                                ({{ __('dias_sin_citas.labels.all_day') }})
                                             @else
                                                 ({{ \Carbon\Carbon::parse($dia->hora_inicio)->format('H:i') }} - {{ \Carbon\Carbon::parse($dia->hora_fin)->format('H:i') }})
                                             @endif
-                                            - Afecta: 
+                                             - {{ __('dias_sin_citas.labels.affects') }} 
                                             @foreach($dia->consultorios as $consultorio)
                                                 <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-red-100 text-red-800">
                                                     {{ $consultorio->nombre }}
@@ -158,14 +158,14 @@
                                             </td>
                                             <td class="px-4 py-2 whitespace-nowrap text-right text-sm font-medium">
                                                 <div class="flex justify-end items-center space-x-2">
-                                                    <a href="{{ route('consultas.create', ['cita_id' => $cita->id]) }}" class="inline-flex items-center justify-center px-4 py-2 bg-blue-600 text-white font-bold rounded-md hover:bg-blue-700 transition-colors shadow-sm" title="Iniciar Consulta">
+                                                    <a href="{{ route('consultas.create', ['cita_id' => $cita->id]) }}" class="inline-flex items-center justify-center px-4 py-2 bg-blue-600 text-white font-bold rounded-md hover:bg-blue-700 transition-colors shadow-sm" title="{{ __('consultas.create') }}">
                                                         <i class="fas fa-stethoscope mr-2"></i> {{ __('common.buttons.start') }}
                                                     </a>
                                                     @if($cita->estado !== 'cancelada')
-                                                    <form action="{{ route('citas.destroy', $cita) }}" method="POST" class="inline-block" onsubmit="return confirm('¿Estás seguro de eliminar esta cita?');">
+                                                    <form action="{{ route('citas.destroy', $cita) }}" method="POST" class="inline-block" onsubmit="return confirm('{{ __('citas.confirm.delete') }}');">
                                                         @csrf
                                                         @method('DELETE')
-                                                        <button type="submit" class="inline-flex cursor-pointer items-center justify-center w-10 h-10 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors shadow-sm" title="Eliminar Cita">
+                                                        <button type="submit" class="inline-flex cursor-pointer items-center justify-center w-10 h-10 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors shadow-sm" title="{{ __('citas.actions.delete') }}">
                                                             <i class="fas fa-trash-alt text-xl"></i>
                                                         </button>
                                                     </form>

@@ -1,8 +1,8 @@
 <!DOCTYPE html>
-<html>
+<html lang="{{ app()->getLocale() }}">
 <head>
     <meta charset="utf-8">
-    <title>Receta Médica - {{ $consulta->paciente->name }}</title>
+    <title>{{ __('consultas.messages.medical_prescription_title', ['patient' => $consulta->paciente->name]) }}</title>
     <style>
         body { font-family: sans-serif; font-size: 12px; }
         .header { width: 100%; border-bottom: 2px solid #000; padding-bottom: 10px; margin-bottom: 20px; }
@@ -46,8 +46,8 @@
                     <p style="margin: 0; font-weight: 700; color: #2c3e50;">
                         Dr. {{ $consulta->doctor->name }} {{ $consulta->doctor->apellido_paterno }} {{ $consulta->doctor->apellido_materno }}
                     </p>
-                    <p style="margin: 2px 0;">{{ $consulta->doctor->especialidad->nombre ?? 'Médico General' }}</p>
-                    <p style="margin: 2px 0;">Ced. Prof: {{ $consulta->doctor->cedula_profesional }}</p>
+                    <p style="margin: 2px 0;">{{ $consulta->doctor->especialidad->nombre ?? __('consultas.messages.general_doctor') }}</p>
+                    <p style="margin: 2px 0;">{{ __('consultas.messages.professional_id_short') }} {{ $consulta->doctor->cedula_profesional }}</p>
                     <p style="margin: 2px 0;">{{ $clinicaNombre }}{{ $consultorioNombre ? ' - '.$consultorioNombre : '' }}</p>
                 </td>
             </tr>
@@ -57,20 +57,20 @@
     <div class="info-section">
         <table class="info-table">
             <tr class="hover:bg-gray-50 transition-colors">
-                <td class="label">Paciente:</td>
+                <td class="label">{{ __('common.patient') }}:</td>
                 <td>{{ $consulta->paciente->name }} {{ $consulta->paciente->apellido_paterno }} {{ $consulta->paciente->apellido_materno }}</td>
-                <td class="label">Fecha:</td>
+                <td class="label">{{ __('common.date') }}:</td>
                 <td>{{ $consulta->created_at->format('d/m/Y h:i A') }}</td>
             </tr>
             <tr class="hover:bg-gray-50 transition-colors">
-                <td class="label">Edad:</td>
-                <td>{{ $consulta->paciente->fecha_nacimiento ? $consulta->paciente->fecha_nacimiento->age . ' años' : 'N/A' }}</td>
-                <td class="label">Peso/Talla:</td>
+                <td class="label">{{ __('consultas.messages.age') }}</td>
+                <td>{{ $consulta->paciente->fecha_nacimiento ? __('pacientes.age_years', ['age' => $consulta->paciente->fecha_nacimiento->age]) : 'N/A' }}</td>
+                <td class="label">{{ __('consultas.messages.weight_height') }}</td>
                 <td>{{ $consulta->peso }} kg / {{ $consulta->estatura }} m</td>
             </tr>
             <tr class="hover:bg-gray-50 transition-colors">
-                <td class="label">Alergias:</td>
-                <td colspan="3">{{ $consulta->alergias ?? 'Negadas' }}</td>
+                <td class="label">{{ __('consultas.fields.allergies') }}:</td>
+                <td colspan="3">{{ $consulta->alergias ?? __('consultas.messages.denied') }}</td>
             </tr>
         </table>
     </div>
@@ -87,8 +87,8 @@
     </div>
 
     <div class="footer">
-        <p>Este documento es un resumen de la consulta médica.</p>
-        <p>Generado el {{ now()->format('d/m/Y H:i') }}</p>
+        <p>{{ __('consultas.messages.medical_summary') }}</p>
+        <p>{{ __('consultas.messages.generated_at', ['date' => now()->format('d/m/Y H:i')]) }}</p>
     </div>
 </body>
 </html>

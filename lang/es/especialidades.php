@@ -10,6 +10,7 @@ return [
     ],
     'create' => 'Crear Especialidad',
     'edit' => 'Editar Especialidad',
+    'select' => 'Seleccione una especialidad',
     'fields' => [
         'name' => 'Nombre',
         'description' => 'Descripción',

@@ -32,7 +32,7 @@ class CheckDoctorStatus
                 }
 
                 if ($request->expectsJson()) {
-                    return response()->json(['message' => 'Tu cuenta requiere validación de cédula.'], 403);
+                    return response()->json(['message' => __('doctor.verification.required')], 403);
                 }
 
                 return redirect()->route('doctor.verification.notice');
@@ -44,10 +44,10 @@ class CheckDoctorStatus
                 }
 
                 if ($request->expectsJson()) {
-                    return response()->json(['message' => 'Tu paquete ha vencido. Debes renovarlo para continuar usando el sistema.'], 403);
+                    return response()->json(['message' => __('subscriptions.errors.package_expired')], 403);
                 }
 
-                return redirect()->route('compras.index')->with('error', 'Tu paquete ha vencido. Debes renovarlo para continuar usando el sistema.');
+                return redirect()->route('compras.index')->with('error', __('subscriptions.errors.package_expired'));
             }
         }
 

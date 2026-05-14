@@ -48,15 +48,18 @@ class SubscriptionExpiringNotification extends Notification
     public function toArray(object $notifiable): array
     {
         $nombre = $this->suscripcion->tipo == 'paquete'
-            ? ($this->suscripcion->paquete->nombre ?? 'Paquete')
-            : ($this->suscripcion->catalogo->nombre ?? 'Servicio Extra');
+            ? ($this->suscripcion->paquete->nombre ?? __('emails.subscription_expiry.package_fallback'))
+            : ($this->suscripcion->catalogo->nombre ?? __('emails.subscription_expiry.extra_fallback'));
 
         return [
             'suscripcion_id' => $this->suscripcion->id,
             'tipo' => $this->suscripcion->tipo,
             'nombre' => $nombre,
             'fecha_fin' => $this->suscripcion->fecha_fin,
-            'mensaje' => "Su suscripción ($nombre) vence el ".\Carbon\Carbon::parse($this->suscripcion->fecha_fin)->format('d/m/Y'),
+            'mensaje' => __('subscriptions.notifications.expiring_message', [
+                'name' => $nombre,
+                'date' => \Carbon\Carbon::parse($this->suscripcion->fecha_fin)->format('d/m/Y'),
+            ]),
         ];
     }
 }

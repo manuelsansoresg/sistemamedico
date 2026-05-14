@@ -24,6 +24,7 @@ return [
     ],
     'labels' => [
         'all_day' => 'Todo el día',
+        'affects' => 'Afecta:',
     ],
     'confirm' => [
         'delete' => '¿Estás seguro de eliminar este registro?',

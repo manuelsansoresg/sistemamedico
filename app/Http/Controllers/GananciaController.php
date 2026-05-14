@@ -93,8 +93,8 @@ class GananciaController extends Controller
         $doctors = ! $user->hasRole('doctor') ? User::role('doctor')->get() : [];
 
         $tiposIngreso = [
-            'compra' => 'Compra',
-            'renovacion' => 'Renovación',
+            'compra' => __('earnings.ui.type_purchase'),
+            'renovacion' => __('earnings.ui.type_renewal'),
             'consulta' => __('earnings.ui.type_consultation'),
         ];
 

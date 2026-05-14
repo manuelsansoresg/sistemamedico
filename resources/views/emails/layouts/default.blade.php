@@ -114,8 +114,8 @@
 
         <!-- Footer -->
         <div class="footer">
-            <p>&copy; {{ date('Y') }} Sistema Médico. Todos los derechos reservados.</p>
-            <p>Si tienes dudas, contáctanos a soporte@sistemamedico.com</p>
+            <p>&copy; {{ date('Y') }} Sistema Médico. {{ __('emails.common.footer_rights') }}</p>
+            <p>{{ __('emails.common.footer_contact') }}</p>
         </div>
     </div>
 </body>

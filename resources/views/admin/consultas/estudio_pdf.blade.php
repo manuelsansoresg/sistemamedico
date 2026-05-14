@@ -1,8 +1,8 @@
 <!DOCTYPE html>
-<html>
+<html lang="{{ app()->getLocale() }}">
 <head>
     <meta charset="utf-8">
-    <title>Orden de Estudios - {{ $estudio->consulta->paciente->name }}</title>
+    <title>{{ __('consultas.messages.study_order_title', ['patient' => $estudio->consulta->paciente->name]) }}</title>
     <style>
         body { font-family: sans-serif; font-size: 12px; }
         .header { width: 100%; border-bottom: 2px solid #000; padding-bottom: 10px; margin-bottom: 20px; }
@@ -42,7 +42,7 @@
                     <p style="margin: 0; font-weight: 700; color: #2c3e50;">
                         Dr. {{ $estudio->consulta->doctor->name }} {{ $estudio->consulta->doctor->apellido_paterno }} {{ $estudio->consulta->doctor->apellido_materno }}
                     </p>
-                    <p style="margin: 2px 0;">Orden de Estudios de Laboratorio / Gabinete</p>
+                    <p style="margin: 2px 0;">{{ __('consultas.messages.lab_imaging_order') }}</p>
                 </td>
             </tr>
         </table>
@@ -51,29 +51,29 @@
     <div class="info-section">
         <table class="info-table">
             <tr class="hover:bg-gray-50 transition-colors">
-                <td class="label">Paciente:</td>
+                <td class="label">{{ __('common.patient') }}:</td>
                 <td>{{ $estudio->consulta->paciente->name }} {{ $estudio->consulta->paciente->apellido_paterno }} {{ $estudio->consulta->paciente->apellido_materno }}</td>
             </tr>
             <tr class="hover:bg-gray-50 transition-colors">
-                <td class="label">Fecha:</td>
+                <td class="label">{{ __('common.date') }}:</td>
                 <td>{{ $estudio->created_at->format('d/m/Y') }}</td>
             </tr>
         </table>
     </div>
 
     <div class="content-section">
-        <h3 style="margin-top: 0; color: #0061F5;">Estudios Solicitados:</h3>
+        <h3 style="margin-top: 0; color: #0061F5;">{{ __('consultas.messages.requested_studies') }}</h3>
         <p>{!! nl2br(e($estudio->orden)) !!}</p>
         
         @if($estudio->observacion)
             <br>
-            <h4 style="margin-bottom: 5px; color: #7f8c8d;">Observaciones:</h4>
+            <h4 style="margin-bottom: 5px; color: #7f8c8d;">{{ __('consultas.fields.observations') }}:</h4>
             <p>{!! nl2br(e($estudio->observacion)) !!}</p>
         @endif
     </div>
 
     <div class="footer">
-        <p>Firma del Médico</p>
+        <p>{{ __('consultas.messages.doctor_signature') }}</p>
         <br><br>
         <p>_____________________________________</p>
     </div>
