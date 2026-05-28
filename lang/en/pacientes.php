@@ -59,6 +59,20 @@ return [
         'not_shared_only' => 'Not shared only',
         'shared_profile_column' => 'SHARED PROFILE',
     ],
+    'qr' => [
+        'title' => 'Medical record QR code',
+        'view_qr' => 'View QR',
+        'public_link' => 'Read-only public link',
+        'open_public_record' => 'Open public record',
+        'regenerate' => 'Regenerate QR',
+        'regenerate_confirm' => 'Regenerate the QR code? The previous link will stop working.',
+        'warning' => 'Anyone with this QR code or link can view the record in read-only mode. Regenerate it if it was shared by mistake.',
+        'patient_help' => 'Share this QR code only with people or institutions that need to consult your medical record.',
+        'doctor_help' => 'This QR belongs to the patient and opens the record in read-only mode without signing in.',
+        'messages' => [
+            'regenerated' => 'QR code regenerated successfully. The previous link is no longer valid.',
+        ],
+    ],
     'sections' => [
         'contact_medical_data' => 'Contact and Medical Data',
         'user_account' => 'User Account',

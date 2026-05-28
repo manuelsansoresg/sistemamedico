@@ -42,4 +42,9 @@ return [
     'pending_reminders' => 'PENDING',
     'no_appointments_today' => 'NO APPOINTMENTS SCHEDULED',
     'no_pending_tasks' => 'NO PENDING TASKS',
+    'patient' => [
+        'profile_title' => 'My Profile',
+        'profile_description' => 'Update your personal and contact information.',
+        'records_title' => 'My Records',
+    ],
 ];

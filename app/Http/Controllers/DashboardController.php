@@ -31,7 +31,7 @@ class DashboardController extends Controller
         }
 
         if ($user->hasRole('paciente')) {
-            $query = \App\Models\Consulta::with(['cita.clinica', 'cita.consultorio', 'doctor'])
+            $query = \App\Models\Consulta::with(['cita.clinica', 'cita.consultorio', 'doctor', 'plantilla', 'estudios'])
                 ->join('citas', 'consultas.cita_id', '=', 'citas.id')
                 ->select('consultas.*')
                 ->where('consultas.paciente_id', $user->id);

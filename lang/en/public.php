@@ -39,4 +39,15 @@ return [
         'go_home' => 'Go to Home',
         'go_login' => 'Go to Login',
     ],
+    'expediente' => [
+        'title' => 'Medical record',
+        'readonly_badge' => 'Read only',
+        'shared_by_qr' => 'Access shared by QR code',
+        'privacy_notice' => 'This link allows viewing the record without signing in. It does not allow editing, deleting, or downloading the full record.',
+        'patient_data' => 'Patient data',
+        'records' => 'Recorded consultations',
+        'consultation_detail' => 'Consultation detail',
+        'back_to_record' => 'Back to record',
+        'no_records' => 'No consultations were found for the selected filters.',
+    ],
 ];

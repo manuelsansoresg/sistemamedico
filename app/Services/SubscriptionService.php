@@ -6,6 +6,7 @@ use App\Models\Clinica;
 use App\Models\Consultorio;
 use App\Models\Suscripcion;
 use App\Models\User;
+use Illuminate\Support\Facades\DB;
 
 class SubscriptionService
 {
@@ -90,11 +91,24 @@ class SubscriptionService
                     })->count();
                 break;
             case 'pacientes':
-                $current = User::role('paciente')->where('created_by', $user->id)->count();
+                $current = $this->patientUsageCount($user);
                 break;
         }
 
         return $current < $limit;
+    }
+
+    public function patientUsageCount(User $doctor): int
+    {
+        return User::role('paciente')
+            ->where(function ($q) use ($doctor) {
+                $q->where('created_by', $doctor->id)
+                    ->orWhereHas('doctors', function ($subQ) use ($doctor) {
+                        $subQ->where('users.id', $doctor->id);
+                    });
+            })
+            ->distinct('users.id')
+            ->count('users.id');
     }
 
     /**
@@ -122,6 +136,67 @@ class SubscriptionService
             ->where('tipo', 'paquete')
             ->pagadaVigente()
             ->exists();
+    }
+
+    public function patientHasActiveSubscription(User $patient): bool
+    {
+        $doctorIds = $patient->doctors()->pluck('users.id');
+
+        if ($patient->created_by) {
+            $doctorIds->push($patient->created_by);
+        }
+
+        $doctorIds = $doctorIds->unique()->values();
+
+        if ($doctorIds->isEmpty()) {
+            return false;
+        }
+
+        return $this->activePatientSubscriptionsForUsers($doctorIds->all())->exists();
+    }
+
+    public function availablePatientSubscription(User $doctor): ?Suscripcion
+    {
+        return $this->activePatientSubscriptionsForUsers([$doctor->id])
+            ->with(['catalogo', 'paquete.catalogos'])
+            ->get()
+            ->first(function (Suscripcion $subscription) {
+                $limit = $this->patientSubscriptionLimit($subscription);
+
+                return $limit > 0 && $this->patientSubscriptionUsage($subscription) < $limit;
+            });
+    }
+
+    public function assignPatientToSubscription(User $doctor, User $patient): ?Suscripcion
+    {
+        $currentSubscriptionId = DB::table('doctor_patient')
+            ->where('doctor_id', $doctor->id)
+            ->where('patient_id', $patient->id)
+            ->value('suscripcion_id');
+
+        if ($currentSubscriptionId) {
+            $activeCurrentSubscription = $this->activePatientSubscriptionsForUsers([$doctor->id])
+                ->where('suscripciones.id', $currentSubscriptionId)
+                ->first();
+
+            if ($activeCurrentSubscription) {
+                return $activeCurrentSubscription;
+            }
+        }
+
+        $subscription = $this->availablePatientSubscription($doctor);
+
+        if (! $subscription) {
+            return null;
+        }
+
+        if ($patient->doctors()->where('users.id', $doctor->id)->exists()) {
+            $patient->doctors()->updateExistingPivot($doctor->id, ['suscripcion_id' => $subscription->id]);
+        } else {
+            $patient->doctors()->attach($doctor->id, ['suscripcion_id' => $subscription->id]);
+        }
+
+        return $subscription;
     }
 
     public function pickOriginSubscription(User $user, string $type): ?Suscripcion
@@ -191,5 +266,47 @@ class SubscriptionService
         }
 
         return null;
+    }
+
+    private function activePatientSubscriptionsForUsers(array $doctorIds)
+    {
+        return Suscripcion::whereIn('user_id', $doctorIds)
+            ->pagadaVigente()
+            ->where(function ($q) {
+                $q->where(function ($subQ) {
+                    $subQ->where('tipo', 'individual')
+                        ->whereHas('catalogo', function ($catalogoQ) {
+                            $catalogoQ->whereRaw("LOWER(nombre) like '%paciente%'");
+                        });
+                })->orWhere(function ($subQ) {
+                    $subQ->where('tipo', 'paquete')
+                        ->whereHas('paquete.catalogos', function ($catalogoQ) {
+                            $catalogoQ->whereRaw("LOWER(nombre) like '%paciente%'");
+                        });
+                });
+            });
+    }
+
+    private function patientSubscriptionLimit(Suscripcion $subscription): int
+    {
+        if ($subscription->tipo === 'individual' && $subscription->catalogo) {
+            return (int) ($subscription->cantidad ?? 0);
+        }
+
+        if ($subscription->tipo === 'paquete' && $subscription->paquete) {
+            $patientCatalog = $subscription->paquete->catalogos
+                ->first(fn ($catalogo) => str_contains(strtolower($catalogo->nombre), 'paciente'));
+
+            return (int) ($patientCatalog?->pivot?->cantidad_maxima ?? 0);
+        }
+
+        return 0;
+    }
+
+    private function patientSubscriptionUsage(Suscripcion $subscription): int
+    {
+        return DB::table('doctor_patient')
+            ->where('suscripcion_id', $subscription->id)
+            ->count();
     }
 }

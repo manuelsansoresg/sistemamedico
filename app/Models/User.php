@@ -8,6 +8,7 @@ use App\Traits\Auditable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Str;
 use Spatie\Permission\Traits\HasRoles;
 
 class User extends Authenticatable
@@ -52,6 +53,7 @@ class User extends Authenticatable
     protected $hidden = [
         'password',
         'remember_token',
+        'patient_public_token',
     ];
 
     /**
@@ -67,7 +69,34 @@ class User extends Authenticatable
             'fecha_nacimiento' => 'date',
             'activo' => 'boolean',
             'perfil_compartido' => 'boolean',
+            'patient_public_token_regenerated_at' => 'datetime',
         ];
+    }
+
+    public function ensurePublicExpedienteToken(): string
+    {
+        if ($this->patient_public_token) {
+            return $this->patient_public_token;
+        }
+
+        return $this->regeneratePublicExpedienteToken();
+    }
+
+    public function regeneratePublicExpedienteToken(): string
+    {
+        do {
+            $token = Str::random(64);
+        } while (self::query()
+            ->where('patient_public_token', $token)
+            ->whereKeyNot($this->getKey())
+            ->exists());
+
+        $this->forceFill([
+            'patient_public_token' => $token,
+            'patient_public_token_regenerated_at' => now(),
+        ])->save();
+
+        return $token;
     }
 
     public function sendEmailVerificationNotification(): void

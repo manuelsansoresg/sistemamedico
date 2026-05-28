@@ -145,7 +145,7 @@ return [
         'activate' => 'Activate',
         'deactivate' => 'Deactivate',
         'share' => 'Share',
-        'filter' => 'Filter',
+        'filter' => 'Apply Filters',
         'update' => 'Update',
         'validate' => 'Validate',
         'reject' => 'Reject',

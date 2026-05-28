@@ -7,7 +7,6 @@ use App\Models\User;
 use App\Services\SubscriptionService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
@@ -215,11 +214,21 @@ class PacienteController extends Controller
 
         $newUser->assignRole('paciente');
 
-        // Link to doctor
+        // Link to doctor and consume the active patient subscription when available.
         if ($authUser->hasRole('root')) {
-            $newUser->doctors()->attach($request->doctor_id);
+            $doctor = User::find($request->doctor_id);
         } elseif ($authUser->hasRole(['doctor', 'asistente', 'secretaria'])) {
-            $newUser->doctors()->attach($owner->id);
+            $doctor = $owner;
+        } else {
+            $doctor = null;
+        }
+
+        if ($doctor) {
+            $suscripcion = $this->subscriptionService->assignPatientToSubscription($doctor, $newUser);
+
+            if (! $suscripcion) {
+                $newUser->doctors()->syncWithoutDetaching([$doctor->id]);
+            }
         }
 
         return redirect()->route('pacientes.index')->with('success', __('pacientes.messages.created_success'));
@@ -432,18 +441,7 @@ class PacienteController extends Controller
 
             $doctor = User::role('doctor')->findOrFail($request->doctor_id);
 
-            $suscripcion = \App\Models\Suscripcion::where('user_id', $doctor->id)
-                ->where('tipo', 'individual')
-                ->pagadaVigente()
-                ->whereHas('catalogo', function ($q) {
-                    $q->whereRaw("LOWER(nombre) like '%paciente%'");
-                })
-                ->get()
-                ->first(function ($sub) {
-                    $usados = DB::table('doctor_patient')->where('suscripcion_id', $sub->id)->count();
-
-                    return $usados < ($sub->cantidad ?? 0);
-                });
+            $suscripcion = $this->subscriptionService->assignPatientToSubscription($doctor, $paciente);
 
             if (! $suscripcion) {
                 return back()->with('error', __('pacientes.errors.no_available_subscription'));
@@ -456,12 +454,6 @@ class PacienteController extends Controller
             }
 
             $paciente->save();
-
-            if (! $paciente->doctors()->where('users.id', $doctor->id)->exists()) {
-                $paciente->doctors()->attach($doctor->id, ['suscripcion_id' => $suscripcion->id]);
-            } else {
-                $paciente->doctors()->updateExistingPivot($doctor->id, ['suscripcion_id' => $suscripcion->id]);
-            }
 
             try {
                 AuditLog::create([
@@ -493,18 +485,7 @@ class PacienteController extends Controller
                 return back()->with('error', __('pacientes.errors.active_subscription_required'));
             }
 
-            $suscripcion = \App\Models\Suscripcion::where('user_id', $owner->id)
-                ->where('tipo', 'individual')
-                ->pagadaVigente()
-                ->whereHas('catalogo', function ($q) {
-                    $q->whereRaw("LOWER(nombre) like '%paciente%'");
-                })
-                ->get()
-                ->first(function ($sub) {
-                    $usados = DB::table('doctor_patient')->where('suscripcion_id', $sub->id)->count();
-
-                    return $usados < ($sub->cantidad ?? 0);
-                });
+            $suscripcion = $this->subscriptionService->assignPatientToSubscription($owner, $paciente);
 
             if (! $suscripcion) {
                 return back()->with('error', __('pacientes.errors.no_available_subscription'));
@@ -517,12 +498,6 @@ class PacienteController extends Controller
             }
 
             $paciente->save();
-
-            if (! $paciente->doctors()->where('users.id', $owner->id)->exists()) {
-                $paciente->doctors()->attach($owner->id, ['suscripcion_id' => $suscripcion->id]);
-            } else {
-                $paciente->doctors()->updateExistingPivot($owner->id, ['suscripcion_id' => $suscripcion->id]);
-            }
 
             try {
                 AuditLog::create([
@@ -636,18 +611,7 @@ class PacienteController extends Controller
 
         $doctor = User::role('doctor')->findOrFail($request->doctor_id);
 
-        $suscripcion = \App\Models\Suscripcion::where('user_id', $doctor->id)
-            ->where('tipo', 'individual')
-            ->pagadaVigente()
-            ->whereHas('catalogo', function ($q) {
-                $q->whereRaw("LOWER(nombre) like '%paciente%'");
-            })
-            ->get()
-            ->first(function ($sub) {
-                $usados = DB::table('doctor_patient')->where('suscripcion_id', $sub->id)->count();
-
-                return $usados < ($sub->cantidad ?? 0);
-            });
+        $suscripcion = $this->subscriptionService->assignPatientToSubscription($doctor, $paciente);
 
         if (! $suscripcion) {
             return back()->with('error', __('pacientes.errors.no_available_subscription'));
@@ -658,12 +622,6 @@ class PacienteController extends Controller
             $paciente->created_by = $doctor->id;
         }
         $paciente->save();
-
-        if (! $paciente->doctors()->where('users.id', $doctor->id)->exists()) {
-            $paciente->doctors()->attach($doctor->id, ['suscripcion_id' => $suscripcion->id]);
-        } else {
-            $paciente->doctors()->updateExistingPivot($doctor->id, ['suscripcion_id' => $suscripcion->id]);
-        }
 
         try {
             AuditLog::create([

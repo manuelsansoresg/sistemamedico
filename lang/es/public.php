@@ -39,4 +39,15 @@ return [
         'go_home' => 'Ir al Inicio',
         'go_login' => 'Ir al Inicio de Sesión',
     ],
+    'expediente' => [
+        'title' => 'Expediente médico',
+        'readonly_badge' => 'Solo lectura',
+        'shared_by_qr' => 'Acceso compartido por código QR',
+        'privacy_notice' => 'Este enlace permite consultar el expediente sin iniciar sesión. No permite editar, eliminar ni descargar el expediente completo.',
+        'patient_data' => 'Datos del paciente',
+        'records' => 'Consultas registradas',
+        'consultation_detail' => 'Detalle de consulta',
+        'back_to_record' => 'Volver al expediente',
+        'no_records' => 'No hay consultas registradas para los filtros seleccionados.',
+    ],
 ];

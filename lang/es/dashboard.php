@@ -42,4 +42,9 @@ return [
     'pending_reminders' => 'PENDIENTES',
     'no_appointments_today' => 'NO HAY CITAS PROGRAMADAS',
     'no_pending_tasks' => 'NO HAY PENDIENTES ACTIVOS',
+    'patient' => [
+        'profile_title' => 'Mi Perfil',
+        'profile_description' => 'Actualiza tu información personal y de contacto.',
+        'records_title' => 'Mis Expedientes',
+    ],
 ];

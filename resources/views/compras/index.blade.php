@@ -60,7 +60,7 @@
                     'clinicas' => \App\Models\Clinica::where('created_by', auth()->id())->count(),
                     'consultorios' => \App\Models\Consultorio::where('created_by', auth()->id())->count(),
                     'usuarios' => \App\Models\User::where('created_by', auth()->id())->whereHas('roles', function ($q) { $q->whereIn('name', ['asistente','secretaria']); })->count(),
-                    'pacientes' => \App\Models\User::role('paciente')->where('created_by', auth()->id())->count(),
+                    'pacientes' => app(\App\Services\SubscriptionService::class)->patientUsageCount(auth()->user()),
                 ];
             @endphp
 
@@ -204,7 +204,7 @@
                                     } elseif (str_contains($nombre, 'paciente')) {
                                         $key = 'pacientes';
                                         $label = 'Pacientes';
-                                        $used = (int) ($sub->pacientes_count ?? 0);
+                                        $used = (int) ($currentCounts['pacientes'] ?? 0);
                                     }
 
                                     if ($total > 0) {

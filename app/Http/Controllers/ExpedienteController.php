@@ -7,10 +7,10 @@ use App\Models\Clinica;
 use App\Models\Consulta;
 use App\Models\Consultorio;
 use App\Models\User;
+use App\Services\SubscriptionService;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
@@ -450,13 +450,6 @@ class ExpedienteController extends Controller
 
     private function patientHasActiveSubscription(User $patient): bool
     {
-        return DB::table('doctor_patient as dp')
-            ->join('suscripciones as s', 's.id', '=', 'dp.suscripcion_id')
-            ->where('dp.patient_id', $patient->id)
-            ->where('s.estatus_pago', 'pagado')
-            ->where(function ($q) {
-                $q->whereNull('s.fecha_fin')->orWhere('s.fecha_fin', '>=', now());
-            })
-            ->exists();
+        return app(SubscriptionService::class)->patientHasActiveSubscription($patient);
     }
 }

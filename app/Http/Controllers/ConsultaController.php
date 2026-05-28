@@ -11,6 +11,7 @@ use App\Models\EstudioArchivo;
 use App\Models\Plantilla;
 use App\Models\Servicio;
 use App\Models\User;
+use App\Services\SubscriptionService;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -89,6 +90,10 @@ class ConsultaController extends Controller
         }
 
         if ($user->hasRole('doctor') && $consulta->doctor_id !== $user->id) {
+            abort(403);
+        }
+
+        if ($user->hasRole('paciente') && $consulta->paciente_id !== $user->id) {
             abort(403);
         }
 
@@ -491,6 +496,16 @@ class ConsultaController extends Controller
 
         if ($user->hasRole('doctor') && $consulta->doctor_id !== $user->id) {
             abort(403);
+        }
+
+        if ($user->hasRole('paciente')) {
+            if ($consulta->paciente_id !== $user->id) {
+                abort(403);
+            }
+
+            if (! app(SubscriptionService::class)->patientHasActiveSubscription($user)) {
+                return back()->with('error', __('expedientes.errors.patient_subscription_expired'));
+            }
         }
 
         try {

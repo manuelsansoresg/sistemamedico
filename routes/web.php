@@ -26,6 +26,9 @@ Route::get('/', function () {
     return view('public.home');
 });
 
+Route::get('/expediente-publico/{token}', [\App\Http\Controllers\PublicExpedienteController::class, 'show'])->name('public.expediente.show');
+Route::get('/expediente-publico/{token}/consultas/{consulta}', [\App\Http\Controllers\PublicExpedienteController::class, 'consulta'])->name('public.expediente.consultas.show');
+
 // Ruta pública para subir comprobantes
 Route::get('/subir-comprobante/{token}', [ComprobantePagoController::class, 'show'])->name('suscripciones.subir_comprobante');
 Route::post('/subir-comprobante/{token}', [ComprobantePagoController::class, 'store'])->name('suscripciones.guardar_comprobante');
@@ -82,6 +85,7 @@ Route::middleware(['auth', 'role:root|doctor|asistente|secretaria', 'check.docto
     Route::post('admin/pacientes/{paciente}/compartir', [\App\Http\Controllers\PacienteController::class, 'share'])->name('pacientes.share');
     Route::post('admin/pacientes/{paciente}/dejar-compartir', [\App\Http\Controllers\PacienteController::class, 'unshare'])->name('pacientes.unshare');
     Route::post('admin/pacientes/{paciente}/toggle-compartir', [\App\Http\Controllers\PacienteController::class, 'toggleShare'])->name('pacientes.toggle_share');
+    Route::get('admin/pacientes/{paciente}/qr', [\App\Http\Controllers\PatientQrController::class, 'show'])->name('pacientes.qr.show');
     Route::resource('admin/pacientes', \App\Http\Controllers\PacienteController::class);
 
     // Citas Routes
@@ -198,9 +202,12 @@ Route::middleware('auth')->group(function () {
 
 // Portal Paciente
 Route::middleware(['auth', 'role:paciente'])->group(function () {
+    Route::get('/mi-expediente/qr', [\App\Http\Controllers\PatientQrController::class, 'showMine'])->name('paciente.qr.show');
+    Route::post('/mi-expediente/qr/regenerar', [\App\Http\Controllers\PatientQrController::class, 'regenerateMine'])->name('paciente.qr.regenerate');
     Route::get('/mis-expedientes', [\App\Http\Controllers\ExpedienteController::class, 'patientIndex'])->name('paciente.expedientes.index');
     Route::post('/mis-expedientes/descargar', [\App\Http\Controllers\ExpedienteController::class, 'patientDownloadBulk'])->name('paciente.expedientes.download.bulk');
     Route::get('/mis-expedientes/descargar-todo', [\App\Http\Controllers\ExpedienteController::class, 'patientDownloadAll'])->name('paciente.expedientes.download.all');
+    Route::get('/mis-expedientes/consultas/{consulta}/pdf', [\App\Http\Controllers\ConsultaController::class, 'print'])->name('paciente.consultas.print');
 });
 
 require __DIR__.'/auth.php';

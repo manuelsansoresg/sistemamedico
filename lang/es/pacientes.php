@@ -59,6 +59,20 @@ return [
         'not_shared_only' => 'Solo no compartidos',
         'shared_profile_column' => 'PERFIL COMPARTIDO',
     ],
+    'qr' => [
+        'title' => 'Código QR del expediente',
+        'view_qr' => 'Ver QR',
+        'public_link' => 'Enlace público de lectura',
+        'open_public_record' => 'Abrir expediente público',
+        'regenerate' => 'Regenerar QR',
+        'regenerate_confirm' => '¿Regenerar el QR? El enlace anterior dejará de funcionar.',
+        'warning' => 'Cualquier persona con este QR o enlace podrá ver el expediente en modo lectura. Regeneralo si fue compartido por error.',
+        'patient_help' => 'Compartí este QR solo con personas o instituciones que necesiten consultar tu expediente.',
+        'doctor_help' => 'Este QR pertenece al paciente y abre su expediente en modo lectura, sin iniciar sesión.',
+        'messages' => [
+            'regenerated' => 'Código QR regenerado correctamente. El enlace anterior ya no es válido.',
+        ],
+    ],
     'sections' => [
         'contact_medical_data' => 'Datos de Contacto y Médicos',
         'user_account' => 'Cuenta de Usuario',
