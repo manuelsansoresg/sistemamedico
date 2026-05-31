@@ -22,6 +22,7 @@ class SubscriptionService
             'consultorios' => 0,
             'usuarios' => 0,
             'pacientes' => 0,
+            'ai_requests' => 0,
         ];
 
         // Obtener suscripciones activas (Pagadas y Vigentes)
@@ -264,6 +265,9 @@ class SubscriptionService
         if (str_contains($nombre, 'paciente')) {
             return 'pacientes';
         }
+        if (str_contains($nombre, 'ia') || str_contains($nombre, 'ai') || str_contains($nombre, 'inteligencia')) {
+            return 'ai_requests';
+        }
 
         return null;
     }
@@ -308,5 +312,144 @@ class SubscriptionService
         return DB::table('doctor_patient')
             ->where('suscripcion_id', $subscription->id)
             ->count();
+    }
+
+    public function canUseAi(User $user): bool
+    {
+        if ($user->hasRole('root')) {
+            return true;
+        }
+
+        $limites = $this->calculateLimits($user);
+        $aiLimit = $limites['ai_requests'] ?? 0;
+
+        if ($aiLimit <= 0) {
+            return false;
+        }
+
+        $aiUsage = $this->getAiUsageCount($user);
+
+        return $aiUsage < $aiLimit;
+    }
+
+    public function incrementAiUsage(User $user): void
+    {
+        if ($user->hasRole('root')) {
+            return;
+        }
+
+        $this->getAiUsageCount($user, true);
+    }
+
+    public function getAiUsageCount(User $user, bool $increment = false): int
+    {
+        static $cache = [];
+
+        $cacheKey = "ai_usage_{$user->id}";
+
+        if (! $increment && isset($cache[$cacheKey])) {
+            return $cache[$cacheKey];
+        }
+
+        $count = \App\Models\AiUsageLog::where('user_id', $user->id)
+            ->where('created_at', '>=', now()->subMonth())
+            ->count();
+
+        if ($increment) {
+            $count++;
+        }
+
+        $cache[$cacheKey] = $count;
+
+        return $count;
+    }
+
+    public function getAiUsageStats(User $user, ?string $period = null): array
+    {
+        $query = \App\Models\AiUsageLog::where('user_id', $user->id);
+
+        if ($period === 'today') {
+            $query->whereDate('created_at', today());
+        } elseif ($period === 'week') {
+            $query->where('created_at', '>=', now()->subWeek());
+        } elseif ($period === 'month') {
+            $query->where('created_at', '>=', now()->subMonth());
+        }
+
+        $logs = $query->get();
+
+        $totalRequests = $logs->count();
+        $totalTokens = $logs->sum(fn ($log) => $log->totalTokens());
+        $totalCost = $logs->sum('cost_estimate');
+
+        $byAction = $logs->groupBy('action_type')->map(fn ($group) => [
+            'count' => $group->count(),
+            'tokens' => $group->sum(fn ($log) => $log->totalTokens()),
+            'cost' => $group->sum('cost_estimate'),
+        ]);
+
+        return [
+            'total_requests' => $totalRequests,
+            'total_tokens' => $totalTokens,
+            'total_cost' => round($totalCost, 4),
+            'by_action' => $byAction,
+        ];
+    }
+
+    public function getGlobalAiUsageCount(bool $increment = false): int
+    {
+        static $globalCache = null;
+
+        if (! $increment && $globalCache !== null) {
+            return $globalCache;
+        }
+
+        $count = \App\Models\AiUsageLog::where('created_at', '>=', now()->subMonth())
+            ->count();
+
+        if ($increment) {
+            $count++;
+        }
+
+        $globalCache = $count;
+
+        return $count;
+    }
+
+    public function getGlobalAiUsageStats(?string $period = null): array
+    {
+        $query = \App\Models\AiUsageLog::query();
+
+        if ($period === 'today') {
+            $query->whereDate('created_at', today());
+        } elseif ($period === 'week') {
+            $query->where('created_at', '>=', now()->subWeek());
+        } elseif ($period === 'month') {
+            $query->where('created_at', '>=', now()->subMonth());
+        }
+
+        $logs = $query->with(['user', 'patient'])->get();
+
+        $totalRequests = $logs->count();
+        $totalTokens = $logs->sum(fn ($log) => $log->totalTokens());
+        $totalCost = $logs->sum('cost_estimate');
+
+        $byAction = $logs->groupBy('action_type')->map(fn ($group) => [
+            'count' => $group->count(),
+            'tokens' => $group->sum(fn ($log) => $log->totalTokens()),
+            'cost' => $group->sum('cost_estimate'),
+        ]);
+
+        return [
+            'total_requests' => $totalRequests,
+            'total_tokens' => $totalTokens,
+            'total_cost' => round($totalCost, 4),
+            'by_action' => $byAction,
+        ];
+    }
+
+    public function getGlobalAiLimits(): array
+    {
+        return ['ai_requests' => 0];
     }
 }

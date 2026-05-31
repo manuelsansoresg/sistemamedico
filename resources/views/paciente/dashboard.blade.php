@@ -14,12 +14,14 @@
                     </div>
                     <span class="font-bold text-gray-800 text-sm tracking-wide text-center">{{ __('dashboard.card_labels.records') }}</span>
                 </a>
-                <a href="{{ route('paciente.qr.show') }}" class="flex flex-col items-center justify-center p-8 bg-white border border-gray-100 rounded-2xl shadow-[0_2px_15px_-3px_rgba(0,0,0,0.07),0_10px_20px_-2px_rgba(0,0,0,0.04)] hover:shadow-lg transition-all duration-300 group h-48">
-                    <div class="w-20 h-20 bg-blue-50 rounded-full flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300">
-                        <i class="fas fa-qrcode text-3xl text-[#0061F5]"></i>
-                    </div>
-                    <span class="font-bold text-gray-800 text-sm tracking-wide text-center">{{ __('pacientes.qr.title') }}</span>
-                </a>
+                @if(auth()->user()?->perfil_compartido)
+                    <a href="{{ route('paciente.qr.show') }}" class="flex flex-col items-center justify-center p-8 bg-white border border-gray-100 rounded-2xl shadow-[0_2px_15px_-3px_rgba(0,0,0,0.07),0_10px_20px_-2px_rgba(0,0,0,0.04)] hover:shadow-lg transition-all duration-300 group h-48">
+                        <div class="w-20 h-20 bg-blue-50 rounded-full flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300">
+                            <i class="fas fa-qrcode text-3xl text-[#0061F5]"></i>
+                        </div>
+                        <span class="font-bold text-gray-800 text-sm tracking-wide text-center">{{ __('pacientes.qr.title') }}</span>
+                    </a>
+                @endif
             </div>
 
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
@@ -44,7 +46,7 @@
                         </h3>
                     </div>
 
-                    <form method="GET" class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
+                    <form method="GET" class="grid grid-cols-1 md:grid-cols-5 gap-4 mb-4">
                         <div>
                             <label class="block text-sm text-gray-600 mb-1">{{ __('expedientes.patient.filters.clinic') }}</label>
                             <select name="clinica_id" class="w-full border-gray-300 rounded-md focus:ring-[#0061F5] focus:border-[#0061F5]">
@@ -64,6 +66,15 @@
                             </select>
                         </div>
                         <div>
+                            <label class="block text-sm text-gray-600 mb-1">{{ __('users.fields.specialty') }}</label>
+                            <select name="especialidad_id" class="w-full border-gray-300 rounded-md focus:ring-[#0061F5] focus:border-[#0061F5]">
+                                <option value="">{{ __('common.all') }}</option>
+                                @foreach($especialidades as $especialidad)
+                                    <option value="{{ $especialidad->id }}" @selected(request('especialidad_id') == $especialidad->id)>{{ $especialidad->nombre }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div>
                             <label class="block text-sm text-gray-600 mb-1">{{ __('expedientes.patient.filters.from') }}</label>
                             <input type="date" name="fecha_inicio" value="{{ request('fecha_inicio') }}" class="w-full border-gray-300 rounded-md focus:ring-[#0061F5] focus:border-[#0061F5]" />
                         </div>
@@ -75,7 +86,7 @@
                             <button class="inline-flex items-center px-4 py-2 bg-[#0061F5] text-white font-bold rounded-md hover:bg-[#0051CC] transition-colors shadow-sm">
                                 <i class="fas fa-filter mr-2"></i> {{ __('common.buttons.filter') }}
                             </button>
-                            @if(request()->hasAny(['clinica_id','consultorio_id','fecha_inicio','fecha_fin']))
+                            @if(request()->hasAny(['clinica_id','consultorio_id','especialidad_id','fecha_inicio','fecha_fin']))
                                 <a href="{{ route('dashboard') }}" class="ml-3 text-sm text-gray-600 hover:text-gray-800">{{ __('common.buttons.clear') }}</a>
                             @endif
                         </div>

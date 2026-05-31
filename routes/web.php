@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Admin\AuditController;
 use App\Http\Controllers\AdminController;
+use App\Http\Controllers\AiConfigController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Public\ComprobantePagoController;
@@ -68,6 +69,11 @@ Route::middleware(['auth', 'role:root'])->group(function () {
     Route::post('admin/users/{user}/validar-cedula', [\App\Http\Controllers\Admin\SuscripcionController::class, 'validarCedula'])->name('admin.users.validar_cedula');
     Route::get('admin/suscripciones/{suscripcion}/download-comprobante', [\App\Http\Controllers\Admin\SuscripcionController::class, 'downloadComprobante'])->name('admin.suscripciones.download_comprobante');
 
+    // AI Configuration (Root only)
+    Route::get('admin/ai/config', [AiConfigController::class, 'index'])->name('ai.config');
+    Route::put('admin/ai/config', [AiConfigController::class, 'update'])->name('ai.config.update');
+    Route::post('admin/ai/config/test', [AiConfigController::class, 'test'])->name('ai.config.test');
+
     // Horarios Routes (Moved to shared group)
 });
 
@@ -97,6 +103,7 @@ Route::middleware(['auth', 'role:root|doctor|asistente|secretaria', 'check.docto
 
     // Expedientes Routes
     Route::get('admin/expedientes', [\App\Http\Controllers\ExpedienteController::class, 'index'])->name('expedientes.index');
+    Route::get('admin/expedientes/paciente/{paciente}/resumen-ia', [\App\Http\Controllers\ExpedienteController::class, 'patientAiSummary'])->name('expedientes.paciente.ai-summary');
     Route::get('admin/expedientes/paciente/{paciente}', [\App\Http\Controllers\ExpedienteController::class, 'patientHistory'])->name('expedientes.paciente');
     Route::post('admin/expedientes/download', [\App\Http\Controllers\ExpedienteController::class, 'downloadBulk'])->name('expedientes.download.bulk');
     Route::get('admin/expedientes/download-all', [\App\Http\Controllers\ExpedienteController::class, 'downloadAll'])->name('expedientes.download.all');
@@ -203,7 +210,11 @@ Route::middleware('auth')->group(function () {
 // Portal Paciente
 Route::middleware(['auth', 'role:paciente'])->group(function () {
     Route::get('/mi-expediente/qr', [\App\Http\Controllers\PatientQrController::class, 'showMine'])->name('paciente.qr.show');
+    Route::get('/mi-expediente/qr/medicos', [\App\Http\Controllers\PatientQrController::class, 'searchDoctors'])->name('paciente.qr.doctors.search');
     Route::post('/mi-expediente/qr/regenerar', [\App\Http\Controllers\PatientQrController::class, 'regenerateMine'])->name('paciente.qr.regenerate');
+    Route::post('/mi-expediente/permisos', [\App\Http\Controllers\SharedExpedientePermissionController::class, 'store'])->name('paciente.shared-permissions.store');
+    Route::put('/mi-expediente/permisos/{permission}', [\App\Http\Controllers\SharedExpedientePermissionController::class, 'update'])->name('paciente.shared-permissions.update');
+    Route::delete('/mi-expediente/permisos/{permission}', [\App\Http\Controllers\SharedExpedientePermissionController::class, 'revoke'])->name('paciente.shared-permissions.revoke');
     Route::get('/mis-expedientes', [\App\Http\Controllers\ExpedienteController::class, 'patientIndex'])->name('paciente.expedientes.index');
     Route::post('/mis-expedientes/descargar', [\App\Http\Controllers\ExpedienteController::class, 'patientDownloadBulk'])->name('paciente.expedientes.download.bulk');
     Route::get('/mis-expedientes/descargar-todo', [\App\Http\Controllers\ExpedienteController::class, 'patientDownloadAll'])->name('paciente.expedientes.download.all');

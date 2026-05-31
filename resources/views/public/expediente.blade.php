@@ -66,6 +66,9 @@
                     </div>
 
                     <form method="GET" class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
+                        @if(request('access_code'))
+                            <input type="hidden" name="access_code" value="{{ request('access_code') }}">
+                        @endif
                         <div>
                             <label class="block text-sm text-gray-600 mb-1">{{ __('expedientes.patient.filters.clinic') }}</label>
                             <select name="clinica_id" class="w-full border-gray-300 rounded-md focus:ring-[#0061F5] focus:border-[#0061F5]">
@@ -124,7 +127,7 @@
                                             <div class="text-xs mt-1"><span class="font-semibold">{{ __('expedientes.patient.table.detail.template_label') }}</span> {{ $expediente->plantilla->nombre ?? __('expedientes.patient.table.detail.no_template') }}</div>
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                            <a href="{{ route('public.expediente.consultas.show', [$token, $expediente]) }}" class="inline-flex items-center justify-center w-9 h-9 bg-white border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 transition-colors shadow-sm" title="{{ __('common.buttons.view') }}">
+                                            <a href="{{ route('public.expediente.consultas.show', [$token, $expediente]) }}{{ request('access_code') ? '?access_code='.urlencode(request('access_code')) : '' }}" class="inline-flex items-center justify-center w-9 h-9 bg-white border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 transition-colors shadow-sm" title="{{ __('common.buttons.view') }}">
                                                 <i class="fas fa-eye text-sm"></i>
                                             </a>
                                         </td>

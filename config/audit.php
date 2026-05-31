@@ -62,6 +62,12 @@ return [
                 'consulta_valors',
             ],
         ],
+        'ai' => [
+            'label' => 'inteligencia_artificial',
+            'table' => 'audit_ai_logs',
+            'model' => App\Models\AuditAiLog::class,
+            'sections' => ['ia', 'ai'],
+        ],
     ],
 
 ];

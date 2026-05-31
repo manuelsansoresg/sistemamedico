@@ -141,9 +141,6 @@
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                                             <div class="flex justify-end items-center space-x-2">
-                                                <a href="{{ route('pacientes.qr.show', $paciente) }}" class="inline-flex items-center justify-center w-9 h-9 bg-white border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 transition-colors shadow-sm" title="{{ __('pacientes.qr.view_qr') }}">
-                                                    <i class="fas fa-qrcode"></i>
-                                                </a>
                                                 @if($isRoot)
                                                     @php
                                                         $confirmMsg = $paciente->perfil_compartido

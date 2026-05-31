@@ -1,0 +1,37 @@
+<?php
+
+return [
+    'title' => 'Inteligencia Artificial',
+    'config_title' => 'Configuración de IA',
+    'usage_title' => 'Uso del mes',
+    'recent_title' => 'Uso reciente',
+    'enabled' => 'Habilitar IA',
+    'provider' => 'Proveedor',
+    'api_key' => 'API Key',
+    'api_key_help' => 'Se almacena cifrada en la base de datos.',
+    'models_title' => 'Modelos por acción',
+    'save' => 'Guardar',
+    'test_connection' => 'Probar conexión',
+    'requests' => 'Solicitudes',
+    'tokens_used' => 'Tokens usados',
+    'estimated_cost' => 'Costo estimado',
+    'by_type' => 'Por tipo',
+    'no_usage' => 'Sin uso registrado.',
+    'patient' => 'Paciente',
+    'summary' => [
+        'action' => 'Resumen con IA',
+        'title' => 'Resumen de expediente con IA',
+        'badge' => 'Resumen optimizado',
+        'cached' => 'Actualizado',
+        'generated' => 'Generado ahora',
+        'generated_at' => 'Generado el :date',
+        'disclaimer' => 'Este resumen es una ayuda clínica y no reemplaza la revisión completa del expediente ni el criterio médico.',
+    ],
+    'messages' => [
+        'config_updated' => 'Configuración de IA actualizada correctamente.',
+        'connection_success' => 'Conexión exitosa.',
+        'no_api_key' => 'Ingresa un API key primero.',
+        'not_available' => 'IA no disponible para este usuario.',
+        'limit_reached' => 'Has alcanzado el límite de solicitudes de IA para este mes.',
+    ],
+];

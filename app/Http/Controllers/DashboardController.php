@@ -6,6 +6,7 @@ use App\Models\Cita;
 use App\Models\Clinica;
 use App\Models\Consultorio;
 use App\Models\DiaSinCita;
+use App\Models\Especialidad;
 use App\Models\Pendiente;
 use App\Models\Suscripcion;
 use App\Services\SubscriptionService;
@@ -42,6 +43,11 @@ class DashboardController extends Controller
             if ($request->filled('consultorio_id')) {
                 $query->where('citas.consultorio_id', $request->consultorio_id);
             }
+            if ($request->filled('especialidad_id')) {
+                $query->whereHas('doctor', function ($q) use ($request) {
+                    $q->where('especialidad_id', $request->especialidad_id);
+                });
+            }
             if ($request->filled('fecha_inicio')) {
                 $query->whereDate('citas.fecha', '>=', $request->fecha_inicio);
             }
@@ -68,7 +74,12 @@ class DashboardController extends Controller
                     });
             })->get();
 
-            return view('paciente.dashboard', compact('expedientes', 'clinicas', 'consultorios'));
+            $especialidades = Especialidad::query()
+                ->where('activo', true)
+                ->orderBy('nombre')
+                ->get();
+
+            return view('paciente.dashboard', compact('expedientes', 'clinicas', 'consultorios', 'especialidades'));
         }
 
         if ($user->hasRole(['doctor', 'asistente', 'secretaria'])) {

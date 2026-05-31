@@ -1,0 +1,37 @@
+<?php
+
+return [
+    'title' => 'Artificial Intelligence',
+    'config_title' => 'AI Configuration',
+    'usage_title' => 'Monthly Usage',
+    'recent_title' => 'Recent Usage',
+    'enabled' => 'Enable AI',
+    'provider' => 'Provider',
+    'api_key' => 'API Key',
+    'api_key_help' => 'Stored encrypted in the database.',
+    'models_title' => 'Models by Action',
+    'save' => 'Save',
+    'test_connection' => 'Test Connection',
+    'requests' => 'Requests',
+    'tokens_used' => 'Tokens Used',
+    'estimated_cost' => 'Estimated Cost',
+    'by_type' => 'By Type',
+    'no_usage' => 'No usage recorded.',
+    'patient' => 'Patient',
+    'summary' => [
+        'action' => 'AI summary',
+        'title' => 'AI medical record summary',
+        'badge' => 'Optimized summary',
+        'cached' => 'Up to date',
+        'generated' => 'Generated now',
+        'generated_at' => 'Generated on :date',
+        'disclaimer' => 'This summary is a clinical aid and does not replace reviewing the full medical record or professional medical judgment.',
+    ],
+    'messages' => [
+        'config_updated' => 'AI configuration updated successfully.',
+        'connection_success' => 'Connection successful.',
+        'no_api_key' => 'Please enter an API key first.',
+        'not_available' => 'AI not available for this user.',
+        'limit_reached' => 'You have reached the monthly AI request limit.',
+    ],
+];

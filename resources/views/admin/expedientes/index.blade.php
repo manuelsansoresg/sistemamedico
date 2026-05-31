@@ -149,6 +149,16 @@
                                                     <i class="fas fa-eye text-lg"></i>
                                                 </a>
 
+                                                @if($canUseAiSummary)
+                                                    <a href="{{ route('expedientes.paciente.ai-summary', $expediente->paciente_id) }}" class="inline-flex items-center justify-center w-10 h-10 bg-white border border-[#0061F5] text-[#0061F5] rounded-md hover:bg-blue-50 transition-colors shadow-sm" title="{{ __('ia.summary.action') }}">
+                                                        <i class="fas fa-magic text-lg"></i>
+                                                    </a>
+                                                @else
+                                                    <span class="inline-flex items-center justify-center w-10 h-10 bg-gray-100 border border-gray-200 text-gray-400 rounded-md shadow-sm cursor-not-allowed" title="{{ __('ia.messages.not_available') }}">
+                                                        <i class="fas fa-lock text-lg"></i>
+                                                    </span>
+                                                @endif
+
                                                 @can('descargar consultas')
                                                 <a href="{{ route('consultas.print', $expediente->id) }}" target="_blank" class="inline-flex items-center justify-center w-10 h-10 bg-[#0061F5] text-white rounded-md hover:bg-[#0051CC] transition-colors shadow-sm" title="{{ __('common.buttons.download') }}">
                                                     <i class="fas fa-file-pdf text-xl"></i>

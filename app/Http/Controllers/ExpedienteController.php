@@ -7,6 +7,8 @@ use App\Models\Clinica;
 use App\Models\Consulta;
 use App\Models\Consultorio;
 use App\Models\User;
+use App\Services\AiService;
+use App\Services\PatientAiSummaryService;
 use App\Services\SubscriptionService;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
@@ -93,7 +95,9 @@ class ExpedienteController extends Controller
                 ->get();
         }
 
-        return view('admin.expedientes.index', compact('expedientes', 'clinicas', 'consultorios', 'pacientes'));
+        $canUseAiSummary = app(AiService::class)->canUseAi($user, AiService::ACTION_SUMMARY);
+
+        return view('admin.expedientes.index', compact('expedientes', 'clinicas', 'consultorios', 'pacientes', 'canUseAiSummary'));
     }
 
     /**
@@ -236,6 +240,29 @@ class ExpedienteController extends Controller
         return view('admin.expedientes.paciente', compact('paciente', 'expedientes', 'clinicas', 'consultorios'));
     }
 
+    public function patientAiSummary(User $paciente, PatientAiSummaryService $summaryService)
+    {
+        /** @var \App\Models\User $user */
+        $user = Auth::user();
+
+        if (! $this->canAccessPatient($user, $paciente)) {
+            abort(403);
+        }
+
+        try {
+            $result = $summaryService->getOrGenerate($user, $paciente);
+        } catch (\Exception $e) {
+            return back()->with('error', $e->getMessage());
+        }
+
+        return view('admin.expedientes.ai-summary', [
+            'paciente' => $paciente,
+            'summary' => $result['content'],
+            'status' => $result['status'],
+            'generatedAt' => $result['generated_at'],
+        ]);
+    }
+
     public function downloadBulk(Request $request)
     {
         $request->validate([
@@ -298,6 +325,26 @@ class ExpedienteController extends Controller
         }
 
         return $query;
+    }
+
+    private function canAccessPatient(User $user, User $paciente): bool
+    {
+        if (! $paciente->hasRole('paciente')) {
+            return false;
+        }
+
+        if ($user->hasRole('root')) {
+            return true;
+        }
+
+        if ($user->hasRole(['doctor', 'asistente', 'secretaria'])) {
+            $ownerId = $user->hasRole('doctor') ? $user->id : $user->created_by;
+
+            return $paciente->created_by === $ownerId
+                || $paciente->doctors()->where('users.id', $ownerId)->exists();
+        }
+
+        return false;
     }
 
     private function generateZip($ids)

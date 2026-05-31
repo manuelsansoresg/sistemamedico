@@ -21,6 +21,7 @@ return [
         'clinico' => 'Clinical',
         'expedientes' => 'Medical Records',
         'administracion' => 'Administration',
+        'inteligencia_artificial' => 'Artificial Intelligence',
     ],
     'actions_list' => [
         'created' => 'Created',

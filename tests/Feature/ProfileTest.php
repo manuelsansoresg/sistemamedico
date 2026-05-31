@@ -12,6 +12,20 @@ test('profile page is displayed', function () {
     $response->assertOk();
 });
 
+test('profile page uses selected spanish locale', function () {
+    $user = User::factory()->create();
+
+    $this
+        ->actingAs($user)
+        ->withSession(['locale' => 'es'])
+        ->get('/profile')
+        ->assertOk()
+        ->assertSee('Información del perfil')
+        ->assertSee('Actualizar contraseña')
+        ->assertSee('Guardar')
+        ->assertDontSee('Profile Information');
+});
+
 test('profile information can be updated', function () {
     $user = User::factory()->create();
 

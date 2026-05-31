@@ -32,6 +32,7 @@ return [
         'catalog' => 'CATALOG',
         'packages' => 'PACKAGES',
         'configuration' => 'CONFIGURATION',
+        'ai_management' => 'ARTIFICIAL INTELLIGENCE',
         'audit' => 'AUDIT',
     ],
     'greeting' => 'WELCOME',

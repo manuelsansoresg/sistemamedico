@@ -41,6 +41,8 @@ class AuditLog extends Model
             'resource' => 'recursos',
             'security' => 'seguridad',
             'auth' => 'seguridad',
+            'ia' => 'inteligencia_artificial',
+            'ai' => 'inteligencia_artificial',
         ];
     }
 

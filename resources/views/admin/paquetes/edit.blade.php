@@ -69,7 +69,9 @@
                                                     <!-- Campos condicionales -->
                                                     <div x-show="checked" class="mt-2 grid grid-cols-2 gap-4 bg-gray-50 p-3 rounded-md">
                                                         <div>
-                                                            <label class="block text-xs font-bold text-gray-600">Máximo:</label>
+                                                            <label class="block text-xs font-bold text-gray-600">
+                                                                <span x-text="isAiCatalog('{{ $catalogo->nombre }}') ? 'Solicitudes/mes:' : 'Máximo:'"></span>
+                                                            </label>
                                                             <input 
                                                                 type="number" 
                                                                 name="elementos[{{ $catalogo->id }}][cantidad_maxima]" 
@@ -78,6 +80,9 @@
                                                                 class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-[#0061F5] focus:ring-[#0061F5] text-sm"
                                                                 @input="updateTotal()"
                                                             >
+                                                            <p x-show="isAiCatalog('{{ $catalogo->nombre }}')" class="text-xs text-gray-400 mt-1">
+                                                                Límite de peticiones de IA por mes. Se resetea cada 30 días.
+                                                            </p>
                                                         </div>
                                                         <div>
                                                             <label class="block text-xs font-bold text-gray-600">Precio:</label>
@@ -165,6 +170,10 @@
         document.addEventListener('alpine:init', () => {
             Alpine.data('paqueteForm', () => ({
                 total: 0,
+                isAiCatalog(nombre) {
+                    const n = nombre.toLowerCase();
+                    return n.includes('ia') || n.includes('ai') || n.includes('inteligencia');
+                },
                 init() {
                     this.updateTotal();
                 },

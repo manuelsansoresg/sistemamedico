@@ -131,6 +131,16 @@ class User extends Authenticatable
         return $this->belongsToMany(User::class, 'doctor_patient', 'patient_id', 'doctor_id')->withTimestamps();
     }
 
+    public function sharedExpedientePermissions()
+    {
+        return $this->hasMany(SharedExpedientePermission::class, 'patient_id');
+    }
+
+    public function receivedSharedExpedientePermissions()
+    {
+        return $this->hasMany(SharedExpedientePermission::class, 'doctor_id');
+    }
+
     public function recursos()
     {
         return $this->hasMany(\App\Models\Recurso::class);
