@@ -97,93 +97,92 @@
                         </div>
                     </form>
 
-                    <div class="overflow-x-auto">
-                        <table class="min-w-full divide-y divide-gray-200">
-                            <thead class="bg-gray-50">
-                                <tr class="hover:bg-gray-50 transition-colors">
-                                    <th class="px-6 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
-                                        <input type="checkbox" x-model="allSelected" @change="toggleAll" class="rounded border-gray-300 text-[#0061F5] shadow-sm focus:border-[#0061F5] focus:ring-[#0061F5]">
-                                    </th>
-                                    <th class="px-6 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">{{ __('common.date') }}</th>
-                                    <th class="px-6 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">{{ __('common.patient') }}</th>
-                                    <th class="px-6 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">{{ __('common.doctor') }}</th>
-                                    <th class="px-6 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">{{ __('common.clinic') }} / {{ __('common.office') }}</th>
-                                    <th class="px-6 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">{{ __('common.detail') }}</th>
-                                    <th class="px-6 py-3 text-right text-xs font-bold text-gray-700 uppercase tracking-wider">{{ __('common.actions') }}</th>
-                                </tr>
-                            </thead>
-                            <tbody class="bg-white divide-y divide-gray-200">
-                                @forelse($expedientes as $expediente)
-                                    <tr class="hover:bg-gray-50 transition-colors">
-                                        <td class="px-6 py-4 whitespace-nowrap">
-                                            <input type="checkbox" value="{{ $expediente->id }}" x-model="selected" class="rounded border-gray-300 text-[#0061F5] shadow-sm focus:border-[#0061F5] focus:ring-[#0061F5]">
-                                        </td>
-                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                            {{ $expediente->cita->fecha->format('d/m/Y') }}
-                                        </td>
-                                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-700">
-                                            <a href="{{ route('expedientes.paciente', $expediente->paciente_id) }}" class="text-[#0061F5] hover:underline">
-                                                {{ $expediente->paciente->name }} {{ $expediente->paciente->apellido_paterno }}
-                                            </a>
-                                        </td>
-                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    <div class="space-y-3">
+                        <div class="hidden items-center rounded-lg border border-gray-200 bg-gray-50 px-4 py-3 text-xs font-bold uppercase tracking-wider text-gray-700 md:grid md:grid-cols-[2rem_7rem_minmax(0,1.2fr)_minmax(0,1fr)_minmax(0,1.4fr)_13rem] md:gap-4">
+                            <div>
+                                <input type="checkbox" x-model="allSelected" @change="toggleAll" class="rounded border-gray-300 text-[#0061F5] shadow-sm focus:border-[#0061F5] focus:ring-[#0061F5]">
+                            </div>
+                            <div>{{ __('common.date') }}</div>
+                            <div>{{ __('common.patient') }}</div>
+                            <div>{{ __('common.clinic') }} / {{ __('common.office') }}</div>
+                            <div>{{ __('common.detail') }}</div>
+                            <div class="text-right">{{ __('common.actions') }}</div>
+                        </div>
+
+                        @forelse($expedientes as $expediente)
+                            <div class="rounded-lg border border-gray-200 bg-white p-4 shadow-sm transition-colors hover:border-blue-100 hover:bg-[#F8FAFC]">
+                                <div class="grid grid-cols-1 gap-4 md:grid-cols-[2rem_7rem_minmax(0,1.2fr)_minmax(0,1fr)_minmax(0,1.4fr)_13rem] md:items-center">
+                                    <div class="flex items-center justify-between md:block">
+                                        <input type="checkbox" value="{{ $expediente->id }}" x-model="selected" class="rounded border-gray-300 text-[#0061F5] shadow-sm focus:border-[#0061F5] focus:ring-[#0061F5]">
+                                        <span class="text-xs font-bold uppercase tracking-wide text-gray-400 md:hidden">{{ $expediente->cita->fecha->format('d/m/Y') }}</span>
+                                    </div>
+
+                                    <div class="hidden text-sm text-gray-500 md:block">
+                                        {{ $expediente->cita->fecha->format('d/m/Y') }}
+                                    </div>
+
+                                    <div class="min-w-0">
+                                        <a href="{{ route('expedientes.paciente', $expediente->paciente_id) }}" class="block truncate text-sm font-bold text-[#0061F5] hover:underline">
+                                            {{ $expediente->paciente->name }} {{ $expediente->paciente->apellido_paterno }}
+                                        </a>
+                                        <div class="mt-1 truncate text-xs text-gray-500">
+                                            <i class="fas fa-user-md mr-1 text-gray-400"></i>
                                             {{ $expediente->doctor->name }} {{ $expediente->doctor->apellido_paterno }}
-                                        </td>
-                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                            <div>{{ $expediente->cita->clinica->nombre }}</div>
-                                            <div class="text-xs text-gray-500">{{ $expediente->cita->consultorio->nombre }}</div>
-                                        </td>
-                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                            <div class="text-xs text-gray-500">
-                                                <span class="font-semibold">{{ __('common.reason') }}:</span>
-                                                {{ \Illuminate\Support\Str::limit($expediente->cita->motivo ?? __('common.none'), 60) }}
-                                            </div>
-                                            <div class="text-xs text-gray-500 mt-1">
-                                                <span class="font-semibold">{{ __('plantillas.title') }}:</span>
-                                                {{ $expediente->plantilla->nombre ?? __('common.none') }}
-                                            </div>
-                                        </td>
-                                        <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                            <div class="flex justify-end items-center space-x-2">
-                                                <a href="{{ route('consultas.show', $expediente->id) }}" class="inline-flex items-center justify-center w-10 h-10 bg-white border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 transition-colors shadow-sm" title="{{ __('common.buttons.view') }}">
-                                                    <i class="fas fa-eye text-lg"></i>
-                                                </a>
+                                        </div>
+                                    </div>
 
-                                                @if($canUseAiSummary)
-                                                    <a href="{{ route('expedientes.paciente.ai-summary', ['paciente' => $expediente->paciente_id, 'return_url' => url()->full(), 'return_label' => __('expedientes.title')]) }}" class="inline-flex items-center justify-center w-10 h-10 bg-white border border-[#0061F5] text-[#0061F5] rounded-md hover:bg-blue-50 transition-colors shadow-sm" title="{{ __('ia.summary.action') }}">
-                                                        <i class="fas fa-magic text-lg"></i>
-                                                    </a>
-                                                @else
-                                                    <span class="inline-flex items-center justify-center w-10 h-10 bg-gray-100 border border-gray-200 text-gray-400 rounded-md shadow-sm cursor-not-allowed" title="{{ __('ia.messages.not_available') }}">
-                                                        <i class="fas fa-lock text-lg"></i>
-                                                    </span>
-                                                @endif
+                                    <div class="min-w-0 text-sm text-gray-600">
+                                        <div class="truncate font-semibold">{{ $expediente->cita->clinica->nombre }}</div>
+                                        <div class="truncate text-xs text-gray-500">{{ $expediente->cita->consultorio->nombre }}</div>
+                                    </div>
 
-                                                @can('descargar consultas')
-                                                <a href="{{ route('consultas.print', $expediente->id) }}" target="_blank" class="inline-flex items-center justify-center w-10 h-10 bg-[#0061F5] text-white rounded-md hover:bg-[#0051CC] transition-colors shadow-sm" title="{{ __('common.buttons.download') }}">
-                                                    <i class="fas fa-file-pdf text-xl"></i>
-                                                </a>
-                                                @endcan
-                                                
-                                                @can('descargar estudios')
-                                                @if($expediente->estudios->count() > 0)
-                                                <button type="button" @click="downloadSingle('{{ $expediente->id }}')" class="inline-flex items-center justify-center w-10 h-10 bg-gray-800 text-white rounded-md hover:bg-gray-900 transition-colors shadow-sm" style="background-color: #1f2937;" title="{{ __('common.buttons.download') }}">
-                                                    <i class="fas fa-file-medical text-xl"></i>
+                                    <div class="min-w-0 text-sm text-gray-600">
+                                        <div class="truncate">
+                                            <span class="font-semibold">{{ __('common.reason') }}:</span>
+                                            {{ $expediente->cita->motivo ?? __('common.none') }}
+                                        </div>
+                                        <div class="mt-1 truncate text-xs text-gray-500">
+                                            <span class="font-semibold">{{ __('plantillas.title') }}:</span>
+                                            {{ $expediente->plantilla->nombre ?? __('common.none') }}
+                                        </div>
+                                    </div>
+
+                                    <div class="flex flex-wrap items-center gap-2 md:justify-end md:flex-nowrap">
+                                        <a href="{{ route('consultas.show', $expediente->id) }}" class="inline-flex h-9 w-9 items-center justify-center rounded-md border border-gray-300 bg-white text-gray-700 shadow-sm transition-colors hover:bg-gray-50" title="{{ __('common.buttons.view') }}">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
+
+                                        @if($canUseAiSummary)
+                                            <a href="{{ route('expedientes.paciente.ai-summary', ['paciente' => $expediente->paciente_id, 'return_url' => url()->full(), 'return_label' => __('expedientes.title')]) }}" class="inline-flex h-9 w-9 items-center justify-center rounded-md border border-[#0061F5] bg-white text-[#0061F5] shadow-sm transition-colors hover:bg-blue-50" title="{{ __('ia.summary.action') }}">
+                                                <i class="fas fa-magic"></i>
+                                            </a>
+                                        @else
+                                            <span class="inline-flex h-9 w-9 cursor-not-allowed items-center justify-center rounded-md border border-gray-200 bg-gray-100 text-gray-400 shadow-sm" title="{{ __('ia.messages.not_available') }}">
+                                                <i class="fas fa-lock"></i>
+                                            </span>
+                                        @endif
+
+                                        @can('descargar consultas')
+                                            <a href="{{ route('consultas.print', $expediente->id) }}" target="_blank" class="inline-flex h-9 w-9 items-center justify-center rounded-md bg-[#0061F5] text-white shadow-sm transition-colors hover:bg-[#0051CC]" title="{{ __('common.buttons.download') }}">
+                                                <i class="fas fa-file-pdf"></i>
+                                            </a>
+                                        @endcan
+
+                                        @can('descargar estudios')
+                                            @if($expediente->estudios->count() > 0)
+                                                <button type="button" @click="downloadSingle('{{ $expediente->id }}')" class="inline-flex h-9 w-9 items-center justify-center rounded-md bg-gray-800 text-white shadow-sm transition-colors hover:bg-gray-900" title="{{ __('common.buttons.download') }}">
+                                                    <i class="fas fa-file-medical"></i>
                                                 </button>
-                                                @endif
-                                                @endcan
-                                            </div>
-                                        </td>
-                                    </tr>
-                                @empty
-                                    <tr class="hover:bg-gray-50 transition-colors">
-                                        <td colspan="6" class="px-6 py-4 whitespace-nowrap text-center text-sm text-gray-500">
-                                            {{ __('common.no_results') }}
-                                        </td>
-                                    </tr>
-                                @endforelse
-                            </tbody>
-                        </table>
+                                            @endif
+                                        @endcan
+                                    </div>
+                                </div>
+                            </div>
+                        @empty
+                            <div class="rounded-lg border border-dashed border-gray-200 bg-gray-50 px-6 py-10 text-center text-sm text-gray-500">
+                                {{ __('common.no_results') }}
+                            </div>
+                        @endforelse
                     </div>
                     <div class="mt-4">
                         {{ $expedientes->withQueryString()->links() }}
