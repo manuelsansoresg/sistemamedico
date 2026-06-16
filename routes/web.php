@@ -139,6 +139,9 @@ Route::middleware(['auth', 'role:root|doctor|asistente|secretaria', 'check.docto
     Route::post('estudios/{estudio}/actualizar', [\App\Http\Controllers\ConsultaController::class, 'updateEstudio'])->name('consultas.estudios.update.post');
     Route::delete('estudios/{estudio}', [\App\Http\Controllers\ConsultaController::class, 'destroyEstudio'])->name('consultas.estudios.destroy');
     Route::get('estudios-archivos/{archivo}/delete', [\App\Http\Controllers\ConsultaController::class, 'destroyEstudioArchivo'])->name('consultas.estudios.archivos.delete');
+    Route::post('admin/consultas/ai-suggest-study-order', [\App\Http\Controllers\ConsultaController::class, 'aiSuggestStudyOrder'])->name('consultas.ai.suggest-study-order');
+    Route::get('admin/consultas/ai-chat/{cita}', [\App\Http\Controllers\ConsultaController::class, 'aiChatHistory'])->middleware('role:doctor')->name('consultas.ai.chat.history');
+    Route::post('admin/consultas/ai-chat', [\App\Http\Controllers\ConsultaController::class, 'aiChat'])->middleware('role:doctor')->name('consultas.ai.chat');
 
     Route::middleware(['role:doctor'])->group(function () {
         Route::get('admin/pacientes/{paciente}/empatia', [\App\Http\Controllers\PatientEmpathyController::class, 'index'])->name('pacientes.empatia.index');

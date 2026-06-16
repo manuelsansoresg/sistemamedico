@@ -49,6 +49,12 @@
                         <div class="flex items-center gap-2">
                             <span class="px-3 py-1 bg-green-100 text-green-800 rounded-full text-xs font-bold">{{ __('consultas.statuses.in_consultation') }}</span>
                             @if(auth()->user()->hasRole('doctor'))
+                                @if($canUseAiSummary)
+                                    <a href="{{ route('expedientes.paciente.ai-summary', ['paciente' => $paciente, 'return_url' => url()->current(), 'return_label' => __('consultas.create')]) }}" class="inline-flex items-center px-3 py-1 bg-white text-[#0061F5] text-xs font-bold rounded-full border border-[#0061F5] hover:bg-blue-50 transition-colors shadow-sm" title="{{ __('ia.summary.action') }}">
+                                        <i class="fas fa-file-medical-alt mr-1"></i>
+                                        {{ __('ia.summary.action') }}
+                                    </a>
+                                @endif
                                 <button type="button" @click="toggleEmpatia()" class="inline-flex items-center px-3 py-1 bg-white text-[#0061F5] text-xs font-bold rounded-full border border-[#0061F5] hover:bg-blue-50 transition-colors shadow-sm">
                                     <i class="fas fa-hand-holding-heart mr-1"></i>
                                      {{ __('consultas.sections.empathy') }}
@@ -169,11 +175,10 @@
                                                 </div>
                                             </template>
                                             
-                                            <div class="pt-2 pb-1 text-center" x-show="empathyHasMore">
-                                                <button type="button" @click="loadMoreEmpathyNotes()" class="text-xs font-semibold text-[#0061F5] hover:text-[#004499] bg-blue-50 hover:bg-blue-100 px-4 py-1.5 rounded-full transition-colors">
-                                                    <i class="fas fa-chevron-down mr-1"></i> {{ __('consultas.buttons.load_previous_notes') }}
-                                                </button>
-                                            </div>
+                                        <div class="pt-2 pb-1 text-center" x-show="empathyHasMore">
+                                            <button type="button" @click="loadMoreEmpathyNotes()" class="text-xs font-semibold text-[#0061F5] hover:text-[#004499] bg-blue-50 hover:bg-blue-100 px-4 py-1.5 rounded-full transition-colors">
+                                                <i class="fas fa-chevron-down mr-1"></i> {{ __('consultas.buttons.load_previous_notes') }}
+                                            </button>
                                         </div>
                                     </div>
                                 </div>
@@ -181,7 +186,8 @@
                         </div>
                     </div>
                 </div>
-            @endif
+            </div>
+                @endif
 
             <!-- Health Metrics (Editable) -->
             <div class="bg-[#E6F0FF] overflow-hidden shadow-sm sm:rounded-lg p-6 border border-[#CCE0FF]">
@@ -453,17 +459,17 @@
                             </template>
                             
                             <template x-for="campo in campos" :key="campo.id">
-                                <div>
+                                <div class="relative">
                                     <label class="block text-sm font-medium text-gray-700" x-text="campo.etiqueta"></label>
                                     
                                     <!-- Text Input -->
                                     <template x-if="campo.tipo === 'text'">
-                                        <input type="text" :name="'valores[' + campo.id + ']'" class="mt-1 focus:ring-[#0061F5] focus:border-[#0061F5] block w-full shadow-sm sm:text-sm border-gray-300 rounded-md">
+                                        <input type="text" :name="'valores[' + campo.id + ']'" :id="'campo_input_' + campo.id" class="mt-1 focus:ring-[#0061F5] focus:border-[#0061F5] block w-full shadow-sm sm:text-sm border-gray-300 rounded-md">
                                     </template>
                                     
                                     <!-- Textarea -->
                                     <template x-if="campo.tipo === 'textarea'">
-                                        <textarea :name="'valores[' + campo.id + ']'" rows="3" class="mt-1 shadow-sm focus:ring-[#0061F5] focus:border-[#0061F5] block w-full sm:text-sm border-gray-300 rounded-md"></textarea>
+                                        <textarea :name="'valores[' + campo.id + ']'" :id="'campo_input_' + campo.id" rows="3" class="mt-1 shadow-sm focus:ring-[#0061F5] focus:border-[#0061F5] block w-full sm:text-sm border-gray-300 rounded-md"></textarea>
                                     </template>
                                     
                                     <!-- Number -->
@@ -562,7 +568,7 @@
                             @csrf
                             <div class="mb-4">
                                 <label class="block text-sm font-medium text-gray-700">{{ __('consultas.fields.study_order') }}</label>
-                                <textarea name="orden" rows="4" class="mt-1 shadow-sm focus:ring-[#0061F5] focus:border-[#0061F5] block w-full sm:text-sm border-gray-300 rounded-md" placeholder="{{ __('consultas.placeholders.study_order') }}"></textarea>
+                                <textarea name="orden" id="study_order_input" rows="4" class="mt-1 shadow-sm focus:ring-[#0061F5] focus:border-[#0061F5] block w-full sm:text-sm border-gray-300 rounded-md" placeholder="{{ __('consultas.placeholders.study_order') }}"></textarea>
                             </div>
                             <div class="mb-4">
                                 <label class="block text-sm font-medium text-gray-700">{{ __('consultas.fields.observations') }}</label>
@@ -736,6 +742,94 @@
                 </div>
             </div>
         </div>
+
+        @if(auth()->user()->hasRole('doctor'))
+            <div class="flex flex-col items-end"
+                 style="position: fixed !important; right: 24px !important; bottom: 24px !important; z-index: 2147483647 !important;">
+                <div x-show="aiChatOpen"
+                     x-cloak
+                     style="display: none; width: min(420px, calc(100vw - 32px)) !important; height: min(560px, calc(100vh - 112px)) !important; max-width: calc(100vw - 32px) !important; max-height: calc(100vh - 112px) !important; flex-direction: column !important; overflow: hidden !important;"
+                     x-transition:enter="transition ease-out duration-200"
+                     x-transition:enter-start="opacity-0 translate-y-4 scale-95"
+                     x-transition:enter-end="opacity-100 translate-y-0 scale-100"
+                     x-transition:leave="transition ease-in duration-150"
+                     x-transition:leave-start="opacity-100 translate-y-0 scale-100"
+                     x-transition:leave-end="opacity-0 translate-y-4 scale-95"
+                     class="mb-4 flex rounded-2xl border border-blue-100 bg-white shadow-2xl">
+                    <div class="flex items-center justify-between bg-[#0061F5] px-4 py-3 text-white">
+                        <div class="flex items-center gap-3">
+                            <span class="inline-flex h-10 w-10 items-center justify-center rounded-full bg-white/15 ring-1 ring-white/25">
+                                <i class="fas fa-robot"></i>
+                            </span>
+                            <div>
+                                <h3 class="text-sm font-bold leading-5">{{ __('consultas.ai.chat.title') }}</h3>
+                                <p class="text-xs text-blue-100">{{ __('consultas.ai.chat.subtitle') }}</p>
+                            </div>
+                        </div>
+                        <button type="button" @click="aiChatOpen = false" class="inline-flex h-8 w-8 items-center justify-center rounded-full text-blue-100 hover:bg-white/10 hover:text-white">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+
+                    <div x-ref="aiChatBody" class="space-y-3 overflow-y-auto bg-[#F8FAFC] p-4" style="flex: 1 1 auto !important; min-height: 0 !important;">
+                        <template x-for="(message, index) in aiChatMessages" :key="index">
+                            <div class="flex" :class="message.role === 'user' ? 'justify-end' : 'justify-start'">
+                                <div class="group/message max-w-[82%] rounded-2xl px-3 py-2 text-sm leading-relaxed shadow-sm"
+                                     style="max-width: 82% !important; word-break: break-word !important; overflow-wrap: anywhere !important;"
+                                     :class="message.role === 'user' ? 'rounded-br-sm bg-[#0061F5] text-white' : 'rounded-bl-sm border border-gray-100 bg-white text-gray-700'">
+                                    <p class="whitespace-pre-wrap" x-text="message.content"></p>
+                                    <div x-show="message.role === 'assistant' && !message.isWelcome" class="mt-2 flex justify-end">
+                                        <button type="button"
+                                                @click="copyAiChatMessage(message.content, index)"
+                                                class="inline-flex items-center gap-1 rounded-full px-2 py-1 text-[11px] font-semibold text-[#0061F5] transition hover:bg-blue-50"
+                                                :title="aiChatCopiedIndex === index ? @js(__('consultas.ai.chat.copied')) : @js(__('consultas.ai.chat.copy'))">
+                                            <i class="fas" :class="aiChatCopiedIndex === index ? 'fa-check' : 'fa-copy'"></i>
+                                            <span x-text="aiChatCopiedIndex === index ? @js(__('consultas.ai.chat.copied')) : @js(__('consultas.ai.chat.copy'))"></span>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </template>
+
+                        <div x-show="aiChatLoading" class="flex justify-start">
+                            <div class="rounded-2xl rounded-bl-sm border border-gray-100 bg-white px-3 py-2 text-sm text-gray-500 shadow-sm">
+                                <i class="fas fa-spinner fa-spin mr-2 text-[#0061F5]"></i>{{ __('consultas.ai.chat.thinking') }}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="border-t border-gray-100 bg-white p-3">
+                        <p class="mb-2 text-[11px] leading-4 text-gray-500">{{ __('consultas.ai.chat.disclaimer') }}</p>
+                        <form class="flex items-end gap-2" @submit.prevent="sendAiChatMessage()">
+                            <textarea x-model="aiChatMessage"
+                                      rows="1"
+                                      class="max-h-24 min-h-[42px] flex-1 resize-none rounded-xl border-gray-300 text-sm shadow-sm focus:border-[#0061F5] focus:ring-[#0061F5]"
+                                      placeholder="{{ __('consultas.ai.chat.placeholder') }}"
+                                      @keydown.enter.prevent="if (!$event.shiftKey) { sendAiChatMessage() } else { aiChatMessage += '\n' }"></textarea>
+                            <button type="submit"
+                                    :disabled="aiChatLoading || !aiChatMessage.trim()"
+                                    class="inline-flex h-[42px] w-[42px] items-center justify-center rounded-xl bg-[#0061F5] text-white shadow-sm transition hover:bg-[#0051CC] disabled:cursor-not-allowed disabled:opacity-50">
+                                <i class="fas fa-paper-plane"></i>
+                            </button>
+                        </form>
+                        <p class="mt-2 text-xs text-red-600" x-show="aiChatError" x-text="aiChatError"></p>
+                    </div>
+                </div>
+
+                <button type="button"
+                        data-ai-chat-launcher
+                        @click.stop="toggleAiChat()"
+                        class="group relative inline-flex items-center gap-3 rounded-full bg-[#0061F5] px-4 py-3 text-white shadow-xl shadow-blue-500/30 transition hover:-translate-y-0.5 hover:bg-[#0051CC] focus:outline-none focus:ring-4 focus:ring-[#80B0FA]"
+                        style="display: inline-flex !important; align-items: center !important; gap: 12px !important; border-radius: 9999px !important; background: #0061F5 !important; color: #fff !important; padding: 12px 16px !important; box-shadow: 0 20px 35px rgba(0, 97, 245, .28) !important;"
+                        title="{{ __('consultas.ai.chat.open') }}">
+                    <span class="relative inline-flex h-10 w-10 items-center justify-center rounded-full bg-white/15">
+                        <span class="absolute -right-0.5 -top-0.5 h-3.5 w-3.5 rounded-full border-2 border-white bg-[#FA7427]"></span>
+                        <i class="fas fa-comments text-xl"></i>
+                    </span>
+                    <span class="pr-1 text-sm font-bold leading-none">{{ __('consultas.ai.chat.title') }}</span>
+                </button>
+            </div>
+        @endif
     </div>
 
     <script type="application/json" id="estudiosArchivosData">
@@ -791,6 +885,20 @@
                 // File Upload Logic
                 isDragging: false,
                 filesArray: [],
+
+                // AI Chat Logic
+                aiChatOpen: false,
+                aiChatLoading: false,
+                aiChatMessage: '',
+                aiChatError: '',
+                aiChatCopiedIndex: null,
+                aiChatMemoryLoaded: false,
+                aiChatMessages: [
+                    { role: 'assistant', content: @json(__('consultas.ai.chat.welcome', ['patient' => $paciente->nombre_completo])), isWelcome: true },
+                ],
+                aiChatUrl: "{{ route('consultas.ai.chat', [], false) }}",
+                aiChatHistoryUrl: "{{ route('consultas.ai.chat.history', $cita, false) }}",
+                aiCitaId: "{{ $cita->id }}",
 
                 handleDrop(e) {
                     this.isDragging = false;
@@ -1094,7 +1202,162 @@
                     } catch (error) {
                         this.empathyError = error && error.message ? error.message : @json(__('consultas.messages.delete_note_failed'));
                     }
-                }
+                },
+
+                toggleAiChat() {
+                    this.aiChatOpen = !this.aiChatOpen;
+                    if (this.aiChatOpen) {
+                        this.loadAiChatMemory();
+                        this.$nextTick(() => this.scrollAiChat());
+                    }
+                },
+
+                async loadAiChatMemory() {
+                    if (this.aiChatMemoryLoaded) {
+                        return;
+                    }
+
+                    this.aiChatMemoryLoaded = true;
+
+                    try {
+                        const response = await fetch(this.absoluteUrl(this.aiChatHistoryUrl), {
+                            credentials: 'same-origin',
+                            headers: {
+                                'Accept': 'application/json',
+                            },
+                        });
+
+                        const data = await this.readJsonResponse(response);
+                        if (!response.ok) {
+                            throw new Error(data.error || @json(__('consultas.ai.chat.error')));
+                        }
+
+                        if (Array.isArray(data.messages) && data.messages.length > 0) {
+                            this.aiChatMessages = [
+                                this.aiChatMessages[0],
+                                ...data.messages.filter(message => ['user', 'assistant'].includes(message.role) && (message.content || '').trim()),
+                            ];
+                        }
+                    } catch (error) {
+                        const message = error && error.message ? error.message : @json(__('consultas.ai.chat.error'));
+                        this.aiChatError = message === 'Load failed'
+                            ? @json(__('consultas.ai.chat.network_error'))
+                            : message;
+                    } finally {
+                        this.$nextTick(() => this.scrollAiChat());
+                    }
+                },
+
+                async sendAiChatMessage() {
+                    const content = (this.aiChatMessage || '').trim();
+                    if (!content || this.aiChatLoading) {
+                        return;
+                    }
+
+                    this.aiChatMessage = '';
+                    this.aiChatError = '';
+                    this.aiChatMessages.push({ role: 'user', content });
+                    this.aiChatLoading = true;
+                    this.$nextTick(() => this.scrollAiChat());
+
+                    try {
+                        const response = await fetch(this.absoluteUrl(this.aiChatUrl), {
+                            method: 'POST',
+                            credentials: 'same-origin',
+                            headers: {
+                                'Accept': 'application/json',
+                                'Content-Type': 'application/json',
+                                'X-CSRF-TOKEN': this.getCsrfToken(),
+                            },
+                            body: JSON.stringify({
+                                cita_id: this.aiCitaId,
+                                message: content,
+                                messages: [],
+                                context: {
+                                    peso: this.peso,
+                                    estatura: this.estatura,
+                                    alergias: this.alergias,
+                                    valores_campos: this.getValoresCampos(),
+                                },
+                            }),
+                        });
+
+                        const data = await this.readJsonResponse(response);
+                        if (!response.ok) {
+                            throw new Error(data.error || @json(__('consultas.ai.chat.error')));
+                        }
+
+                        const assistantContent = (data.content || '').trim();
+                        if (!assistantContent) {
+                            throw new Error(@json(__('consultas.ai.chat.empty_response')));
+                        }
+
+                        this.aiChatMessages.push({ role: 'assistant', content: assistantContent });
+                    } catch (error) {
+                        const message = error && error.message ? error.message : @json(__('consultas.ai.chat.error'));
+                        this.aiChatError = message === 'Load failed'
+                            ? @json(__('consultas.ai.chat.network_error'))
+                            : message;
+                    } finally {
+                        this.aiChatLoading = false;
+                        this.$nextTick(() => this.scrollAiChat());
+                    }
+                },
+
+                absoluteUrl(path) {
+                    return new URL(path, window.location.origin).toString();
+                },
+
+                async readJsonResponse(response) {
+                    const text = await response.text();
+                    if (!text) {
+                        return {};
+                    }
+
+                    try {
+                        return JSON.parse(text);
+                    } catch (error) {
+                        return {
+                            error: text.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim().slice(0, 240),
+                        };
+                    }
+                },
+
+                scrollAiChat() {
+                    if (this.$refs.aiChatBody) {
+                        this.$refs.aiChatBody.scrollTop = this.$refs.aiChatBody.scrollHeight;
+                    }
+                },
+
+                async copyAiChatMessage(content, index) {
+                    this.aiChatError = '';
+
+                    try {
+                        await navigator.clipboard.writeText(content);
+                        this.aiChatCopiedIndex = index;
+
+                        setTimeout(() => {
+                            if (this.aiChatCopiedIndex === index) {
+                                this.aiChatCopiedIndex = null;
+                            }
+                        }, 1600);
+                    } catch (error) {
+                        this.aiChatError = @json(__('consultas.ai.chat.copy_failed'));
+                    }
+                },
+
+                getValoresCampos() {
+                    const valores = {};
+                    this.campos.forEach(campo => {
+                        const input = document.getElementById('campo_input_' + campo.id);
+                        if (input && input.value) {
+                            valores[campo.etiqueta] = input.value;
+                        }
+                    });
+                    return valores;
+                },
+
+                
             }
         }
     </script>

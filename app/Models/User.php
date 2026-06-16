@@ -183,6 +183,17 @@ class User extends Authenticatable
         return $subscription ? $subscription->paquete->tipo : null;
     }
 
+    public function getNombreCompletoAttribute(): string
+    {
+        return collect([
+            $this->name,
+            $this->apellido_paterno,
+            $this->apellido_materno,
+        ])
+            ->filter()
+            ->implode(' ');
+    }
+
     public function auditSection(): string
     {
         return 'usuarios';

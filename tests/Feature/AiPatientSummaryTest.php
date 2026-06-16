@@ -164,6 +164,8 @@ it('regenerates the summary when the expediente changes', function (): void {
         ->assertOk()
         ->assertSee('Resumen inicial.');
 
+    $this->travel(11)->minutes();
+
     $consulta->update(['diagnostico' => 'Gastritis con seguimiento actualizado']);
 
     $this->actingAs($root)
@@ -173,4 +175,70 @@ it('regenerates the summary when the expediente changes', function (): void {
 
     Http::assertSentCount(2);
     expect(AiUsageLog::query()->count())->toBe(2);
+});
+
+it('reuses a freshly generated summary to avoid burning tokens on immediate changes', function (): void {
+    $this->withoutVite();
+
+    ['root' => $root, 'patient' => $patient, 'consulta' => $consulta] = createAiSummaryRecord();
+
+    Http::fake([
+        'api.openai.com/*' => Http::response([
+            'choices' => [
+                ['message' => ['content' => 'Resumen recién generado.']],
+            ],
+            'usage' => [
+                'prompt_tokens' => 40,
+                'completion_tokens' => 10,
+            ],
+            'model' => 'gpt-4o-mini',
+        ], 200),
+    ]);
+
+    $this->actingAs($root)
+        ->get(route('expedientes.paciente.ai-summary', $patient))
+        ->assertOk()
+        ->assertSee('Resumen recién generado.');
+
+    $consulta->update(['diagnostico' => 'Cambio inmediato']);
+
+    $this->actingAs($root)
+        ->get(route('expedientes.paciente.ai-summary', $patient))
+        ->assertOk()
+        ->assertSee('Resumen recién generado.')
+        ->assertSee(__('ia.summary.cached'));
+
+    Http::assertSentCount(1);
+    expect(AiUsageLog::query()->count())->toBe(1);
+});
+
+it('uses the provided return url and label in the ai summary screen', function (): void {
+    $this->withoutVite();
+
+    ['root' => $root, 'patient' => $patient] = createAiSummaryRecord();
+
+    Http::fake([
+        'api.openai.com/*' => Http::response([
+            'choices' => [
+                ['message' => ['content' => 'Resumen con regreso dinámico.']],
+            ],
+            'usage' => [
+                'prompt_tokens' => 40,
+                'completion_tokens' => 10,
+            ],
+            'model' => 'gpt-4o-mini',
+        ], 200),
+    ]);
+
+    $returnUrl = route('consultas.create', ['cita_id' => Cita::query()->where('paciente_id', $patient->id)->first()->id]);
+
+    $this->actingAs($root)
+        ->get(route('expedientes.paciente.ai-summary', [
+            'paciente' => $patient,
+            'return_url' => $returnUrl,
+            'return_label' => 'Nueva consulta',
+        ]))
+        ->assertOk()
+        ->assertSee($returnUrl, false)
+        ->assertSee('Nueva consulta');
 });

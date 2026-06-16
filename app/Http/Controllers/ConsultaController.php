@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\ConsultationAiChatRequest;
+use App\Models\AiChatMessage;
 use App\Models\AuditLog;
 use App\Models\Cita;
 use App\Models\Consulta;
@@ -11,16 +13,21 @@ use App\Models\EstudioArchivo;
 use App\Models\Plantilla;
 use App\Models\Servicio;
 use App\Models\User;
+use App\Services\AiService;
+use App\Services\PatientAiSummaryService;
 use App\Services\SubscriptionService;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use Throwable;
 
 class ConsultaController extends Controller
 {
+    private const AI_CHAT_MEMORY_LIMIT = 20;
+
     /**
      * Show the form for creating a new resource.
      */
@@ -65,8 +72,9 @@ class ConsultaController extends Controller
         $consultaCobro = $cita->cobro()
             ->with(['items', 'afectaciones.citaAfectada.paciente'])
             ->first();
+        $canUseAiSummary = app(AiService::class)->canUseAi($user, AiService::ACTION_SUMMARY);
 
-        return view('admin.consultas.create', compact('cita', 'paciente', 'plantillas', 'historialConsultas', 'historialEstudios', 'servicios', 'consultaCobro'));
+        return view('admin.consultas.create', compact('cita', 'paciente', 'plantillas', 'historialConsultas', 'historialEstudios', 'servicios', 'consultaCobro', 'canUseAiSummary'));
     }
 
     /**
@@ -595,5 +603,345 @@ class ConsultaController extends Controller
 
             return back()->with('error', __('consultas.errors.delete_failed'));
         }
+    }
+
+    public function aiSuggestStudyOrder(Request $request, AiService $aiService)
+    {
+        $user = Auth::user();
+        if (! $user instanceof User) {
+            return response()->json(['error' => __('common.unauthorized')], 403);
+        }
+
+        $validated = $request->validate([
+            'cita_id' => 'required|exists:citas,id',
+            'diagnostico' => 'nullable|string',
+        ]);
+
+        if (! $aiService->canUseAi($user, AiService::ACTION_STUDY_ORDER)) {
+            return response()->json(['error' => __('ia.messages.not_available')], 403);
+        }
+
+        $cita = Cita::with('paciente')->findOrFail($validated['cita_id']);
+        $paciente = $cita->paciente;
+
+        $consultaData = [
+            'paciente' => $paciente->nombre_completo,
+            'edad' => $paciente->fecha_nacimiento ? $paciente->fecha_nacimiento->age.' años' : 'N/A',
+            'sexo' => $paciente->sexo === 'M' ? 'Masculino' : 'Femenino',
+            'alergias' => $paciente->alergias ?? 'Ninguna conocida',
+            'diagnostico' => $validated['diagnostico'] ?? 'No especificado',
+        ];
+
+        try {
+            $result = $aiService->suggestStudyOrder($user, $paciente, $consultaData);
+
+            return response()->json(['content' => $result['content']]);
+        } catch (\Exception $e) {
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
+    }
+
+    public function aiChatHistory(Cita $cita)
+    {
+        $user = Auth::user();
+        if (! $user instanceof User || ! $user->hasRole('doctor')) {
+            return response()->json(['error' => __('common.unauthorized')], 403);
+        }
+
+        if ((int) $cita->doctor_id !== (int) $user->id) {
+            return response()->json(['error' => __('consultas.errors.no_permission_start')], 403);
+        }
+
+        try {
+            $messages = AiChatMessage::query()
+                ->where('user_id', $user->id)
+                ->where('cita_id', $cita->id)
+                ->latest()
+                ->limit(self::AI_CHAT_MEMORY_LIMIT)
+                ->get()
+                ->sortBy('id')
+                ->values()
+                ->map(fn (AiChatMessage $message): array => [
+                    'role' => $message->role,
+                    'content' => $message->content,
+                ])
+                ->all();
+        } catch (Throwable) {
+            $messages = [];
+        }
+
+        return response()->json([
+            'messages' => collect($messages)
+                ->filter(fn (array $message): bool => trim($message['content']) !== '')
+                ->values()
+                ->all(),
+        ]);
+    }
+
+    public function aiChat(ConsultationAiChatRequest $request, AiService $aiService, PatientAiSummaryService $patientAiSummaryService)
+    {
+        $user = Auth::user();
+        if (! $user instanceof User || ! $user->hasRole('doctor')) {
+            return response()->json(['error' => __('common.unauthorized')], 403);
+        }
+
+        $validated = $request->validated();
+        $cita = Cita::with(['paciente', 'consultorio'])->findOrFail($validated['cita_id']);
+        Log::info('AI chat request received', [
+            'user_id' => $user->id,
+            'cita_id' => $cita->id,
+            'message_length' => strlen($validated['message']),
+        ]);
+
+        if ((int) $cita->doctor_id !== (int) $user->id) {
+            return response()->json(['error' => __('consultas.errors.no_permission_start')], 403);
+        }
+
+        if (! $aiService->canUseAi($user, AiService::ACTION_ASSISTANT)) {
+            return response()->json(['error' => __('consultas.ai.chat.unavailable')], 403);
+        }
+
+        $paciente = $cita->paciente;
+        $context = $validated['context'] ?? [];
+        $patientSummary = null;
+        $patientSummaryStatus = null;
+        $memoryMessages = $this->aiChatMemoryMessages($user, $cita);
+
+        if ($this->messageRequestsPatientRecord($validated['message'])) {
+            try {
+                $summaryResult = $patientAiSummaryService->getOrGenerate($user, $paciente);
+                $patientSummary = trim($summaryResult['content']);
+                $patientSummaryStatus = $summaryResult['status'];
+
+                if ($this->messageRequestsDirectSummary($validated['message']) && $patientSummary !== '') {
+                    $this->storeAiChatExchange($user, $paciente, $cita, $validated['message'], $patientSummary, [
+                        'summary_status' => $patientSummaryStatus,
+                        'direct_summary' => true,
+                    ]);
+
+                    return response()->json([
+                        'content' => $patientSummary,
+                        'summary_status' => $patientSummaryStatus,
+                    ]);
+                }
+            } catch (Throwable) {
+                $patientSummary = null;
+            }
+        }
+
+        $messages = collect($validated['messages'] ?? [])
+            ->map(fn (array $message): array => [
+                'role' => $message['role'],
+                'content' => $message['content'],
+            ])
+            ->take(-8)
+            ->values()
+            ->all();
+
+        $systemPrompt = implode("\n", [
+            'Eres un asistente clínico para el médico durante una consulta.',
+            'Responde en español, de forma breve, útil y profesional.',
+            'Puedes responder dudas clínicas generales del médico cuando sean útiles para la atención.',
+            'Si usas datos del expediente, usa solo información del paciente actual y del contexto enviado. No menciones ni mezcles otros pacientes.',
+            'No inventes datos del paciente. Si falta información clínica personal para una recomendación concreta, dilo y pide el dato necesario.',
+            'Cuando menciones medicamentos, sugiere verificar dosis, contraindicaciones, alergias, embarazo, comorbilidades e interacciones según criterio médico.',
+            'Responde la pregunta directa del médico con una conclusión clara antes de explicar. No dejes frases incompletas.',
+            'No modifiques campos ni des instrucciones como si ya hubieras cambiado el expediente; solo responde en el chat.',
+            'Paciente actual: '.$paciente->nombre_completo,
+            'Edad: '.($paciente->fecha_nacimiento ? $paciente->fecha_nacimiento->age.' años' : 'N/A'),
+            'Sexo: '.($paciente->sexo === 'M' ? 'Masculino' : 'Femenino'),
+            'Alergias conocidas: '.($paciente->alergias ?: 'Ninguna registrada'),
+            'Consultorio: '.($cita->consultorio?->nombre ?? 'N/A'),
+            'Resumen clínico vigente del expediente: '.($patientSummary ? Str::limit($patientSummary, 1600, '') : 'No solicitado o no disponible en este mensaje.'),
+            'Contexto capturado en pantalla: '.json_encode($context, JSON_UNESCAPED_UNICODE),
+        ]);
+
+        try {
+            $startedAt = microtime(true);
+            $result = $aiService->sendRequest(
+                $user,
+                AiService::ACTION_ASSISTANT,
+                array_merge(
+                    [['role' => 'system', 'content' => $systemPrompt]],
+                    $this->filterAiChatMessages($memoryMessages),
+                    $messages,
+                    [['role' => 'user', 'content' => $validated['message']]]
+                ),
+                $paciente,
+                [
+                    'max_tokens' => 700,
+                    'temperature' => 0.2,
+                    'timeout' => 120,
+                ]
+            );
+            Log::info('AI chat provider returned', [
+                'user_id' => $user->id,
+                'cita_id' => $cita->id,
+                'duration_seconds' => round(microtime(true) - $startedAt, 2),
+                'model' => $result['model'] ?? null,
+            ]);
+
+            $content = trim((string) ($result['content'] ?? ''));
+
+            if ($this->isInvalidAiChatResponse($content)) {
+                return response()->json(['error' => __('consultas.ai.chat.empty_response')], 502);
+            }
+
+            $this->storeAiChatExchange($user, $paciente, $cita, $validated['message'], $content);
+
+            return response()->json(['content' => $content]);
+        } catch (\Exception $e) {
+            Log::error('AI chat request failed', [
+                'user_id' => $user->id,
+                'cita_id' => $cita->id,
+                'error' => $e->getMessage(),
+            ]);
+
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * @return array<int, array{role: string, content: string}>
+     */
+    private function aiChatMemoryMessages(User $user, Cita $cita): array
+    {
+        try {
+            return AiChatMessage::query()
+                ->where('user_id', $user->id)
+                ->where('cita_id', $cita->id)
+                ->latest()
+                ->limit(8)
+                ->get()
+                ->sortBy('id')
+                ->values()
+                ->map(fn (AiChatMessage $message): array => [
+                    'role' => $message->role,
+                    'content' => $message->content,
+                ])
+                ->all();
+        } catch (Throwable) {
+            return [];
+        }
+    }
+
+    /**
+     * @param  array<int, array{role: string, content: string}>  $messages
+     * @return array<int, array{role: string, content: string}>
+     */
+    private function filterAiChatMessages(array $messages): array
+    {
+        return collect($messages)
+            ->filter(function (array $message): bool {
+                if (! in_array($message['role'], ['user', 'assistant'], true)) {
+                    return false;
+                }
+
+                $content = trim($message['content']);
+                if ($content === '') {
+                    return false;
+                }
+
+                return $message['role'] === 'user' || ! $this->isInvalidAiChatResponse($content);
+            })
+            ->values()
+            ->all();
+    }
+
+    private function isInvalidAiChatResponse(string $content): bool
+    {
+        $normalized = Str::of($content)->lower()->squish()->toString();
+
+        if ($normalized === '') {
+            return true;
+        }
+
+        return Str::endsWith($normalized, [
+            'cont',
+            'contin',
+            'continu',
+            'continuar',
+            'disculpa',
+            'lo siento',
+        ]);
+    }
+
+    /**
+     * @param  array<string, mixed>  $assistantMetadata
+     */
+    private function storeAiChatExchange(User $user, User $patient, Cita $cita, string $userMessage, string $assistantMessage, array $assistantMetadata = []): void
+    {
+        try {
+            AiChatMessage::create([
+                'user_id' => $user->id,
+                'patient_id' => $patient->id,
+                'cita_id' => $cita->id,
+                'role' => 'user',
+                'content' => $userMessage,
+            ]);
+
+            AiChatMessage::create([
+                'user_id' => $user->id,
+                'patient_id' => $patient->id,
+                'cita_id' => $cita->id,
+                'role' => 'assistant',
+                'content' => $assistantMessage,
+                'metadata' => $assistantMetadata ?: null,
+            ]);
+
+            $this->pruneAiChatMemory($user, $cita);
+        } catch (Throwable) {
+            return;
+        }
+    }
+
+    private function pruneAiChatMemory(User $user, Cita $cita): void
+    {
+        $idsToKeep = AiChatMessage::query()
+            ->where('user_id', $user->id)
+            ->where('cita_id', $cita->id)
+            ->latest()
+            ->limit(self::AI_CHAT_MEMORY_LIMIT)
+            ->pluck('id');
+
+        AiChatMessage::query()
+            ->where('user_id', $user->id)
+            ->where('cita_id', $cita->id)
+            ->whereNotIn('id', $idsToKeep)
+            ->delete();
+    }
+
+    private function messageRequestsDirectSummary(string $message): bool
+    {
+        $normalized = Str::of($message)->lower()->ascii()->toString();
+
+        return Str::contains($normalized, [
+            'resumen',
+            'resumir',
+            'sintesis',
+            'sintetiza',
+        ]);
+    }
+
+    private function messageRequestsPatientRecord(string $message): bool
+    {
+        $normalized = Str::of($message)->lower()->ascii()->toString();
+
+        return Str::contains($normalized, [
+            'resumen',
+            'resumir',
+            'sintesis',
+            'expediente',
+            'historial',
+            'historia clinica',
+            'antecedente',
+            'consulta previa',
+            'consultas previas',
+            'datos del paciente',
+            'informacion del paciente',
+            'alergia',
+            'diagnostico previo',
+            'diagnosticos previos',
+        ]);
     }
 }

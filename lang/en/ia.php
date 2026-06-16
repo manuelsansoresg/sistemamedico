@@ -34,4 +34,8 @@ return [
         'not_available' => 'AI not available for this user.',
         'limit_reached' => 'You have reached the monthly AI request limit.',
     ],
+    'actions' => [
+        'field_suggest' => 'Field suggestion',
+        'study_order' => 'Study order',
+    ],
 ];

@@ -260,7 +260,18 @@ class ExpedienteController extends Controller
             'summary' => $result['content'],
             'status' => $result['status'],
             'generatedAt' => $result['generated_at'],
+            'returnUrl' => $this->safeReturnUrl(request('return_url')),
+            'returnLabel' => request('return_label') ?: __('expedientes.title'),
         ]);
+    }
+
+    private function safeReturnUrl(?string $returnUrl): string
+    {
+        if (! $returnUrl || ! Str::startsWith($returnUrl, url('/'))) {
+            return route('expedientes.index');
+        }
+
+        return $returnUrl;
     }
 
     public function downloadBulk(Request $request)

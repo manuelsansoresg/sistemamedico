@@ -11,6 +11,8 @@ use Illuminate\Support\Str;
 
 class PatientAiSummaryService
 {
+    private const FRESH_SUMMARY_MINUTES = 10;
+
     public function __construct(private readonly AiService $aiService) {}
 
     /**
@@ -21,7 +23,7 @@ class PatientAiSummaryService
         $snapshot = $this->buildSnapshot($patient);
         $sourceHash = hash('sha256', json_encode($snapshot, JSON_UNESCAPED_UNICODE));
 
-        $cachedLog = $this->findCachedSummary($user, $patient, $sourceHash);
+        $cachedLog = $this->findCachedSummary($patient, $sourceHash);
 
         if ($cachedLog) {
             return [
@@ -29,6 +31,17 @@ class PatientAiSummaryService
                 'status' => 'cached',
                 'generated_at' => $cachedLog->created_at,
                 'log' => $cachedLog,
+            ];
+        }
+
+        $freshLog = $this->findFreshSummary($patient);
+
+        if ($freshLog) {
+            return [
+                'content' => (string) data_get($freshLog->metadata, 'summary.content'),
+                'status' => 'cached',
+                'generated_at' => $freshLog->created_at,
+                'log' => $freshLog,
             ];
         }
 
@@ -104,10 +117,9 @@ class PatientAiSummaryService
             ->first();
     }
 
-    private function findCachedSummary(User $user, User $patient, string $sourceHash): ?AiUsageLog
+    private function findCachedSummary(User $patient, string $sourceHash): ?AiUsageLog
     {
         return AiUsageLog::query()
-            ->where('user_id', $user->id)
             ->where('patient_id', $patient->id)
             ->where('action_type', AiService::ACTION_SUMMARY)
             ->latest('created_at')
@@ -116,6 +128,17 @@ class PatientAiSummaryService
                 return data_get($log->metadata, 'summary.source_hash') === $sourceHash
                     && filled(data_get($log->metadata, 'summary.content'));
             });
+    }
+
+    private function findFreshSummary(User $patient): ?AiUsageLog
+    {
+        return AiUsageLog::query()
+            ->where('patient_id', $patient->id)
+            ->where('action_type', AiService::ACTION_SUMMARY)
+            ->where('created_at', '>=', now()->subMinutes(self::FRESH_SUMMARY_MINUTES))
+            ->latest('created_at')
+            ->get()
+            ->first(fn (AiUsageLog $log): bool => filled(data_get($log->metadata, 'summary.content')));
     }
 
     private function baseConsultasQuery(User $patient)

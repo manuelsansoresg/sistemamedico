@@ -39,15 +39,21 @@ class AiConfigController extends Controller
         $config = $aiService->ensureConfigExists();
 
         $validated = $request->validate([
-            'provider' => 'required|string|in:openai,deepseek,anthropic',
+            'provider' => 'required|string|in:openai,deepseek,qwen,anthropic',
             'api_key' => 'nullable|string',
             'model_for_summary' => 'nullable|string',
             'model_for_assistant' => 'nullable|string',
             'model_for_notes' => 'nullable|string',
             'model_for_diagnosis' => 'nullable|string',
             'model_for_prescription' => 'nullable|string',
+            'model_for_field_suggest' => 'nullable|string',
+            'model_for_study_order' => 'nullable|string',
             'enabled' => 'nullable|boolean',
         ]);
+
+        if (isset($validated['api_key'])) {
+            $validated['api_key'] = trim($validated['api_key']);
+        }
 
         if (empty($validated['api_key'])) {
             unset($validated['api_key']);
@@ -63,7 +69,7 @@ class AiConfigController extends Controller
     public function test(Request $request, AiService $aiService)
     {
         $validated = $request->validate([
-            'provider' => 'required|string|in:openai,deepseek,anthropic',
+            'provider' => 'required|string|in:openai,deepseek,qwen,anthropic',
             'api_key' => 'required|string',
             'model' => 'required|string',
         ]);
@@ -76,7 +82,7 @@ class AiConfigController extends Controller
 
             $response = $aiService->callProviderDirect(
                 $validated['provider'],
-                $validated['api_key'],
+                trim($validated['api_key']),
                 $validated['model'],
                 $messages,
                 ['max_tokens' => 10]

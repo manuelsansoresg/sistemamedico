@@ -19,6 +19,8 @@ class AiConfig extends Model
         'model_for_notes',
         'model_for_diagnosis',
         'model_for_prescription',
+        'model_for_field_suggest',
+        'model_for_study_order',
         'enabled',
         'provider_options',
     ];
@@ -41,6 +43,8 @@ class AiConfig extends Model
             'notes' => 'Notas clínicas',
             'diagnosis' => 'Sugerencia de diagnóstico',
             'prescription' => 'Generación de receta',
+            'field_suggest' => 'Sugerencia de campo',
+            'study_order' => 'Orden de estudio',
         ];
     }
 
@@ -74,6 +78,8 @@ class AiConfig extends Model
                 'model_for_notes' => 'gpt-4o-mini',
                 'model_for_diagnosis' => 'gpt-4o',
                 'model_for_prescription' => 'gpt-4o-mini',
+                'model_for_field_suggest' => 'gpt-4o-mini',
+                'model_for_study_order' => 'gpt-4o',
             ],
             'deepseek' => [
                 'model_for_summary' => 'deepseek-chat',
@@ -81,6 +87,17 @@ class AiConfig extends Model
                 'model_for_notes' => 'deepseek-chat',
                 'model_for_diagnosis' => 'deepseek-reasoner',
                 'model_for_prescription' => 'deepseek-chat',
+                'model_for_field_suggest' => 'deepseek-chat',
+                'model_for_study_order' => 'deepseek-reasoner',
+            ],
+            'qwen' => [
+                'model_for_summary' => 'qwen-turbo',
+                'model_for_assistant' => 'qwen-plus',
+                'model_for_notes' => 'qwen-turbo',
+                'model_for_diagnosis' => 'qwen-plus',
+                'model_for_prescription' => 'qwen-turbo',
+                'model_for_field_suggest' => 'qwen-turbo',
+                'model_for_study_order' => 'qwen-plus',
             ],
             'anthropic' => [
                 'model_for_summary' => 'claude-3-5-haiku-latest',
@@ -88,6 +105,8 @@ class AiConfig extends Model
                 'model_for_notes' => 'claude-3-5-haiku-latest',
                 'model_for_diagnosis' => 'claude-3-5-sonnet-latest',
                 'model_for_prescription' => 'claude-3-5-haiku-latest',
+                'model_for_field_suggest' => 'claude-3-5-haiku-latest',
+                'model_for_study_order' => 'claude-3-5-sonnet-latest',
             ],
         ];
     }
@@ -101,7 +120,15 @@ class AiConfig extends Model
     {
         $column = "model_for_{$actionType}";
 
-        return $this->{$column} ?? null;
+        if ($this->{$column}) {
+            return $this->{$column};
+        }
+
+        if (in_array($actionType, ['field_suggest', 'study_order'], true)) {
+            return static::defaultModels()[$this->provider][$column] ?? null;
+        }
+
+        return null;
     }
 
     public function isEnabledFor(string $actionType): bool

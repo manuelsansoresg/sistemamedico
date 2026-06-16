@@ -150,7 +150,7 @@
                                                 </a>
 
                                                 @if($canUseAiSummary)
-                                                    <a href="{{ route('expedientes.paciente.ai-summary', $expediente->paciente_id) }}" class="inline-flex items-center justify-center w-10 h-10 bg-white border border-[#0061F5] text-[#0061F5] rounded-md hover:bg-blue-50 transition-colors shadow-sm" title="{{ __('ia.summary.action') }}">
+                                                    <a href="{{ route('expedientes.paciente.ai-summary', ['paciente' => $expediente->paciente_id, 'return_url' => url()->full(), 'return_label' => __('expedientes.title')]) }}" class="inline-flex items-center justify-center w-10 h-10 bg-white border border-[#0061F5] text-[#0061F5] rounded-md hover:bg-blue-50 transition-colors shadow-sm" title="{{ __('ia.summary.action') }}">
                                                         <i class="fas fa-magic text-lg"></i>
                                                     </a>
                                                 @else

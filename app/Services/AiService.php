@@ -22,6 +22,10 @@ class AiService
 
     public const ACTION_PRESCRIPTION = 'prescription';
 
+    public const ACTION_FIELD_SUGGEST = 'field_suggest';
+
+    public const ACTION_STUDY_ORDER = 'study_order';
+
     public const PROVIDERS = [
         'openai' => [
             'base_url' => 'https://api.openai.com/v1',
@@ -31,6 +35,12 @@ class AiService
         ],
         'deepseek' => [
             'base_url' => 'https://api.deepseek.com/v1',
+            'models_endpoint' => '/chat/completions',
+            'auth_header' => 'Authorization',
+            'auth_prefix' => 'Bearer',
+        ],
+        'qwen' => [
+            'base_url' => 'https://dashscope-us.aliyuncs.com/compatible-mode/v1',
             'models_endpoint' => '/chat/completions',
             'auth_header' => 'Authorization',
             'auth_prefix' => 'Bearer',
@@ -156,6 +166,52 @@ class AiService
         return $this->sendRequest($doctor, self::ACTION_DIAGNOSIS, $messages, $patient);
     }
 
+    public function suggestFieldContent(User $doctor, User $patient, string $fieldName, string $fieldType, array $context): array
+    {
+        $systemPrompt = 'Eres un asistente médico profesional. Completas campos de consultas médicas con información clínica relevante basada en el contexto del paciente. Sé preciso, conciso y profesional. No inventes datos.';
+
+        $contextText = '';
+        foreach ($context as $key => $value) {
+            if (! empty($value)) {
+                $label = ucwords(str_replace('_', ' ', $key));
+                $contextText .= "{$label}: {$value}\n";
+            }
+        }
+
+        $messages = [
+            ['role' => 'system', 'content' => $systemPrompt],
+            ['role' => 'user', 'content' => "Completa el campo '{$fieldName}' (tipo: {$fieldType}) con la siguiente información del paciente:\n\n{$contextText}\n\nGenera contenido apropiado para este campo basándote en los datos proporcionados."],
+        ];
+
+        return $this->sendRequest($doctor, self::ACTION_FIELD_SUGGEST, $messages, $patient, [
+            'max_tokens' => 500,
+            'temperature' => 0.3,
+        ]);
+    }
+
+    public function suggestStudyOrder(User $doctor, User $patient, array $consultaData): array
+    {
+        $systemPrompt = 'Eres un asistente médico especializado en prescripción de estudios clínicos. Basado en el diagnóstico y datos del paciente, sugiere una orden de estudios clínicos apropiada. Incluye estudios de laboratorio, imagenología y otros relevantes. Formato: lista clara de estudios con indicaciones específicas.';
+
+        $dataText = '';
+        foreach ($consultaData as $key => $value) {
+            if (! empty($value)) {
+                $label = ucwords(str_replace('_', ' ', $key));
+                $dataText .= "{$label}: {$value}\n";
+            }
+        }
+
+        $messages = [
+            ['role' => 'system', 'content' => $systemPrompt],
+            ['role' => 'user', 'content' => "Genera una orden de estudios clínicos basada en los siguientes datos del paciente:\n\n{$dataText}\n\nIncluye estudios de laboratorio, imagenología y otros estudios relevantes con indicaciones específicas."],
+        ];
+
+        return $this->sendRequest($doctor, self::ACTION_STUDY_ORDER, $messages, $patient, [
+            'max_tokens' => 800,
+            'temperature' => 0.3,
+        ]);
+    }
+
     public function callProviderDirect(string $provider, string $apiKey, string $model, array $messages, array $options = []): array
     {
         return $this->callProvider($provider, $apiKey, $model, $messages, $options);
@@ -164,6 +220,12 @@ class AiService
     protected function callProvider(string $provider, string $apiKey, string $model, array $messages, array $options = []): array
     {
         $config = self::PROVIDERS[$provider] ?? null;
+        $apiKey = trim($apiKey);
+        $timeout = (int) ($options['timeout'] ?? 90);
+
+        if (function_exists('set_time_limit')) {
+            @set_time_limit($timeout + 15);
+        }
 
         if (! $config) {
             throw new Exception("Proveedor no soportado: {$provider}");
@@ -202,7 +264,8 @@ class AiService
         }
 
         $response = Http::withHeaders($headers)
-            ->timeout(60)
+            ->connectTimeout(15)
+            ->timeout($timeout)
             ->post($url, $body);
 
         if (! $response->successful()) {
@@ -212,12 +275,27 @@ class AiService
                 'body' => $response->body(),
             ]);
 
-            throw new Exception("Error del proveedor de IA: {$response->status()}");
+            throw new Exception($this->buildProviderErrorMessage($provider, $response->status(), $response->json(), $response->body()));
         }
 
         $data = $response->json();
 
         return $this->parseResponse($provider, $data);
+    }
+
+    protected function buildProviderErrorMessage(string $provider, int $status, ?array $data, string $body): string
+    {
+        $message = data_get($data, 'error.message')
+            ?? data_get($data, 'message')
+            ?? trim(substr($body, 0, 300));
+
+        $details = $message ? " {$message}" : '';
+
+        if ($provider === 'qwen' && $status === 401) {
+            $details .= ' Verifica que la API key pertenezca a US (Virginia) y que el servicio DashScope/Qwen esté activo para esa región.';
+        }
+
+        return "Error del proveedor de IA: {$status}.{$details}";
     }
 
     protected function parseResponse(string $provider, array $data): array
@@ -331,6 +409,11 @@ class AiService
             'deepseek' => [
                 'deepseek-chat' => ['input' => 0.14, 'output' => 0.28],
                 'deepseek-reasoner' => ['input' => 0.55, 'output' => 2.19],
+            ],
+            'qwen' => [
+                'qwen-plus' => ['input' => 0.40, 'output' => 1.20],
+                'qwen-turbo' => ['input' => 0.05, 'output' => 0.20],
+                'qwen-max' => ['input' => 1.60, 'output' => 6.40],
             ],
             'anthropic' => [
                 'claude-3-5-sonnet-latest' => ['input' => 3.00, 'output' => 15.00],

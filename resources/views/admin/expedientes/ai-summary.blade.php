@@ -11,7 +11,7 @@
                     </li>
                     <li class="inline-flex items-center">
                         <i class="fas fa-chevron-right text-gray-400 mx-1"></i>
-                        <a href="{{ route('expedientes.index') }}" class="ml-1 text-sm font-medium text-gray-700 hover:text-[#0061F5] md:ml-2">{{ __('expedientes.title') }}</a>
+                        <a href="{{ $returnUrl }}" class="ml-1 text-sm font-medium text-gray-700 hover:text-[#0061F5] md:ml-2">{{ $returnLabel }}</a>
                     </li>
                     <li aria-current="page">
                         <div class="flex items-center">
@@ -35,7 +35,7 @@
                                 {{ $paciente->name }} {{ $paciente->apellido_paterno }} {{ $paciente->apellido_materno }}
                             </p>
                         </div>
-                        <a href="{{ route('expedientes.index') }}" class="inline-flex items-center justify-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-bold text-gray-700 shadow-sm transition-colors hover:bg-gray-50">
+                        <a href="{{ $returnUrl }}" class="inline-flex items-center justify-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-bold text-gray-700 shadow-sm transition-colors hover:bg-gray-50">
                             <i class="fas fa-arrow-left mr-2"></i>{{ __('common.buttons.back') }}
                         </a>
                     </div>

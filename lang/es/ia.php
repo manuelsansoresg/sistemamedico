@@ -34,4 +34,8 @@ return [
         'not_available' => 'IA no disponible para este usuario.',
         'limit_reached' => 'Has alcanzado el límite de solicitudes de IA para este mes.',
     ],
+    'actions' => [
+        'field_suggest' => 'Sugerencia de campo',
+        'study_order' => 'Orden de estudio',
+    ],
 ];
